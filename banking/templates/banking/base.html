@@ -9,6 +9,8 @@
       <!-- Boxicons CDN Link -->
       <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     {% if title %}
     <title>Fnet - {{ title }}</title>
     {% else %}
@@ -18,7 +20,7 @@
 
 <body>
    
-    <header>
+    <!-- <header>
         <nav>
             
             <div class="sidebar-button">
@@ -34,9 +36,9 @@
             </div>
            
           </nav>
-      </header>
+      </header> -->
     
-    <div class="sidebar">
+    <!-- <div class="sidebar">
        
       
           <ul class="nav-links">
@@ -108,9 +110,171 @@
             </li>
           </ul>
       </div>
-   
+    -->
      
     
+ <!-- for header part -->
+ <header>
+
+  
+     <h1>FNET</h1>
+      
+ 
+
+
+
+</header>
+
+<div class="main-container">
+  <div class="navcontainer sidebar">
+      <nav class="nav">
+          <div class="nav-upper-options">
+             
+              <a href="">
+
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-book"></i> Dashboard</h3>
+                  </div>
+              </a>
+              <!-- home button -->
+              <a href="">
+
+                  <div class="nav-option option1 button active">
+                      <h3><i class="fa-solid fa-house"></i> Requests
+                      </h3>
+                      <div class="notification">
+                        <i class="fa-solid fa-bell"></i>
+                        <p>9+</p>
+                     
+
+                      </div>
+                  </div>
+              </a>
+              <!-- acivities button -->
+              <a href="">
+
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-book"></i> Payments </h3>
+                  </div>
+              </a>
+              <a href="">
+
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-book"></i> Unpaid 
+                      </h3>
+                  </div>
+              </a>
+              <a href="">
+
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-book"></i> Users
+                      </h3>
+                  </div>
+              </a>
+             
+              <a href="">
+
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-bookmark"></i> Register</h3>
+                  </div>
+              </a>
+              <a href="">
+
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-bookmark"></i> Payments</h3>
+                  </div>
+              </a>
+              <a href="">
+
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-bookmark"></i> Customers</h3>
+                  </div>
+              </a>
+
+
+              <!-- registration button -->
+
+
+
+              <!-- registration button -->
+              <a href="">
+                  <div class="nav-option option1 button">
+                      <h3> <i class="fa-solid fa-money-bill"></i> Balance </h3>
+                  </div>
+              </a>
+
+              <!-- team button -->
+              <a href="">
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-people-group"></i> Birthdays</h3>
+                  </div>
+              </a>
+
+              <!-- <a href="">
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-chart-simple"></i> Report</h3>
+                  </div>
+              </a>
+              
+              <a href="">
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-id-card"></i> Drivers</h3>
+                  </div>
+              </a>
+              <a href="">
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-id-card"></i> Agents</h3>
+                  </div>
+              </a>
+              <a href="">
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-users"></i> Customers</h3>
+                  </div>
+              </a>
+              <a href="">
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-handshake"></i> Agreement Forms</h3>
+                  </div>
+              </a>
+              <a href="">
+
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-book"></i> Gallery</h3>
+                  </div>
+              </a>
+              <a href="">
+
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-book"></i> Upload Images for Customers</h3>
+                  </div>
+              </a>
+
+
+              
+
+              <a href="">
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-chevron-left"></i> Home</h3>
+                  </div>
+              </a>
+
+             
+
+              <a href="">
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-sign-out"></i> Logout</h3>
+                  </div>
+              </a>
+
+ -->
+
+ <div class="menuicn">
+  <button>=</button>
+ </div>
+
+          </div>
+      </nav>
+  </div>
 
 
 
@@ -118,17 +282,26 @@
 
 
 
-    
-  <script>
-    let sidebar = document.querySelector(".sidebar");
- let sidebarBtn = document.querySelector(".sidebarBtn");
- sidebarBtn.onclick = function() {
-   sidebar.classList.toggle("active");
-   if(sidebar.classList.contains("active")){
-   sidebarBtn.classList.replace("bx-menu" ,"bx-menu-alt-right");
- }else
-   sidebarBtn.classList.replace("bx-menu-alt-right", "bx-menu");
- }
+   
+    <script>
+
+     // Menu toggle
+let menuicn = document.querySelector(".menuicn");
+let nav = document.querySelector(".navcontainer");
+
+menuicn.addEventListener("click", () => {
+    nav.classList.toggle("navclose");
+});
+
+// Hide button functionality
+let hideBtn = document.querySelector(".hide-btn button");
+
+hideBtn.addEventListener("click", () => {
+    nav.classList.toggle("hidden");
+});
+
+  
+  
   </script>
 
 </body>
