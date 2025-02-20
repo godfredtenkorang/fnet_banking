@@ -50,8 +50,8 @@
 .login-form{
     width: 100%;
     max-width: 100%;
-    backdrop-filter: blur(4px);
-    background-color: rgba(0,0,0,0.4);
+    backdrop-filter: blur(3px);
+    background-color: rgba(0,0,0,0.5);
     padding: 0 5%;
     height: 100vh;
     display: flex;
@@ -63,28 +63,45 @@
 }
 .login{
     width: 100%;
-    max-width: 60%;
+    max-width: 50%;
 }
 .login-form p{
     padding: 2% 0;
 }
 .login-form form{
     width: 100%;
+  
    
 }
 .login-form input{
     padding: 10px;
 margin: 3% 0;
     width: 100%;
-    min-height: 8vh;
+    min-height: 10vh;
+    background-color: transparent;
+    outline: none;
+    border: solid 1px #fff;
+    color: var(--whiteColor);
   
+}
+.login-form ::placeholder{
+    color: var(--whiteColor);
+    opacity: 0.5;
 }
 .login-form button{
 
     width: 100%;
     min-height: 7vh;
    cursor: pointer;
+   background-color: var(--red);
+   border: none;
 }
+.login-form label{
+    color: var(--red);
+}
+
+
+
 .logo{
     width: 200px;
 }
@@ -103,10 +120,34 @@ margin: 3% 0;
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* mobile */
 @media (max-width:950px) {
     .login-container{
-        padding: 5%;
+     
         flex-direction: column;
     }
     .login-form , .login-img{
@@ -117,5 +158,9 @@ margin: 3% 0;
     }
     .login-img img{
         height: auto;
+    }
+    .login{
+        max-width: none;
+        padding: 0 3%;
     }
 }

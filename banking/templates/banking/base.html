@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'banking/style.css' %}">
+    <link rel="stylesheet" href="{% static 'banking/dashboard.css' %}">
       <!-- Boxicons CDN Link -->
       <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -120,7 +120,11 @@
      <h1>FNET</h1>
       
  
-
+     <div class="menuicn menu-onheader">
+      <button>=</button>
+     </div>
+     
+    
 
 
 </header>
@@ -268,9 +272,10 @@
 
  -->
 
- <div class="menuicn">
+ <div class="menuicn hidden">
   <button>=</button>
  </div>
+
 
           </div>
       </nav>
@@ -286,19 +291,15 @@
     <script>
 
      // Menu toggle
-let menuicn = document.querySelector(".menuicn");
+     let menuIcons = document.querySelectorAll(".menuicn");
 let nav = document.querySelector(".navcontainer");
 
-menuicn.addEventListener("click", () => {
-    nav.classList.toggle("navclose");
+menuIcons.forEach(menuicn => {
+    menuicn.addEventListener("click", () => {
+        nav.classList.toggle("navclose");
+    });
 });
 
-// Hide button functionality
-let hideBtn = document.querySelector(".hide-btn button");
-
-hideBtn.addEventListener("click", () => {
-    nav.classList.toggle("hidden");
-});
 
   
   

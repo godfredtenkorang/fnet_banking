@@ -5,15 +5,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'banking/style.css' %}">
+    <link rel="stylesheet" href="{% static 'banking/dashboard.css' %}">
+    <!-- Boxicons CDN Link -->
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     {% if title %}
-        <title>Fnet - {{ title }}</title>
+    <title>Fnet - {{ title }}</title>
     {% else %}
-        <title>Fnet</title>
+    <title>Fnet</title>
     {% endif %}
 </head>
 
 <body>
-    {% block content %}{% endblock %}
+    <!-- for header part -->
+    <header>
+
+        <div class="logosec">
+            <div class="logo">
+
+
+
+            </div>
+            <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210182541/Untitled-design-(30).png"
+                class="icn menuicn" id="menuicn" alt="menu-icon">
+        </div>
+
+
+
+        <div class="message">
+            <h1>Admin Dashboard</h1>
+        </div>
+
+    </header>
+
+    <div class="main-container">
+        <div class="navcontainer sidebar">
+            <nav class="nav">
+                <div class="nav-upper-options">
+
+
+
+                    <div class="nav-option">
+                        <h3 class="options button"><i class="fa-solid fa-book"></i> Momo Transactions <i
+                                class="fa fa-chevron-down"></i></h3>
+                        <div class="transanction-drop">
+                            <li><a href="{% url 'cashIn' %}"><i class="fa-solid fa-cash-register"></i> Cash In</a></li>
+                            <li><a href="{% url 'cashOut' %}"><i class="fa-solid fa-cash-register"></i> Cash Out</a>
+                            </li>
+                        </div>
+                    </div>
+
+                    <!-- home button -->
+                    <a href="">
+
+                        <div class="nav-option option1 button active">
+                            <h3><i class="fa-solid fa-house"></i>Agency Banking Request
+
+                            </h3>
+
+                        </div>
+                    </a>
+                    <!-- acivities button -->
+                    <a href="">
+
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-book"></i> Withdrawal
+                            </h3>
+                        </div>
+                    </a>
+                    <a href="">
+
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-book"></i> Float /Cash Request
+
+                            </h3>
+                        </div>
+                    </a>
+                    <a href="">
+
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-book"></i> Payment
+
+                            </h3>
+                        </div>
+                    </a>
+
+                    <a href="">
+
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-bookmark"></i> Transaction Summary
+                            </h3>
+                        </div>
+                    </a>
+                    <a href="">
+
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-bookmark"></i> Payment Summary
+                            </h3>
+                        </div>
+                    </a>
+                    <a href="">
+
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-bookmark"></i> Customer Registration
+                            </h3>
+                        </div>
+                    </a>
+
+
+                    <!-- registration button -->
+
+
+
+                    <!-- registration button -->
+                    <a href="">
+                        <div class="nav-option option1 button">
+                            <h3> <i class="fa-solid fa-money-bill"></i> Account Registration
+                            </h3>
+                        </div>
+                    </a>
+
+                    <!-- team button -->
+                    <a href="">
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-people-group"></i> BReport
+                            </h3>
+                        </div>
+                    </a>
+
+               
+
+
+
+
+                </div>
+            </nav>
+
+        </div>
+
+
+        {% block content %}{% endblock %}
+
+    </div>
+
+
+
+
+
+
+        <script>
+
+            // Menu toggle
+            let menuIcons = document.querySelectorAll(".menuicn");
+            let nav = document.querySelector(".navcontainer");
+
+            menuIcons.forEach(menuicn => {
+                menuicn.addEventListener("click", () => {
+                    nav.classList.toggle("navclose");
+                });
+            }); 
+        </script>
+
+
+
+
+        <script>
+            const options = document.querySelector(".options")
+            const transanctiondrop = document.querySelector(".transanction-drop")
+            options.addEventListener("click", () => {
+                transanctiondrop.classList.toggle("showDropDown")
+            })
+        </script>
+
+        <script defer src="{% static 'vote/adminScript.js' %}"></script>
+        <script defer src="{% static 'vote/adminScript2.js' %}"></script>
+
+
 </body>
+
+
 </html>

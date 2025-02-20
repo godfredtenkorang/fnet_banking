@@ -1,0 +1,104 @@
+{% extends 'agent/base.html' %} {% load static %} {% block content %}
+
+
+<div class="form">
+    
+<form id="networkForm">
+    <div class="input">
+        <label for="customerNumber">Customer Number</label> <br>
+        <input type="number" id="customerNumber" required placeholder="Customer Number">
+        <p id="message" class="message"></p>
+    </div>
+
+    <div class="input">
+        <label for="network">Select Network</label> <br>
+        <select id="network">
+            <option value="" disabled selected>Select network</option>
+            <option value="MTN">MTN</option>
+            <option value="AirtelTigo">AirtelTigo</option>
+            <option value="Expresso">Expresso</option>
+            <option value="Vodafone">Vodafone</option>
+        </select>
+    </div>
+    <div class="input">
+        <label >Select Deposit type</label> <br>
+        <select required>
+            <option value=""  disabled selected>Select deposit type</option>
+           
+            <option value="AirtelTigo">Loading</option>
+            <option value="Expresso">deposit</option>
+            
+        </select>
+    </div>
+    <div class="input">
+        <label >Amount</label> <br>
+      
+       <input type="number"  required>
+    </div>
+
+    <button type="submit" id="submitBtn">Submit</button>
+</form>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+    const networkPrefixes = {
+        "MTN": ["024", "025", "053", "054", "055", "059"],
+        "AirtelTigo": ["027", "057", "026", "056"],
+        "Expresso": ["028"],
+        "Vodafone": ["020", "050"]
+    };
+
+    const numberInput = document.getElementById("customerNumber");
+    const networkSelect = document.getElementById("network");
+    const message = document.getElementById("message");
+    const submitBtn = document.getElementById("submitBtn");
+
+    function validateNumber() {
+        let number = numberInput.value.trim();
+        let selectedNetwork = networkSelect.value;
+
+        if (!number || !selectedNetwork) {
+            message.innerText = "Enter a number and select a network!";
+            message.className = "message invalid";
+            message.style.display = "block";
+            submitBtn.disabled = true;
+            return;
+        }
+
+        let prefix = number.substring(0, 3); // Extract first 3 digits
+
+        if (networkPrefixes[selectedNetwork].includes(prefix)) {
+            message.innerText = "Number matches the selected network!";
+            message.className = "message valid";
+            message.style.display = "block";
+            submitBtn.disabled = false;
+        } else {
+            message.innerText = "Invalid number for selected network!";
+            message.className = "message invalid";
+            message.style.display = "block";
+            submitBtn.disabled = true;
+        }
+    }
+
+    numberInput.addEventListener("keydown", () => {
+        setTimeout(validateNumber, 10);
+    });
+
+    networkSelect.addEventListener("change", validateNumber);
+</script>
+
+
+
+{% endblock %}
