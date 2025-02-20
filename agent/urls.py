@@ -8,4 +8,7 @@ urlpatterns = [
      path('agencyBank', views.agencyBank, name='agencyBank'),
      path('withdrawal', views.withdrawal, name='withdrawal'),
      path('TotalTransactionSum', views.TotalTransactionSum, name='TotalTransactionSum'),
+     path('PaymentSummary', views.PaymentSummary, name='PaymentSummary'),
+     path('customerReg', views.customerReg, name='customerReg'),
+     path('accountReg', views.accountReg, name='accountReg'),
 ]

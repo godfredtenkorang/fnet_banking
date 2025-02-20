@@ -1,137 +1,49 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'banking/dashboard.css' %}">
-      <!-- Boxicons CDN Link -->
-      <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static 'banking/dashboard.css' %}" />
+    <!-- Boxicons CDN Link -->
+    <link
+      href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
 
     {% if title %}
     <title>Fnet - {{ title }}</title>
     {% else %}
     <title>Fnet</title>
     {% endif %}
-</head>
+  </head>
 
-<body>
-   
-    <!-- <header>
-        <nav>
-            
-            <div class="sidebar-button">
-                <div class="side-btn">
-                    <i class='bx bx-menu sidebarBtn'></i>
-                  
-                </div>
-                <div class="logo">
-                    <img   src="{% static 'banking/img/logo.jpg' %}" alt="">
-                </div>
-           
-           
-            </div>
-           
-          </nav>
-      </header> -->
-    
-    <!-- <div class="sidebar">
-       
-      
-          <ul class="nav-links">
-            <li>
-              <a href="" class="active">
-                <i class='bx bx-grid-alt' ></i>
-                <span class="links_name">Dashboard</span>
-              </a>
-            </li>
-            <li>
-              <a href="">
-                <i class='bx bx-box' ></i>
-                <span class="links_name">Orders</span>
-              </a>
-            </li>
-            <li>
-              <a href="#">
-                <i class='bx bx-list-ul' ></i>
-                <span class="links_name"></span>
-              </a>
-            </li>
-            <li>
-              <a href="#">
-                <i class='bx bx-pie-chart-alt-2' ></i>
-                <span class="links_name"></span>
-              </a>
-            </li>
-            <li>
-              <a href="#">
-                <i class='bx bx-coin-stack' ></i>
-                <span class="links_name"></span>
-              </a>
-            </li>
-            <li>
-              <a href="#">
-                <i class='bx bx-book-alt' ></i>
-                <span class="links_name"></span>
-              </a>
-            </li>
-            <li>
-              <a href="#">
-                <i class='bx bx-user' ></i>
-                <span class="links_name"></span>
-              </a>
-            </li>
-            <li>
-              <a href="#">
-                <i class='bx bx-message' ></i>
-                <span class="links_name"></span>
-              </a>
-            </li>
-            <li>
-              <a href="#">
-                <i class='bx bx-heart' ></i>
-                <span class="links_name"></span>
-              </a>
-            </li>
-            <li>
-              <a href="#">
-                <i class='bx bx-cog' ></i>
-                <span class="links_name"></span>
-              </a>
-            </li>
-            <li class="log_out">
-              <a href="#">
-                <i class='bx bx-log-out'></i>
-                <span class="links_name">Log out</span>
-              </a>
-            </li>
-          </ul>
+  <body>
+    <!-- for header part -->
+    <header>
+      <div class="logosec">
+        <div class="logo"></div>
+        <img
+          src="https://media.geeksforgeeks.org/wp-content/uploads/20221210182541/Untitled-design-(30).png"
+          class="icn menuicn"
+          id="menuicn"
+          alt="menu-icon"
+        />
       </div>
-    -->
-     
-    
- <!-- for header part -->
- <header>
 
-  
-     <h1>FNET</h1>
-      
- 
-     <div class="menuicn menu-onheader">
-      <button>=</button>
-     </div>
-     
-    
+      <div class="message">
+        <h1>Admin Dashboard</h1>
+      </div>
+    </header>
 
-
-</header>
-
-<div class="main-container">
-  <div class="navcontainer sidebar">
-      <nav class="nav">
+    <div class="main-container">
+      <div class="navcontainer sidebar">
+        <nav class="nav">
           <div class="nav-upper-options">
              
               <a href="">
@@ -143,7 +55,7 @@
               <!-- home button -->
               <a href="">
 
-                  <div class="nav-option option1 button active">
+                  <div class="nav-option option1 button ">
                       <h3><i class="fa-solid fa-house"></i> Requests
                       </h3>
                       <div class="notification">
@@ -279,32 +191,44 @@
 
           </div>
       </nav>
-  </div>
+      </div>
+      <div id="loader">
+        <div class="spinner"></div>
+      </div>
 
+      {% block content %}{% endblock %}
+    </div>
 
-
-    {% block content %}{% endblock %}
-
-
-
-   
     <script>
+      window.onload = function () {
+        setTimeout(() => {
+          document.getElementById("loader").style.display = "none"; // Hide Loader
+          document.querySelector(".main").style.display = "block"; // Show Main Content
+        }, 2000);
+      };
+    </script>
 
-     // Menu toggle
-     let menuIcons = document.querySelectorAll(".menuicn");
-let nav = document.querySelector(".navcontainer");
+    <script>
+      // Menu toggle
+      let menuIcons = document.querySelectorAll(".menuicn");
+      let nav = document.querySelector(".navcontainer");
 
-menuIcons.forEach(menuicn => {
-    menuicn.addEventListener("click", () => {
-        nav.classList.toggle("navclose");
-    });
-});
+      menuIcons.forEach((menuicn) => {
+        menuicn.addEventListener("click", () => {
+          nav.classList.toggle("navclose");
+        });
+      });
+    </script>
 
+    <script>
+      const options = document.querySelector(".options");
+      const transanctiondrop = document.querySelector(".transanction-drop");
+      options.addEventListener("click", () => {
+        transanctiondrop.classList.toggle("showDropDown");
+      });
+    </script>
 
-  
-  
-  </script>
-
-</body>
-
+    <script defer src="{% static 'vote/adminScript.js' %}"></script>
+    <script defer src="{% static 'vote/adminScript2.js' %}"></script>
+  </body>
 </html>
