@@ -5,7 +5,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'banking/style.css' %}">
+    <link rel="stylesheet" href="{% static 'banking/dashboard.css' %}">
+      <!-- Boxicons CDN Link -->
+      <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     {% if title %}
     <title>Fnet - {{ title }}</title>
     {% else %}
@@ -14,7 +19,292 @@
 </head>
 
 <body>
+   
+    <!-- <header>
+        <nav>
+            
+            <div class="sidebar-button">
+                <div class="side-btn">
+                    <i class='bx bx-menu sidebarBtn'></i>
+                  
+                </div>
+                <div class="logo">
+                    <img   src="{% static 'banking/img/logo.jpg' %}" alt="">
+                </div>
+           
+           
+            </div>
+           
+          </nav>
+      </header> -->
+    
+    <!-- <div class="sidebar">
+       
+      
+          <ul class="nav-links">
+            <li>
+              <a href="" class="active">
+                <i class='bx bx-grid-alt' ></i>
+                <span class="links_name">Dashboard</span>
+              </a>
+            </li>
+            <li>
+              <a href="">
+                <i class='bx bx-box' ></i>
+                <span class="links_name">Orders</span>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <i class='bx bx-list-ul' ></i>
+                <span class="links_name"></span>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <i class='bx bx-pie-chart-alt-2' ></i>
+                <span class="links_name"></span>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <i class='bx bx-coin-stack' ></i>
+                <span class="links_name"></span>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <i class='bx bx-book-alt' ></i>
+                <span class="links_name"></span>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <i class='bx bx-user' ></i>
+                <span class="links_name"></span>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <i class='bx bx-message' ></i>
+                <span class="links_name"></span>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <i class='bx bx-heart' ></i>
+                <span class="links_name"></span>
+              </a>
+            </li>
+            <li>
+              <a href="#">
+                <i class='bx bx-cog' ></i>
+                <span class="links_name"></span>
+              </a>
+            </li>
+            <li class="log_out">
+              <a href="#">
+                <i class='bx bx-log-out'></i>
+                <span class="links_name">Log out</span>
+              </a>
+            </li>
+          </ul>
+      </div>
+    -->
+     
+    
+ <!-- for header part -->
+ <header>
+
+  
+     <h1>FNET</h1>
+      
+ 
+     <div class="menuicn menu-onheader">
+      <button>=</button>
+     </div>
+     
+    
+
+
+</header>
+
+<div class="main-container">
+  <div class="navcontainer sidebar">
+      <nav class="nav">
+          <div class="nav-upper-options">
+             
+              <a href="">
+
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-book"></i> Dashboard</h3>
+                  </div>
+              </a>
+              <!-- home button -->
+              <a href="">
+
+                  <div class="nav-option option1 button active">
+                      <h3><i class="fa-solid fa-house"></i> Requests
+                      </h3>
+                      <div class="notification">
+                        <i class="fa-solid fa-bell"></i>
+                        <p>9+</p>
+                     
+
+                      </div>
+                  </div>
+              </a>
+              <!-- acivities button -->
+              <a href="">
+
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-book"></i> Payments </h3>
+                  </div>
+              </a>
+              <a href="">
+
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-book"></i> Unpaid 
+                      </h3>
+                  </div>
+              </a>
+              <a href="">
+
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-book"></i> Users
+                      </h3>
+                  </div>
+              </a>
+             
+              <a href="">
+
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-bookmark"></i> Register</h3>
+                  </div>
+              </a>
+              <a href="">
+
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-bookmark"></i> Payments</h3>
+                  </div>
+              </a>
+              <a href="">
+
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-bookmark"></i> Customers</h3>
+                  </div>
+              </a>
+
+
+              <!-- registration button -->
+
+
+
+              <!-- registration button -->
+              <a href="">
+                  <div class="nav-option option1 button">
+                      <h3> <i class="fa-solid fa-money-bill"></i> Balance </h3>
+                  </div>
+              </a>
+
+              <!-- team button -->
+              <a href="">
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-people-group"></i> Birthdays</h3>
+                  </div>
+              </a>
+
+              <!-- <a href="">
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-chart-simple"></i> Report</h3>
+                  </div>
+              </a>
+              
+              <a href="">
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-id-card"></i> Drivers</h3>
+                  </div>
+              </a>
+              <a href="">
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-id-card"></i> Agents</h3>
+                  </div>
+              </a>
+              <a href="">
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-users"></i> Customers</h3>
+                  </div>
+              </a>
+              <a href="">
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-handshake"></i> Agreement Forms</h3>
+                  </div>
+              </a>
+              <a href="">
+
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-book"></i> Gallery</h3>
+                  </div>
+              </a>
+              <a href="">
+
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-book"></i> Upload Images for Customers</h3>
+                  </div>
+              </a>
+
+
+              
+
+              <a href="">
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-chevron-left"></i> Home</h3>
+                  </div>
+              </a>
+
+             
+
+              <a href="">
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-sign-out"></i> Logout</h3>
+                  </div>
+              </a>
+
+ -->
+
+ <div class="menuicn hidden">
+  <button>=</button>
+ </div>
+
+
+          </div>
+      </nav>
+  </div>
+
+
+
     {% block content %}{% endblock %}
+
+
+
+   
+    <script>
+
+     // Menu toggle
+     let menuIcons = document.querySelectorAll(".menuicn");
+let nav = document.querySelector(".navcontainer");
+
+menuIcons.forEach(menuicn => {
+    menuicn.addEventListener("click", () => {
+        nav.classList.toggle("navclose");
+    });
+});
+
+
+  
+  
+  </script>
+
 </body>
 
 </html>
