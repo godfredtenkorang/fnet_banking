@@ -9,3 +9,13 @@ def cashIn(request):
 
 def cashOut(request):
     return render(request, 'agent/cashOut.html')
+
+
+def agencyBank(request):
+    return render(request, 'agent/agencyBank.html')
+
+def withdrawal(request):
+    return render(request, 'agent/withdrawal.html')
+
+def TotalTransactionSum(request):
+    return render(request, 'agent/TotalTransactionSum.html')
