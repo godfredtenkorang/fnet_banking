@@ -6,3 +6,9 @@ def index(request):
 
 def dashboard(request):
     return render(request, 'banking/dashboard.html')
+
+def signUp(request):
+    return render(request, 'banking/signUp.html')
+
+def customerSupport(request):
+    return render(request, 'banking/customerSupport.html')

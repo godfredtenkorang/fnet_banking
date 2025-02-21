@@ -17,11 +17,12 @@
 
 <style>
     .login-container {
-  background-image: url("{% static 'banking/img/login.jpg' %}");
+  background-image: url("{% static 'banking/img/ban.jpg' %}");
   background-size: cover;
   background-position: center;
-  height: 100vh; /* Adjust the height as needed */
+  min-height: 100vh; 
   width: 100%;
+
 }
 
 </style>
@@ -30,23 +31,32 @@
        
 
         <div class="login-form">
+          <p>Please provide your details to create an account</p>
 
-          
           <div class="login">
             <form action="">
                 <div class="input">
-                    <label for="">Your Email</label> <br>
-                    <input type="email" required placeholder="benjaminoheneasare65@gmail.com" >
+                    <label for="fullname">Full Name</label> <br>
+                    <input type="text" id="fullname" required placeholder="Enter your full name">
                 </div>
                 <div class="input">
-                    <label for="">Password</label> <br>
-                    <input type="email" required placeholder="password">
+                    <label for="email">Your Email</label> <br>
+                    <input type="email" id="email" required placeholder="example@gmail.com">
                 </div>
-                <button>Submit</button>
-                <p>Or you dont have account ? then <a href="">Sign Up</a></p>
-                <p>If there is any difficulties, <a href=""> contact support</a></p>
+                <div class="input">
+                    <label for="password">Password</label> <br>
+                    <input type="password" id="password" required placeholder="Enter password">
+                </div>
+                <div class="input">
+                    <label for="confirm_password">Confirm Password</label> <br>
+                    <input type="password" id="confirm_password" required placeholder="Confirm password">
+                </div>
+                <button>Sign Up</button>
+                <p>Already have an account? <a href="{% url 'index' %}">Login</a></p>
+                <p>If there are any difficulties, <a href="{% url 'customerSupport' %}">contact support</a></p>
             </form>
-          </div>
+        </div>
+        
         </div>
     </div>
 

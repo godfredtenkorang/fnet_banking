@@ -139,9 +139,11 @@ header a{
   position: relative;
   
   width: 100%;
-  height: 50vh;
+  height: 70vh;
   display: flex;
   justify-content: center;
+  flex-direction: column;
+  gap: 2px;
   align-items: center;
 
 
@@ -846,6 +848,12 @@ height: 5vh;
  }
  .customer-img, .customer-detail{
   max-width: none;
+ }
+ #loader{
+  height: 100vh;
+ }
+ .currencyNote button{
+  font-size: 13px;
  }
 }
 

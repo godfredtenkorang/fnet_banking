@@ -20,18 +20,18 @@
   background-image: url("{% static 'banking/img/login.jpg' %}");
   background-size: cover;
   background-position: center;
-  height: 100vh; /* Adjust the height as needed */
+  min-height: 100vh; /* Adjust the height as needed */
   width: 100%;
 }
 
 </style>
 
     <div class="login-container">
-       
+    
 
         <div class="login-form">
 
-          
+          <p>Please login with your detail</p>
           <div class="login">
             <form action="">
                 <div class="input">
@@ -43,8 +43,9 @@
                     <input type="email" required placeholder="password">
                 </div>
                 <button>Submit</button>
-                <p>Or you dont have account ? then <a href="">Sign Up</a></p>
-                <p>If there is any difficulties, <a href=""> contact support</a></p>
+                <p>Or you dont have account ? then <a href="{% url 'signUp'%}">Sign Up</a></p>
+                <p>If there are any difficulties, <a href="{% url 'customerSupport' %}">contact support</a></p>
+
             </form>
           </div>
         </div>
