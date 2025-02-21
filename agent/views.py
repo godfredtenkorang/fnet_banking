@@ -19,3 +19,12 @@ def withdrawal(request):
 
 def TotalTransactionSum(request):
     return render(request, 'agent/TotalTransactionSum.html')
+
+def PaymentSummary(request):
+    return render(request, 'agent/PaymentSummary.html')
+
+def customerReg(request):
+    return render(request, 'agent/customerReg.html')
+
+def accountReg(request):
+    return render(request, 'agent/accountReg.html')

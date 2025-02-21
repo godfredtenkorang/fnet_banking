@@ -228,6 +228,7 @@ header {
   min-height: 60px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 5px;
   gap: 20px;
   transition: all 0.1s ease-in-out;
@@ -326,23 +327,24 @@ position: relative;
   position: relative;
 }
 
+
 .banner-text{
   position: absolute;
   top: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.4);
   width: 100%;
-  height: 30vh;
+  height: 20vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(2px);
+ 
   color: var(--white);
 }
 
 .banner-container img{
   width: 100%;
-  height: 30vh;
+  height: 20vh;
   object-fit: cover;
 }
 
@@ -375,14 +377,14 @@ padding: 20px;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
 }
-.form input{
+.main input{
   width: 100%;
   height: 8vh;
   outline: none;
   margin: 2% 0;
   padding: 5px;
 }
-.form button{
+.main button{
   width: 100%;
   height: 8vh;
   outline: none;
@@ -392,7 +394,7 @@ padding: 20px;
   background-color: var(--orangeColor);
   border: none;
 }
-.form select{
+.main select{
   width: 100%;
   height: 8vh;
   outline: none;
@@ -499,18 +501,84 @@ padding: 20px;
 
 
 
+.customer-info{
+  width: 100%;
+  max-width: 50%;
+  min-height: 60vh;
+  background-color: var(--white);
+  display: flex;
+  flex-direction: column;
+  padding:0 2%;
+
+
+}
+.cust-flex{
+  padding: 20px;
+  display: flex;
+  gap: 1rem;
+}
+
+.customer-img{
+  width: 100%;
+  max-width: 40%;
+  border: solid #22c03c 2px;
+  min-height: 40vh;
+  padding: 5px;
+}
+.customer-img img{
+  width: 100%;
+  height: 40vh;
+}
+.customer-detail{
+  width: 100%;
+  max-width: 60%;
+  height: 30vh;
+  
+}
+.customer-detail p{
+  padding-bottom: 5%;
+}
+
+
+.customer{
+  display: flex;
+
+  gap: 2rem;
+  padding: 5% 2%;
+}
+
+.customer .forms{
+  width: 100%;
+  max-width: 70%;
+}
+.forms form{
+  width: 100%;
+
+  min-height: 30vh;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+background-color: var(--whiteColor);
+padding: 20px;
+}
 
 
 
 
 
+.confirm-info{
+  display: flex;
+  align-items: center;
 
+}
 
-
-
-
-
-
+/* Hide default checkbox */
+input[type="checkbox"] {
+  width: 20px !important;
+  height: 20px;
+  border: 2px solid #007BFF;
+  border-radius: 4px;
+  position: relative;
+  cursor: pointer;
+}
 
 
 
@@ -592,6 +660,14 @@ padding: 20px;
       gap: 30px;
   }
 
+  .customer{
+    flex-direction: column;
+  }
+
+  .customer-info, .customer .forms{
+    max-width: none;
+  }
+
 
 }
 
@@ -599,7 +675,8 @@ padding: 20px;
   .nav-img {
       height: 30px;
   }
-
+  
+ 
   .form form{
     max-width: none;
   }
@@ -714,6 +791,12 @@ padding: 20px;
   .stat-container{
     grid-template-columns: 1fr;
   }
+ .cust-flex{
+  flex-direction: column;
+ }
+ .customer-img, .customer-detail{
+  max-width: none;
+ }
 }
 
 

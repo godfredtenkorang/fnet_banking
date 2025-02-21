@@ -1,0 +1,199 @@
+{% extends 'agent/base.html' %}
+{% load static %}
+{% block content %}
+
+
+<div class="main">
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Account Registration</h1>
+        </div>
+    </div>
+    <div class="customer">
+        <div class="forms">
+            <form id="networkForm">
+                <div class="form-grid">
+                    <div class="input">
+                        <label for="customerPhone">Customer Phone Number</label> <br />
+                        <input type="text" id="customerPhone" required placeholder="Phone Number" />
+                    </div>
+            
+                    <div class="input">
+                        <label for="accountNumber">Account Number</label> <br />
+                        <input type="text" id="accountNumber" required placeholder="Account Number" />
+                    </div>
+            
+                    <div class="input">
+                        <label for="accountName">Account Name</label> <br />
+                        <input type="text" id="accountName" required placeholder="Account Name" />
+                    </div>
+            
+                    <div class="input">
+                        <label for="selectBank">Select Bank</label> <br />
+                        <select id="selectBank" required>
+                            <option value="" disabled selected>Select Bank</option>
+                            <option value="GCB">GCB</option>
+                            <option value="Ecobank">Ecobank</option>
+                            <option value="Stanbic">Stanbic</option>
+                            <option value="ABSA">ABSA</option>
+                        </select>
+                    </div>
+                </div>
+                <p class="confirmInfoMessage" style="color: red; padding: 10px 0; font-weight: bold;"></p>
+                <button type="submit" id="submitBtn">Submit</button>
+            </form>
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <div class="customer-info">
+            <div class="cust-flex">
+                <div class="customer-detail">
+                    <p><strong>Customer Phone:</strong> <span id="displayPhone"></span></p>
+                    <p><strong>Account Number:</strong> <span id="displayAccountNumber"></span></p>
+                    <p><strong>Account Name:</strong> <span id="displayAccountName"></span></p>
+                    <p><strong>Bank:</strong> <span id="displayBank"></span></p>
+                </div>
+            </div>
+            <p class="okay" style="display: none; padding: 20px 0; color: green; font-weight: bold;">
+                Above are the information of the customer you are registering. Click on the checkbox to confirm.
+            </p>
+            <div class="confirm-info">
+                <input type="checkbox" id="confirmCheck"> 
+                <label for="confirmCheck">I confirm that the details are correct</label>
+            </div>
+        </div>
+        
+
+
+    </div>
+
+</div>
+
+
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Get form fields
+    const customerPhone = document.getElementById("customerPhone");
+    const accountNumber = document.getElementById("accountNumber");
+    const accountName = document.getElementById("accountName");
+    const selectBank = document.getElementById("selectBank");
+
+    // Get display elements
+    const displayPhone = document.getElementById("displayPhone");
+    const displayAccountNumber = document.getElementById("displayAccountNumber");
+    const displayAccountName = document.getElementById("displayAccountName");
+    const displayBank = document.getElementById("displayBank");
+
+    // Get confirmation elements
+    const confirmCheck = document.getElementById("confirmCheck");
+    const confirmMessage = document.querySelector(".confirmInfoMessage");
+    const okayMessage = document.querySelector(".okay");
+    const submitBtn = document.getElementById("submitBtn");
+    const form = document.getElementById("networkForm");
+
+    // Function to check if all fields are filled
+    function checkFieldsFilled() {
+        if (
+            customerPhone.value.trim() &&
+            accountNumber.value.trim() &&
+            accountName.value.trim() &&
+            selectBank.value
+        ) {
+            okayMessage.style.display = "block"; // Show confirmation message
+        } else {
+            okayMessage.style.display = "none"; // Hide message if any field is empty
+        }
+    }
+
+    // Update customer details in real-time
+    customerPhone.addEventListener("input", function () {
+        displayPhone.textContent = this.value;
+        checkFieldsFilled();
+    });
+
+    accountNumber.addEventListener("input", function () {
+        displayAccountNumber.textContent = this.value;
+        checkFieldsFilled();
+    });
+
+    accountName.addEventListener("input", function () {
+        displayAccountName.textContent = this.value;
+        checkFieldsFilled();
+    });
+
+    selectBank.addEventListener("change", function () {
+        displayBank.textContent = this.value;
+        checkFieldsFilled();
+    });
+
+    // Handle form submission
+    form.addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent default submission
+
+        // Validate checkbox
+        if (!confirmCheck.checked) {
+            confirmMessage.textContent = "Please check the confirmation box before submitting.";
+            confirmMessage.style.color = "red";
+            confirmCheck.scrollIntoView({ behavior: "smooth" });
+            return;
+        }
+
+        // Validate empty fields
+        if (!customerPhone.value.trim() || !accountNumber.value.trim() || !accountName.value.trim() || !selectBank.value) {
+            confirmMessage.textContent = "Please fill in all fields before submitting.";
+            confirmMessage.style.color = "red";
+            return;
+        }
+
+        // If all conditions are met, allow submission
+        confirmMessage.textContent = "Confirmation has been done.";
+        confirmMessage.style.color = "green";
+
+        // Scroll back to the submit button
+        submitBtn.scrollIntoView({ behavior: "smooth" });
+
+        // Submit form (simulate actual submission)
+        form.submit();
+    });
+
+    // Scroll back to submit button when checkbox is clicked
+    confirmCheck.addEventListener("change", function () {
+        if (this.checked) {
+            confirmMessage.textContent = "Confirmation has been done click on submit  ⬇️.";
+            confirmMessage.style.color = "green";
+            submitBtn.scrollIntoView({ behavior: "smooth" });
+        } else {
+            confirmMessage.textContent = "";
+        }
+    });
+});
+
+
+</script>
+
+
+{% endblock %}
