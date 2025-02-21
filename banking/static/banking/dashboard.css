@@ -47,8 +47,12 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  color: var(--white);
 }
-
+header a{
+  color: var(--white);
+  font-size: 2rem;
+}
 .logo {
   font-size: 27px;
   font-weight: 600;
@@ -383,6 +387,7 @@ padding: 20px;
   outline: none;
   margin: 2% 0;
   padding: 5px;
+  border: solid 2px #22c03c;
 }
 .main button{
   width: 100%;
@@ -581,13 +586,62 @@ input[type="checkbox"] {
 }
 
 
+.calculate{
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5%;
+  flex-direction: column;
+  position: relative;
+}
 
 
+.calc{
+  position: relative;
+  padding: 2% 4%;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  background-color: var(--white);
+  width: 100%;
+  max-width: 50%;
+  box-shadow: 2px 1px 5px 3px rgba(0, 0, 0, 0.1);
+  min-height: 40vh;
+}
+.total{
+  padding: 5% 0;
+}
 
+.currencyNoteGrid{
+ 
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+ 
+}
 
+.currencyNoteGrid button{
+  background-color: var(--white);
+  box-shadow: 2px 1px 5px 3px rgba(0, 0, 0, 0.1);
+  font-size: 1.2rem;
+}
 
+.currencyNote{
+  display: flex;
+gap: 1rem;
+  align-items: center;
+  flex-direction: column;
+}
+.clear{
+  padding-top: 5%;
+}
+.clear button{
+width: 100px;
+height: 5vh;
 
-
+}
 
 
 
@@ -667,7 +721,9 @@ input[type="checkbox"] {
   .customer-info, .customer .forms{
     max-width: none;
   }
-
+.calc{
+  max-width: none;
+}
 
 }
 

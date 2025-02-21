@@ -28,3 +28,12 @@ def customerReg(request):
 
 def accountReg(request):
     return render(request, 'agent/accountReg.html')
+
+def payment(request):
+    return render(request, 'agent/payment.html')
+
+def cashFloatRequest(request):
+    return render(request, 'agent/cashFloatRequest.html')
+
+def calculate(request):
+    return render(request, 'agent/calculate.html')

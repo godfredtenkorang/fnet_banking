@@ -1,0 +1,105 @@
+{% extends 'agent/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="main">
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Cash Float Request</h1>
+        </div>
+    </div>
+  
+        <div class="form">
+            <form id="networkForm">
+                <div class="form-grid">
+                    <div class="input">
+                        <label for="cashFloatType">Select float type</label> <br />
+                        <select id="cashFloatType" required>
+                            <option value="" disabled selected>Select Cash at Location</option>
+                            <option value="Bank">Bank</option>
+                            <option value="Telco">Telco</option>
+                            <option value="Cash">Cash</option>
+                          
+                        </select>
+                    </div>
+            
+                    <div class="input" id="bank" style="display: none;">
+                        <label for="BankNames">Select Bank</label> <br />
+                        <select id="BankNames" required>
+                            <option value="" disabled selected>Select Cash at Location</option>
+                            <option value="GCB">GCB</option>
+                            <option value="Ecobank">Ecobank</option>
+                            <option value="Stanbic">Stanbic</option>
+                            <option value="ABSA">ABSA</option>
+                        </select>
+                    </div>
+            
+                    <div class="input" id="telco" style="display: none;">
+                        <label for="network">Select Network</label> <br />
+                        <select id="network">
+                            <option value="" disabled selected>Select network</option>
+                            <option value="MTN">MTN</option>
+                            <option value="AirtelTigo">AirtelTigo</option>
+                            <option value="Expresso">Expresso</option>
+                            <option value="Vodafone">Vodafone</option>
+                        </select>
+                    </div>
+            
+                    <div class="input" id="amount" style="display: none;">
+                        <label for="amountInput">Amount</label> <br />
+                        <input type="number" id="amountInput" required placeholder="Enter Amount" min="0" />
+                    </div>
+                </div>
+            
+                <button id="submitBtn" style="display: none;">Send</button>
+            </form>
+            
+            
+        </div>
+
+
+
+</div>
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+    const cashFloatType = document.getElementById("cashFloatType");
+    const bankSection = document.getElementById("bank");
+    const telcoSection = document.getElementById("telco");
+    const amountField = document.getElementById("amount");
+    const submitButton = document.getElementById("submitBtn");
+
+    // Function to show the correct fields
+    cashFloatType.addEventListener("change", function () {
+        const selectedValue = cashFloatType.value;
+
+        // Reset all fields to hidden
+        bankSection.style.display = "none";
+        telcoSection.style.display = "none";
+        amountField.style.display = "none";
+        submitButton.style.display = "none";
+
+        // Show the appropriate fields based on selection
+        if (selectedValue === "Bank") {
+            bankSection.style.display = "block";
+            amountField.style.display = "block";
+            submitButton.style.display = "block";
+        } else if (selectedValue === "Telco") {
+            telcoSection.style.display = "block";
+            amountField.style.display = "block";
+            submitButton.style.display = "block";
+        } else if (selectedValue === "Cash") {
+            amountField.style.display = "block";
+            submitButton.style.display = "block";
+        }
+    });
+});
+
+
+
+</script>
+
+{% endblock %}

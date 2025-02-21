@@ -1,0 +1,67 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'banking/mainStyle.css' %}">
+      <!-- Boxicons CDN Link -->
+      <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form</title>
+</head>
+<body>
+    
+
+
+<style>
+    .login-container {
+  background-image: url("{% static 'banking/img/login.jpg' %}");
+  background-size: cover;
+  background-position: center;
+  height: 100vh; /* Adjust the height as needed */
+  width: 100%;
+}
+
+</style>
+
+    <div class="login-container">
+       
+
+        <div class="login-form">
+
+          
+          <div class="login">
+            <form action="">
+                <div class="input">
+                    <label for="">Your Email</label> <br>
+                    <input type="email" required placeholder="benjaminoheneasare65@gmail.com" >
+                </div>
+                <div class="input">
+                    <label for="">Password</label> <br>
+                    <input type="email" required placeholder="password">
+                </div>
+                <button>Submit</button>
+                <p>Or you dont have account ? then <a href="">Sign Up</a></p>
+                <p>If there is any difficulties, <a href=""> contact support</a></p>
+            </form>
+          </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
