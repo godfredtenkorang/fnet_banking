@@ -1,0 +1,88 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'banking/mainStyle.css' %}">
+      <!-- Boxicons CDN Link -->
+      <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form</title>
+</head>
+<body>
+    
+
+
+<style>
+    .login-container {
+  background-image: url("{% static 'banking/img/ban.jpg' %}");
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh; 
+  width: 100%;
+
+}
+
+</style>
+
+    <div class="login-container">
+       
+
+        <div class="login-form">
+            <p>If you have any difficulties, please provide your details and describe your issue.</p>
+        
+            <div class="login">
+              
+                <form action="">
+                    <div class="input">
+                        <label for="fullname">Full Name</label> <br>
+                        <input type="text" id="fullname" required placeholder="Enter your full name">
+                    </div>
+                    <div class="input">
+                        <label for="email">Your Email</label> <br>
+                        <input type="email" id="email" required placeholder="example@gmail.com">
+                    </div>
+                    <div class="input">
+                        <label for="tel">Your Number</label> <br>
+                        <input type="tel" id="number" required placeholder="0536626936">
+                    </div>
+                    <div class="input">
+                        <label for="issue">Describe Your Issue</label> <br>
+                        <textarea id="issue" required placeholder="Explain the problem you're facing"></textarea>
+                    </div>
+                    <button>Submit</button>
+                    <p>Need further assistance? Call or WhatsApp: 
+                        <a href="tel:+233558156844"> 0553912334</a> |
+                        <a href="tel:+233558156844"> 0553912334</a> |
+                        <a href="tel:+233558156844"> 0553912334</a>
+                    </p>
+                    <div class="link-flex">
+                        <p>Already have an account? <a href="{% url 'index' %}">Login</a></p>
+                    <p>Or you dont have account ? then <a href="{% url 'signUp'%}">Sign Up</a></p>
+                    </div>
+                </form>
+
+                
+            </div>
+        </div>
+        
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,164 @@
+{% extends 'agent/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="main">
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Make Payment</h1>
+        </div>
+    </div>
+  
+        <div class="form">
+            <form id="networkForm">
+                <div class="form-grid">
+                    <div class="input">
+                        <label for="paymentMode">Select Mode of Payment</label> <br />
+                        <select id="paymentMode" required>
+                            <option value="" disabled selected>Select Mode of Payment</option>
+                            <option value="GCB">GCB</option>
+                            <option value="Ecobank">Ecobank</option>
+                            <option value="Stanbic">Stanbic</option>
+                            <option value="ABSA">ABSA</option>
+                        </select>
+                    </div>
+            
+                    <div class="input">
+                        <label for="cashLocation">Select Cash at Location</label> <br />
+                        <select id="cashLocation" required>
+                            <option value="" disabled selected>Select Cash at Location</option>
+                            <option value="GCB">GCB</option>
+                            <option value="Ecobank">Ecobank</option>
+                            <option value="Stanbic">Stanbic</option>
+                            <option value="ABSA">ABSA</option>
+                        </select>
+                    </div>
+            
+                    <div class="input">
+                        <label for="referenceNumber">References</label> <br />
+                        <input type="text" id="referenceNumber" required placeholder="Account Number" />
+                    </div>
+            
+                    <div class="input">
+                        <label for="amount">Enter Amount</label> <br />
+                        <input type="number" id="amount" required placeholder="Enter Amount" title="Enter amount here" min="0" />
+                        <p id="amountError" style="color: red; font-weight: bold; display: none;">Negative values are not allowed.</p>
+                    </div>
+                </div>
+            
+                <div class="confirm-section">
+                    <input type="checkbox" id="confirmCheck" />
+                    <label for="confirmCheck">I confirm that the details entered are correct</label>
+                    <p id="confirmMessage" style="color: red; font-weight: bold; display: none;"></p>
+                </div>
+            
+                <p class="confirmInfoMessage" style="color: red; padding: 10px 0; font-weight: bold;"></p>
+                <button type="submit" id="submitBtn">Pay</button>
+            </form>
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+        
+
+
+
+
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Get form elements
+        const paymentMode = document.getElementById("paymentMode");
+        const cashLocation = document.getElementById("cashLocation");
+        const referenceNumber = document.getElementById("referenceNumber");
+        const amount = document.getElementById("amount");
+        const amountError = document.getElementById("amountError");
+        const confirmCheck = document.getElementById("confirmCheck");
+        const confirmMessage = document.getElementById("confirmMessage");
+        const confirmInfoMessage = document.querySelector(".confirmInfoMessage");
+        const submitBtn = document.getElementById("submitBtn");
+        const form = document.getElementById("networkForm");
+    
+        // Prevent negative values and show error message
+        amount.addEventListener("input", function () {
+            if (this.value < 0) {
+                this.value = "";
+                amountError.style.display = "block";
+            } else {
+                amountError.style.display = "none";
+            }
+        });
+    
+        // Handle checkbox validation
+        confirmCheck.addEventListener("change", function () {
+            if (!this.checked) {
+                confirmMessage.textContent = "";
+                return;
+            }
+    
+            if (!paymentMode.value || !cashLocation.value || !referenceNumber.value.trim() || !amount.value.trim()) {
+                confirmMessage.textContent = "Please fill in all fields before confirming.";
+                confirmMessage.style.display = "block";
+                confirmMessage.style.color = "red";
+                this.checked = false; // Uncheck the box
+            } else {
+                confirmMessage.textContent = "Details confirmed! You can now submit.";
+                confirmMessage.style.display = "block";
+                confirmMessage.style.color = "green";
+            }
+        });
+    
+        // Handle form submission
+        form.addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent default submission
+    
+            if (!paymentMode.value || !cashLocation.value || !referenceNumber.value.trim() || !amount.value.trim()) {
+                confirmInfoMessage.textContent = "Please fill in all fields before submitting.";
+                confirmInfoMessage.style.color = "red";
+                return;
+            }
+    
+            if (!confirmCheck.checked) {
+                confirmInfoMessage.textContent = "Please confirm your details by checking the box before submitting.";
+                confirmInfoMessage.style.color = "red";
+                return;
+            }
+    
+            // All conditions met, allow submission
+            confirmInfoMessage.textContent = "Form submitted successfully!";
+            confirmInfoMessage.style.color = "green";
+    
+            // Scroll to submit button
+            submitBtn.scrollIntoView({ behavior: "smooth" });
+    
+            // Simulate form submission
+            form.submit();
+        });
+    });
+    </script>
+
+
+{% endblock %}

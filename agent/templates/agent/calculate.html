@@ -1,0 +1,139 @@
+{% extends 'agent/base.html' %} {% load static %} {% block content %}
+
+<div class="main">
+  <div class="banner-container">
+    <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+    <div class="banner-text">
+      <h1>calculate</h1>
+    </div>
+  </div>
+
+  <div class="calculate">
+    <div class="calc">
+       
+      <div class="currencyNoteGrid">
+        <div class="currencyNote">
+          <button>200 GH₵ Notes</button>
+          <div class="counter">
+            <p class="numberOfNote">0</p>
+          </div>
+        </div>
+        <div class="currencyNote">
+          <button>100 GH₵ Notes</button>
+          <div class="counter">
+            <p class="numberOfNote">0</p>
+          </div>
+        </div>
+        <div class="currencyNote">
+          <button>50 GH₵ Notes</button>
+          <div class="counter">
+            <p class="numberOfNote">0</p>
+          </div>
+        </div>
+        <div class="currencyNote">
+          <button>20 GH₵ Notes</button>
+          <div class="counter">
+            <p class="numberOfNote">0</p>
+          </div>
+        </div>
+        <div class="currencyNote">
+          <button>10 GH₵ Notes</button>
+          <div class="counter">
+            <p class="numberOfNote">0</p>
+          </div>
+        </div>
+        <div class="currencyNote">
+          <button>5 GH₵ Notes</button>
+          <div class="counter">
+            <p class="numberOfNote">0</p>
+          </div>
+        </div>
+        <div class="currencyNote">
+          <button>2 GH₵ Notes</button>
+          <div class="counter">
+            <p class="numberOfNote">0</p>
+          </div>
+        </div>
+        <div class="currencyNote">
+          <button>1 GH₵ Notes</button>
+          <div class="counter">
+            <p class="numberOfNote">0</p>
+          </div>
+        </div>
+      </div>
+      <div class="calc-btn">
+        <button>Calculate</button>
+      </div>
+      <div class="total">
+        <p>Total is <span class="totals" >0</span> </p>
+      </div>
+      <div class="clear">
+        <button>Clear</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const buttons = document.querySelectorAll(".currencyNote button");
+    const totalDisplay = document.querySelector(".totals");
+    const calculateBtn = document.querySelector(".calc-btn button");
+    const clearBtn = document.querySelector(".clear button");
+    let noteCounts = JSON.parse(localStorage.getItem("noteCounts")) || {};
+
+    // Restore saved values
+    buttons.forEach((button) => {
+        const noteValue = parseInt(button.textContent);
+        const counter = button.nextElementSibling.querySelector(".numberOfNote");
+        counter.textContent = noteCounts[noteValue] || 0;
+    });
+
+    // Update counter on click
+    buttons.forEach((button) => {
+        button.addEventListener("click", function () {
+            const noteValue = parseInt(button.textContent);
+            const counter = button.nextElementSibling.querySelector(".numberOfNote");
+            let count = parseInt(counter.textContent) + noteValue;
+            counter.textContent = count;
+            noteCounts[noteValue] = count;
+            localStorage.setItem("noteCounts", JSON.stringify(noteCounts));
+        });
+    });
+
+    // Calculate total
+    calculateBtn.addEventListener("click", function () {
+        let total = 0;
+        Object.keys(noteCounts).forEach((note) => {
+            total += parseInt(noteCounts[note]);
+        });
+        totalDisplay.textContent = total;
+    });
+
+    // Clear everything
+    clearBtn.addEventListener("click", function () {
+        buttons.forEach((button) => {
+            const counter = button.nextElementSibling.querySelector(".numberOfNote");
+            counter.textContent = 0;
+        });
+        localStorage.removeItem("noteCounts");
+        noteCounts = {};
+        totalDisplay.textContent = 0;
+    });
+});
+
+
+</script>
+
+
+
+
+
+
+
+{% endblock %}

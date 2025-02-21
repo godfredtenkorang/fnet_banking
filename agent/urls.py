@@ -11,4 +11,9 @@ urlpatterns = [
      path('PaymentSummary', views.PaymentSummary, name='PaymentSummary'),
      path('customerReg', views.customerReg, name='customerReg'),
      path('accountReg', views.accountReg, name='accountReg'),
+      path('payment', views.payment, name='payment'),
+      path('cashFloatRequest', views.cashFloatRequest, name='cashFloatRequest'),
+      path('calculate', views.calculate, name='calculate'),
+
+    
 ]
