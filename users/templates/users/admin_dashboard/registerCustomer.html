@@ -1,0 +1,77 @@
+{% extends 'users/admin_dashboard/base.html' %}
+{% load static %}
+{% block content %}
+
+
+<div class="main">
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Register Customer</h1>
+        </div>
+    </div>
+
+
+
+    <div class="customer-form">
+      
+
+        <div class="customerlogin">
+            <form action="">
+                <div class="input">
+                    <label for="username">Username</label> <br>
+                    <input type="text" id="username" required placeholder="Enter your username">
+                </div>
+                <div class="input">
+                    <label for="company">Company</label> <br>
+                    <input type="text" id="company" required placeholder="Enter your company name">
+                </div>
+                <div class="input">
+                    <label for="email">Your Email</label> <br>
+                    <input type="email" id="email" required placeholder="example@gmail.com">
+                </div>
+                <div class="input">
+                    <label for="fullname">Fullname</label> <br>
+                    <input type="text" id="fullname" required placeholder="Enter your full name">
+                </div>
+                <div class="input">
+                    <label for="phone">Phone Number</label> <br>
+                    <input type="tel" id="phone" required placeholder="Enter phone number">
+                </div>
+                <div class="input">
+                    <label for="password">Password</label> <br>
+                    <input type="password" id="password" required placeholder="Enter password">
+                </div>
+                <div class="input">
+                    <label for="confirm_password">Confirm Password</label> <br>
+                    <input type="password" id="confirm_password" required placeholder="Confirm password">
+                </div>
+                <button type="submit">Save</button>
+            </form>
+            
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+
+{% endblock %}

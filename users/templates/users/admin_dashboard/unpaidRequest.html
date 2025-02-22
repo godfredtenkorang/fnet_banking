@@ -44,7 +44,7 @@ td {
     border: none;
     cursor: pointer;
     border-radius: 5px;
- 
+  
     height: 6vh !important;
 }
 
@@ -114,7 +114,7 @@ tbody tr:nth-child(even) {
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
-            <h1>Request</h1>
+            <h1>Unpaid Request</h1>
         </div>
     </div>
 
@@ -138,6 +138,8 @@ tbody tr:nth-child(even) {
                 </tr>
             </thead>
             <tbody>
+                
+                
                 <tr>
                     <td data-label="Agent">John Doe</td>
                     <td data-label="Location">New York</td>
@@ -151,41 +153,7 @@ tbody tr:nth-child(even) {
                     <td data-label="Date">2025-02-21</td>
                     <td data-label="Time">10:30 AM</td>
                     <td data-label="Action" class="action-buttons">
-                        <button class="approve-btn">Approve</button>
-                        <button class="decline-btn">Decline</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td data-label="Agent">John Doe</td>
-                    <td data-label="Location">New York</td>
-                    <td data-label="Local District">Manhattan</td>
-                    <td data-label="Customer Number">123456789</td>
-                    <td data-label="Bank">Bank ABC</td>
-                    <td data-label="Acc No">987654321</td>
-                    <td data-label="Amount">$500</td>
-                    <td data-label="Req Status">Pending</td>
-                    <td data-label="Req Paid" class="status-not-paid">Not Paid</td>
-                    <td data-label="Date">2025-02-21</td>
-                    <td data-label="Time">10:30 AM</td>
-                    <td data-label="Action" class="action-buttons">
-                        <button class="approve-btn">Approve</button>
-                        <button class="decline-btn">Decline</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td data-label="Agent">John Doe</td>
-                    <td data-label="Location">New York</td>
-                    <td data-label="Local District">Manhattan</td>
-                    <td data-label="Customer Number">123456789</td>
-                    <td data-label="Bank">Bank ABC</td>
-                    <td data-label="Acc No">987654321</td>
-                    <td data-label="Amount">$500</td>
-                    <td data-label="Req Status">Pending</td>
-                    <td data-label="Req Paid" class="status-not-paid">Not Paid</td>
-                    <td data-label="Date">2025-02-21</td>
-                    <td data-label="Time">10:30 AM</td>
-                    <td data-label="Action" class="action-buttons">
-                        <button class="approve-btn">Approve</button>
+                        <button class="approve-btn">Pay Now</button>
                         <button class="decline-btn">Decline</button>
                     </td>
                 </tr>
