@@ -37,140 +37,78 @@
             <nav class="nav">
                 <div class="nav-upper-options">
 
-                    <a href="{% url 'admin-dashboard' %}">
+                    <a href="{% url 'registerAgent' %}">
 
                         <div class="nav-option option1 button">
-                            <h3><i class="fa-solid fa-book"></i> Dashboard</h3>
+                            <h3><i class="fa-solid fa-book"></i> register Agent</h3>
                         </div>
                     </a>
                     <!-- home button -->
-                    <a href="{% url 'request' %}">
+                    <a href="{% url 'myAgent' %}">
 
                         <div class="nav-option option1 button ">
-                            <h3><i class="fa-solid fa-house"></i> Requests
+                            <h3><i class="fa-solid fa-house"></i> My Agent
                             </h3>
-                            <div class="notification">
-                                <i class="fa-solid fa-bell"></i>
-                                <p>9+</p>
-
-
-                            </div>
+                            
                         </div>
                     </a>
                     <!-- acivities button -->
-                    <a href="{% url 'PaymentRequest' %}">
-
+                    <a href="{% url 'report' %}">
                         <div class="nav-option option1 button">
-                            <h3><i class="fa-solid fa-book"></i> Payments </h3>
-                        </div>
-                    </a>
-                    <a href="{% url 'unpaidRequest' %}">
-
-
-                        <div class="nav-option option1 button">
-                            <h3><i class="fa-solid fa-book"></i> Unpaid
-                            </h3>
-                        </div>
-                    </a>
-                    <a href="{% url 'users' %}">
-
-                        <div class="nav-option option1 button">
-                            <h3><i class="fa-solid fa-book"></i> Users
-                            </h3>
-                        </div>
-                    </a>
-
-                    <a href="{% url 'registerCustomer' %}">
-
-
-                        <div class="nav-option option1 button">
-                            <h3><i class="fa-solid fa-bookmark"></i> Register</h3>
+                            <h3><i class="fa-solid fa-book"></i> Report</h3>
                         </div>
                     </a>
                     
-                    <a href="{% url 'customers' %}">
-
+                    <a href="{% url 'payto' %}">
                         <div class="nav-option option1 button">
-                            <h3><i class="fa-solid fa-bookmark"></i> Customers</h3>
+                            <h3><i class="fa-solid fa-book"></i> Pay To</h3>
                         </div>
                     </a>
-
-
-                    <!-- registration button -->
-
-
-
-                    <!-- registration button -->
-                    <a href="{% url 'balance' %}">
+                    
+                    <a href="{% url 'users' %}">
                         <div class="nav-option option1 button">
-                            <h3> <i class="fa-solid fa-money-bill"></i> Balance </h3>
+                            <h3><i class="fa-solid fa-book"></i> Financial Services</h3>
                         </div>
                     </a>
-
-                    <!-- team button -->
-                    <a href="{% url 'birthdays' %}">
+                    
+                    <a href="{% url 'register_customer' %}">
                         <div class="nav-option option1 button">
-                            <h3><i class="fa-solid fa-people-group"></i> Birthdays</h3>
+                            <h3><i class="fa-solid fa-bookmark"></i> Chat</h3>
                         </div>
                     </a>
+                    
+                    <a href="{% url 'flot_resources' %}">
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-bookmark"></i> Flot Resources</h3>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'agent_accounts' %}">
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-bookmark"></i> Agent Accounts</h3>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'bank_account' %}">
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-bookmark"></i> My Bank Account</h3>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'bank_linkage' %}">
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-bookmark"></i> Bank Linkage</h3>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'customer_care' %}">
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-bookmark"></i> Customer Care</h3>
+                        </div>
+                    </a>
+                    
+                    
 
-                    <!-- <a href="">
-                  <div class="nav-option option1 button">
-                      <h3><i class="fa-solid fa-chart-simple"></i> Report</h3>
-                  </div>
-              </a>
-              
-              <a href="">
-                  <div class="nav-option option1 button">
-                      <h3><i class="fa-solid fa-id-card"></i> Drivers</h3>
-                  </div>
-              </a>
-              <a href="">
-                  <div class="nav-option option1 button">
-                      <h3><i class="fa-solid fa-id-card"></i> Agents</h3>
-                  </div>
-              </a>
-              <a href="">
-                  <div class="nav-option option1 button">
-                      <h3><i class="fa-solid fa-users"></i> Customers</h3>
-                  </div>
-              </a>
-              <a href="">
-                  <div class="nav-option option1 button">
-                      <h3><i class="fa-solid fa-handshake"></i> Agreement Forms</h3>
-                  </div>
-              </a>
-              <a href="">
-
-                  <div class="nav-option option1 button">
-                      <h3><i class="fa-solid fa-book"></i> Gallery</h3>
-                  </div>
-              </a>
-              <a href="">
-
-                  <div class="nav-option option1 button">
-                      <h3><i class="fa-solid fa-book"></i> Upload Images for Customers</h3>
-                  </div>
-              </a>
-
-
-              
-
-              <a href="">
-                  <div class="nav-option option1 button">
-                      <h3><i class="fa-solid fa-chevron-left"></i> Home</h3>
-                  </div>
-              </a>
-
-             
-
-              <a href="">
-                  <div class="nav-option option1 button">
-                      <h3><i class="fa-solid fa-sign-out"></i> Logout</h3>
-                  </div>
-              </a>
-
- -->
 
 
 
