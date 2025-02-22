@@ -12,3 +12,6 @@ def signUp(request):
 
 def customerSupport(request):
     return render(request, 'banking/customerSupport.html')
+
+def request(request):
+    return render(request, 'banking/request.html')
