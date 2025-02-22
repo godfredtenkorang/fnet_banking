@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'customer',
     'users',
     'banking',
+    'owner',
 ]
 
 MIDDLEWARE = [
@@ -55,6 +56,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'fnet_banking.urls'
+
+AUTH_USER_MODEL = 'users.User'
 
 TEMPLATES = [
     {
