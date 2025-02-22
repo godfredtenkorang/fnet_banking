@@ -1,0 +1,224 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static 'banking/dashboard.css' %}" />
+    <!-- Boxicons CDN Link -->
+    <link href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    {% if title %}
+    <title>Fnet - {{ title }}</title>
+    {% else %}
+    <title>Fnet</title>
+    {% endif %}
+</head>
+
+<body>
+    <!-- for header part -->
+    <header>
+        <div class="logosec">
+            <div class="logo"></div>
+            <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210182541/Untitled-design-(30).png"
+                class="icn menuicn" id="menuicn" alt="menu-icon" />
+        </div>
+
+        <div class="message">
+            <h1>Admin Dashboard</h1>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="navcontainer sidebar">
+            <nav class="nav">
+                <div class="nav-upper-options">
+
+                    <a href="{% url 'admin-dashboard' %}">
+
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-book"></i> Dashboard</h3>
+                        </div>
+                    </a>
+                    <!-- home button -->
+                    <a href="{% url 'request' %}">
+
+                        <div class="nav-option option1 button ">
+                            <h3><i class="fa-solid fa-house"></i> Requests
+                            </h3>
+                            <div class="notification">
+                                <i class="fa-solid fa-bell"></i>
+                                <p>9+</p>
+
+
+                            </div>
+                        </div>
+                    </a>
+                    <!-- acivities button -->
+                    <a href="">
+
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-book"></i> Payments </h3>
+                        </div>
+                    </a>
+                    <a href="">
+
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-book"></i> Unpaid
+                            </h3>
+                        </div>
+                    </a>
+                    <a href="">
+
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-book"></i> Users
+                            </h3>
+                        </div>
+                    </a>
+
+                    <a href="">
+
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-bookmark"></i> Register</h3>
+                        </div>
+                    </a>
+                    <a href="">
+
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-bookmark"></i> Payments</h3>
+                        </div>
+                    </a>
+                    <a href="">
+
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-bookmark"></i> Customers</h3>
+                        </div>
+                    </a>
+
+
+                    <!-- registration button -->
+
+
+
+                    <!-- registration button -->
+                    <a href="">
+                        <div class="nav-option option1 button">
+                            <h3> <i class="fa-solid fa-money-bill"></i> Balance </h3>
+                        </div>
+                    </a>
+
+                    <!-- team button -->
+                    <a href="">
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-people-group"></i> Birthdays</h3>
+                        </div>
+                    </a>
+
+                    <!-- <a href="">
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-chart-simple"></i> Report</h3>
+                  </div>
+              </a>
+              
+              <a href="">
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-id-card"></i> Drivers</h3>
+                  </div>
+              </a>
+              <a href="">
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-id-card"></i> Agents</h3>
+                  </div>
+              </a>
+              <a href="">
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-users"></i> Customers</h3>
+                  </div>
+              </a>
+              <a href="">
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-handshake"></i> Agreement Forms</h3>
+                  </div>
+              </a>
+              <a href="">
+
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-book"></i> Gallery</h3>
+                  </div>
+              </a>
+              <a href="">
+
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-book"></i> Upload Images for Customers</h3>
+                  </div>
+              </a>
+
+
+              
+
+              <a href="">
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-chevron-left"></i> Home</h3>
+                  </div>
+              </a>
+
+             
+
+              <a href="">
+                  <div class="nav-option option1 button">
+                      <h3><i class="fa-solid fa-sign-out"></i> Logout</h3>
+                  </div>
+              </a>
+
+ -->
+
+
+
+
+                </div>
+            </nav>
+        </div>
+        <div id="loader">
+            <div class="spinner"></div>
+        </div>
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>
+        window.onload = function () {
+            setTimeout(() => {
+                document.getElementById("loader").style.display = "none"; // Hide Loader
+                document.querySelector(".main").style.display = "block"; // Show Main Content
+            }, 2000);
+        };
+    </script>
+
+    <script>
+        // Menu toggle
+        let menuIcons = document.querySelectorAll(".menuicn");
+        let nav = document.querySelector(".navcontainer");
+
+        menuIcons.forEach((menuicn) => {
+            menuicn.addEventListener("click", () => {
+                nav.classList.toggle("navclose");
+            });
+        });
+    </script>
+
+    <script>
+        const options = document.querySelector(".options");
+        const transanctiondrop = document.querySelector(".transanction-drop");
+        options.addEventListener("click", () => {
+            transanctiondrop.classList.toggle("showDropDown");
+        });
+    </script>
+
+    <script defer src="{% static 'vote/adminScript.js' %}"></script>
+    <script defer src="{% static 'vote/adminScript2.js' %}"></script>
+</body>
+
+</html>
