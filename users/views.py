@@ -1,17 +1,150 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import auth
+from .forms import UserRegisterForm, OwnerRegistrationForm, AgentRegistrationForm, CustomerRegistrationForm, LoginForm
+from .models import User, Owner, Agent, Customer, Branch
+from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 
-# Create your views here.
-def admin_dashboard(request):
-    return render(request, 'users/admin_dashboard/dashboard.html')
+
 
 def all_requests(request):
     return render(request, 'users/admin_dashboard/request.html')
 
 def register(request):
-    return render(request, 'users/register.html')
+    if request.method == 'POST':
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.is_active = True
+            user.save()
+            return redirect('login')
+    else:
+        form = UserRegisterForm()
+        
+    context = {
+        'form': form
+    }
+    return render(request, 'users/register.html', context)
 
-def login(request):
-    return render(request, 'users/login.html')
+
+def login_user(request):
+    form = LoginForm()
+    
+    if request.method == 'POST':
+        form = LoginForm(request, data=request.POST)
+        
+        if form.is_valid():
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            
+            user = authenticate(request, username=username, password=password)
+            
+            
+            if user is not None:
+                if user.is_approved and not user.is_blocked:
+                    login(request, user)
+                    if user.role == "ADMIN":
+                        return redirect("admin_dashboard")
+                    elif user.role == "OWNER":
+                        return redirect("owner-dashboard")
+                    elif user.role == "AGENT":
+                        return redirect("agent-dashboard")
+                elif user.is_blocked:
+                    messages.error(request, "Your account has been blocked. Please contact the admin.")
+                else:
+                    messages.error(request, "Your account is not yet approved by the admin.")
+            else:
+                messages.error(request, "Invalid username or password.")
+                
+    else:
+        form = LoginForm()
+        
+    context = {
+        'form': form,
+        'title': 'Login'
+    }
+    
+    return render(request, 'users/login.html', context)
+
+
+def logout(request):
+    auth.logout(request)
+    
+    return redirect('login')
+
+# Role Check Functions
+def is_admin(user):
+    return user.role == 'ADMIN'
+
+def is_owner(user):
+    return user.role == 'OWNER'
+
+def is_agent(user):
+    return user.role == 'AGENT'
+
+# Admin Dashboard
+def admin_dashboard(request):
+    # Fetch all users, owners, agents, and customers
+    users = User.objects.all()
+
+    
+    context = {
+        'users': users,
+
+    }
+    return render(request, 'users/admin_dashboard/dashboard.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def approve_user(request, user_id):
+    user = User.objects.get(id=user_id)
+    user.is_approved = True
+    user.save()
+    return redirect('admin_dashboard')
+
+@login_required
+@user_passes_test(is_admin)
+def unapprove_user(request, user_id):
+    user = User.objects.get(id=user_id)
+    user.is_approved = False
+    user.save()
+    return redirect('admin_dashboard')
+
+
+@login_required
+@user_passes_test(is_admin)
+def block_user(request, user_id):
+    user = User.objects.get(id=user_id)
+    user.is_blocked = True # Toggle block status
+    user.save()
+    return redirect('admin_dashboard')
+
+
+@login_required
+@user_passes_test(is_admin)
+def unblock_user(request, user_id):
+    user = User.objects.get(id=user_id)
+    user.is_blocked = False
+    user.save()
+    return redirect('admin_dashboard')
+
+@login_required
+@user_passes_test(is_admin)
+def register_owner(request):
+    if request.method == 'POST':
+        form = OwnerRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('admin-dashboard')
+    else:
+        form = OwnerRegistrationForm()
+    context = {
+        'form': form
+    }
+    return redirect(request, 'users/admin_dashboard/dashboard.html', context)
 
 def PaymentRequest(request):
     return render(request, 'users/admin_dashboard/PaymentRequest.html')

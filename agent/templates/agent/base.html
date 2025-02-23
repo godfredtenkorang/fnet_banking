@@ -138,6 +138,11 @@
                 <h3><i class="fa-solid fa-people-group"></i> Report</h3>
               </div>
             </a>
+            <a href="{% url 'logout' %}">
+              <div class="nav-option option1 button">
+                <h3><i class="fa-solid fa-people-group"></i> Logout</h3>
+              </div>
+            </a>
           </div>
         </nav>
       </div>
@@ -178,7 +183,5 @@
       });
     </script>
 
-    <script defer src="{% static 'vote/adminScript.js' %}"></script>
-    <script defer src="{% static 'vote/adminScript2.js' %}"></script>
   </body>
 </html>

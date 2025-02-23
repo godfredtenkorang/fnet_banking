@@ -37,7 +37,7 @@
             <nav class="nav">
                 <div class="nav-upper-options">
 
-                    <a href="{% url 'admin-dashboard' %}">
+                    <a href="{% url 'admin_dashboard' %}">
 
                         <div class="nav-option option1 button">
                             <h3><i class="fa-solid fa-book"></i> Dashboard</h3>
@@ -111,6 +111,11 @@
                     <a href="{% url 'birthdays' %}">
                         <div class="nav-option option1 button">
                             <h3><i class="fa-solid fa-people-group"></i> Birthdays</h3>
+                        </div>
+                    </a>
+                    <a href="{% url 'logout' %}">
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-people-group"></i> Logout</h3>
                         </div>
                     </a>
 
@@ -214,8 +219,7 @@
         });
     </script>
 
-    <script defer src="{% static 'vote/adminScript.js' %}"></script>
-    <script defer src="{% static 'vote/adminScript2.js' %}"></script>
+
 </body>
 
 </html>

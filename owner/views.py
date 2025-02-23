@@ -1,6 +1,10 @@
 from django.shortcuts import render
+from django.core.exceptions import PermissionDenied
+from django.contrib.auth.decorators import login_required
 
-# Create your views here.
+
+def owner_dashboard(request):
+    return render(request, 'owner/dashboard.html')
 
 def registerAgent(request):
     return render(request, 'owner/registerAgent.html')

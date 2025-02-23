@@ -27,23 +27,24 @@
         }
     </style>
 
-    <div class="login-container">
 
+    <div class="login-container">
+        <div style="background-color:#000; width:100%;">
+            {% if messages %}
+            {% for message in messages %}
+            <p style="color: red; font-size:30px; text-align:center;">{{ message }}</p>
+            {% endfor %}
+            {% endif %}
+        </div>
 
         <div class="login-form">
 
             <p>Please login with your detail</p>
             <div class="login">
-                <form action="">
-                    <div class="input">
-                        <label for="">Your Email</label> <br>
-                        <input type="email" required placeholder="benjaminoheneasare65@gmail.com">
-                    </div>
-                    <div class="input">
-                        <label for="">Password</label> <br>
-                        <input type="email" required placeholder="password">
-                    </div>
-                    <button>Submit</button>
+                <form method="POST">
+                    {% csrf_token %}
+                    {{form.as_p}}
+                    <button type="submit">Submit</button>
                     <p>Or you dont have account ? then <a href="{% url 'register'%}">Sign Up</a></p>
                     <p>If there are any difficulties, <a href="{% url 'customerSupport' %}">contact support</a></p>
 

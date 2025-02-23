@@ -14,6 +14,12 @@ class User(AbstractUser):
     is_blocked = models.BooleanField(default=False)
     phone_number = models.CharField(max_length=15, unique=True)
     
+    REQUIRED_FIELDS = ['phone_number']
+    USERNAME_FIELD = 'username'
+    
+    
+    def __str__(self):
+        return self.username
 
 class Branch(models.Model):
     name = models.CharField(max_length=100)
