@@ -38,7 +38,7 @@ body {
 }
 
 header {
-  height: 70px;
+  min-height: 70px;
   width: 100vw;
   padding: 0 30px;
   background-color: var(--voiletColor);
@@ -48,6 +48,7 @@ header {
   justify-content: space-between;
   align-items: center;
   color: var(--white);
+  flex-wrap: wrap;
 }
 header a{
   color: var(--white);
@@ -751,7 +752,12 @@ height: 5vh;
 
 
 
-
+/* dashboard-header-detail */
+.dashboard-header-detail{
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
 
 
 
@@ -948,6 +954,12 @@ height: 5vh;
   font-size: 2rem;
   width: 70px;
   height: 70px;
+ }
+ .current-date, .current-time , .current-time, .branch, .day{
+  display: none;
+ }
+ header a{
+  font-size: 1rem;
  }
 }
 

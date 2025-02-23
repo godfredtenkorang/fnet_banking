@@ -19,18 +19,48 @@
 </head>
 
 <body>
-    <!-- for header part -->
-    <header>
+     <!-- for header part -->
+     <header>
         <div class="logosec">
-            <div class="logo"></div>
-            <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210182541/Untitled-design-(30).png"
-                class="icn menuicn" id="menuicn" alt="menu-icon" />
+          <div class="logo">
+  
+          </div>
+          <img
+            src="https://media.geeksforgeeks.org/wp-content/uploads/20221210182541/Untitled-design-(30).png"
+            class="icn menuicn"
+            id="menuicn"
+            alt="menu-icon"
+          />
         </div>
-
-        <div class="message">
-            <h1>Admin Dashboard</h1>
-        </div>
-    </header>
+  
+       <div class="dashboard-header-detail">
+        <div class="button-btn">
+          <a href="{% url 'calculate' %}">
+              <p title="calculator"><i class="fa-solid fa-calculator"></i> </p>
+          </a>
+       </div>
+       <div class="user-name">
+        <p><i class="fa-solid fa-user"></i> Benjamin</p>
+    </div>
+    
+    <div class="role">
+        <p><i class="fa-solid fa-id-badge"></i> Agent</p>
+    </div>
+    
+    <div class="branch">
+        <p><i class="fa-solid fa-location-dot"></i> Accra Branch</p>
+    </div>
+    <div class="current-date">
+      <p id="date"></p>
+  </div>
+  <div class="current-time">
+      <p id="time"></p>
+  </div>
+  <div class="day">
+      <p id="day"></p>
+  </div>
+       </div>
+      </header>
 
     <div class="main-container">
         <div class="navcontainer sidebar">
@@ -218,7 +248,29 @@
             transanctiondrop.classList.toggle("showDropDown");
         });
     </script>
-
+<script>
+    function updateDateTime() {
+        let now = new Date();
+  
+        // Get full day name (e.g., Monday)
+        let dayName = now.toLocaleDateString('en-US', { weekday: 'long' });
+  
+        // Format date (e.g., Feb 22, 2025)
+        let dateOptions = { year: 'numeric', month: 'short', day: 'numeric' };
+        let formattedDate = now.toLocaleDateString('en-US', dateOptions);
+  
+        // Format time (e.g., 10:30:45 AM)
+        let formattedTime = now.toLocaleTimeString('en-US');
+  
+        document.getElementById('day').textContent = dayName;
+        document.getElementById('date').textContent = formattedDate;
+        document.getElementById('time').textContent = formattedTime;
+    }
+  
+    // Update every second
+    setInterval(updateDateTime, 1000);
+    updateDateTime(); // Run once on page load
+  </script>
 
 </body>
 
