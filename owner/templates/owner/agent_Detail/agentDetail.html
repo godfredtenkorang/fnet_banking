@@ -1,0 +1,74 @@
+{% extends 'owner/base.html' %} {% load static %} {% block content %}
+
+
+
+
+
+
+<div class="main">
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>    Agent Name</h1>
+        </div>
+
+    </div>
+
+        <div class="grid-template">
+            <a href="{% url 'agentCustomer' %}" class="grid-row">
+                <i class="fas fa-user"></i> Customer
+            </a>
+            <a href="{% url 'bankDeposit' %}" class="grid-row">
+                <i class="fas fa-university"></i> Bank Deposit
+            </a>
+            <a href="{% url 'bank_withdrawal' %}" class="grid-row">
+                <i class="fas fa-money-bill-wave"></i> Bank Withdrawals
+            </a>
+            <a href="{% url 'cash_In' %}" class="grid-row">
+
+                <i class="fas fa-wallet"></i> Cash In
+            </a>
+            <a href="{% url 'cash_out_agent' %}" class="grid-row">
+                <i class="fas fa-hand-holding-usd"></i> Cash Out
+            </a>
+            <a href="{% url 'pay_to' %}" class="grid-row">
+                <i class="fas fa-money-check-alt"></i> Pay To
+            </a>
+            <a href="{% url 'all_transaction' %}" class="grid-row">
+                <i class="fas fa-list"></i> All Transactions
+            </a>
+            <a href="" class="grid-row">
+                <i class="fas fa-coins"></i> Commission
+            </a>
+        </div>
+        
+
+
+
+    
+
+   
+
+
+
+    
+
+
+
+ 
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

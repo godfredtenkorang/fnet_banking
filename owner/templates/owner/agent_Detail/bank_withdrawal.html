@@ -1,0 +1,60 @@
+{% extends 'owner/base.html' %} {% load static %} {% block content %}
+
+
+
+
+
+
+<div class="main">
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>    Benjamin bank withdrawal Summary </h1>
+        </div>
+
+    </div>
+
+
+    <div class="grid-template">
+        <a href="{% url 'bank_with_detail' %}"class="grid-row">
+            <span>Date:</span>
+            <span>2024-06-11</span>
+        </a>
+        <a href="" class="grid-row">
+            <span>Date:</span>
+            <span>2024-06-11</span>
+        </a>
+        <a href="" class="grid-row">
+            <span>Date:</span>
+            <span>2024-06-11</span>
+        </a>
+        <a href="" class="grid-row">
+            <span>Date:</span>
+            <span>2024-06-11</span>
+        </a>
+    </div>
+   
+
+
+
+    
+
+
+
+ 
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}
