@@ -124,12 +124,14 @@
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
-            <h1>Users</h1>
+            <h1>Unapproved Users</h1>
         </div>
     </div>
 
 
     <div class="table-container">
+        
+
         <table>
             <thead>
                 <tr>
@@ -141,7 +143,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for user in users %}
+                {% for user in unapproved_users %}
                 <tr>
                     <td data-label="username">{{ user.username }}</td>
                     <td data-label="Location">{{ user.role }}</td>
@@ -149,14 +151,8 @@
                     <td data-label="Action" class="action-buttons">
                         {% if not user.is_approved %}
                         <a href="{% url 'approve_user' user.id %}"><button class="approve-btn">Approve</button></a>
-                        {% else %}
-                        <a href="{% url 'unapprove_user' user.id %}"><button class="approve-btn">Unapprove</button></a>
                         {% endif %}
-                        {% if not user.is_blocked %}
-                        <a href="{% url 'block_user' user.id %}"><button class="decline-btn">Block</button></a>
-                        {% else %}
-                        <a href="{% url 'unblock_user' user.id %}"><button class="decline-btn">Unblock</button></a>
-                        {% endif %}
+                        
                     </td>
                 </tr>
                 {% endfor %}

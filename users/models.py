@@ -1,6 +1,22 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+BRANCHES = (
+    ("Please select cash at location", "Please select cash at location"),
+    ("Cash @ location", "Cash @ location"),
+    ("DVLA", "DVLA"),
+    ("HEAD OFFICE", "HEAD OFFICE"),
+    ("KEJETIA", "KEJETIA"),
+    ("ECOBANK", "ECOBANK"),
+    ("PAN AFRICA", "PAN AFRICA"),
+    ("MELCOM SANTASI", "MELCOM SANTASI"),
+    ("MELCOM TANOSO", "MELCOM TANOSO"),
+    ("MELCOM MANHYIA", "MELCOM MANHYIA"),
+    ("MELCOM TAFO", "MELCOM TAFO"),
+    ("MELCOM AHODWO", "MELCOM AHODWO"),
+    ("MELCOM ADUM", "MELCOM ADUM"),
+    ("MELCOM SUAME", "MELCOM SUAME"),
+)
 
 class User(AbstractUser):
     ROLE_CHOICES = [
@@ -22,7 +38,7 @@ class User(AbstractUser):
         return self.username
 
 class Branch(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, choices=BRANCHES)
     location = models.CharField(max_length=100)
     
     def __str__(self):
@@ -31,6 +47,13 @@ class Branch(models.Model):
 class Owner(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='owner')
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
+    email = models.EmailField(null=True, blank=True)
+    full_name = models.CharField(max_length=100, null=True, blank=True)
+    phone_number = models.CharField(max_length=10, null=True, blank=True)
+    company_name = models.CharField(max_length=100, null=True, blank=True)
+    company_number = models.CharField(max_length=10, null=True, blank=True)
+    digital_address = models.CharField(max_length=50, null=True, blank=True)
+    agent_code = models.CharField(max_length=20, null=True, blank=True)
 
     def __str__(self):
         return self.user.username
@@ -39,6 +62,13 @@ class Agent(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='agent')
     owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
+    email = models.EmailField(null=True, blank=True)
+    full_name = models.CharField(max_length=100, null=True, blank=True)
+    phone_number = models.CharField(max_length=10, null=True, blank=True)
+    company_name = models.CharField(max_length=100, null=True, blank=True)
+    company_number = models.CharField(max_length=10, null=True, blank=True)
+    digital_address = models.CharField(max_length=50, null=True, blank=True)
+    agent_code = models.CharField(max_length=20, null=True, blank=True)
 
     def __str__(self):
         return self.user.username

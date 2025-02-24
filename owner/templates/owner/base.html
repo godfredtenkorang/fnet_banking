@@ -40,16 +40,22 @@
           </a>
        </div>
        <div class="user-name">
-        <p><i class="fa-solid fa-user"></i> Benjamin</p>
+
+        <p><i class="fa-solid fa-user"></i> {{ user.username }}</p>
+
     </div>
     
     <div class="role">
-        <p><i class="fa-solid fa-id-badge"></i> Agent</p>
+
+        <p><i class="fa-solid fa-id-badge"></i> {{ user.role }}</p>
+
     </div>
     
-    <div class="branch">
-        <p><i class="fa-solid fa-location-dot"></i> Accra Branch</p>
-    </div>
+    <!-- <div class="branch">
+
+        <p><i class="fa-solid fa-location-dot"></i> {{ user.branch }}</p>
+
+    </div> -->
     <div class="current-date">
       <p id="date"></p>
   </div>
@@ -91,27 +97,27 @@
                     
                     <a href="{% url 'payto' %}">
                         <div class="nav-option option1 button">
-                            <h3><i class="fa-solid fa-book"></i> Pay To</h3>
+                            <h3><i class="fa-solid fa-book"></i> Cash & E Cash</h3>
                         </div>
                     </a>
                     
-                    <a href="{% url 'users' %}">
+                    <a href="{% url 'financial_services' %}">
                         <div class="nav-option option1 button">
                             <h3><i class="fa-solid fa-book"></i> Financial Services</h3>
                         </div>
                     </a>
                     
-                    <a href="{% url 'register_customer' %}">
+                    <!-- <a href="{% url 'register_customer' %}">
                         <div class="nav-option option1 button">
                             <h3><i class="fa-solid fa-bookmark"></i> Chat</h3>
                         </div>
-                    </a>
+                    </a> -->
                     
-                    <a href="{% url 'flot_resources' %}">
+                    <!-- <a href="{% url 'flot_resources' %}">
                         <div class="nav-option option1 button">
                             <h3><i class="fa-solid fa-bookmark"></i> Flot Resources</h3>
                         </div>
-                    </a>
+                    </a> -->
                     
                     <a href="{% url 'agent_accounts' %}">
                         <div class="nav-option option1 button">
@@ -119,17 +125,17 @@
                         </div>
                     </a>
                     
-                    <a href="{% url 'bank_account' %}">
+                    <!-- <a href="{% url 'bank_account' %}">
                         <div class="nav-option option1 button">
                             <h3><i class="fa-solid fa-bookmark"></i> My Bank Account</h3>
                         </div>
-                    </a>
+                    </a> -->
                     
-                    <a href="{% url 'bank_linkage' %}">
+                    <!-- <a href="{% url 'bank_linkage' %}">
                         <div class="nav-option option1 button">
                             <h3><i class="fa-solid fa-bookmark"></i> Bank Linkage</h3>
                         </div>
-                    </a>
+                    </a> -->
                     
                     <a href="{% url 'customer_care' %}">
                         <div class="nav-option option1 button">

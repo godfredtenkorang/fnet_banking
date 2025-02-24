@@ -1,16 +1,37 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required
+from users.forms import AgentRegistrationForm
+from users.models import Agent, Owner
 
 
 def owner_dashboard(request):
     return render(request, 'owner/dashboard.html')
 
 def registerAgent(request):
-    return render(request, 'owner/registerAgent.html')
+    if request.method == 'POST':
+        form = AgentRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('registerAgent')
+    else:
+        form = AgentRegistrationForm()
+    context = {
+        'form': form
+    }
+    return render(request, 'owner/registerAgent.html', context)
 
 def myAgent(request):
-    return render(request, 'owner/myAgent.html')
+    my_agents = Agent.objects.all()
+    context = {
+        'my_agents': my_agents,
+        'title': 'My Agents',
+    }
+    return render(request, 'owner/myAgent.html', context)
+
+# def get_owner(request):
+#     users = Owner.objects.filter(user=request.user)
+#     return {'users': users}
 
 def report(request):
     return render(request, 'owner/report.html')

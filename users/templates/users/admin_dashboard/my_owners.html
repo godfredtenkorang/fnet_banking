@@ -114,7 +114,7 @@ tbody tr:nth-child(even) {
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
-            <h1>Customers</h1>
+            <h1>Agents</h1>
         </div>
     </div>
 
@@ -123,7 +123,7 @@ tbody tr:nth-child(even) {
         <table>
             <thead>
                 <tr>
-                    <th>Customer ID</th>
+                    <th>Agent ID</th>
                     <th>Username</th>
                     <th>Company</th>
                     <th>Email</th>
@@ -133,28 +133,19 @@ tbody tr:nth-child(even) {
                 </tr>
             </thead>
             <tbody>
+                {% for owner in my_owners %}
                 <tr>
-                    <td data-label="Customer ID">1</td>
-                    <td data-label="Username">johndoe</td>
-                    <td data-label="Company">Tech Corp</td>
-                    <td data-label="Email">johndoe@example.com</td>
-                    <td data-label="Full Name">John Doe</td>
-                    <td data-label="Phone Number">+1234567890</td>
+                    <td data-label="Customer ID">{{ owner.agent_code }}</td>
+                    <td data-label="Username">{{ owner.user.username }}</td>
+                    <td data-label="Company">{{ owner.company_name }}</td>
+                    <td data-label="Email">{{ owner.email }}</td>
+                    <td data-label="Full Name">{{ owner.full_name }}</td>
+                    <td data-label="Phone Number">{{ owner.phone_number }}</td>
                    
                       
                     </td>
                 </tr>
-                <tr>
-                    <td data-label="Customer ID">2</td>
-                    <td data-label="Username">janesmith</td>
-                    <td data-label="Company">Design Studio</td>
-                    <td data-label="Email">janesmith@example.com</td>
-                    <td data-label="Full Name">Jane Smith</td>
-                    <td data-label="Phone Number">+0987654321</td>
-                   
-                      
-                    </td>
-                </tr>
+                {% endfor %}
             </tbody>
         </table>
         

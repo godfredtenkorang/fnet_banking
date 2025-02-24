@@ -1,0 +1,51 @@
+{% extends 'users/admin_dashboard/base.html' %}
+{% load static %}
+{% block content %}
+
+
+<div class="main">
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Register Customer</h1>
+        </div>
+    </div>
+
+
+
+    <div class="customer-form">
+      
+
+        <div class="customerlogin">
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Save</button>
+            </form>
+            
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+
+{% endblock %}

@@ -40,16 +40,16 @@
           </a>
        </div>
        <div class="user-name">
-        <p><i class="fa-solid fa-user"></i> Benjamin</p>
+        <p><i class="fa-solid fa-user"></i> {{user.username}}</p>
     </div>
     
     <div class="role">
-        <p><i class="fa-solid fa-id-badge"></i> Agent</p>
+        <p><i class="fa-solid fa-id-badge"></i> {{user.role}}</p>
     </div>
     
-    <div class="branch">
+    <!-- <div class="branch">
         <p><i class="fa-solid fa-location-dot"></i> Accra Branch</p>
-    </div>
+    </div> -->
     <div class="current-date">
       <p id="date"></p>
   </div>
@@ -70,7 +70,12 @@
                     <a href="{% url 'admin_dashboard' %}">
 
                         <div class="nav-option option1 button">
-                            <h3><i class="fa-solid fa-book"></i> Dashboard</h3>
+                            <h3><i class="fa-solid fa-book"></i> Dashboard </h3><div class="notification">
+                                <i class="fa-solid fa-bell"></i>
+                                <p>{{ unapproved_users_count }}</p>
+                            
+                            
+                            </div>
                         </div>
                     </a>
                     <!-- home button -->
@@ -102,7 +107,7 @@
                             </h3>
                         </div>
                     </a>
-                    <a href="{% url 'users' %}">
+                    <a href="{% url 'all_users' %}">
 
                         <div class="nav-option option1 button">
                             <h3><i class="fa-solid fa-book"></i> Users
@@ -110,18 +115,18 @@
                         </div>
                     </a>
 
-                    <a href="{% url 'registerCustomer' %}">
+                    <a href="{% url 'register_owner' %}">
 
 
                         <div class="nav-option option1 button">
-                            <h3><i class="fa-solid fa-bookmark"></i> Register</h3>
+                            <h3><i class="fa-solid fa-bookmark"></i> Register Owner</h3>
                         </div>
                     </a>
                     
-                    <a href="{% url 'customers' %}">
+                    <a href="{% url 'my_owners' %}">
 
                         <div class="nav-option option1 button">
-                            <h3><i class="fa-solid fa-bookmark"></i> Customers</h3>
+                            <h3><i class="fa-solid fa-bookmark"></i> My Owners</h3>
                         </div>
                     </a>
 
