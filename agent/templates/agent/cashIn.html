@@ -40,21 +40,45 @@
 
 
 
-
               <div class="input">
-                <label>Select Deposit type</label> <br />
-                <select required>
-                  <option value="" disabled selected>Select deposit type</option>
-          
-                  <option value="Loading">Loading</option>
-                  <option value="Deposit">Deposit</option>
+                <label>Select Deposit Type</label> <br />
+                <select id="depositType" required>
+                    <option value="" disabled selected>Select deposit type</option>
+                    <option value="Loading">Loading</option>
+                    <option value="Deposit">Deposit</option>
                 </select>
-              </div>
+            </div>
+            
+            <div class="input depositor_name" id="depositorField" style="display: none;">
+                <label>Depositor Name</label> <br />
+                <input type="text" required />
+            </div>
+            
+            <div class="input depositor_name" id="depositorField" style="display: none;">
+                <label>Depositor Number</label> <br />
+                <input type="tel" required />
+            </div>
+            
+          
+          <div class="input depositor_name" id="depositorNameField" style="display: none; opacity: 0; transition: opacity 0.3s;">
+              <label>Depositor Name</label> <br />
+              <input type="text" required />
+          </div>
+          
+          <div class="input depositor_name" id="depositorNumberField" style="display: none; opacity: 0; transition: opacity 0.3s;">
+              <label>Depositor Number</label> <br />
+              <input type="tel" required />
+          </div>
+          
+            
+
+
               <div class="input">
                 <label>Amount</label> <br />
           
                 <input type="number" required />
               </div>
+             
           
         </div>
         <button type="submit" id="submitBtn">Submit</button>
@@ -146,5 +170,26 @@
       }
     });
   </script>
-
+<script>
+  document.getElementById("depositType").addEventListener("change", function () {
+      const nameField = document.getElementById("depositorNameField");
+      const numberField = document.getElementById("depositorNumberField");
+  
+      if (this.value === "Deposit") {
+          nameField.style.display = "block";
+          numberField.style.display = "block";
+          setTimeout(() => {
+              nameField.style.opacity = "1";
+              numberField.style.opacity = "1";
+          }, 10); // Allows transition to work
+      } else {
+          nameField.style.opacity = "0";
+          numberField.style.opacity = "0";
+          setTimeout(() => {
+              nameField.style.display = "none";
+              numberField.style.display = "none";
+          }, 300); // Matches transition duration
+      }
+  });
+  </script>
 {% endblock %}
