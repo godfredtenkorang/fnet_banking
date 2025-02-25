@@ -34,6 +34,8 @@ urlpatterns = [
     path('cash_out_detail/', views.cash_out_detail, name='cash_out_detail'),
     path('pay_to/', views.pay_to, name='pay_to'),
     path('all_transaction/', views.all_transaction, name='all_transaction'),
-
+    path('complains/', views.complains, name='complains'),
+ path('fraud/', views.fraud, name='fraud'),
+    path('hold-account/', views.hold_account, name='hold_account'),
 
 ]

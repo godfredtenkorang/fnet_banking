@@ -113,3 +113,12 @@ def pay_to(request):
 
 def all_transaction(request):
     return render(request, 'owner/agent_Detail/all_transaction.html')  
+
+def complains(request):
+    return render(request, 'owner/customerCare/complains.html')  
+
+def fraud(request):
+    return render(request, 'owner/customerCare/fraud.html')  
+
+def hold_account(request):
+    return render(request, 'owner/customerCare/holdAccount.html')  
