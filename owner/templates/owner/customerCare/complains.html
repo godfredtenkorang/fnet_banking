@@ -1,0 +1,56 @@
+{% extends 'owner/base.html' %} {% load static %} {% block content %}
+
+
+
+
+
+
+<div class="main">
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>    File a complain</h1>
+        </div>
+    </div>
+
+    <div class="customer-care">
+        <form action="">
+            <div class="input">
+                <label for="complain-title">Complain Title</label> <br>
+                <input type="text" id="complain-title" placeholder="Enter complain title">
+            </div>
+            <div class="input">
+                <label for="complain-details">Complain Details</label> <br>
+                <textarea id="complain-details" placeholder="Write your complain here"></textarea>
+            </div>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    
+    
+
+   
+
+
+
+    
+
+
+
+ 
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

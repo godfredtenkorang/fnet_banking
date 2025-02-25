@@ -1,0 +1,66 @@
+{% extends 'owner/base.html' %} {% load static %} {% block content %}
+
+
+
+
+
+
+<div class="main">
+   
+
+    <div class="pay-to-link">
+        <a href="{% url 'payto' %}"class="activeBtn">
+            <button ><i class="fas fa-user-tie"></i> Agent</button>
+        </a>
+        <a href="{% url 'pay_to_mechant' %}">
+            <button><i class="fas fa-store"></i> Merchant</button>
+        </a>
+    </div>
+    
+   
+
+    <div class="grid-template">
+        <a href="{% url 'pay_to_agent_detail' %}" class="grid-row">
+            <span>Date:</span>
+            <span>2024-06-11</span>
+        </a>
+
+        <a href="" class="grid-row">
+            <span>Date:</span>
+            <span>2024-06-11</span>
+        </a>
+        
+        <a href="" class="grid-row">
+            <span>Date:</span>
+            <span>2024-06-11</span>
+        </a>
+        <a href="" class="grid-row">
+            <span>Date:</span>
+            <span>2024-06-11</span>
+        </a>
+    </div>
+   
+
+
+
+    
+
+
+
+ 
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

@@ -9,6 +9,9 @@ urlpatterns = [
 
     path('report/', views.report, name='report'),
     path('payto/', views.payto, name='payto'),
+    path('pay_to_mechant/', views.pay_to_mechant, name='pay_to_mechant'),
+    path('pay_to_agent_detail/', views.pay_to_agent_detail, name='pay_to_agent_detail'),
+    path('pay_to_mechant_detail/', views.pay_to_mechant_detail, name='pay_to_mechant_detail'),
     path('users/', views.users, name='users'),
     path('register_customer/', views.register_customer, name='register_customer'),
     path('flot_resources/', views.flot_resources, name='flot_resources'),
@@ -31,6 +34,8 @@ urlpatterns = [
     path('cash_out_detail/', views.cash_out_detail, name='cash_out_detail'),
     path('pay_to/', views.pay_to, name='pay_to'),
     path('all_transaction/', views.all_transaction, name='all_transaction'),
-
+    path('complains/', views.complains, name='complains'),
+ path('fraud/', views.fraud, name='fraud'),
+    path('hold-account/', views.hold_account, name='hold_account'),
 
 ]
