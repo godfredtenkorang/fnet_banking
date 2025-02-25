@@ -38,7 +38,16 @@ def report(request):
 
 
 def payto(request):
-    return render(request, 'owner/payto.html')
+    return render(request, 'owner/pay_to/payto.html')
+
+def pay_to_mechant(request):
+    return render(request, 'owner/pay_to/pay_to_mechant.html')
+
+def pay_to_agent_detail(request):
+    return render(request, 'owner/pay_to/pay_to_agent_detail.html')
+
+def pay_to_mechant_detail(request):
+    return render(request, 'owner/pay_to/pay_to_mechant_detail.html')
 
 def users(request):
     return render(request, 'owner/users.html')

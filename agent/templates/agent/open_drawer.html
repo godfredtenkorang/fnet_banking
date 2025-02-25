@@ -9,15 +9,16 @@
     </div>
     <div class="form">
 
-        <form id="networkForm" method="POST">
+        <form id="networkForm" class="f" method="POST">
             {% csrf_token %}
             
 
 
                 {{form.as_p}}
-
+ 
   
             <button type="submit" id="submitBtn">Save Opening Balance</button>
+            <a class="btn41-43 btn-41" href="{% url 'close-drawer' %}">Close Drawer</a>
         </form>
     </div>
 

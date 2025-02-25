@@ -182,6 +182,7 @@ margin: 3% 0;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    text-align: center;
    
     color: var(--white);
   }

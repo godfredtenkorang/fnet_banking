@@ -9,6 +9,9 @@ urlpatterns = [
 
     path('report/', views.report, name='report'),
     path('payto/', views.payto, name='payto'),
+    path('pay_to_mechant/', views.pay_to_mechant, name='pay_to_mechant'),
+    path('pay_to_agent_detail/', views.pay_to_agent_detail, name='pay_to_agent_detail'),
+    path('pay_to_mechant_detail/', views.pay_to_mechant_detail, name='pay_to_mechant_detail'),
     path('users/', views.users, name='users'),
     path('register_customer/', views.register_customer, name='register_customer'),
     path('flot_resources/', views.flot_resources, name='flot_resources'),
