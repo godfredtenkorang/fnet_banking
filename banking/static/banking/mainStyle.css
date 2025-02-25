@@ -85,6 +85,22 @@ margin: 3% 0;
     color: var(--whiteColor);
   
 }
+.login-form select{
+    padding: 10px;
+margin: 3% 0;
+    width: 100%;
+    min-height: 10vh;
+    background-color: transparent;
+    outline: none;
+    border: solid 1px #fff;
+    color: var(--whiteColor);
+   
+  
+}
+
+.login-form option{
+    color: var(--blueColor);
+}
 .login-form textarea{
     padding: 10px;
 margin: 3% 0;
@@ -178,13 +194,6 @@ margin: 3% 0;
   
   
   
-  
-
-
-
-
-
-
 
 
 

@@ -1,0 +1,256 @@
+{% extends 'owner/base.html' %} {% load static %} {% block content %}
+
+
+
+
+
+<style>
+    /* Default table styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+
+    th {
+        background: #007bff;
+        color: white;
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+    td {
+        font-size: 12px;
+    }
+
+    /* Button Styling */
+    .approve-btn {
+        background: #28a745;
+        color: white;
+
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+
+        height: 6vh !important;
+    }
+
+    .decline-btn {
+        background: #dc3545;
+        color: white;
+
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+
+        height: 6vh !important;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+    }
+
+    /* Table row background color using child selectors */
+    tbody tr:nth-child(odd) {
+        background-color: #f9f9f9;
+        /* Light gray for odd rows */
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #e9ecef;
+        /* Slightly darker gray for even rows */
+    }
+
+    /* Mobile Responsive Table */
+    @media screen and (max-width: 968px) {
+
+        table,
+        thead,
+        tbody,
+        th,
+        td,
+        tr {
+            display: block;
+            width: 100%;
+        }
+
+        thead {
+            display: none;
+        }
+
+        tr {
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            padding: 8px;
+            background: #f9f9f9;
+        }
+
+        td {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border: none;
+            text-align: left;
+        }
+
+        td::before {
+            content: attr(data-label);
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        /* Stack buttons at the bottom */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .action-buttons button {
+            width: 100% !important;
+        }
+    }
+</style>
+
+
+<div class="main">
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Cash out </h1>
+        </div>
+    </div>
+
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Amount Sent</th>
+                    <th>Cash Received</th>
+                    <th>Network</th>
+                    <th>Type</th>
+                    <th>Depositor</th>
+                    <th>Depositor Num</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td data-label="Customer">0558156844</td>
+                    <td data-label="Amount Sent">$500</td>
+                    <td data-label="Cash Received">$500</td>
+                    <td data-label="Network">MTN</td>
+                    <td data-label="Type">Deposit</td>
+                    <td data-label="Depositor">John Doe</td>
+                    <td data-label="Depositor Num">123456789</td>
+                    <td data-label="Date">2025-02-24</td>
+                    <td data-label="Time">14:30</td>
+                </tr>
+                <tr>
+                    <td data-label="Customer">0558156844</td>
+                    <td data-label="Amount Sent">$300</td>
+                    <td data-label="Cash Received">$300</td>
+                    <td data-label="Network">AirtelTigo</td>
+                    <td data-label="Type">Deposit</td>
+                    <td data-label="Depositor">Jane Doe</td>
+                    <td data-label="Depositor Num">987654321</td>
+                    <td data-label="Date">2025-02-24</td>
+                    <td data-label="Time">15:00</td>
+                </tr>
+                <tr>
+                    <td data-label="Customer">0558156844</td>
+                    <td data-label="Amount Sent">$200</td>
+                    <td data-label="Cash Received">$200</td>
+                    <td data-label="Network">Vodafone</td>
+                    <td data-label="Type">Deposit</td>
+                    <td data-label="Depositor">Mike Doe</td>
+                    <td data-label="Depositor Num">456123789</td>
+                    <td data-label="Date">2025-02-24</td>
+                    <td data-label="Time">16:00</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <!-- Pop-up to show total -->
+        <div class="total-pop">
+            <div class="total-background">
+                <p>Total</p>
+                <p class="cashrecieved">$0</p>
+                <p class="cashsent"></p>
+                <button class="closeTotal">Close</button>
+            </div>
+        </div>
+        
+        <!-- Button to Calculate Total -->
+        <div class="total-btn">
+            <button class="calculate-total"><i class="fas fa-coins"></i> Total</button>
+        </div>
+    </div>
+    
+
+
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const totalBtn = document.querySelector(".calculate-total");
+            const totalPop = document.querySelector(".total-pop");
+            const cashSentEl = document.querySelector(".cashsent");
+            const cashReceivedEl = document.querySelector(".cashrecieved");
+            const closeTotalBtn = document.querySelector(".closeTotal");
+        
+            // Function to Calculate Totals
+            function calculateTotal() {
+                let totalSent = 0;
+                let totalReceived = 0;
+        
+                document.querySelectorAll("td[data-label='Amount Sent']").forEach(td => {
+                    let amount = parseFloat(td.textContent.replace("$", "")) || 0;
+                    totalSent += amount;
+                });
+        
+                document.querySelectorAll("td[data-label='Cash Received']").forEach(td => {
+                    let amount = parseFloat(td.textContent.replace("$", "")) || 0;
+                    totalReceived += amount;
+                });
+        
+                // Update Popup
+                cashSentEl.textContent = `Total Sent: $${totalSent}`;
+                cashReceivedEl.textContent = `Total Received: $${totalReceived}`;
+        
+                // Show Popup
+                totalPop.style.display = "flex";
+                setTimeout(() => {
+                    totalPop.classList.add("active");
+                }, 50);
+            }
+        
+            // Function to Close Popup
+            function closePopup() {
+                totalPop.classList.remove("active");
+                setTimeout(() => {
+                    totalPop.style.display = "none";
+                }, 300);
+            }
+        
+            // Event Listeners
+            totalBtn.addEventListener("click", calculateTotal);
+            closeTotalBtn.addEventListener("click", closePopup);
+        });
+        </script>
+        
+
+
+{% endblock %}

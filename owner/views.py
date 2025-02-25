@@ -64,3 +64,39 @@ def customer_care(request):
 
 def financial_services(request):
     return render(request, 'owner/FinancialServices.html')
+
+def agentDetail(request):
+    return render(request, 'owner/agent_Detail/agentDetail.html')
+
+def agentCustomer(request):
+    return render(request, 'owner/agent_Detail/agentCustomer.html')
+
+def bankDeposit(request):
+    return render(request, 'owner/agent_Detail/bankDeposit.html')
+
+def bankDepositDetail(request):
+    return render(request, 'owner/agent_Detail/bankDepositDetail.html')
+
+def bank_with_detail(request):
+    return render(request, 'owner/agent_Detail/bank_with_detail.html')
+
+def bank_withdrawal(request):
+    return render(request, 'owner/agent_Detail/bank_withdrawal.html')
+
+def cash_In(request):
+    return render(request, 'owner/agent_Detail/cash_In.html')
+
+def cash_in_detail(request):
+    return render(request, 'owner/agent_Detail/cash_in_detail.html')  
+
+def cash_out_detail(request):
+    return render(request, 'owner/agent_Detail/cash_out_detail.html')  
+
+def cash_out_agent(request):
+    return render(request, 'owner/agent_Detail/cash_out_agent.html')  
+
+def pay_to(request):
+    return render(request, 'owner/agent_Detail/pay_to.html')  
+
+def all_transaction(request):
+    return render(request, 'owner/agent_Detail/all_transaction.html')  
