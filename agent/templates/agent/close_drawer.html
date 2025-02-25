@@ -1,0 +1,25 @@
+{% extends 'agent/base.html' %} {% load static %} {% block content %}
+
+<div class="main">
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Close Drawer</h1>
+        </div>
+    </div>
+    <div class="form">
+        <p>Opening Balance GH¢{{ drawer.opening_balance }}</p>
+        <form id="networkForm" method="POST">
+            {% csrf_token %}
+
+            <label for="closing_balance">Closing Balance:</label>
+            <input type="number" name="closing_balance" step="0.01" required>
+    
+            <button type="submit" id="submitBtn">Close Balance</button>
+        </form>
+    </div>
+
+</div>
+
+
+{% endblock %}

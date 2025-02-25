@@ -4,6 +4,13 @@
 
 
 <div class="main">
+    <div style="background-color:#000; width:100%;">
+        {% if messages %}
+        {% for message in messages %}
+        <p style="color: red; font-size:30px; text-align:center;">{{ message }}</p>
+        {% endfor %}
+        {% endif %}
+    </div>
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
@@ -11,32 +18,33 @@
         </div>
     </div>
     <div class="customer">
+        
         <div class="forms">
-            <form id="networkForm">
+            <form id="networkForm" method="POST">
+                {% csrf_token %}
                 <div class="form-grid">
                     <div class="input">
                         <label for="customerPhone">Customer Phone Number</label> <br />
-                        <input type="text" id="customerPhone" required placeholder="Phone Number" />
+                        <input type="text" name="phone_number" id="customerPhone" required placeholder="Phone Number" />
                     </div>
             
                     <div class="input">
                         <label for="accountNumber">Account Number</label> <br />
-                        <input type="text" id="accountNumber" required placeholder="Account Number" />
+                        <input type="text" name="account_number" id="accountNumber" required placeholder="Account Number" />
                     </div>
             
                     <div class="input">
                         <label for="accountName">Account Name</label> <br />
-                        <input type="text" id="accountName" required placeholder="Account Name" />
+                        <input type="text" name="account_name" id="accountName" required placeholder="Account Name" />
                     </div>
             
                     <div class="input">
                         <label for="selectBank">Select Bank</label> <br />
-                        <select id="selectBank" required>
+                        <select id="selectBank" name="bank" required>
                             <option value="" disabled selected>Select Bank</option>
-                            <option value="GCB">GCB</option>
-                            <option value="Ecobank">Ecobank</option>
-                            <option value="Stanbic">Stanbic</option>
-                            <option value="ABSA">ABSA</option>
+                            {% for bank in banks %}
+                            <option value="{{ bank.id }}">{{ bank.name }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                 </div>
@@ -80,7 +88,7 @@
             </p>
             <div class="confirm-info">
                 <input type="checkbox" id="confirmCheck"> 
-                <label for="confirmCheck">I confirm that the details are correct</label>
+                <label for="confirmCheck"> I confirm that the details are correct</label>
             </div>
         </div>
         

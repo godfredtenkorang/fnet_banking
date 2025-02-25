@@ -22,7 +22,7 @@
             <p><strong>Username:</strong> <span>{{ agent.user.username }}</span></p>
             <p><strong>Phone:</strong> <span>{{ agent.phone_number }}</span></p>
             <p><strong>Email:</strong> <span>{{ agent.email }}</span></p>
-            <a href="">Tap for more</a>
+            <a href="{% url 'agentDetail' agent.id %}">Tap for more</a>
         </div>
         {% endfor %}
         

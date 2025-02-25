@@ -1,0 +1,27 @@
+{% extends 'agent/base.html' %} {% load static %} {% block content %}
+
+<div class="main">
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Drawer</h1>
+        </div>
+    </div>
+    <div class="form">
+
+        <form id="networkForm" method="POST">
+            {% csrf_token %}
+            
+
+
+                {{form.as_p}}
+
+  
+            <button type="submit" id="submitBtn">Save Opening Balance</button>
+        </form>
+    </div>
+
+</div>
+
+
+{% endblock %}

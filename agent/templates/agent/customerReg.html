@@ -12,31 +12,52 @@
     </div>
     <div class="customer">
         <div class="forms">
-            <form id="networkForm">
+            <form id="networkForm" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
                 <div class="form-grid">
                     <div class="input">
+                        <label for="username">Username</label> <br />
+                        <select id="username" name="username" required>
+                            <option value="" disabled selected>Select Username</option>
+                            {% for user in users %}
+                            <option value="{{user.id}}">{{ user.username }}</option>
+                            {% endfor %}
+                            
+                        </select>
+                    </div>
+                    <div class="input">
+                        <label for="branch">Branch</label> <br />
+                        <select id="branch" name="branch" required>
+                            <option value="" disabled selected>Select Branch</option>
+                            {% for branch in branches %}
+                            <option value="{{branch.id}}">{{branch.name}}</option>
+                            {% endfor %}
+                            
+                        </select>
+                    </div>
+                    <div class="input">
                         <label for="customerPhone">Customer Phone Number</label> <br />
-                        <input type="text" id="customerPhone" required placeholder="Phone Number" />
+                        <input type="text" name="phone_number" id="customerPhone" required placeholder="Phone Number" />
                     </div>
             
                     <div class="input">
-                        <label for="customerName">Customer Name</label> <br />
-                        <input type="text" id="customerName" required placeholder="Full Name" />
+                        <label for="customerName">Full Name</label> <br />
+                        <input type="text" name="full_name" id="customerName" required placeholder="Full Name" />
                     </div>
             
                     <div class="input">
                         <label for="customerLocation">Customer Location</label> <br />
-                        <input type="text" id="customerLocation" required placeholder="Location" />
+                        <input type="text" name="customer_location" id="customerLocation" required placeholder="Location" />
                     </div>
             
                     <div class="input">
                         <label for="digitalAddress">Digital Address</label> <br />
-                        <input type="text" id="digitalAddress" required placeholder="Digital Address" />
+                        <input type="text" name="digital_address" id="digitalAddress" required placeholder="Digital Address" />
                     </div>
             
                     <div class="input">
                         <label for="idType">ID Type</label> <br />
-                        <select id="idType" required>
+                        <select id="idType" name="id_type" required>
                             <option value="" disabled selected>Select ID Type</option>
                             <option value="GhanaCard">Ghana Card</option>
                             <option value="Passport">Passport</option>
@@ -47,17 +68,17 @@
             
                     <div class="input">
                         <label for="idNumber">ID Number</label> <br />
-                        <input type="text" id="idNumber" required placeholder="ID Number" />
+                        <input type="text" name="id_number" id="idNumber" required placeholder="ID Number" />
                     </div>
             
                     <div class="input">
                         <label for="dob">Date of Birth</label> <br />
-                        <input type="date" id="dob" required />
+                        <input type="date" name="date_of_birth" id="dob" required />
                     </div>
             
                     <div class="input">
                         <label for="customerPhoto">Upload Customer Picture</label> <br />
-                        <input type="file" id="customerPhoto" accept="image/*" required />
+                        <input type="file" name="customer_picture" id="customerPhoto" accept="image/*" required />
                     </div>
                 </div>
                 <p class="confirmInfoMessage" style="color: red; font-weight: bold;"></p>

@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required
 from users.forms import AgentRegistrationForm
@@ -65,8 +65,12 @@ def customer_care(request):
 def financial_services(request):
     return render(request, 'owner/FinancialServices.html')
 
-def agentDetail(request):
-    return render(request, 'owner/agent_Detail/agentDetail.html')
+def agentDetail(request, agent_id):
+    agent = get_object_or_404(Agent, id=agent_id)
+    context = {
+        'agent': agent
+    }
+    return render(request, 'owner/agent_Detail/agentDetail.html', context)
 
 def agentCustomer(request):
     return render(request, 'owner/agent_Detail/agentCustomer.html')

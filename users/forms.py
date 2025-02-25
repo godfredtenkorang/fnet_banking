@@ -7,7 +7,7 @@ from .models import User, Branch, Owner, Agent, Customer
 
 class UserRegisterForm(UserCreationForm):
     role = forms.ChoiceField(
-        choices=[('OWNER', 'Owner'),('AGENT', 'Agent')],  # Removed "Admin"
+        choices=[('OWNER', 'Owner'),('AGENT', 'Agent'), ('CUSTOMER', 'Customer')],  # Removed "Admin"
         widget=forms.Select(attrs={'class': 'form-control'})
     )
     class Meta:
@@ -21,19 +21,22 @@ class UserRegisterForm(UserCreationForm):
             self.fields[fieldname].help_text = None
         
 class OwnerRegistrationForm(forms.ModelForm):
+    user = forms.ModelChoiceField(queryset=User.objects.filter(role='OWNER'), required=True)
     class Meta:
         model = Owner
         fields = ['user', 'branch', 'email', 'full_name', 'phone_number', 'company_name', 'company_number', 'digital_address', 'agent_code']
 
 class AgentRegistrationForm(forms.ModelForm):
+    user = forms.ModelChoiceField(queryset=User.objects.filter(role='AGENT'), required=True)
     class Meta:
         model = Agent
         fields = ['user', 'owner', 'branch', 'email', 'full_name', 'phone_number', 'company_name', 'company_number', 'digital_address', 'agent_code']
 
 class CustomerRegistrationForm(forms.ModelForm):
+    user = forms.ModelChoiceField(queryset=User.objects.filter(role='CUSTOMER'), required=True)
     class Meta:
         model = Customer
-        fields = ['agent', 'branch']
+        fields = ['user', 'agent', 'branch', 'phone_number', 'full_name', 'customer_location', 'digital_address', 'id_type', 'id_number', 'date_of_birth', 'customer_picture']
         
 class LoginForm(AuthenticationForm):
     username = forms.CharField(widget=TextInput(attrs={
