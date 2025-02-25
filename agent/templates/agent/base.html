@@ -24,6 +24,20 @@
   </head>
 
   <body>
+    <div class="logout-pop">
+      <div class="logo-p">
+        <P>Are you sure you want to logout ??</P>
+        <div class="log-btns">
+          <button id="cancelLogout">Cancel</button>
+
+         
+          <a href="{% url 'logout' %}">
+         
+            <button>Yes, logout</button>
+            </div>
+          </a>
+        </div>
+      </div>
     <!-- for header part -->
     <header>
       <div class="logosec">
@@ -170,11 +184,11 @@
                 <h3><i class="fa-solid fa-people-group"></i> Report</h3>
               </div>
             </a>
-            <a href="{% url 'logout' %}">
-              <div class="nav-option option1 button">
+          
+              <div class="nav-option logout button">
                 <h3><i class="fa-solid fa-people-group"></i> Logout</h3>
               </div>
-            </a>
+           
           </div>
         </nav>
       </div>
@@ -183,6 +197,8 @@
         <p>Processing</p>
       </div>
 
+      
+      
       {% block content %}{% endblock %}
     </div>
 
@@ -236,6 +252,47 @@
   // Update every second
   setInterval(updateDateTime, 1000);
   updateDateTime(); // Run once on page load
+</script>
+
+
+<script>
+  const logoutBtn = document.querySelector(".logout");
+  const logOutModal = document.querySelector(".logout-pop");
+  const confirmLogout = document.getElementById("confirmLogout");
+  const cancelLogout = document.getElementById("cancelLogout");
+
+  logoutBtn.addEventListener("click", () => {
+    logOutModal.style.display = "flex";
+    setTimeout(() => {
+      logOutModal.classList.add("active");
+    }, 50);
+  });
+
+  cancelLogout.addEventListener("click", () => {
+    logOutModal.classList.remove("active");
+    setTimeout(() => {
+      logOutModal.style.display = "none";
+    }, 300);
+  });
+
+  // If you want to log the user out when they confirm
+  confirmLogout.addEventListener("click", () => {
+    alert("Logging out..."); // Replace this with actual logout logic
+    logOutModal.classList.remove("active");
+    setTimeout(() => {
+      logOutModal.style.display = "none";
+    }, 300);
+  });
+
+  // Click outside to close
+  logOutModal.addEventListener("click", (e) => {
+    if (e.target === logOutModal) {
+      logOutModal.classList.remove("active");
+      setTimeout(() => {
+        logOutModal.style.display = "none";
+      }, 300);
+    }
+  });
 </script>
   </body>
 </html>
