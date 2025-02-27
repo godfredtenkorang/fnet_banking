@@ -1382,5 +1382,19 @@ font-size: 1.5rem;
   background-color: var(--orangeColor);
 }
 
+.verify{
+ 
+  margin: 3% 0;
+}
 
 
+.verify a{
+  background-color: var(--orangeColor);
+  color: var(--blue);
+  padding: 10px 40px;
+
+}
+
+.setHide{
+  display:none ;
+}
