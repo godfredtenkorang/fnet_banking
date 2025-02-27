@@ -9,27 +9,28 @@
 </div>
         <div class="form">
         
-            <form id="networkForm">
-           
+            <form id="networkForm" method="POST">
+              {% csrf_token %}
                  
                 
                     <div class="input">
                       <label for="network">Select Network</label> <br />
-                      <select id="network">
+                      <select id="network" name="network">
                         <option value="" disabled selected>Select network</option>
-                        <option value="MTN">MTN</option>
+                        <option value="Mtn">MTN</option>
+                        <option value="Telecel">Telecel</option>
                         <option value="AirtelTigo">AirtelTigo</option>
-                        <option value="Expresso">Expresso</option>
-                        <option value="Vodafone">Vodafone</option>
                       </select>
                     </div>
       
                     <div class="input">
                       <label for="customerNumber">Customer Number</label> <br />
                       <input
-                      type="text"
+                      type="tel"
                       id="customerNumber"
+                      name="customer_phone"
                       required
+                      
                       placeholder="Customer Number"
                     
                     />
@@ -45,11 +46,11 @@
                     <div class="input">
                       <label>Amount</label> <br />
                 
-                      <input type="number" required />
+                      <input type="number" name="amount" step="0.01" required />
                     </div>
                 
             
-              <button type="submit" id="submitBtn">Submit</button>
+              <button type="submit" id="">Submit</button>
             </form>
           </div>
           

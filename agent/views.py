@@ -1,70 +1,194 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from users.models import User, Branch, Customer, Agent
-from banking.forms import DrawerDepositForm
-from banking.models import Bank, CustomerAccount, Drawer
+from banking.forms import DrawerDepositForm, EFloatAccountForm
+from banking.models import Bank, CustomerAccount, Drawer, EFloatAccount
 from django.utils import timezone
 from django.contrib import messages
+from .models import CustomerCashIn, CustomerCashOut
+from decimal import Decimal
 
-# Create your views here.
 @login_required
-def open_drawer(request):
+def open_e_float_account(request):
     agent = request.user.agent
     today = timezone.now().date()
     
-    drawer, created = Drawer.objects.get_or_create(
+    account, create = EFloatAccount.objects.get_or_create(
         agent=agent,
         date=today,
-        defaults={'opening_balance': 0.00}
+        defaults={
+            'mtn_balance': 0.00,
+            'telecel_balance': 0.00,
+            'ecobank_balance': 0.00,
+            'fidelity_balance': 0.00,
+            'calbank_balance': 0.00,
+            'gtbank_balance': 0.00,
+            'cash_at_hand': 0.00
+        }
     )
     
     if request.method == 'POST':
-        form = DrawerDepositForm(request.POST, instance=drawer)
+        form = EFloatAccountForm(request.POST, instance=account)
         if form.is_valid():
             form.save()
-            return redirect('agent-dashboard')
+            messages.success(request, 'E-float account updated succussfully.')
+            return redirect('open_efloat_account')
     else:
-        form = DrawerDepositForm(instance=drawer)
+        form = EFloatAccountForm(instance=account)
         
     context = {
         'form': form,
-        'title': 'Drawer'
+        'title': 'Open Account'
     }
-    
-    return render(request, 'agent/open_drawer.html', context)
+        
+    return render(request, 'agent/efloat_account.html', context)
 
-@login_required
-def close_drawer(request):
+
+def view_e_float_account(request):
     agent = request.user.agent
     today = timezone.now().date()
     
-    # Get today's drawer
-    drawer = get_object_or_404(Drawer, agent=agent, date=today, is_closed=False)
-    
-    if request.method == 'POST':
-        closing_balance = request.POST.get('closing_balance')
-        drawer.closing_balance = closing_balance
-        drawer.is_closed = True
-        drawer.save()
-        return redirect('agent-dashboard')
+    account = get_object_or_404(EFloatAccount, agent=agent, date=today)
     
     context = {
-        'drawer': drawer,
-        'title': 'Close Drawer'
+        'account': account,
+        'title': ' View Account'
     }
     
-    return render(request, 'agent/close_drawer.html', context)
+    return render(request, 'agent/view_efloat_account.html', context)
+    
+    
+# @login_required
+# def open_drawer(request):
+#     agent = request.user.agent
+#     today = timezone.now().date()
+    
+#     drawer, created = Drawer.objects.get_or_create(
+#         agent=agent,
+#         date=today,
+#         defaults={'opening_balance': 0.00}
+#     )
+    
+#     if request.method == 'POST':
+#         form = DrawerDepositForm(request.POST, instance=drawer)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('agent-dashboard')
+#     else:
+#         form = DrawerDepositForm(instance=drawer)
+        
+#     context = {
+#         'form': form,
+#         'title': 'Drawer'
+#     }
+    
+#     return render(request, 'agent/open_drawer.html', context)
+
+# @login_required
+# def close_drawer(request):
+#     agent = request.user.agent
+#     today = timezone.now().date()
+    
+#     # Get today's drawer
+#     drawer = get_object_or_404(Drawer, agent=agent, date=today, is_closed=False)
+    
+#     if request.method == 'POST':
+#         closing_balance = request.POST.get('closing_balance')
+#         drawer.closing_balance = closing_balance
+#         drawer.is_closed = True
+#         drawer.save()
+#         return redirect('agent-dashboard')
+    
+#     context = {
+#         'drawer': drawer,
+#         'title': 'Close Drawer'
+#     }
+    
+#     return render(request, 'agent/close_drawer.html', context)
 
 def agent_dashboard(request):
     return render(request, 'agent/dashboard.html')
 
+
+@login_required
 def cashIn(request):
-    return render(request, 'agent/cashIn.html')
+    agent = request.user.agent
+    today = timezone.now().date()
+    
+    
+    account = get_object_or_404(EFloatAccount, agent=agent, date=today)
+    
+    if request.method == 'POST':
+        network = request.POST.get('network')
+        customer_phone = request.POST.get('customer_phone')
+        deposit_type = request.POST.get('deposit_type')
+        depositor_name = request.POST.get('depositor_name')
+        depositor_number = request.POST.get('depositor_number')
+        amount = request.POST.get('amount')
+        
 
+        
+        cash_in = CustomerCashIn(network=network, customer_phone=customer_phone, deposit_type=deposit_type, depositor_name=depositor_name, depositor_number=depositor_number, amount=amount)
+        
+        cash_in.agent = agent.user
+        
+
+        
+        network_balance = getattr(account, f"{cash_in.network.lower()}_balance")
+        get_amount = Decimal(cash_in.amount)
+        if get_amount > Decimal(network_balance):
+            messages.error(request, f"Insufficient balance in {cash_in.network}.")
+            return redirect('cashIn')
+    
+        cash_in.save()
+        account.update_balance_for_cash_in(cash_in.network, cash_in.amount)
+        messages.success(request, 'Customer Cash-In recorded succussfully.')
+        return redirect('agent-dashboard')
+    context = {
+        'title': 'Cash In'
+    }
+    return render(request, 'agent/cashIn.html', context)
+
+
+@login_required
 def cashOut(request):
-    return render(request, 'agent/cashOut.html')
+    agent = request.user.agent
+    today = timezone.now().date()
+    
+    
+    account = get_object_or_404(EFloatAccount, agent=agent, date=today)
+    
+    if request.method == 'POST':
+        network = request.POST.get('network')
+        customer_phone = request.POST.get('customer_phone')
+        amount = request.POST.get('amount')
+        
 
+        
+        cash_out = CustomerCashOut(network=network, customer_phone=customer_phone, amount=amount)
+        
+        cash_out.agent = agent.user
+        
 
+        
+        # network_balance = getattr(account, f"{cash_out.network.lower()}_balance")
+        cash_at_hand = Decimal(account.cash_at_hand)
+        get_amount = Decimal(cash_out.amount)
+        if get_amount > cash_at_hand:
+            messages.error(request, f"Insufficient balance in {cash_out.network}.")
+            return redirect('cashout')
+    
+        cash_out.save()
+        account.update_balance_for_cash_out(cash_out.network, cash_out.amount)
+        messages.success(request, 'Customer Cash-Out recorded succussfully.')
+        return redirect('agent-dashboard')
+    context = {
+        'title': 'Cash Out'
+    }
+    return render(request, 'agent/cashOut.html', context)
+
+# Bank Deposit
+@login_required
 def agencyBank(request):
     return render(request, 'agent/agencyBank.html')
 

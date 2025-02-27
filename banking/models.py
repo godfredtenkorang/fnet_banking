@@ -1,6 +1,7 @@
 from django.db import models
 from users.models import Customer, Agent
 from django.utils import timezone
+from decimal import Decimal
 
 BANKS = (
     ("Select bank", "Select bank"),
@@ -76,3 +77,68 @@ class Drawer(models.Model):
         return f"Drawer from {self.agent.user.username} on {self.date}"
     
     
+class EFloatAccount(models.Model):
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name='e_float_drawers')
+    date = models.DateField(default=timezone.now)
+    mtn_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    telecel_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    ecobank_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    fidelity_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    calbank_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    gtbank_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    cash_at_hand = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    capital_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    
+    def grand_total(self):
+        return (
+            self.mtn_balance + self.telecel_balance + self.ecobank_balance + self.fidelity_balance + self.calbank_balance + self.gtbank_balance + self.cash_at_hand
+        )
+        
+    def save(self, *args, **kwargs):
+        self.capital_amount = self.grand_total()
+        super().save(*args, **kwargs)
+        
+    def update_balance_for_cash_in(self, network, amount):
+        amount = Decimal(amount)
+        if network == 'Mtn':
+            self.mtn_balance -= amount
+        elif network == 'Telecel':
+            self.telecel_balance -= amount
+        elif network == 'Ecobank':
+            self.ecobank_balance -= amount
+        elif network == 'Fidelity':
+            self.fidelity_balance -= amount
+        elif network == 'Calbank':
+            self.calbank_balance -= amount
+        elif network == 'GTBank':
+            self.gtbank_balance -= amount
+
+        # Add to the Cash at Hand balance
+        amount = Decimal(amount)
+        self.cash_at_hand += amount
+        
+        self.save()
+    
+    def update_balance_for_cash_out(self, network, amount):
+        amount = Decimal(amount)
+        if network == 'Mtn':
+            self.mtn_balance += amount
+        elif network == 'Telecel':
+            self.telecel_balance += amount
+        elif network == 'Ecobank':
+            self.ecobank_balance += amount
+        elif network == 'Fidelity':
+            self.fidelity_balance += amount
+        elif network == 'Calbank':
+            self.calbank_balance += amount
+        elif network == 'GTBank':
+            self.gtbank_balance += amount
+
+        # Add to the Cash at Hand balance
+        amount = Decimal(amount)
+        self.cash_at_hand -= amount
+        
+        self.save()
+        
+    def __str__(self):
+        return f"E-Float Account for {self.agent.user.username} on {self.date}"

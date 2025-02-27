@@ -15,6 +15,6 @@ urlpatterns = [
     path('cashFloatRequest/', views.cashFloatRequest, name='cashFloatRequest'),
     path('calculate/', views.calculate, name='calculate'),
 
-    path('open_drawer/', views.open_drawer, name='open-drawer'),
-    path('close_drawer/', views.close_drawer, name='close-drawer'),
+    path('efloat_account/', views.open_e_float_account, name='open_efloat_account'),
+    path('view_efloat_account/', views.view_e_float_account, name='view_efloat_account'),
 ]
