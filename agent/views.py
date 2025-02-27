@@ -19,10 +19,12 @@ def open_e_float_account(request):
         defaults={
             'mtn_balance': 0.00,
             'telecel_balance': 0.00,
+            'airtel_tigo_balance': 0.00,
             'ecobank_balance': 0.00,
             'fidelity_balance': 0.00,
             'calbank_balance': 0.00,
             'gtbank_balance': 0.00,
+            'access_bank_balance': 0.00,
             'cash_at_hand': 0.00
         }
     )

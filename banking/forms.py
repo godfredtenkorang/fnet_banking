@@ -11,7 +11,7 @@ class EFloatAccountForm(forms.ModelForm):
     class Meta:
         model = EFloatAccount
         fields = [
-            'mtn_balance', 'telecel_balance', 'ecobank_balance', 
-            'fidelity_balance', 'calbank_balance', 'gtbank_balance', 
+            'mtn_balance', 'telecel_balance', 'airtel_tigo_balance', 'ecobank_balance', 
+            'fidelity_balance', 'calbank_balance', 'gtbank_balance', 'access_bank_balance',
             'cash_at_hand'
         ]

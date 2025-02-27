@@ -82,16 +82,18 @@ class EFloatAccount(models.Model):
     date = models.DateField(default=timezone.now)
     mtn_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     telecel_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    airtel_tigo_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     ecobank_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     fidelity_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     calbank_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     gtbank_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    access_bank_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     cash_at_hand = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     capital_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     
     def grand_total(self):
         return (
-            self.mtn_balance + self.telecel_balance + self.ecobank_balance + self.fidelity_balance + self.calbank_balance + self.gtbank_balance + self.cash_at_hand
+            self.mtn_balance + self.telecel_balance + self.airtel_tigo_balance + self.ecobank_balance + self.fidelity_balance + self.calbank_balance + self.gtbank_balance + self.cash_at_hand
         )
         
     def save(self, *args, **kwargs):
@@ -104,6 +106,8 @@ class EFloatAccount(models.Model):
             self.mtn_balance -= amount
         elif network == 'Telecel':
             self.telecel_balance -= amount
+        elif network == 'AirtelTigo':
+            self.airtel_tigo_balance -= amount
         elif network == 'Ecobank':
             self.ecobank_balance -= amount
         elif network == 'Fidelity':
@@ -112,6 +116,8 @@ class EFloatAccount(models.Model):
             self.calbank_balance -= amount
         elif network == 'GTBank':
             self.gtbank_balance -= amount
+        elif network == 'Access Bank':
+            self.access_bank_balance -= amount
 
         # Add to the Cash at Hand balance
         amount = Decimal(amount)
@@ -125,6 +131,8 @@ class EFloatAccount(models.Model):
             self.mtn_balance += amount
         elif network == 'Telecel':
             self.telecel_balance += amount
+        elif network == 'AirtelTigo':
+            self.airtel_tigo_balance += amount
         elif network == 'Ecobank':
             self.ecobank_balance += amount
         elif network == 'Fidelity':
@@ -133,6 +141,8 @@ class EFloatAccount(models.Model):
             self.calbank_balance += amount
         elif network == 'GTBank':
             self.gtbank_balance += amount
+        elif network == 'Access Bank':
+            self.access_bank_balance += amount
 
         # Add to the Cash at Hand balance
         amount = Decimal(amount)
