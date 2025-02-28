@@ -1,0 +1,36 @@
+{% extends 'agent/base.html' %} {% load static %} {% block content %}
+
+<div class="main">
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1> Customer Care</h1>
+        </div>
+    </div>
+
+
+    <div class="template-grid">
+        <a href="{% url 'complains' %}" class="template-row">
+            <i class="fas fa-comments"></i> Complains
+        </a>
+        <a href="{% url 'hold_account' %}" class="template-row">
+            <i class="fas fa-user-lock"></i> Hold Account
+        </a>
+        <a href="{% url 'fraud' %}" class="template-row">
+            <i class="fas fa-exclamation-triangle"></i> Fraud
+        </a>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+{% endblock %}

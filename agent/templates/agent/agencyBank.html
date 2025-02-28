@@ -1,104 +1,132 @@
 {% extends 'agent/base.html' %} {% load static %} {% block content %}
 
 
-    
-    <div class="main">
-        <div class="banner-container">
-            <img src="{% static 'banking/img/banner.png' %}" alt="image" />
-            <div class="banner-text">
-                <h1>Bank Deposit</h1>
-            </div>
+
+<div class="main">
+  <div class="banner-container">
+    <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+    <div class="banner-text">
+      <h1>Bank Deposit</h1>
+    </div>
+  </div>
+  <div class="form">
+
+    <form id="networkForm" method="POST">
+      {% csrf_token %}
+      <div class="form-grid">
+
+        <div class="input">
+          <label for="phone_number">Customer Number</label> <br />
+          <input type="tel" id="phone_number" name="phone_number" required placeholder="Customer Number"
+            maxlength="10" />
+          <p id="Bankmessage" class="message"></p> <br> <!-- Message for number validation -->
         </div>
-        <div class="form">
-            
-          <form id="networkForm">
-            <div class="form-grid">
-               
-                <div class="input">
-                    <label for="customerNumber">Customer Number</label> <br />
-                    <input type="tel" id="customerNumberBank" required placeholder="Customer Number" maxlength="10" />
-                    <p id="Bankmessage" class="message"></p> <br> <!-- Message for number validation -->
-              <div class="verify">
-                <a href="" >Verify</a>
-              </div>
-                  </div>
-                  
-                  <div class="input setHide">
-                    <label for="bank">Select Bank</label> <br />
-                    <select id="bank">
-                      <option value="" disabled selected>Select Bank</option>
-                      <option value="GCB">GCB Bank</option>
-                      <option value="Ecobank">Ecobank Ghana</option>
-                      <option value="ABSA">ABSA Bank Ghana</option>
-                      <option value="Stanbic">Stanbic Bank Ghana</option>
-                      <option value="Zenith">Zenith Bank Ghana</option>
-                      <option value="Fidelity">Fidelity Bank Ghana</option>
-                      <option value="ADB">Agricultural Development Bank (ADB)</option>
-                      <option value="CalBank">CalBank</option>
-                      <option value="GTBank">Guaranty Trust Bank (GTBank)</option>
-                      <option value="UMB">Universal Merchant Bank (UMB)</option>
-                      <option value="Republic">Republic Bank Ghana</option>
-                      <option value="Access">Access Bank Ghana</option>
-                      <option value="FirstAtlantic">First Atlantic Bank</option>
-                      <option value="Prudential">Prudential Bank</option>
-                      <option value="Consolidated">Consolidated Bank Ghana (CBG)</option>
-                    </select>
-                    <p id="BankSelectMessage" class="message"></p> <br>
-                    <div class="verify">
-                      <a href="" >Verify</a>
-                    </div>
-                  </div>
-                  
-    
-    
-    
-    
-    
-    
-                  <div class="input setHide">
-                    <label>Account Number</label> <br />
-                 <select name="" id="">
-                  <option value="">01909200049</option>
-                  <option value="">01909200049</option>
-                  <option value="">01909200049</option>
-                  <option value="">01909200049</option>
-                 </select>
-                 <div class="verify">
-                  <a href="" >Verify</a>
-                </div>
-                  </div>
-                  <div class="input setHide">
-                    <label>Account's name</label> <br />
-                    <input type="text" name="" id="" required>
-                  </div>
-                  <div class="input setHide">
-                    <label>Depositor name</label> <br />
-                    <input type="text" name="" id="" required>
-                  </div>
-                  <div class="input setHide">
+
+        <div class="input">
+          <label for="bank">Select Bank</label> <br />
+          <select id="bank" name="bank" disabled>
+            <option value="">Select Bank</option>
+          </select>
+          <p id="BankSelectMessage" class="message"></p> <br>
+        </div>
+
+
+        <div class="input">
+          <label for="account_number">Account Number</label> <br />
+          <select id="account_number" name="account_number" disabled>
+            <option value="">Select Account</option>
+          </select>
+        </div>
+
+        <div class="input">
+          <label for="account_name">Account name</label> <br />
+          <input type="text" name="account_name" id="account_name" readonly>
+        </div>
+        <!-- <div class="input setHide">
+                    <label>Account name</label> <br />
+                    <input type="text" name="" id="" readonly required>
+                  </div> -->
+        <!-- <div class="input setHide">
                     <label>Id Type</label> <br />
                     <input type="text" name="" id="" required>
-                  </div>
-                  <div class="input setHide">
+                  </div> -->
+        <!-- <div class="input setHide">
                     <label>Id Number</label> <br />
                     <input type="text" name="" id="" required>
-                  </div>
-                  <div class="input setHide">
-                    <label>Amount</label> <br />
-              
-                    <input type="number" required />
-                  </div>
-              
-            </div>
-            <button type="submit" id="submitBtn">Submit</button>
-          </form>
+                  </div> -->
+        <div class="input">
+          <label for="amount">Amount</label> <br />
+
+          <input type="number" id="amount" name="amount" required />
         </div>
-        
-      </div>  
-     
+
+      </div>
+      <button type="submit" id="submitBtn">Submit</button>
+      <div style="display: flex; text-align:center; justify-content:center;">
+
+        <a class="btn41-43 btn-41" href="{% url 'view_bank_deposits' %}">View Bank Deposits</a>
+      </div>
+    </form>
   </div>
 
-  <script>
+</div>
+
+</div>
+
+<script>
+  $(document).ready(function () {
+    // Fetch banks when phone number is entered
+    $('#phone_number').on('input', function () {
+      let phoneNumber = $(this).val();
+      if (phoneNumber.length >= 10) { // Assuming phone number is at least 10 digits
+        $.ajax({
+          url: "{% url 'get_banks' %}",
+          data: { 'phone_number': phoneNumber },
+          success: function(data) {
+            $('#bank').empty().append('<option value="">Select Bank</option>');
+            data.forEach(function (bank) {
+              $('#bank').append(`<option value="${bank}">${bank}</option>`);
+            });
+            $('#bank').prop('disabled', false);
+          }
+        });
+      }
+    });
+    // Fetch accounts when bank is selected
+    $('#bank').change(function () {
+      let phoneNumber = $('#phone_number').val();
+      let bank = $(this).val();
+      $.ajax({
+        url: "{% url 'get_accounts' %}",
+        data: { 'phone_number': phoneNumber, 'bank': bank },
+        success: function (data) {
+          $('#account_number').empty().append('<option value="">Select Account</option>');
+          data.forEach(function (account) {
+            $('#account_number').append(`<option value="${account}">${account}</option>`);
+          });
+          $('#account_number').prop('disabled', false);
+        }
+      });
+    });
+
+    // Fetch customer details when account is selected
+    $('#account_number').change(function () {
+      let accountNumber = $(this).val();
+      $.ajax({
+        url: "{% url 'get_customer_details' %}",
+        data: { 'account_number': accountNumber },
+        success: function (data) {
+          $('#account_name').val(data.account_name);
+        }
+      });
+    });
+  });
+
+
+
+</script>
+
+<!-- <script>
     document.getElementById("customerNumberBank").addEventListener("input", function (event) {
       let inputField = event.target;
       let message = document.getElementById("Bankmessage");
@@ -150,8 +178,8 @@
         event.preventDefault(); // Prevent form submission if validation fails
       }
     });
-  </script>
-  
-  
-  
+  </script> -->
+
+
+
 {% endblock %}

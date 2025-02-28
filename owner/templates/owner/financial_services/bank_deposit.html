@@ -123,13 +123,15 @@
 
 
 <div class="main">
-    <div class="banner-container">
-        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
-        <div class="banner-text">
-            <h1>Bank Deposit Request</h1>
-        </div>
+
+    <div class="pay-to-link">
+        <a href="{% url 'bank_deposit_requests' %}" class="activeBtn">
+            <button><i class="fas fa-user-tie"></i> Bank Deposit Requests</button>
+        </a>
+        <a href="{% url 'bank_withdrawal_requests' %}">
+            <button><i class="fas fa-store"></i> Bank Withdrawal Requests</button>
+        </a>
     </div>
-    
 
 
     <div class="table-container">
@@ -153,19 +155,21 @@
                 <tr>
                     <td>{{pending_deposit.agent}}</td>
                     <td>{{pending_deposit.phone_number}}</td>
+                    <td>{{pending_deposit.bank}}</td>
                     <td>{{pending_deposit.account_number}}</td>
                     <td>{{pending_deposit.account_name}}</td>
                     <td>{{pending_deposit.date_deposited}}</td>
                     <td>{{pending_deposit.time_deposited}}</td>
-                    <td>{{pending_deposit.status}}</td>
                     <td>{{pending_deposit.amount}}</td>
-                    
+
                     <td data-label="Action" class="action-buttons">
-                        <a href="{% url 'approve_bank_deposit' pending_deposit.id %}"><button class="approve-btn">Approve</button></a>
-                        <a href="{% url 'reject_bank_deposit' pending_deposit.id %}"><button class="decline-btn">Reject</button></a>
+                        <a href="{% url 'approve_bank_deposit' pending_deposit.id %}"><button
+                                class="approve-btn">Approve</button></a>
+                        <a href="{% url 'reject_bank_deposit' pending_deposit.id %}"><button
+                                class="decline-btn">Reject</button></a>
                     </td>
                 </tr>
-               
+
                 {% endfor %}
             </tbody>
         </table>

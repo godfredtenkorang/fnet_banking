@@ -58,9 +58,12 @@ class CustomerAccount(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     account_number = models.CharField(max_length=16, blank=True)
     account_name = models.CharField(max_length=100, blank=True)
-    bank = models.ForeignKey(Bank, on_delete=models.CASCADE)
+    bank = models.CharField(max_length=100, blank=True, default='')
     phone_number = models.CharField(max_length=15, blank=True)
     date_added = models.DateTimeField(auto_now_add=True)
+    
+    def get_bank(self):
+        return self.bank.name
     
     def __str__(self):
         return self.phone_number
@@ -93,7 +96,7 @@ class EFloatAccount(models.Model):
     
     def grand_total(self):
         return (
-            self.mtn_balance + self.telecel_balance + self.airtel_tigo_balance + self.ecobank_balance + self.fidelity_balance + self.calbank_balance + self.gtbank_balance + self.cash_at_hand
+            self.mtn_balance + self.telecel_balance + self.airtel_tigo_balance + self.ecobank_balance + self.fidelity_balance + self.calbank_balance + self.access_bank_balance + self.gtbank_balance + self.cash_at_hand
         )
         
     def save(self, *args, **kwargs):
@@ -116,7 +119,7 @@ class EFloatAccount(models.Model):
             self.calbank_balance -= amount
         elif network == 'GTBank':
             self.gtbank_balance -= amount
-        elif network == 'Access Bank':
+        elif network == 'AccessBank':
             self.access_bank_balance -= amount
 
         # Add to the Cash at Hand balance
@@ -149,6 +152,58 @@ class EFloatAccount(models.Model):
         self.cash_at_hand -= amount
         
         self.save()
+        
+    def update_balance_for_bank_deposit(self, bank, amount, status):
+        amount = Decimal(amount)
+        if status == 'Approved':
+            if bank == 'Mtn':
+                self.mtn_balance -= amount
+            elif bank == 'Telecel':
+                self.telecel_balance -= amount
+            elif bank == 'AirtelTigo':
+                self.airtel_tigo_balance -= amount
+            elif bank == 'Ecobank':
+                self.ecobank_balance -= amount
+            elif bank == 'Fidelity':
+                self.fidelity_balance -= amount
+            elif bank == 'Calbank':
+                self.calbank_balance -= amount
+            elif bank == 'GTBank':
+                self.gtbank_balance -= amount
+            elif bank == 'Access Bank':
+                self.access_bank_balance -= amount
+
+            # Add to the Cash at Hand balance
+            amount = Decimal(amount)
+            self.cash_at_hand += amount
+            
+            self.save()
+            
+    def update_balance_for_bank_withdrawal(self, bank, amount, status):
+        amount = Decimal(amount)
+        if status == 'Approved':
+            if bank == 'Mtn':
+                self.mtn_balance += amount
+            elif bank == 'Telecel':
+                self.telecel_balance += amount
+            elif bank == 'AirtelTigo':
+                self.airtel_tigo_balance += amount
+            elif bank == 'Ecobank':
+                self.ecobank_balance += amount
+            elif bank == 'Fidelity':
+                self.fidelity_balance += amount
+            elif bank == 'Calbank':
+                self.calbank_balance += amount
+            elif bank == 'GTBank':
+                self.gtbank_balance += amount
+            elif bank == 'Access Bank':
+                self.access_bank_balance += amount
+
+            # Add to the Cash at Hand balance
+            amount = Decimal(amount)
+            self.cash_at_hand -= amount
+            
+            self.save()
         
     def __str__(self):
         return f"E-Float Account for {self.agent.user.username} on {self.date}"

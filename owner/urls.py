@@ -19,7 +19,15 @@ urlpatterns = [
     path('bank_account/', views.bank_account, name='bank_account'),
     path('bank_linkage/', views.bank_linkage, name='bank_linkage'),
     path('customer_care/', views.customer_care, name='customer_care'),
-    path('financial-services/', views.financial_services, name='financial_services'),
+    
+    # Financial requests
+    path('bank_deposit_requests/', views.bank_deposit_requests, name='bank_deposit_requests'),
+    path('owner/approve_bank_deposit/<int:deposit_id>/', views.approve_bank_deposit, name='approve_bank_deposit'),
+    path('owner/reject_bank_deposit/<int:deposit_id>/', views.reject_bank_deposit, name='reject_bank_deposit'),
+    
+    path('bank_withdrawal_requests/', views.bank_withdrawal_requests, name='bank_withdrawal_requests'),
+    path('owner/approve_bank_withdrawal/<int:withdrawal_id>/', views.approve_bank_withdrawal, name='approve_bank_withdrawal'),
+    path('owner/reject_bank_withdrawal/<int:withdrawal_id>/', views.reject_bank_withdrawal, name='reject_bank_withdrawal'),
     
     path('agentDetail/<int:agent_id>/', views.agentDetail, name='agentDetail'),
     path('agentCustomer/', views.agentCustomer, name='agentCustomer'),
@@ -35,7 +43,7 @@ urlpatterns = [
     path('pay_to/', views.pay_to, name='pay_to'),
     path('all_transaction/', views.all_transaction, name='all_transaction'),
     path('complains/', views.complains, name='complains'),
- path('fraud/', views.fraud, name='fraud'),
+    path('fraud/', views.fraud, name='fraud'),
     path('hold-account/', views.hold_account, name='hold_account'),
 
 ]

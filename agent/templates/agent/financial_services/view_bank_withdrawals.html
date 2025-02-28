@@ -1,4 +1,4 @@
-{% extends 'owner/base.html' %} {% load static %} {% block content %}
+{% extends 'agent/base.html' %} {% load static %} {% block content %}
 
 
 
@@ -126,17 +126,16 @@
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
-            <h1>Bank Deposit Request</h1>
+            <h1>Bank Withdrawals</h1>
         </div>
     </div>
-    
+
 
 
     <div class="table-container">
         <table>
             <thead>
                 <tr>
-                    <th>Agent</th>
                     <th>Customer Phone</th>
                     <th>Bank</th>
                     <th>Account Number</th>
@@ -144,28 +143,23 @@
                     <th>Date</th>
                     <th>Time</th>
                     <th>Amount</th>
-                    <th>Actions</th>
+                    <th>Status</th>
 
                 </tr>
             </thead>
             <tbody>
-                {% for pending_deposit in pending_deposits %}
+                {% for withdrawal in bank_withdrawals %}
                 <tr>
-                    <td>{{pending_deposit.agent}}</td>
-                    <td>{{pending_deposit.phone_number}}</td>
-                    <td>{{pending_deposit.account_number}}</td>
-                    <td>{{pending_deposit.account_name}}</td>
-                    <td>{{pending_deposit.date_deposited}}</td>
-                    <td>{{pending_deposit.time_deposited}}</td>
-                    <td>{{pending_deposit.status}}</td>
-                    <td>{{pending_deposit.amount}}</td>
-                    
-                    <td data-label="Action" class="action-buttons">
-                        <a href="{% url 'approve_bank_deposit' pending_deposit.id %}"><button class="approve-btn">Approve</button></a>
-                        <a href="{% url 'reject_bank_deposit' pending_deposit.id %}"><button class="decline-btn">Reject</button></a>
-                    </td>
+                    <td>{{withdrawal.customer_phone}}</td>
+                    <td>{{withdrawal.bank}}</td>
+                    <td>{{withdrawal.account_number}}</td>
+                    <td>{{withdrawal.account_name}}</td>
+                    <td>{{withdrawal.date_withdrawn}}</td>
+                    <td>{{withdrawal.time_withdrawn}}</td>
+                    <td data-label="Amount">{{withdrawal.amount}}</td>
+                    <td>{{withdrawal.status}}</td>
                 </tr>
-               
+
                 {% endfor %}
             </tbody>
         </table>
@@ -187,7 +181,47 @@
     </div>
 
 
+<script>
 
+    document.addEventListener("DOMContentLoaded", function () {
+        const totalBtn = document.querySelector(".calculate-total");
+        const totalPop = document.querySelector(".total-pop");
+        const totalAmount = document.querySelector(".total-amount");
+        const closeTotalBtn = document.querySelector(".closeTotal");
+
+        // Function to Calculate Total
+        function calculateTotal() {
+            let total = 0;
+            document.querySelectorAll("td[data-label='Amount']").forEach(td => {
+                let amount = parseFloat(td.textContent.replace("$", "")) || 0;
+                total += amount;
+            });
+
+            // Update Total Amount in Popup
+            totalAmount.textContent = `$${total}`;
+
+            // Show Popup
+            totalPop.style.display = "flex";
+            setTimeout(() => {
+                totalPop.classList.add("active");
+            }, 50);
+        }
+
+        // Function to Close the Popup
+        function closePopup() {
+            totalPop.classList.remove("active");
+            setTimeout(() => {
+                totalPop.style.display = "none";
+            }, 300);
+        }
+
+        // Event Listeners
+        totalBtn.addEventListener("click", calculateTotal);
+        closeTotalBtn.addEventListener("click", closePopup);
+    });
+
+
+</script>
 
 
 

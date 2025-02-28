@@ -1,8 +1,16 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import PermissionDenied
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from users.forms import AgentRegistrationForm
 from users.models import Agent, Owner
+from banking.models import EFloatAccount
+from agent.models import BankDeposit, BankWithdrawal
+from django.contrib import messages
+
+
+# Check if the user is an Owner
+def is_owner(user):
+    return user.is_authenticated and user.is_owner
 
 
 def owner_dashboard(request):
@@ -71,8 +79,87 @@ def customer_care(request):
     return render(request, 'owner/customer_care.html')
 
 
-def financial_services(request):
-    return render(request, 'owner/FinancialServices.html')
+@login_required
+def approve_bank_deposit(request, deposit_id):
+    deposit = get_object_or_404(BankDeposit, id=deposit_id)
+    account = deposit.agent.e_float_drawers.filter(date=deposit.date_deposited).first()
+    
+    if not account:
+        messages.error(request, 'No e-float account found for this date')
+        return redirect('bank_deposit_requests')
+    
+    # Check if the bank has sufficient balance
+    bank_balance = getattr(account, f"{deposit.bank.lower()}_balance")
+    if deposit.amount > bank_balance:
+        messages.error(request, f'Insufficient balance is {deposit.bank}')
+        return redirect('bank_deposit_requests')
+    
+    # Update the status and drawer balance
+    deposit.status = 'Approved'
+    deposit.save()
+    account.update_balance_for_bank_deposit(deposit.bank, deposit.amount, deposit.status)
+    messages.success(request, 'Bank Deposit approved succussfully')
+    return redirect('bank_deposit_requests')
+
+@login_required
+def reject_bank_deposit(request, deposit_id):
+    deposit = get_object_or_404(BankDeposit, id=deposit_id)
+    deposit.status = 'Rejected'
+    deposit.save()
+    messages.success(request, 'Bank Deposit rejected')
+    return redirect('bank_deposit_requests')
+
+
+
+
+@login_required
+def bank_deposit_requests(request):
+    pending_deposits = BankDeposit.objects.filter(status='Pending').order_by('-date_deposited', '-time_deposited')
+    context = {
+        'pending_deposits': pending_deposits,
+        'title': 'Bank Deposit Requests'
+    }
+    return render(request, 'owner/financial_services/bank_deposit.html', context)
+
+
+@login_required
+def approve_bank_withdrawal(request, withdrawal_id):
+    withdrawal = get_object_or_404(BankWithdrawal, id=withdrawal_id)
+    account = withdrawal.agent.e_float_drawers.filter(date=withdrawal.date_withdrawn).first()
+    
+    if not account:
+        messages.error(request, 'No e-float account found for this date')
+        return redirect('bank_withdrawal_requests')
+    
+    # Check if the bank has sufficient balance
+    bank_balance = getattr(account, f"{withdrawal.bank.lower()}_balance")
+    if withdrawal.amount > bank_balance:
+        messages.error(request, f'Insufficient balance is {withdrawal.bank}')
+        return redirect('bank_withdrawal_requests')
+    
+    # Update the status and drawer balance
+    withdrawal.status = 'Approved'
+    withdrawal.save()
+    account.update_balance_for_bank_withdrawal(withdrawal.bank, withdrawal.amount, withdrawal.status)
+    messages.success(request, 'Bank Withdrawal approved succussfully')
+    return redirect('bank_withdrawal_requests')
+
+@login_required
+def reject_bank_withdrawal(request, withdrawal_id):
+    withdrawal = get_object_or_404(BankWithdrawal, id=withdrawal_id)
+    withdrawal.status = 'Rejected'
+    withdrawal.save()
+    messages.success(request, 'Bank Withdrawal rejected')
+    return redirect('bank_withdrawal_requests')
+
+@login_required
+def bank_withdrawal_requests(request):
+    pending_withdrawals = BankWithdrawal.objects.filter(status='Pending').order_by('-date_withdrawn', '-time_withdrawn')
+    context = {
+        'pending_withdrawals': pending_withdrawals,
+        'title': 'Bank Withdrawal Requests'
+    }
+    return render(request, 'owner/financial_services/bank_withdrawal.html', context)
 
 def agentDetail(request, agent_id):
     agent = get_object_or_404(Agent, id=agent_id)

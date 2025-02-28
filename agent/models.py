@@ -1,5 +1,7 @@
 from django.db import models
 from django.conf import settings
+from users.models import Agent
+from django.utils import timezone
 
 # Create your models here.
 
@@ -18,8 +20,8 @@ NETWORKS = (
 )
 
 REQUEST_STATUS = (
-    ("Approved", "Approved"),
     ("Pending", "Pending"),
+    ("Approved", "Approved"),
     ("Rejected", "Rejected")
 )
 
@@ -58,3 +60,33 @@ class CustomerCashOut(models.Model):
         return f"CashOut of ${self.amount} on {self.network} by {self.customer_phone}"
     
 
+class BankDeposit(models.Model):
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name='bank_deposits')
+    phone_number = models.CharField(max_length=10)
+    bank = models.CharField(max_length=100)
+    account_number = models.CharField(max_length=50)
+    account_name = models.CharField(max_length=100)
+    amount = models.DecimalField(max_digits=15, decimal_places=2)
+    status = models.CharField(max_length=100, choices=REQUEST_STATUS, default='Pending')
+    date_deposited = models.DateField(default=timezone.now)
+    time_deposited = models.TimeField(default=timezone.now)
+    
+    def __str__(self):
+        return f"Bank Deposit of GH¢{self.amount} to {self.bank} by {self.phone_number} ({self.status})"
+    
+    
+
+
+class BankWithdrawal(models.Model):
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name='bank_withdrawals')
+    customer_phone = models.CharField(max_length=15)
+    bank = models.CharField(max_length=20)
+    account_number = models.CharField(max_length=20)
+    account_name = models.CharField(max_length=100)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    date_withdrawn = models.DateField(default=timezone.now)
+    time_withdrawn = models.TimeField(default=timezone.now)
+    status = models.CharField(max_length=20, choices=REQUEST_STATUS, default='Pending')
+    
+    def __str__(self):
+        return f"Bank Withdrawal of GH¢{self.amount} from {self.bank} by {self.customer_phone} ({self.status})"

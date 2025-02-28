@@ -5,8 +5,9 @@ from banking.forms import DrawerDepositForm, EFloatAccountForm
 from banking.models import Bank, CustomerAccount, Drawer, EFloatAccount
 from django.utils import timezone
 from django.contrib import messages
-from .models import CustomerCashIn, CustomerCashOut
+from .models import CustomerCashIn, CustomerCashOut, BankDeposit, BankWithdrawal
 from decimal import Decimal
+from django.http import JsonResponse
 
 @login_required
 def open_e_float_account(request):
@@ -190,12 +191,125 @@ def cashOut(request):
     return render(request, 'agent/cashOut.html', context)
 
 # Bank Deposit
+
+def get_banks(request):
+    phone_number = request.GET.get('phone_number')
+    customers = CustomerAccount.objects.filter(phone_number=phone_number).values('bank').distinct()
+    banks = [customer['bank'] for customer in customers]
+    return JsonResponse(banks, safe=False)
+
+def get_accounts(request):
+    phone_number = request.GET.get('phone_number')
+    bank = request.GET.get('bank')
+    customers = CustomerAccount.objects.filter(phone_number=phone_number, bank=bank).values('account_number')
+    accounts = [customer['account_number'] for customer in customers]
+    return JsonResponse(accounts, safe=False)
+
+def get_customer_details(request):
+    account_number = request.GET.get('account_number')
+    customer = get_object_or_404(CustomerAccount, account_number=account_number)
+    data = {
+        'account_name': customer.account_name
+    }
+    return JsonResponse(data)
+    
+
+
 @login_required
 def agencyBank(request):
-    return render(request, 'agent/agencyBank.html')
+    agent = request.user.agent
+    today = timezone.now().date()
+    
+    account = get_object_or_404(EFloatAccount, agent=agent, date=today)
+    
+    if request.method == 'POST':
+        phone_number = request.POST.get('phone_number')
+        bank = request.POST.get('bank')
+        account_number = request.POST.get('account_number')
+        account_name = request.POST.get('account_name')
+        amount = request.POST.get('amount')
+        
+        bank_deposit = BankDeposit(phone_number=phone_number, bank=bank, account_number=account_number, account_name=account_name, amount=amount)
+        
+        bank_deposit.agent = agent
+        
+        bank_balance = getattr(account, f"{bank_deposit.bank.lower()}_balance")
+        
+        get_deposit = Decimal(bank_deposit.amount)
+        
+        
+        if get_deposit > Decimal(bank_balance):
+            messages.error(request, f'Insufficient balance in {bank_deposit.bank}.')
+            return redirect('agencyBank')
+        
+        bank_deposit.save()
+        account.update_balance_for_bank_deposit(bank_deposit.bank, bank_deposit.amount, bank_deposit.status)
+        messages.success(request, 'Bank Deposit recorded succussfully.')
+        return redirect('agencyBank')
+    
+    context = {
+        'title': 'Bank Deposit',
+    }
+        
+    return render(request, 'agent/agencyBank.html', context)
 
+def view_bank_deposits(request):
+    agent = request.user.agent
+    bank_deposits = BankDeposit.objects.filter(agent=agent).order_by('-date_deposited', '-time_deposited')
+    context = {
+        'bank_deposits': bank_deposits,
+        'title': 'Bank Deposits'
+    }
+    return render(request, 'agent/financial_services/view_bank_deposits.html', context)
+
+@login_required
 def withdrawal(request):
-    return render(request, 'agent/withdrawal.html')
+    agent = request.user.agent
+    today = timezone.now().date()
+    
+    account = get_object_or_404(EFloatAccount, agent=agent, date=today)
+    
+    if request.method == 'POST':
+        phone_number = request.POST.get('phone_number')
+        bank = request.POST.get('bank')
+        account_number = request.POST.get('account_number')
+        account_name = request.POST.get('account_name')
+        amount = request.POST.get('amount')
+        
+        bank_withdrawal = BankWithdrawal(customer_phone=phone_number, bank=bank, account_number=account_number, account_name=account_name, amount=amount)
+        
+        bank_withdrawal.agent = agent
+        
+        bank_balance = getattr(account, f"{bank_withdrawal.bank.lower()}_balance")
+        
+        get_withdrawal = Decimal(bank_withdrawal.amount)
+        
+        
+        if get_withdrawal > Decimal(bank_balance):
+            messages.error(request, f'Insufficient balance in {bank_withdrawal.bank}.')
+            return redirect('withdrawal')
+        
+        bank_withdrawal.save()
+        account.update_balance_for_bank_withdrawal(bank_withdrawal.bank, bank_withdrawal.amount, bank_withdrawal.status)
+        messages.success(request, 'Bank Withdrawal recorded succussfully.')
+        return redirect('withdrawal')
+    
+    context = {
+        'title': 'Bank Withdrawal',
+    }
+    
+    return render(request, 'agent/withdrawal.html', context)
+
+
+def view_bank_withdrawals(request):
+    agent = request.user.agent
+    bank_withdrawals = BankWithdrawal.objects.filter(agent=agent).order_by('-date_withdrawn', '-time_withdrawn')
+    context = {
+        'bank_withdrawals': bank_withdrawals,
+        'title': 'Bank Withdrawals'
+    }
+    return render(request, 'agent/financial_services/view_bank_withdrawals.html', context)
+
 
 def TotalTransactionSum(request):
     return render(request, 'agent/TotalTransactionSum.html')
@@ -236,14 +350,12 @@ def customerReg(request):
     return render(request, 'agent/customerReg.html', context)
 
 def accountReg(request):
-    banks = Bank.objects.all()
     if request.method == 'POST':
         phone_number = request.POST['phone_number']
         account_number = request.POST['account_number']
         account_name = request.POST['account_name']
-        bank_id = request.POST['bank']
-        
-        bank = get_object_or_404(Bank, id=bank_id)
+        bank = request.POST['bank']
+
         
         customer_accounts = CustomerAccount(account_number=account_number, account_name=account_name, bank=bank, phone_number=phone_number)
         
@@ -256,7 +368,6 @@ def accountReg(request):
             messages.error(request, 'Customer with this phone number does not exist.')
         
     context = {
-        'banks': banks,
         'title': 'Account Registration'
     }
     return render(request, 'agent/accountReg.html', context)
