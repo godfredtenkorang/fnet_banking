@@ -374,6 +374,8 @@ def accountReg(request):
     }
     return render(request, 'agent/accountReg.html', context)
 
+
+@login_required
 def payment(request):
     return render(request, 'agent/payment.html')
 
