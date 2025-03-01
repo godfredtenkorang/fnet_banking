@@ -140,13 +140,13 @@ def cashIn(request):
         network_balance = getattr(account, f"{cash_in.network.lower()}_balance")
         get_amount = Decimal(cash_in.amount)
         if get_amount > Decimal(network_balance):
-            messages.error(request, f"Insufficient balance in {cash_in.network}.")
+            messages.error(request, f"Insufficient balance in {cash_in.network}. Kindly make a request.")
             return redirect('cashIn')
     
         cash_in.save()
         account.update_balance_for_cash_in(cash_in.network, cash_in.amount)
         messages.success(request, 'Customer Cash-In recorded succussfully.')
-        return redirect('agent-dashboard')
+        return redirect('cashIn')
     context = {
         'title': 'Cash In'
     }
@@ -184,7 +184,7 @@ def cashOut(request):
         cash_out.save()
         account.update_balance_for_cash_out(cash_out.network, cash_out.amount)
         messages.success(request, 'Customer Cash-Out recorded succussfully.')
-        return redirect('agent-dashboard')
+        return redirect('cashout')
     context = {
         'title': 'Cash Out'
     }
