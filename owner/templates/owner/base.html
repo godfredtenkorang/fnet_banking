@@ -89,10 +89,16 @@
             <nav class="nav">
                 <div class="nav-upper-options">
 
+                    <a href="{% url 'get_all_agents' %}">
+
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-book"></i> Accounts</h3>
+                        </div>
+                    </a>
                     <a href="{% url 'registerAgent' %}">
 
                         <div class="nav-option option1 button">
-                            <h3><i class="fa-solid fa-book"></i> register Agent</h3>
+                            <h3><i class="fa-solid fa-book"></i> Register Agent</h3>
                         </div>
                     </a>
                     <!-- home button -->
@@ -111,7 +117,7 @@
                         </div>
                     </a>
                     
-                    <a href="{% url 'payto' %}">
+                    <a href="{% url 'cash_requests' %}">
                         <div class="nav-option option1 button">
                             <h3><i class="fa-solid fa-book"></i> Cash & E-Cash Requests</h3>
                         </div>

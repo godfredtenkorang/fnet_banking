@@ -90,3 +90,46 @@ class BankWithdrawal(models.Model):
     
     def __str__(self):
         return f"Bank Withdrawal of GH¢{self.amount} from {self.bank} by {self.customer_phone} ({self.status})"
+    
+    
+class CashAndECashRequest(models.Model):
+    FLOAT_TYPE_CHOICES = [
+        ('Bank', 'Bank'),
+        ('Telco', 'Telco'),
+        ('Cash', 'Cash'),
+    ]
+
+    BANK_CHOICES = [
+        ('Select Bank', 'Select Bank'),
+        ('Ecobank', 'Ecobank'),
+        ('Fidelity', 'Fidelity'),
+        ('Calbank', 'Calbank'),
+        ('GTBank', 'GTBank'),
+        ('Access Bank', 'Access Bank'),
+    ]
+
+    NETWORK_CHOICES = [
+        ('Select Network', 'Select Network'),
+        ('MTN', 'MTN'),
+        ('Telecel', 'Telecel'),
+        ('AirtelTigo', 'AirtelTigo'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Approved', 'Approved'),
+        ('Rejected', 'Rejected'),
+    ]
+
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name='cash_and_ecash_requests')
+    float_type = models.CharField(max_length=10, choices=FLOAT_TYPE_CHOICES)
+    bank = models.CharField(max_length=20, choices=BANK_CHOICES, default='Select Bank', null=True, blank=True)
+    network = models.CharField(max_length=20, choices=NETWORK_CHOICES, default='Select Network', null=True, blank=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    arrears = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # Track remaining balance
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.float_type} Request of GH¢{self.amount} by {self.agent.user.username}"

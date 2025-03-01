@@ -1,4 +1,5 @@
-{% extends 'agent/base.html' %} {% load static %} {% block content %}
+{% extends 'owner/base.html' %} {% load static %} {% block content %}
+
 
 <style>
     /* Default table styling */
@@ -117,18 +118,21 @@
     }
 
     .container {
-            text-align: center; /* Center the texts */
-            padding: 20px;
+        text-align: center;
+        /* Center the texts */
+        padding: 20px;
 
 
-        }
-        .text {
-            display: inline-block;
-            padding: 0 20px; /* Horizontal padding to create space */
-            font-size: 25px;
-            font-weight: 900;
-            text-transform: uppercase;
-        }
+    }
+
+    .text {
+        display: inline-block;
+        padding: 0 20px;
+        /* Horizontal padding to create space */
+        font-size: 25px;
+        font-weight: 900;
+        text-transform: uppercase;
+    }
 </style>
 
 
@@ -143,7 +147,7 @@
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
-            <h1>Account </h1>
+            <h1>E-Float Account for {{ agent.user.username }} </h1>
 
             <div class="container">
                 <span class="text">Capital: GH¢{{account.capital_amount}}</span>
@@ -159,63 +163,65 @@
                 <tr>
                     <th>Acount</th>
                     <th>Balance</th>
-                   
+
                 </tr>
             </thead>
             <tbody>
-                
+
                 <tr>
                     <td data-label="Agent">MTN</td>
                     <td data-label="Amount">GH¢{{account.mtn_balance}}</td>
-                   
+
                 </tr>
                 <tr>
                     <td data-label="Agent">Telecel</td>
                     <td data-label="Amount">GH¢{{account.telecel_balance}}</td>
-                    
+
                 </tr>
                 <tr>
                     <td data-label="Agent">Ecobank</td>
                     <td data-label="Amount">GH¢{{account.ecobank_balance}}</td>
-                
+
                 </tr>
                 <tr>
                     <td data-label="Agent">Fidelity</td>
                     <td data-label="Amount">GH¢{{account.fidelity_balance}}</td>
-                
+
                 </tr>
                 <tr>
                     <td data-label="Agent">Calbank</td>
                     <td data-label="Amount">GH¢{{account.calbank_balance}}</td>
-                
+
                 </tr>
                 <tr>
                     <td data-label="Agent">GTBank</td>
                     <td data-label="Amount">GH¢{{account.gtbank_balance}}</td>
-                
+
                 </tr>
                 <tr>
                     <td data-label="Agent">Cash at Hand</td>
                     <td data-label="Amount">GH¢{{account.cash_at_hand}}</td>
-                
+
                 </tr>
                 <tr>
                     <td data-label="Agent">Grand Total</td>
                     <td data-label="Amount">GH¢{{account.grand_total}}</td>
-                
+
                 </tr>
                 <tr>
                     <td data-label="Agent">Capital Amount</td>
                     <td data-label="Amount">GH¢{{account.capital_amount}}</td>
-                
+
                 </tr>
                 <tr>
                     <td data-label="Agent">Difference</td>
                     <td data-label="Amount">GH¢{{account.difference}}</td>
-                
+
                 </tr>
             </tbody>
         </table>
+        <br>
+        <p style="text-align: center;"><a href="{% url 'add_capital_to_drawer' agent.id %}">Add Capital</a></p>
 
         <!-- Pop-up to show total -->
         <div class="total-pop">

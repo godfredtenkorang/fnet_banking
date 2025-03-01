@@ -4,8 +4,11 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from users.forms import AgentRegistrationForm
 from users.models import Agent, Owner
 from banking.models import EFloatAccount
-from agent.models import BankDeposit, BankWithdrawal
+from banking.forms import AddCapitalForm
+from agent.models import BankDeposit, BankWithdrawal, CashAndECashRequest
 from django.contrib import messages
+from decimal import Decimal
+from django.utils import timezone
 
 
 # Check if the user is an Owner
@@ -44,12 +47,124 @@ def myAgent(request):
 def report(request):
     return render(request, 'owner/report.html')
 
+def is_owner(user):
+    return user.role == 'OWNER'
 
-def payto(request):
-    return render(request, 'owner/pay_to/payto.html')
+@login_required
+@user_passes_test(is_owner)
+def cash_requests(request):
+    pending_requests = CashAndECashRequest.objects.filter(float_type='Cash' ,status='Pending').order_by('-created_at')
+    context = {
+        'pending_requests': pending_requests,
+        'title': 'Cash Requests'
+    }
+    return render(request, 'owner/pay_to/cash_requests.html', context)
 
-def pay_to_mechant(request):
-    return render(request, 'owner/pay_to/pay_to_mechant.html')
+def e_cash_requests(request):
+    pending_requests = CashAndECashRequest.objects.filter(status='Pending').order_by('-created_at')
+    context = {
+        'pending_requests': pending_requests,
+        'title': 'Cash Requests'
+    }
+    return render(request, 'owner/pay_to/ecash_requests.html', context)
+
+
+@login_required
+@user_passes_test(is_owner)
+def approve_cash_and_ecash_request(request, request_id):
+    request_obj = get_object_or_404(CashAndECashRequest, id=request_id)
+    
+    if request.method == 'POST':
+        approved_amount = request.POST.get('approved_amount')
+        try:
+            approved_amount = Decimal(approved_amount)
+            if approved_amount < 0 or approved_amount > request_obj.amount:
+                messages.error(request, 'Invalid approved amount')
+                return redirect('cash_requests')
+            
+            # Calculate the remaining amount (arrears)
+            remaining_amount = request_obj.amount - approved_amount
+            request_obj.arrears = remaining_amount
+            
+            # If there are arrears, keep the status as Pending
+            if remaining_amount > 0:
+                request_obj.status = 'Pending'
+                messages.success(request, f'Partial approval successful. Approved Amount: GH¢{approved_amount}, Remaining Amount: GH¢{remaining_amount}')
+            
+            else:
+                # If no arrears, mark the request as Approved
+                request_obj.status = 'Approved'
+                messages.success(request, 'Request fully approved.')
+            # Save the request status and arrears
+            request_obj.save()
+            return redirect('cash_requests')
+        except ValueError:
+            messages.success(request, 'Invalid input for approved amount.')
+            return redirect('cash_requests')
+    context = {
+        'request_obj': request_obj,
+        'title': 'Approve Request'
+    }
+    return render(request, 'owner/pay_to/approve_cash_and_ecash_request.html', context)
+
+@login_required
+@user_passes_test(is_owner)
+def reject_cash_and_ecash_request(request, request_id):
+    request_obj = get_object_or_404(CashAndECashRequest, id=request_id)
+    request_obj.status = 'Rejected'
+    request_obj.save()
+    messages.success(request, 'Request rejected.')
+    return redirect('cash_requests')
+
+@login_required
+@user_passes_test(is_owner)
+def get_all_agents(request):
+    agents = Agent.objects.all()
+    context = {
+        'agents': agents,
+        'title': 'View Agents'
+    }
+    return render(request, 'owner/float_account/account.html', context)
+
+@login_required
+@user_passes_test(is_owner)
+def view_agent_e_float_drawer(request, agent_id):
+    agent = get_object_or_404(Agent, id=agent_id)
+    today = timezone.now().date()
+    account = get_object_or_404(EFloatAccount, agent=agent, date=today)
+    context = {
+        'account': account,
+        'agent': agent,
+        'title': 'View Agent EFloat'
+    }
+    return render(request, 'owner/float_account/account_detail.html', context)
+
+
+@login_required
+@user_passes_test(is_owner)
+def add_capital_to_drawer(request, agent_id):
+    agent = get_object_or_404(Agent, id=agent_id)
+    today = timezone.now().date()
+    account = get_object_or_404(EFloatAccount, agent=agent, date=today)
+    
+    if request.method == 'POST':
+        form = AddCapitalForm(request.POST)
+        if form.is_valid():
+            additional_capital = form.cleaned_data['additional_capital']
+            if account.add_capital(additional_capital):
+                messages.success(request, f'Successfully added GH¢{additional_capital} to the capital.')
+            else:
+                messages.error(request, 'Invalid capital amount.')
+            return redirect('view_agent_e_float_drawer', agent_id=agent.id)
+    else:
+        form = AddCapitalForm()
+    context = {
+        'form': form,
+        'agent': agent,
+        'title': 'Add Capital'
+    }
+    return render(request, 'owner/float_account/add_capital_account.html', context)
+                
 
 def pay_to_agent_detail(request):
     return render(request, 'owner/pay_to/pay_to_agent_detail.html')

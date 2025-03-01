@@ -1,7 +1,7 @@
 from django.contrib import admin
-from .models import Bank, CustomerAccount, Drawer
+from .models import Bank, CustomerAccount, EFloatAccount
 
 # Register your models here.
 admin.site.register(Bank)
 admin.site.register(CustomerAccount)
-admin.site.register(Drawer)
+admin.site.register(EFloatAccount)

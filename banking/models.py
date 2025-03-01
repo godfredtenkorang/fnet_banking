@@ -93,15 +93,48 @@ class EFloatAccount(models.Model):
     access_bank_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     cash_at_hand = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     capital_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    difference = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     
     def grand_total(self):
         return (
-            self.mtn_balance + self.telecel_balance + self.airtel_tigo_balance + self.ecobank_balance + self.fidelity_balance + self.calbank_balance + self.access_bank_balance + self.gtbank_balance + self.cash_at_hand
+            self.mtn_balance + 
+            self.telecel_balance + 
+            self.airtel_tigo_balance + 
+            self.ecobank_balance + 
+            self.fidelity_balance + 
+            self.calbank_balance + 
+            self.access_bank_balance + 
+            self.gtbank_balance + 
+            self.cash_at_hand
         )
+    def calculate_difference(self):
+        self.difference = self.grand_total() - self.capital_amount
+        return self.difference
+    
+    def add_capital(self, additional_capital):
+        if additional_capital > 0:
+            self.capital_amount += additional_capital
+            self.save()
+            return True
+        return False
         
     def save(self, *args, **kwargs):
-        self.capital_amount = self.grand_total()
+        # Calculate the difference between Grand Total and Fixed Capital
+        self.calculate_difference()
         super().save(*args, **kwargs)
+        
+    @classmethod
+    def create_new_drawer(cls, agent):
+        today = timezone.now().date()
+        previous_drawer = cls.objects.filter(agent=agent, date__lt=today).order_by('-date').first()
+        
+        capital_amount = previous_drawer.capital_amount if previous_drawer else 0.00
+        new_drawer = cls.objects.create(
+            agent=agent, 
+            date=today,
+            capital_amount=capital_amount
+        )
+        return new_drawer
         
     def update_balance_for_cash_in(self, network, amount):
         amount = Decimal(amount)

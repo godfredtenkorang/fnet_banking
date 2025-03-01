@@ -3,6 +3,13 @@
 {% block content %}
 
 <div class="main">
+    <div style="background-color:#000; width:100%;">
+        {% if messages %}
+        {% for message in messages %}
+        <p style="color: #97c8b3; font-size:30px; text-align:center;">{{ message }}</p>
+        {% endfor %}
+        {% endif %}
+    </div>
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
@@ -11,11 +18,12 @@
     </div>
   
         <div class="form">
-            <form id="networkForm">
+            <form id="networkForm" method="post">
+                {% csrf_token %}
                 <div class="form-grid">
                     <div class="input">
                         <label for="cashFloatType">Select float type</label> <br />
-                        <select id="cashFloatType" required>
+                        <select id="cashFloatType" name="float_type" required>
                             <option value="" disabled selected>Request</option>
                             <option value="Bank">Bank</option>
                             <option value="Telco">Telco</option>
@@ -26,29 +34,29 @@
             
                     <div class="input" id="bank" style="display: none;">
                         <label for="BankNames">Select Bank</label> <br />
-                        <select id="BankNames" required>
-                            <option value="" disabled selected>Select Cash at Location</option>
-                            <option value="GCB">GCB</option>
+                        <select id="BankNames" name="bank">
+                            <option value="bank" disabled selected>Select Cash at Location</option>
                             <option value="Ecobank">Ecobank</option>
-                            <option value="Stanbic">Stanbic</option>
-                            <option value="ABSA">ABSA</option>
+                            <option value="Fidelity">Fidelity</option>
+                            <option value="Calbank">Calbank</option>
+                            <option value="GTbank">GTbank</option>
+                            <option value="Access bank">Access bank</option>
                         </select>
                     </div>
             
                     <div class="input" id="telco" style="display: none;">
                         <label for="network">Select Network</label> <br />
-                        <select id="network">
-                            <option value="" disabled selected>Select network</option>
+                        <select id="network" name="network">
+                            <option value="network" disabled selected>Select network</option>
                             <option value="MTN">MTN</option>
                             <option value="AirtelTigo">AirtelTigo</option>
-                            <option value="Expresso">Expresso</option>
-                            <option value="Vodafone">Vodafone</option>
+                            <option value="Telecel">Telecel</option>
                         </select>
                     </div>
             
                     <div class="input" id="amount" style="display: none;">
                         <label for="amountInput">Amount</label> <br />
-                        <input type="number" id="amountInput" required placeholder="Enter Amount" min="0" />
+                        <input type="number" id="amountInput" name="amount" required placeholder="Enter Amount" min="0" />
                     </div>
                 </div>
             

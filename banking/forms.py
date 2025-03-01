@@ -15,3 +15,7 @@ class EFloatAccountForm(forms.ModelForm):
             'fidelity_balance', 'calbank_balance', 'gtbank_balance', 'access_bank_balance',
             'cash_at_hand'
         ]
+    
+        
+class AddCapitalForm(forms.Form):
+    additional_capital = forms.DecimalField(max_digits=10, decimal_places=2, min_value=0.01, label="Additional Capital Amount")

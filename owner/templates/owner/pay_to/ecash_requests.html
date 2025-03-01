@@ -1,7 +1,7 @@
-{% extends 'owner/base.html' %} {% load static %} {% block content %}
-
-
-
+{% extends 'owner/base.html' %} 
+{% load custom_filters %}
+{% load static %} 
+{% block content %}
 
 
 <style>
@@ -122,73 +122,89 @@
 </style>
 
 
+
+
 <div class="main">
-
+    
+    <div style="background-color:#000; width:100%;">
+        {% if messages %}
+        {% for message in messages %}
+        <p style="color: #97c8b3; font-size:30px; text-align:center;">{{ message }}</p>
+        {% endfor %}
+        {% endif %}
+    </div>
     <div class="pay-to-link">
-        <a href="{% url 'bank_deposit_requests' %}" class="activeBtn">
-            <button><i class="fas fa-user-tie"></i> Bank Deposit Requests</button>
+        <a href="{% url 'cash_requests' %}">
+            <button><i class="fas fa-user-tie"></i> Cash Requests</button>
         </a>
-        <a href="{% url 'bank_withdrawal_requests' %}">
-            <button><i class="fas fa-store"></i> Bank Withdrawal Requests</button>
+        <a href="{% url 'ecash_requests' %}" class="activeBtn">
+            <button><i class="fas fa-store"></i> E-Cash Request</button>
         </a>
     </div>
+    
+ <div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Agent</th>
+                <th>Float Type</th>
+                <th>Bank/Network</th>
+                <th>Requested Amount</th>
+                <th>Approved Amount</th>
+                <th>Remaining Amount</th>
+                <th>Date/Time</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cash in pending_requests %}
+            <tr>
+                <td data-label="Agent">{{cash.agent.phone_number}}</td>
+                <td data-label="Amount">{{cash.float_type}}</td>
+                <td data-label="Bank/Network">
+                    {% if cash.float_type == 'Bank' %}
+                        {{cash.bank}}
+                    {% elif cash.float_type == 'Telco' %}
+                        {{cash.network}}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+                <td data-label="Amount">{{cash.amount}}</td>
+                <td data-label="Remaining">{{cash.amount|subtract:cash.arrears}}</td>
+                <td data-label="Arrears">{{cash.arrears}}</td>
+                <td data-label="Date/Time">{{cash.created_at}}</td>
+                <td data-label="Status">{{cash.status}}</td>
+                <td data-label="Action" class="action-buttons">
+                    <a href="{% url 'approve_cash_and_ecash_request' cash.id %}"><button class="approve-btn">Approve</button></a>
+                    <a href="{% url 'reject_cash_and_ecash_request' cash.id %}"><button class="decline-btn">Reject</button></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Agent</th>
-                    <th>Customer Phone</th>
-                    <th>Bank</th>
-                    <th>Account Number</th>
-                    <th>Account Name</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Amount</th>
-                    <th>Actions</th>
-
-                </tr>
-            </thead>
-            <tbody>
-                {% for pending_deposit in pending_deposits %}
-                <tr>
-                    <td data-label="Agent">{{pending_deposit.agent}}</td>
-                    <td data-label="Customer Number">{{pending_deposit.phone_number}}</td>
-                    <td data-label="Bank">{{pending_deposit.bank}}</td>
-                    <td data-label="Account Number">{{pending_deposit.account_number}}</td>
-                    <td data-label="Account Name">{{pending_deposit.account_name}}</td>
-                    <td data-label="Date">{{pending_deposit.date_deposited}}</td>
-                    <td data-label="Time">{{pending_deposit.time_deposited}}</td>
-                    <td data-label="Amount">{{pending_deposit.amount}}</td>
-
-                    <td data-label="Action" class="action-buttons">
-                        <a href="{% url 'approve_bank_deposit' pending_deposit.id %}"><button
-                                class="approve-btn">Approve</button></a>
-                        <a href="{% url 'reject_bank_deposit' pending_deposit.id %}"><button
-                                class="decline-btn">Reject</button></a>
-                    </td>
-                </tr>
-
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <!-- Pop-up to show total -->
-        <div class="total-pop">
-            <div class="total-background">
-                <p>Total</p>
-                <p class="total-amount">GH¢0</p>
-                <button class="closeTotal">Close</button>
-            </div>
+    <!-- Pop-up to show total -->
+    <div class="total-pop">
+        <div class="total-background">
+            <p>Total</p>
+            <p class="total-amount">GH¢0</p>
+            <button class="closeTotal">Close</button>
         </div>
-
-        <!-- Button to Calculate Total -->
-        <div class="total-btn">
-            <button class="calculate-total"><i class="fas fa-coins"></i> Total</button>
-        </div>
-
     </div>
+
+    <!-- Button to Calculate Total -->
+    <div class="total-btn">
+        <button class="calculate-total"><i class="fas fa-coins"></i> Total</button>
+    </div>
+
+</div>
+
+
+
+
+
 
 
 <script>
@@ -235,5 +251,4 @@
 
 
 
-
-    {% endblock %}
+{% endblock %}

@@ -6,10 +6,18 @@ urlpatterns = [
     
     path('registerAgent/', views.registerAgent, name='registerAgent'),
     path('myAgent/', views.myAgent, name='myAgent'),
+    
+    path('account/', views.get_all_agents, name='get_all_agents'),
+    path('get_owner/view_agent_e_float_drawer/<int:agent_id>/', views.view_agent_e_float_drawer, name='view_agent_e_float_drawer'),
+    path('get_owner/add_capital_to_drawer/<int:agent_id>/', views.add_capital_to_drawer, name='add_capital_to_drawer'),
 
     path('report/', views.report, name='report'),
-    path('payto/', views.payto, name='payto'),
-    path('pay_to_mechant/', views.pay_to_mechant, name='pay_to_mechant'),
+    
+    path('cash_requests/', views.cash_requests, name='cash_requests'),
+    path('ecash_requests/', views.e_cash_requests, name='ecash_requests'),
+    path('owner/<int:request_id>/approve_request/', views.approve_cash_and_ecash_request, name='approve_cash_and_ecash_request'),
+    path('owner/<int:request_id>/reject_request/', views.reject_cash_and_ecash_request, name='reject_cash_and_ecash_request'),
+    
     path('pay_to_agent_detail/', views.pay_to_agent_detail, name='pay_to_agent_detail'),
     path('pay_to_mechant_detail/', views.pay_to_mechant_detail, name='pay_to_mechant_detail'),
     path('users/', views.users, name='users'),

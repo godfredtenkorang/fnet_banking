@@ -5,30 +5,22 @@ from banking.forms import DrawerDepositForm, EFloatAccountForm
 from banking.models import Bank, CustomerAccount, Drawer, EFloatAccount
 from django.utils import timezone
 from django.contrib import messages
-from .models import CustomerCashIn, CustomerCashOut, BankDeposit, BankWithdrawal
+from .models import CustomerCashIn, CustomerCashOut, BankDeposit, BankWithdrawal, CashAndECashRequest
 from decimal import Decimal
 from django.http import JsonResponse
+
 
 @login_required
 def open_e_float_account(request):
     agent = request.user.agent
     today = timezone.now().date()
     
-    account, create = EFloatAccount.objects.get_or_create(
-        agent=agent,
-        date=today,
-        defaults={
-            'mtn_balance': 0.00,
-            'telecel_balance': 0.00,
-            'airtel_tigo_balance': 0.00,
-            'ecobank_balance': 0.00,
-            'fidelity_balance': 0.00,
-            'calbank_balance': 0.00,
-            'gtbank_balance': 0.00,
-            'access_bank_balance': 0.00,
-            'cash_at_hand': 0.00
-        }
-    )
+    # Check if an e-float drawer already exists for today
+    account = EFloatAccount.objects.filter(agent=agent, date=today).first()
+    
+    if not account:
+        # Create a new drawer for today, carrying forward the fixed capital
+        account = EFloatAccount.create_new_drawer(agent)
     
     if request.method == 'POST':
         form = EFloatAccountForm(request.POST, instance=account)
@@ -41,17 +33,25 @@ def open_e_float_account(request):
         
     context = {
         'form': form,
+        'account': account,
         'title': 'Open Account'
     }
         
     return render(request, 'agent/efloat_account.html', context)
 
-
+@login_required
 def view_e_float_account(request):
     agent = request.user.agent
     today = timezone.now().date()
     
     account = get_object_or_404(EFloatAccount, agent=agent, date=today)
+    
+    # Notify the Owner if there is a surplus or shortage
+    difference = Decimal(account.difference)
+    if difference > 0:
+        messages.warning(request, f"Surplus of GH¢{difference}. Please review the account.")
+    elif difference < 0:
+        messages.error(request, f"Shortage of GH¢{abs(difference)}. Please review the account.")
     
     context = {
         'account': account,
@@ -253,6 +253,7 @@ def agencyBank(request):
         
     return render(request, 'agent/agencyBank.html', context)
 
+@login_required
 def view_bank_deposits(request):
     agent = request.user.agent
     bank_deposits = BankDeposit.objects.filter(agent=agent).order_by('-date_deposited', '-time_deposited')
@@ -300,7 +301,7 @@ def withdrawal(request):
     
     return render(request, 'agent/withdrawal.html', context)
 
-
+@login_required
 def view_bank_withdrawals(request):
     agent = request.user.agent
     bank_withdrawals = BankWithdrawal.objects.filter(agent=agent).order_by('-date_withdrawn', '-time_withdrawn')
@@ -317,6 +318,7 @@ def TotalTransactionSum(request):
 def PaymentSummary(request):
     return render(request, 'agent/PaymentSummary.html')
 
+@login_required
 def customerReg(request):
     users = User.objects.filter(role='CUSTOMER')
     branches = Branch.objects.all()
@@ -375,8 +377,30 @@ def accountReg(request):
 def payment(request):
     return render(request, 'agent/payment.html')
 
+@login_required
 def cashFloatRequest(request):
-    return render(request, 'agent/cashFloatRequest.html')
+    agent = request.user.agent
+    
+    if request.method == 'POST':
+        float_type = request.POST.get('float_type')
+        bank = request.POST.get('bank')
+        network = request.POST.get('network')
+        amount = request.POST.get('amount')
+        
+        floats = CashAndECashRequest(float_type=float_type, bank=bank, network=network, amount=amount)
+        
+        floats.agent = agent
+        floats.save()
+        
+        messages.success(request, 'Request submitted successfully. Waiting for Owner approveal.')
+        
+        return redirect('cashFloatRequest')
+    
+    context = {
+        'title': 'Cash & ECash Request'
+    }
+    
+    return render(request, 'agent/cashFloatRequest.html', context)
 
 def calculate(request):
     return render(request, 'agent/calculate.html')

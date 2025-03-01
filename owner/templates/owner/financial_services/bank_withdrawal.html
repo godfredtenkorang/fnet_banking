@@ -125,10 +125,10 @@
 <div class="main">
 
     <div class="pay-to-link">
-        <a href="{% url 'bank_deposit_requests' %}" class="activeBtn">
+        <a href="{% url 'bank_deposit_requests' %}">
             <button><i class="fas fa-user-tie"></i> Bank Deposit Requests</button>
         </a>
-        <a href="{% url 'bank_withdrawal_requests' %}">
+        <a href="{% url 'bank_withdrawal_requests' %}" class="activeBtn">
             <button><i class="fas fa-store"></i> Bank Withdrawal Requests</button>
         </a>
     </div>
@@ -153,14 +153,14 @@
             <tbody>
                 {% for pending_withdrawal in pending_withdrawals %}
                 <tr>
-                    <td>{{pending_withdrawal.agent}}</td>
-                    <td>{{pending_withdrawal.customer_phone}}</td>
-                    <td>{{pending_withdrawal.bank}}</td>
-                    <td>{{pending_withdrawal.account_number}}</td>
-                    <td>{{pending_withdrawal.account_name}}</td>
-                    <td>{{pending_withdrawal.date_withdrawn}}</td>
-                    <td>{{pending_withdrawal.time_withdrawn}}</td>
-                    <td>{{pending_withdrawal.amount}}</td>
+                    <td data-label="Agent">{{pending_withdrawal.agent}}</td>
+                    <td data-label="Customer Phone">{{pending_withdrawal.customer_phone}}</td>
+                    <td data-label="Bank">{{pending_withdrawal.bank}}</td>
+                    <td data-label="Account Number">{{pending_withdrawal.account_number}}</td>
+                    <td data-label="Account Name">{{pending_withdrawal.account_name}}</td>
+                    <td data-label="Date">{{pending_withdrawal.date_withdrawn}}</td>
+                    <td data-label="Time">{{pending_withdrawal.time_withdrawn}}</td>
+                    <td data-label="Amount">{{pending_withdrawal.amount}}</td>
 
                     <td data-label="Action" class="action-buttons">
                         <a href="{% url 'approve_bank_withdrawal' pending_withdrawal.id %}"><button
@@ -178,20 +178,61 @@
         <div class="total-pop">
             <div class="total-background">
                 <p>Total</p>
-                <p class="total-amount">$0</p>
+                <p class="total-amount">GH¢0</p>
                 <button class="closeTotal">Close</button>
             </div>
         </div>
 
         <!-- Button to Calculate Total -->
-        <!-- <div class="total-btn">
+        <div class="total-btn">
             <button class="calculate-total"><i class="fas fa-coins"></i> Total</button>
-        </div> -->
+        </div>
 
     </div>
 
 
 
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const totalBtn = document.querySelector(".calculate-total");
+        const totalPop = document.querySelector(".total-pop");
+        const totalAmount = document.querySelector(".total-amount");
+        const closeTotalBtn = document.querySelector(".closeTotal");
+
+        // Function to Calculate Total
+        function calculateTotal() {
+            let total = 0;
+            document.querySelectorAll("td[data-label='Amount']").forEach(td => {
+                let amount = parseFloat(td.textContent.replace("GH¢", "")) || 0;
+                total += amount;
+            });
+
+            // Update Total Amount in Popup
+            totalAmount.textContent = `GH¢${total}`;
+
+            // Show Popup
+            totalPop.style.display = "flex";
+            setTimeout(() => {
+                totalPop.classList.add("active");
+            }, 50);
+        }
+
+        // Function to Close the Popup
+        function closePopup() {
+            totalPop.classList.remove("active");
+            setTimeout(() => {
+                totalPop.style.display = "none";
+            }, 300);
+        }
+
+        // Event Listeners
+        totalBtn.addEventListener("click", calculateTotal);
+        closeTotalBtn.addEventListener("click", closePopup);
+    });
+
+
+</script>
 
 
 
