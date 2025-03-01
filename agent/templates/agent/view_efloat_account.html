@@ -1,4 +1,7 @@
-{% extends 'agent/base.html' %} {% load static %} {% block content %}
+{% extends 'agent/base.html' %} 
+{% load humanize %}
+{% load static %} 
+{% block content %}
 
 <style>
     /* Default table styling */
@@ -155,8 +158,8 @@
             <h1>Account </h1>
 
             <div class="container">
-                <span class="text">Capital: GH¢{{account.capital_amount}}</span>
-                <span class="text">Grand Total: GH¢{{account.grand_total}}</span>
+                <span class="text">Capital: GH¢{{account.capital_amount|intcomma}}</span>
+                <span class="text">Grand Total: GH¢{{account.grand_total|intcomma}}</span>
             </div>
         </div>
     </div>
@@ -175,52 +178,52 @@
                 
                 <tr>
                     <td data-label="Agent">MTN</td>
-                    <td data-label="Amount">GH¢{{account.mtn_balance}}</td>
+                    <td data-label="Amount">GH¢{{account.mtn_balance|intcomma}}</td>
                    
                 </tr>
                 <tr>
                     <td data-label="Agent">Telecel</td>
-                    <td data-label="Amount">GH¢{{account.telecel_balance}}</td>
+                    <td data-label="Amount">GH¢{{account.telecel_balance|intcomma}}</td>
                     
                 </tr>
                 <tr>
                     <td data-label="Agent">Ecobank</td>
-                    <td data-label="Amount">GH¢{{account.ecobank_balance}}</td>
+                    <td data-label="Amount">GH¢{{account.ecobank_balance|intcomma}}</td>
                 
                 </tr>
                 <tr>
                     <td data-label="Agent">Fidelity</td>
-                    <td data-label="Amount">GH¢{{account.fidelity_balance}}</td>
+                    <td data-label="Amount">GH¢{{account.fidelity_balance|intcomma}}</td>
                 
                 </tr>
                 <tr>
                     <td data-label="Agent">Calbank</td>
-                    <td data-label="Amount">GH¢{{account.calbank_balance}}</td>
+                    <td data-label="Amount">GH¢{{account.calbank_balance|intcomma}}</td>
                 
                 </tr>
                 <tr>
                     <td data-label="Agent">GTBank</td>
-                    <td data-label="Amount">GH¢{{account.gtbank_balance}}</td>
+                    <td data-label="Amount">GH¢{{account.gtbank_balance|intcomma}}</td>
                 
                 </tr>
                 <tr>
                     <td data-label="Agent">Cash at Hand</td>
-                    <td data-label="Amount">GH¢{{account.cash_at_hand}}</td>
+                    <td data-label="Amount">GH¢{{account.cash_at_hand|intcomma}}</td>
                 
                 </tr>
                 <tr>
                     <td data-label="Agent" class="grand_total" style="background-color: #000; color: #fff;">Grand Total</td>
-                    <td data-label="Amount" class="grand_total" style="background-color: #000; color: #fff;">GH¢{{account.grand_total}}</td>
+                    <td data-label="Amount" class="grand_total" style="background-color: #000; color: #fff;">GH¢{{account.grand_total|intcomma}}</td>
                 
                 </tr>
                 <tr>
                     <td data-label="Agent" class="grand_total" style="background-color: red; color: #fff;">Capital Amount</td>
-                    <td data-label="Amount" class="grand_total" style="background-color: red; color: #fff;">GH¢{{account.capital_amount}}</td>
+                    <td data-label="Amount" class="grand_total" style="background-color: red; color: #fff;">GH¢{{account.capital_amount|intcomma}}</td>
                 
                 </tr>
                 <tr>
                     <td data-label="Agent" class="difference" style="background-color: #fff; color: red;">Difference</td>
-                    <td data-label="Amount" class="difference" style="background-color: #fff; color: red;">GH¢{{account.difference}}</td>
+                    <td data-label="Amount" class="difference" style="background-color: #fff; color: red;">GH¢{{account.difference|intcomma}}</td>
                 
                 </tr>
             </tbody>
