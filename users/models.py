@@ -3,7 +3,6 @@ from django.contrib.auth.models import AbstractUser
 
 BRANCHES = (
     ("Please select cash at location", "Please select cash at location"),
-    ("Cash @ location", "Cash @ location"),
     ("DVLA", "DVLA"),
     ("HEAD OFFICE", "HEAD OFFICE"),
     ("KEJETIA", "KEJETIA"),
@@ -15,6 +14,7 @@ BRANCHES = (
     ("ADUM MELCOM ANNEX", "ADUM MELCOM ANNEX"),
     ("MELCOM SUAME", "MELCOM SUAME"),
     ("KUMASI MALL MELCOM", "KUMASI MALL MELCOM"),
+    ("MOBILIZATION", "MOBILIZATION"),
 )
 
 class User(AbstractUser):

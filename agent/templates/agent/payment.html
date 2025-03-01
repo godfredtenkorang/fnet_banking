@@ -3,85 +3,121 @@
 {% block content %}
 
 <div class="main">
+    <div style="background-color:#000; width:100%;">
+        {% if messages %}
+        {% for message in messages %}
+        <p style="color: #97c8b3; font-size:30px; text-align:center;">{{ message }}</p>
+        {% endfor %}
+        {% endif %}
+    </div>
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
             <h1>Make Payment</h1>
         </div>
     </div>
-  
-        <div class="form">
-            <form id="networkForm">
-                <div class="form-grid">
-                    <div class="input">
-                        <label for="paymentMode">Select Mode of Payment</label> <br />
-                        <select id="paymentMode" required>
-                            <option value="" disabled selected>Select Mode of Payment</option>
-                            <option value="GCB">GCB</option>
-                            <option value="Ecobank">Ecobank</option>
-                            <option value="Stanbic">Stanbic</option>
-                            <option value="ABSA">ABSA</option>
-                        </select>
-                    </div>
-            
-                    <div class="input">
-                        <label for="cashLocation">Select Cash at Location</label> <br />
-                        <select id="cashLocation" required>
-                            <option value="" disabled selected>Select Cash at Location</option>
-                            <option value="GCB">GCB</option>
-                            <option value="Ecobank">Ecobank</option>
-                            <option value="Stanbic">Stanbic</option>
-                            <option value="ABSA">ABSA</option>
-                        </select>
-                    </div>
-            
-                    <div class="input">
-                        <label for="referenceNumber">References</label> <br />
-                        <input type="text" id="referenceNumber" required placeholder="Account Number" />
-                    </div>
-            
-                    <div class="input">
-                        <label for="amount">Enter Amount</label> <br />
-                        <input type="number" id="amount" required placeholder="Enter Amount" title="Enter amount here" min="0" />
-                        <p id="amountError" style="color: red; font-weight: bold; display: none;">Negative values are not allowed.</p>
-                    </div>
+
+    <div class="form">
+        <form id="networkForm" method="post">
+            {% csrf_token %}
+            <div class="form-grid">
+                <div class="input">
+                    <label for="cashFloatType">Select Mode of Payment</label> <br />
+                    <select id="cashFloatType" name="mode_of_payment" required>
+                        <option value="" disabled selected>Request</option>
+                        <option value="Telco">Telco</option>
+                        <option value="Bank">Bank</option>
+                        <option value="Branch">Branch</option>
+
+                    </select>
                 </div>
-            
-                <div class="confirm-section">
-                    <input type="checkbox" id="confirmCheck" />
-                    <label for="confirmCheck">I confirm that the details entered are correct</label>
-                    <p id="confirmMessage" style="color: red; font-weight: bold; display: none;"></p>
+
+                <div class="input" id="bank" style="display: none;">
+                    <label for="BankNames">Select Bank</label> <br />
+                    <select id="BankNames" name="bank">
+                        <option value="" disabled selected>Select Bank</option>
+                        <option value="AccessBank">Access Bank</option>
+                        <option value="Cal Bank">Cal Bank</option>
+                        <option value="Fidelity Bank">Fidelity Bank</option>
+                        <option value="Ecobank">Ecobank</option>
+                        <option value="GT Bank">GT Bank</option>
+                        <option value="Adansi rural bank">Adansi rural bank</option>
+                        <option value="Kwumawuman Bank">Kwumawuman Bank</option>
+                        <option value="Pan Africa">Pan Africa</option>
+                        <option value="SGSSB">SGSSB</option>
+                        <option value="Atwima Rural Bank">Atwima Rural Bank</option>
+                        <option value="Omnibsic Bank">Omnibsic Bank</option>
+                        <option value="Omini bank">Omini bank</option>
+                        <option value="Stanbic Bank">Stanbic Bank</option>
+                        <option value="First Bank of Nigeria">First Bank of Nigeria</option>
+                        <option value="Adehyeman Savings and loans">Adehyeman Savings and loans</option>
+                        <option value="ARB Apex Bank Limited">ARB Apex Bank Limited</option>
+                        <option value="Absa Bank">Absa Bank</option>
+                        <option value="Agriculture Development bank">Agriculture Development bank</option>
+                        <option value="Bank of Africa">Bank of Africa</option>
+                        <option value="Bank of Ghana">Bank of Ghana</option>
+                        <option value="Consolidated Bank Ghana">Consolidated Bank Ghana</option>
+                        <option value="First Atlantic Bank">First Atlantic Bank</option>
+                        <option value="First National Bank">First National Bank</option>
+                        <option value="G-Money">G-Money</option>
+                        <option value="GCB BanK LTD">GCB BanK LTD</option>
+                        <option value="Ghana Pay">Ghana Pay</option>
+                        <option value="GHL Bank Ltd">GHL Bank Ltd</option>
+                        <option value="National Investment Bank">National Investment Bank</option>
+                        <option value="Opportunity International Savings And Loans">Opportunity International Savings And Loans</option>
+                        <option value="Republic Bank Ltd">Republic Bank Ltd</option>
+                        <option value="Sahel Sahara Bank">Sahel Sahara Bank</option>
+                        <option value="Sinapi Aba Savings and Loans">Sinapi Aba Savings and Loans</option>
+                        <option value="Societe Generale Ghana Ltd">Societe Generale Ghana Ltd</option>
+                        <option value="Standard Chartered">Standard Chartered</option>
+                        <option value="Universal Merchant Bank">Universal Merchant Bank</option>
+                        <option value="Zenith Bank">Zenith Bank</option>
+                        <option value="Mtn">Mtn</option>
+                        <option value="AirtelTigo">AirtelTigo</option>
+                        <option value="Telecel">Telecel</option>
+                    </select>
                 </div>
-            
-                <p class="confirmInfoMessage" style="color: red; padding: 10px 0; font-weight: bold;"></p>
-                <button type="submit" id="submitBtn">Pay</button>
-            </form>
-        </div>
+
+                <div class="input" id="telco" style="display: none;">
+                    <label for="network">Select Network</label> <br />
+                    <select id="network" name="network">
+                        <option value="" disabled selected>Select network</option>
+                        <option value="MTN">MTN</option>
+                        <option value="AirtelTigo">AirtelTigo</option>
+                        <option value="Telecel">Telecel</option>
+                    </select>
+                </div>
+
+                <div class="input" id="branch" style="display: none;">
+                    <label for="branchNames">Select Branch</label> <br />
+                    <select id="branchNames" name="branch">
+                        <option value="" disabled selected>Select network</option>
+                        <option value="DVLA">DVLA</option>
+                        <option value="HEAD OFFICE">HEAD OFFICE</option>
+                        <option value="KEJETIA">KEJETIA</option>
+                        <option value="MELCOM SANTASI">MELCOM SANTASI</option>
+                        <option value="MELCOM TANOSO">MELCOM TANOSO</option>
+                        <option value="MELCOM MANHYIA">MELCOM MANHYIA</option>
+                        <option value="MELCOM TAFO">MELCOM TAFO</option>
+                        <option value="AHODWO MELCOM">AHODWO MELCOM</option>
+                        <option value="ADUM MELCOM ANNEX">ADUM MELCOM ANNEX</option>
+                        <option value="MELCOM SUAME">MELCOM SUAME</option>
+                        <option value="KUMASI MALL MELCOM">KUMASI MALL MELCOM</option>
+                        <option value="MOBILIZATION">MOBILIZATION</option>
+                    </select>
+                </div>
+
+                <div class="input" id="amount" style="display: none;">
+                    <label for="amountInput">Amount</label> <br />
+                    <input type="number" id="amountInput" name="amount" required placeholder="Enter Amount" min="0" />
+                </div>
+            </div>
+
+            <button id="submitBtn" style="display: none;">Send</button>
+        </form>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-        
-
+    </div>
 
 
 
@@ -89,76 +125,45 @@
 
 
 <script>
+
     document.addEventListener("DOMContentLoaded", function () {
-        // Get form elements
-        const paymentMode = document.getElementById("paymentMode");
-        const cashLocation = document.getElementById("cashLocation");
-        const referenceNumber = document.getElementById("referenceNumber");
-        const amount = document.getElementById("amount");
-        const amountError = document.getElementById("amountError");
-        const confirmCheck = document.getElementById("confirmCheck");
-        const confirmMessage = document.getElementById("confirmMessage");
-        const confirmInfoMessage = document.querySelector(".confirmInfoMessage");
-        const submitBtn = document.getElementById("submitBtn");
-        const form = document.getElementById("networkForm");
-    
-        // Prevent negative values and show error message
-        amount.addEventListener("input", function () {
-            if (this.value < 0) {
-                this.value = "";
-                amountError.style.display = "block";
-            } else {
-                amountError.style.display = "none";
+        const cashFloatType = document.getElementById("cashFloatType");
+        const bankSection = document.getElementById("bank");
+        const telcoSection = document.getElementById("telco");
+        const branchSection = document.getElementById("branch");
+        const amountField = document.getElementById("amount");
+        const submitButton = document.getElementById("submitBtn");
+
+        // Function to show the correct fields
+        cashFloatType.addEventListener("change", function () {
+            const selectedValue = cashFloatType.value;
+
+            // Reset all fields to hidden
+            bankSection.style.display = "none";
+            telcoSection.style.display = "none";
+            branchSection.style.display = "none";
+            amountField.style.display = "none";
+            submitButton.style.display = "none";
+
+            // Show the appropriate fields based on selection
+            if (selectedValue === "Bank") {
+                bankSection.style.display = "block";
+                amountField.style.display = "block";
+                submitButton.style.display = "block";
+            } else if (selectedValue === "Telco") {
+                telcoSection.style.display = "block";
+                amountField.style.display = "block";
+                submitButton.style.display = "block";
+            } else if (selectedValue === "Branch") {
+                branchSection.style.display = "block"
+                amountField.style.display = "block";
+                submitButton.style.display = "block";
             }
-        });
-    
-        // Handle checkbox validation
-        confirmCheck.addEventListener("change", function () {
-            if (!this.checked) {
-                confirmMessage.textContent = "";
-                return;
-            }
-    
-            if (!paymentMode.value || !cashLocation.value || !referenceNumber.value.trim() || !amount.value.trim()) {
-                confirmMessage.textContent = "Please fill in all fields before confirming.";
-                confirmMessage.style.display = "block";
-                confirmMessage.style.color = "red";
-                this.checked = false; // Uncheck the box
-            } else {
-                confirmMessage.textContent = "Details confirmed! You can now submit.";
-                confirmMessage.style.display = "block";
-                confirmMessage.style.color = "green";
-            }
-        });
-    
-        // Handle form submission
-        form.addEventListener("submit", function (event) {
-            event.preventDefault(); // Prevent default submission
-    
-            if (!paymentMode.value || !cashLocation.value || !referenceNumber.value.trim() || !amount.value.trim()) {
-                confirmInfoMessage.textContent = "Please fill in all fields before submitting.";
-                confirmInfoMessage.style.color = "red";
-                return;
-            }
-    
-            if (!confirmCheck.checked) {
-                confirmInfoMessage.textContent = "Please confirm your details by checking the box before submitting.";
-                confirmInfoMessage.style.color = "red";
-                return;
-            }
-    
-            // All conditions met, allow submission
-            confirmInfoMessage.textContent = "Form submitted successfully!";
-            confirmInfoMessage.style.color = "green";
-    
-            // Scroll to submit button
-            submitBtn.scrollIntoView({ behavior: "smooth" });
-    
-            // Simulate form submission
-            form.submit();
         });
     });
-    </script>
 
+
+
+</script>
 
 {% endblock %}

@@ -5,13 +5,11 @@ from decimal import Decimal
 
 BANKS = (
     ("Select bank", "Select bank"),
-    ("Mtn", "Mtn"),
-    ("AirtelTigo", "AirtelTigo"),
-    ("Telecel", "Telecel"),
     ("Access Bank", "Access Bank"),
     ("Cal Bank", "Cal Bank"),
     ("Fidelity Bank", "Fidelity Bank"),
     ("Ecobank", "Ecobank"),
+    ("GT Bank", "GT Bank"),
     ("Adansi rural bank", "Adansi rural bank"),
     ("Kwumawuman Bank", "Kwumawuman Bank"),
     ("Pan Africa", "Pan Africa"),
@@ -34,7 +32,6 @@ BANKS = (
     ("GCB BanK LTD", "GCB BanK LTD"),
     ("Ghana Pay", "Ghana Pay"),
     ("GHL Bank Ltd", "GHL Bank Ltd"),
-    ("GT Bank", "GT Bank"),
     ("National Investment Bank", "National Investment Bank"),
     ("Opportunity International Savings And Loans", "Opportunity International Savings And Loans"),
     ("Prudential Bank", "Prudential Bank"),
@@ -45,6 +42,9 @@ BANKS = (
     ("Standard Chartered", "Standard Chartered"),
     ("universal Merchant Bank", "universal Merchant Bank"),
     ("Zenith Bank", "Zenith Bank"),
+    ("Mtn", "Mtn"),
+    ("AirtelTigo", "AirtelTigo"),
+    ("Telecel", "Telecel"),
 )
 
 class Bank(models.Model):
