@@ -122,7 +122,7 @@ margin: 3% 0;
     width: 100%;
     min-height: 7vh;
    cursor: pointer;
-   background-color: var(--red);
+   background-color: rgba(255, 166, 0, 0.665);
    border: none;
 }
 .login-form label{
