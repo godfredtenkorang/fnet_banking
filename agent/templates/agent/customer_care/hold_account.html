@@ -1,0 +1,75 @@
+{% extends 'agent/base.html' %} {% load static %} {% block content %}
+
+
+
+
+
+
+<div class="main">
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1> Request to hold </h1>
+        </div>
+    </div>
+
+    <div class="customer-care">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="input">
+                <label for="amount">Amount</label> <br>
+                <input type="text" id="amount" name="amount" placeholder="Enter amount">
+            </div>
+            <div class="input">
+                <label for="customer-phone">Customer Phone / Account Num</label> <br>
+                <input type="text" id="customer-phone" name="customer_phone" placeholder="Enter phone or account number">
+            </div>
+            <div class="input">
+                <label for="agent-id">Agent Number / ID</label> <br>
+                <input type="text" id="agent-id" name="agent_number" placeholder="Enter agent number or ID">
+            </div>
+            <div class="input">
+                <label for="transaction-id">Transaction ID</label> <br>
+                <input type="text" id="transaction-id" name="transaction_id" placeholder="Enter transaction ID">
+            </div>
+            <div class="input">
+                <label for="complain-details">Reasons</label> <br>
+                <textarea id="complain-details" name="reasons" placeholder="Write your complaint here"></textarea>
+            </div>
+            <button type="submit">Submit</button>
+            <br><br>
+            <div style="display: flex; text-align:center; justify-content:center;">
+            
+                <a class="btn41-43 btn-41" href="{% url 'view_customer_hold_account' %}">View Account Held</a>
+            </div>
+        </form>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

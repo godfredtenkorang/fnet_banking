@@ -1,9 +1,5 @@
 {% extends 'owner/base.html' %} {% load static %} {% block content %}
 
-
-
-
-
 <style>
     /* Default table styling */
     table {
@@ -26,7 +22,7 @@
     }
 
     td {
-        font-size: 12px;
+        font-size: 15px;
     }
 
     /* Button Styling */
@@ -98,12 +94,22 @@
             padding: 8px;
             border: none;
             text-align: left;
+            font-weight: bold;
+            font-size: 22px;
         }
 
         td::before {
             content: attr(data-label);
             font-weight: bold;
             color: #007bff;
+        }
+
+        .grand_total::before {
+            color: #fff;
+        }
+
+        .difference::before {
+            color: red;
         }
 
         /* Stack buttons at the bottom */
@@ -119,6 +125,23 @@
             width: 100% !important;
         }
     }
+
+    .container {
+        text-align: center;
+        /* Center the texts */
+        padding: 20px;
+
+
+    }
+
+    .text {
+        display: inline-block;
+        padding: 0 20px;
+        /* Horizontal padding to create space */
+        font-size: 25px;
+        font-weight: 900;
+        text-transform: uppercase;
+    }
 </style>
 
 
@@ -126,7 +149,9 @@
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
-            <h1>Fraudsters</h1>
+            <h1>Frauds </h1>
+
+
         </div>
     </div>
 
@@ -135,46 +160,27 @@
         <table>
             <thead>
                 <tr>
-                    <th>Customer</th>
-                    <th>Reason</th>
-                    <th>Agent</th>
+                    <th>Customer Number</th>
+                    <th>Reasons</th>
                     <th>Date</th>
-                    <th>Time</th>
+
                 </tr>
             </thead>
             <tbody>
+                {% for fraud in frauds %}
                 <tr>
-                    <td data-label="Customer">0558156844</td>
-                    <td data-label="Reason">Scamming</td>
-                    <td data-label="Agent">Agent A</td>
-                    <td data-label="Date">2025-02-24</td>
-                    <td data-label="Time">14:30</td>
+                    <td data-label="Customer Number">{{fraud.customer_phone}}</td>
+                    <td data-label="Reasons">{{fraud.reasons}}</td>
+                    <td data-label="Date">{{fraud.date}}</td>
+
                 </tr>
-                <tr>
-                    <td data-label="Customer">0246789123</td>
-                    <td data-label="Reason">Fake transaction</td>
-                    <td data-label="Agent">Agent B</td>
-                    <td data-label="Date">2025-02-24</td>
-                    <td data-label="Time">15:00</td>
-                </tr>
-                <tr>
-                    <td data-label="Customer">0203344556</td>
-                    <td data-label="Reason">Identity theft</td>
-                    <td data-label="Agent">Agent C</td>
-                    <td data-label="Date">2025-02-24</td>
-                    <td data-label="Time">16:00</td>
-                </tr>
+                {% endfor %}
+
             </tbody>
         </table>
+
+
     </div>
-    
-</div>
-
-
-
-
-
-
 
 
 

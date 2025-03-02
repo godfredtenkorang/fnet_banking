@@ -29,6 +29,13 @@ urlpatterns = [
     path('cashFloatRequest/', views.cashFloatRequest, name='cashFloatRequest'),
     
     path('customer-care/', views.customer_care, name='customer_care'),
+    path('customer-complains/', views.customer_complains, name='customer_complains'),
+    path('view-customer-complains/', views.view_customer_complains, name='view_customer_complains'),
+    path('hold_account/', views.customer_hold_account, name='customer_hold_account'),
+    path('view_hold_account/', views.view_customer_hold_account, name='view_customer_hold_account'),
+    path('customer-fraud/', views.customer_fraud, name='customer_fraud'),
+    path('view-customer-fraud/', views.view_customer_fraud, name='view_customer_fraud'),
+    
     path('calculate/', views.calculate, name='calculate'),
 
     path('efloat_account/', views.open_e_float_account, name='open_efloat_account'),

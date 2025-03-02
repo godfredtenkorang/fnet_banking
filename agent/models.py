@@ -225,3 +225,36 @@ class PaymentRequest(models.Model):
     
     def __str__(self):
         return f"Payment of ${self.amount} via {self.mode_of_payment} by {self.agent.user.username} ({self.status})"
+    
+    
+class CustomerComplain(models.Model):
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE)
+    title = models.CharField(max_length=100)
+    content = models.TextField()
+    date = models.DateField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Complain from {self.agent.user.username} - {self.title}"
+    
+
+class HoldCustomerAccount(models.Model):
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE)
+    amount = models.CharField(max_length=100)
+    customer_phone = models.CharField(max_length=10)
+    agent_number = models.CharField(max_length=10)
+    transaction_id = models.CharField(max_length=100)
+    reasons = models.TextField()
+    date = models.DateField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Hold Account of {self.customer_phone} ({self.transaction_id})"
+    
+    
+class CustomerFraud(models.Model):
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE)
+    customer_phone = models.CharField(max_length=10)
+    reasons = models.TextField()
+    date = models.DateField(auto_now_add=True, null=True)
+    
+    def __str__(self):
+        return f"Fraud alert from {self.customer_phone} - {self.reasons}"

@@ -30,7 +30,6 @@ urlpatterns = [
     path('agent_accounts/', views.agent_accounts, name='agent_accounts'),
     path('bank_account/', views.bank_account, name='bank_account'),
     path('bank_linkage/', views.bank_linkage, name='bank_linkage'),
-    path('customer_care/', views.customer_care, name='customer_care'),
     
     # Financial requests
     path('bank_deposit_requests/', views.bank_deposit_requests, name='bank_deposit_requests'),
@@ -54,8 +53,10 @@ urlpatterns = [
     path('cash_out_detail/', views.cash_out_detail, name='cash_out_detail'),
     path('pay_to/', views.pay_to, name='pay_to'),
     path('all_transaction/', views.all_transaction, name='all_transaction'),
-    path('complains/', views.complains, name='complains'),
-    path('fraud/', views.fraud, name='fraud'),
-    path('hold-account/', views.hold_account, name='hold_account'),
+    
+    path('customer_care_view/', views.customer_care, name='my_customer_care'),
+    path('complains/', views.complains, name='all_complains'),
+    path('fraud/', views.fraud, name='all_fraud'),
+    path('hold-account/', views.hold_account, name='all_hold_account'),
 
 ]

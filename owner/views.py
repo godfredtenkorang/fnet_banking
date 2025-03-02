@@ -5,7 +5,7 @@ from users.forms import AgentRegistrationForm
 from users.models import Agent, Owner
 from banking.models import EFloatAccount
 from banking.forms import AddCapitalForm
-from agent.models import BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest
+from agent.models import BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest, CustomerComplain, HoldCustomerAccount, CustomerFraud
 from django.contrib import messages
 from decimal import Decimal
 from django.utils import timezone
@@ -348,13 +348,33 @@ def pay_to(request):
 def all_transaction(request):
     return render(request, 'owner/agent_Detail/all_transaction.html')  
 
-# @login_required
-# @user_passes_test(is_owner)
+@login_required
+@user_passes_test(is_owner)
 def complains(request):
-    return render(request, 'owner/customerCare/complains.html')  
+    complains = CustomerComplain.objects.all()
+    context = {
+        'complains': complains,
+        'title': 'Complains'
+    }
+    return render(request, 'owner/customerCare/complains.html', context)  
 
+@login_required
+@user_passes_test(is_owner)
 def fraud(request):
-    return render(request, 'owner/customerCare/fraud.html')  
+    frauds = CustomerFraud.objects.all()
+    context = {
+        'frauds': frauds,
+        'title': 'Frauds'
+    }
+    return render(request, 'owner/customerCare/fraud.html', context)
 
+
+@login_required
+@user_passes_test(is_owner)
 def hold_account(request):
-    return render(request, 'owner/customerCare/holdAccount.html')  
+    hold_accounts = HoldCustomerAccount.objects.all()
+    context = {
+        'hold_accounts': hold_accounts,
+        'title': 'Hold Account'
+    }
+    return render(request, 'owner/customerCare/holdAccount.html', context)  

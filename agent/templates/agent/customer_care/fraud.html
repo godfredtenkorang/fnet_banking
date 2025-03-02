@@ -1,0 +1,65 @@
+{% extends 'agent/base.html' %} {% load static %} {% block content %}
+
+
+
+
+
+
+<div class="main">
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1> Request to hold </h1>
+        </div>
+    </div>
+
+    <div class="customer-care">
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="input">
+                <label for="customer-phone">Customer Phone</label> <br>
+                <input type="text" id="customer-phone" name="customer_phone"
+                    placeholder="Enter phone">
+            </div>
+            <div class="input">
+                <label for="complain-details">Reasons</label> <br>
+                <textarea id="complain-details" name="reasons" placeholder="Write your complaint here"></textarea>
+            </div>
+            <button type="submit">Submit</button>
+            <br><br>
+            <div style="display: flex; text-align:center; justify-content:center;">
+
+                <a class="btn41-43 btn-41" href="{% url 'view_customer_fraud' %}">View Frauds</a>
+            </div>
+        </form>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

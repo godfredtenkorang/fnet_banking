@@ -1,4 +1,7 @@
-{% extends 'owner/base.html' %} {% load static %} {% block content %}
+{% extends 'agent/base.html' %}
+{% load humanize %}
+{% load static %}
+{% block content %}
 
 <style>
     /* Default table styling */
@@ -149,7 +152,7 @@
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
-            <h1>Hold Acount </h1>
+            <h1>Frauds </h1>
 
 
         </div>
@@ -160,7 +163,6 @@
         <table>
             <thead>
                 <tr>
-                    <th>Amount</th>
                     <th>Customer Number</th>
                     <th>Reasons</th>
                     <th>Date</th>
@@ -168,12 +170,11 @@
                 </tr>
             </thead>
             <tbody>
-                {% for hold_account in hold_accounts %}
+                {% for fraud in frauds %}
                 <tr>
-                    <td data-label="Amount">{{ hold_account.amount }}</td>
-                    <td data-label="Customer Number">{{hold_account.customer_phone}}</td>
-                    <td data-label="Reasons">{{hold_account.reasons}}</td>
-                    <td data-label="Date">{{hold_account.date}}</td>
+                    <td data-label="Customer Number">{{fraud.customer_phone}}</td>
+                    <td data-label="Reasons">{{fraud.reasons}}</td>
+                    <td data-label="Date">{{fraud.date}}</td>
 
                 </tr>
                 {% endfor %}
@@ -186,9 +187,4 @@
 
 
 
-
-
-
-
-
-{% endblock %}
+    {% endblock %}

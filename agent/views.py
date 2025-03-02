@@ -5,7 +5,7 @@ from banking.forms import DrawerDepositForm, EFloatAccountForm
 from banking.models import Bank, CustomerAccount, Drawer, EFloatAccount
 from django.utils import timezone
 from django.contrib import messages
-from .models import CustomerCashIn, CustomerCashOut, BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest
+from .models import CustomerCashIn, CustomerCashOut, BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest, CustomerComplain, HoldCustomerAccount, CustomerFraud
 from decimal import Decimal
 from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password
@@ -488,11 +488,114 @@ def cashFloatRequest(request):
     
     return render(request, 'agent/cashFloatRequest.html', context)
 
+@login_required
+@user_passes_test(is_agent)
 def customer_care(request):
     context = {
         'title': 'Customer Care'
     }
-    return render(request, 'agent/customer_care.html', context)
+    return render(request, 'agent/customer_care/customer_care.html', context)
+
+@login_required
+@user_passes_test(is_agent)
+def customer_complains(request):
+    agent = request.user.agent
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        content = request.POST.get('content')
+        complains = CustomerComplain(title=title, content=content)
+        complains.agent = agent
+        complains.save()
+        
+        messages.success(request, 'Your complain has been submitted successfully.')
+        
+        return redirect('view_customer_complains')
+    
+    context = {
+        'title': 'Complains'
+    }
+    return render(request, 'agent/customer_care/complains.html', context)
+
+
+@login_required
+@user_passes_test(is_agent)
+def view_customer_complains(request):
+    agent = request.user.agent
+    
+    complains = CustomerComplain.objects.filter(agent=agent).order_by('-date')
+    
+    context = {
+        'complains': complains,
+        'title': 'Complains'
+    }
+    return render(request, 'agent/customer_care/complains_view.html', context)
+
+
+@login_required
+@user_passes_test(is_agent)
+def customer_hold_account(request):
+    agent = request.user.agent
+    
+    if request.method == 'POST':
+        amount = request.POST.get('amount')
+        customer_phone = request.POST.get('customer_phone')
+        agent_number = request.POST.get('agent_number')
+        transaction_id = request.POST.get('transaction_id')
+        reasons = request.POST.get('reasons')
+        
+        hold_accounts = HoldCustomerAccount(amount=amount, customer_phone=customer_phone, agent_number=agent_number, transaction_id=transaction_id, reasons=reasons)
+        
+        hold_accounts.agent = agent
+        hold_accounts.save()
+        return redirect('view_customer_hold_account')
+    context = {
+        'title': 'Hold Account'
+    }
+    return render(request, 'agent/customer_care/hold_account.html', context)
+
+
+@login_required
+@user_passes_test(is_agent)
+def view_customer_hold_account(request):
+    agent = request.user.agent
+    
+    hold_accounts = HoldCustomerAccount.objects.filter(agent=agent).order_by('-date')
+    context = {
+        'hold_accounts': hold_accounts,
+        'title': 'Hold Account'
+    }
+    return render(request, 'agent/customer_care/hold_account_view.html', context)
+
+
+@login_required
+@user_passes_test(is_agent)
+def customer_fraud(request):
+    agent = request.user.agent
+    if request.method == 'POST':
+        customer_phone = request.POST.get('customer_phone')
+        reasons = request.POST.get('reasons')
+        
+        frauds = CustomerFraud(customer_phone=customer_phone, reasons=reasons)
+        frauds.agent = agent
+        frauds.save()
+        return redirect('view_customer_fraud')
+    
+    context = {
+        'title': 'Fraud'
+    }
+    return render(request, 'agent/customer_care/fraud.html', context)
+
+
+@login_required
+@user_passes_test(is_agent)
+def view_customer_fraud(request):
+    agent = request.user.agent
+    frauds = CustomerFraud.objects.filter(agent=agent).order_by('-date')
+    context = {
+        'frauds': frauds,
+        'title': 'Fraud'
+    }
+    return render(request, 'agent/customer_care/fraud_views.html', context)
 
 def calculate(request):
     return render(request, 'agent/calculate.html')

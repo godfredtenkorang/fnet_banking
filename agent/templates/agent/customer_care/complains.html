@@ -1,0 +1,62 @@
+{% extends 'agent/base.html' %} {% load static %} {% block content %}
+
+
+
+
+
+
+<div class="main">
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1> File a complain</h1>
+        </div>
+    </div>
+
+    <div class="customer-care">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="input">
+                <label for="complain-title">Complain Title</label> <br>
+                <input type="text" name="title" id="complain-title" placeholder="Enter complain title">
+            </div>
+            <div class="input">
+                <label for="complain-details">Complain Details</label> <br>
+                <textarea id="complain-details" name="content" placeholder="Write your complain here"></textarea>
+            </div>
+            <button type="submit">Submit</button>
+            <br><br>
+            <div style="display: flex; text-align:center; justify-content:center;">
+            
+                <a class="btn41-43 btn-41" href="{% url 'view_customer_complains' %}">View Complains</a>
+            </div>
+        </form>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}
