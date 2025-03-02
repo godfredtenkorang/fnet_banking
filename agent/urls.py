@@ -40,5 +40,12 @@ urlpatterns = [
 
     path('efloat_account/', views.open_e_float_account, name='open_efloat_account'),
     path('view_efloat_account/', views.view_e_float_account, name='view_efloat_account'),
-    path('notifications/', views.notifications, name='notifications'),
+    
+    # Notifications
+    path('cashin_notifications/', views.cashin_notifications, name='cashin_notifications'),
+    path('cashout_notifications/', views.cashout_notifications, name='cashout_notifications'),
+    path('bank_deposit_notifications/', views.bank_deposit_notifications, name='bank_deposit_notifications'),
+    path('bank_withdrawal_notifications/', views.bank_withdrawal_notifications, name='bank_withdrawal_notifications'),
+    path('cash_notifications/', views.cash_notifications, name='cash_notifications'),
+    path('payment_notifications/', views.payment_notifications, name='payment_notifications'),
 ]

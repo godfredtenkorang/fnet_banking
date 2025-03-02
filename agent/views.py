@@ -148,7 +148,7 @@ def cashIn(request):
         cash_in.save()
         account.update_balance_for_cash_in(cash_in.network, cash_in.amount)
         messages.success(request, 'Customer Cash-In recorded succussfully.')
-        return redirect('cashIn')
+        return redirect('cashin_notifications')
     context = {
         'title': 'Cash In'
     }
@@ -186,7 +186,7 @@ def cashOut(request):
         cash_out.save()
         account.update_balance_for_cash_out(cash_out.network, cash_out.amount)
         messages.success(request, 'Customer Cash-Out recorded succussfully.')
-        return redirect('cashout')
+        return redirect('cashout_notifications')
     context = {
         'title': 'Cash Out'
     }
@@ -247,7 +247,7 @@ def agencyBank(request):
         bank_deposit.save()
         account.update_balance_for_bank_deposit(bank_deposit.bank, bank_deposit.amount, bank_deposit.status)
         messages.success(request, 'Bank Deposit recorded succussfully.')
-        return redirect('agencyBank')
+        return redirect('bank_deposit_notifications')
     
     context = {
         'title': 'Bank Deposit',
@@ -295,7 +295,7 @@ def withdrawal(request):
         bank_withdrawal.save()
         account.update_balance_for_bank_withdrawal(bank_withdrawal.bank, bank_withdrawal.amount, bank_withdrawal.status)
         messages.success(request, 'Bank Withdrawal recorded succussfully.')
-        return redirect('withdrawal')
+        return redirect('bank_withdrawal_notifications')
     
     context = {
         'title': 'Bank Withdrawal',
@@ -447,7 +447,7 @@ def payment(request):
         payments.agent = agent
         payments.save()
         messages.success(request, 'Request submitted successfully. Waiting for Owner approveal.')
-        return redirect('payment')
+        return redirect('payment_notifications')
     context = {
         'title': 'Payment Requests'
     }
@@ -480,7 +480,7 @@ def cashFloatRequest(request):
         
         messages.success(request, 'Request submitted successfully. Waiting for Owner approveal.')
         
-        return redirect('cashFloatRequest')
+        return redirect('cash_notifications')
     
     context = {
         'title': 'Cash & ECash Request'
@@ -601,5 +601,22 @@ def calculate(request):
     return render(request, 'agent/calculate.html')
 
 
-def notifications(request):
-    return render(request, 'agent/notifications/notifications.html')
+# Notifications
+
+def cashin_notifications(request):
+    return render(request, 'agent/notifications/cashin_notifications.html')
+
+def cashout_notifications(request):
+    return render(request, 'agent/notifications/cashout_notifications.html')
+
+def bank_deposit_notifications(request):
+    return render(request, 'agent/notifications/bank_deposit_notifications.html')
+
+def bank_withdrawal_notifications(request):
+    return render(request, 'agent/notifications/bank_withdrawal_notifications.html')
+
+def cash_notifications(request):
+    return render(request, 'agent/notifications/cash_notifications.html')
+
+def payment_notifications(request):
+    return render(request, 'agent/notifications/payment_notifications.html')
