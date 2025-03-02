@@ -599,3 +599,7 @@ def view_customer_fraud(request):
 
 def calculate(request):
     return render(request, 'agent/calculate.html')
+
+
+def notifications(request):
+    return render(request, 'agent/notifications/notifications.html')

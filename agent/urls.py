@@ -40,4 +40,5 @@ urlpatterns = [
 
     path('efloat_account/', views.open_e_float_account, name='open_efloat_account'),
     path('view_efloat_account/', views.view_e_float_account, name='view_efloat_account'),
+    path('notifications/', views.notifications, name='notifications'),
 ]
