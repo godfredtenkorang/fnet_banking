@@ -24,13 +24,7 @@
                 <div class="form-grid">
                     <div class="input">
                         <label for="username">Username</label> <br />
-                        <select id="username" name="username" required>
-                            <option value="" disabled selected>Select Username</option>
-                            {% for user in users %}
-                            <option value="{{user.id}}">{{ user.username }}</option>
-                            {% endfor %}
-                            
-                        </select>
+                        <input type="text" name="username" id="username" required placeholder="Fnetbank" />
                     </div>
                     <div class="input">
                         <label for="branch">Branch</label> <br />
@@ -86,6 +80,10 @@
                     <div class="input">
                         <label for="customerPhoto">Upload Customer Picture</label> <br />
                         <input type="file" name="customer_picture" id="customerPhoto" accept="image/*" required />
+                    </div>
+                    <div class="input">
+                        <label for="password">Password</label> <br />
+                        <input type="text" name="password" id="password" required placeholder="Default: 12345678"/>
                     </div>
                 </div>
                 <p class="confirmInfoMessage" style="color: red; font-weight: bold;"></p>

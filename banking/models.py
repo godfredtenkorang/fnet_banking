@@ -108,7 +108,7 @@ class EFloatAccount(models.Model):
             self.cash_at_hand
         )
     def calculate_difference(self):
-        self.difference = self.grand_total() - self.capital_amount
+        self.difference = Decimal(self.grand_total()) - self.capital_amount
         return self.difference
     
     def add_capital(self, additional_capital):

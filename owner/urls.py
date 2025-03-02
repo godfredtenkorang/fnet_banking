@@ -18,6 +18,10 @@ urlpatterns = [
     path('owner/<int:request_id>/approve_request/', views.approve_cash_and_ecash_request, name='approve_cash_and_ecash_request'),
     path('owner/<int:request_id>/reject_request/', views.reject_cash_and_ecash_request, name='reject_cash_and_ecash_request'),
     
+    path('view_pending_payment_requests/', views.view_payment_requests, name='view_payment_requests'),
+    path('owner/approve_payment/<int:payment_id>/', views.approve_payment, name='approve_payment'),
+    path('owner/reject_payment/<int:payment_id>/', views.reject_payment, name='reject_payment'),
+    
     path('pay_to_agent_detail/', views.pay_to_agent_detail, name='pay_to_agent_detail'),
     path('pay_to_mechant_detail/', views.pay_to_mechant_detail, name='pay_to_mechant_detail'),
     path('users/', views.users, name='users'),

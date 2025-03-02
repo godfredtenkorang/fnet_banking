@@ -133,3 +133,95 @@ class CashAndECashRequest(models.Model):
 
     def __str__(self):
         return f"{self.float_type} Request of GH¢{self.amount} by {self.agent.user.username}"
+    
+
+class PaymentRequest(models.Model):
+    MODE_OF_PAYMENT = [
+        ('Telco', 'Telco'),
+        ('Bank', 'Bank'),
+        ('Branch', 'Branch'),
+    ]
+    
+    BANK_CHOICES = [
+        ("Select bank", "Select bank"),
+        ("Access Bank", "Access Bank"),
+        ("Cal Bank", "Cal Bank"),
+        ("Fidelity Bank", "Fidelity Bank"),
+        ("Ecobank", "Ecobank"),
+        ("GT Bank", "GT Bank"),
+        ("Adansi rural bank", "Adansi rural bank"),
+        ("Kwumawuman Bank", "Kwumawuman Bank"),
+        ("Pan Africa", "Pan Africa"),
+        ("SGSSB", "SGSSB"),
+        ("Atwima Rural Bank", "Atwima Rural Bank"),
+        ("Omnibsic Bank", "Omnibsic Bank"),
+        ("Omini bank", "Omini bank"),
+        ("Stanbic Bank", "Stanbic Bank"),
+        ("First Bank of Nigeria", "First Bank of Nigeria"),
+        ("Adehyeman Savings and loans", "Adehyeman Savings and loans",),
+        ("ARB Apex Bank Limited", "ARB Apex Bank Limited",),
+        ("Absa Bank", "Absa Bank"),
+        ("Agriculture Development bank", "Agriculture Development bank"),
+        ("Bank of Africa", "Bank of Africa"),
+        ("Bank of Ghana", "Bank of Ghana"),
+        ("Consolidated Bank Ghana", "Consolidated Bank Ghana"),
+        ("First Atlantic Bank", "First Atlantic Bank"),
+        ("First National Bank", "First National Bank"),
+        ("G-Money", "G-Money"),
+        ("GCB BanK LTD", "GCB BanK LTD"),
+        ("Ghana Pay", "Ghana Pay"),
+        ("GHL Bank Ltd", "GHL Bank Ltd"),
+        ("National Investment Bank", "National Investment Bank"),
+        ("Opportunity International Savings And Loans", "Opportunity International Savings And Loans"),
+        ("Prudential Bank", "Prudential Bank"),
+        ("Republic Bank Ltd", "Republic Bank Ltd"),
+        ("Sahel Sahara Bank", "Sahel Sahara Bank"),
+        ("Sinapi Aba Savings and Loans", "Sinapi Aba Savings and Loans"),
+        ("Societe Generale Ghana Ltd", "Societe Generale Ghana Ltd"),
+        ("Standard Chartered", "Standard Chartered"),
+        ("universal Merchant Bank", "universal Merchant Bank"),
+        ("Zenith Bank", "Zenith Bank"),
+        ("Mtn", "Mtn"),
+        ("AirtelTigo", "AirtelTigo"),
+        ("Telecel", "Telecel"),
+    ]
+
+    NETWORK_CHOICES = [
+        ('Select Network', 'Select Network'),
+        ('MTN', 'MTN'),
+        ('Telecel', 'Telecel'),
+        ('AirtelTigo', 'AirtelTigo'),
+    ]
+    
+    BRANCHES = (
+        ("DVLA", "DVLA"),
+        ("HEAD OFFICE", "HEAD OFFICE"),
+        ("KEJETIA", "KEJETIA"),
+        ("MELCOM SANTASI", "MELCOM SANTASI"),
+        ("MELCOM TANOSO", "MELCOM TANOSO"),
+        ("MELCOM MANHYIA", "MELCOM MANHYIA"),
+        ("MELCOM TAFO", "MELCOM TAFO"),
+        ("AHODWO MELCOM", "AHODWO MELCOM"),
+        ("ADUM MELCOM ANNEX", "ADUM MELCOM ANNEX"),
+        ("MELCOM SUAME", "MELCOM SUAME"),
+        ("KUMASI MALL MELCOM", "KUMASI MALL MELCOM"),
+        ("MOBILIZATION", "MOBILIZATION"),
+    )
+    
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Approved', 'Approved'),
+        ('Rejected', 'Rejected'),
+    ]
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name='payments_requests')
+    mode_of_payment = models.CharField(max_length=10, choices=MODE_OF_PAYMENT, null=True, blank=True)
+    bank = models.CharField(max_length=50, choices=BANK_CHOICES, null= True, blank=True)
+    network = models.CharField(max_length=30, choices=NETWORK_CHOICES, null= True, blank=True)
+    branch = models.CharField(max_length=30, choices=BRANCHES, null= True, blank=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"Payment of ${self.amount} via {self.mode_of_payment} by {self.agent.user.username} ({self.status})"

@@ -5,7 +5,7 @@ from users.forms import AgentRegistrationForm
 from users.models import Agent, Owner
 from banking.models import EFloatAccount
 from banking.forms import AddCapitalForm
-from agent.models import BankDeposit, BankWithdrawal, CashAndECashRequest
+from agent.models import BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest
 from django.contrib import messages
 from decimal import Decimal
 from django.utils import timezone
@@ -13,9 +13,10 @@ from django.utils import timezone
 
 # Check if the user is an Owner
 def is_owner(user):
-    return user.is_authenticated and user.is_owner
+    return user.role == 'OWNER'
 
-
+@login_required
+@user_passes_test(is_owner)
 def owner_dashboard(request):
     return render(request, 'owner/dashboard.html')
 
@@ -164,6 +165,37 @@ def add_capital_to_drawer(request, agent_id):
         'title': 'Add Capital'
     }
     return render(request, 'owner/float_account/add_capital_account.html', context)
+
+
+@login_required
+@user_passes_test(is_owner)
+def view_payment_requests(request):
+    
+    payments = PaymentRequest.objects.filter(status='Pending').order_by('-created_at')
+    
+    context = {
+        'payments': payments,
+        'title': 'Payment Requests'
+    }
+    return render(request, 'owner/payments/pending_payments.html', context)
+
+@login_required
+@user_passes_test(is_owner)
+def approve_payment(request, payment_id):
+    payment = get_object_or_404(PaymentRequest, id=payment_id)
+    payment.status = 'Approved'
+    payment.save()
+    messages.success(request, 'Payment request approved successfully.')
+    return redirect('view_payment_requests')
+
+@login_required
+@user_passes_test(is_owner)
+def reject_payment(request, payment_id):
+    payment = get_object_or_404(PaymentRequest, id=payment_id)
+    payment.status = 'Rejected'
+    payment.save()
+    messages.success(request, 'Payment request rejected.')
+    return redirect('view_payment_requests')
                 
 
 def pay_to_agent_detail(request):
@@ -316,6 +348,8 @@ def pay_to(request):
 def all_transaction(request):
     return render(request, 'owner/agent_Detail/all_transaction.html')  
 
+# @login_required
+# @user_passes_test(is_owner)
 def complains(request):
     return render(request, 'owner/customerCare/complains.html')  
 

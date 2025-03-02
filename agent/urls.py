@@ -17,10 +17,18 @@ urlpatterns = [
     
     path('TotalTransactionSum/', views.TotalTransactionSum, name='TotalTransactionSum'),
     path('PaymentSummary/', views.PaymentSummary, name='PaymentSummary'),
+    
     path('customerReg/', views.customerReg, name='customerReg'),
     path('accountReg/', views.accountReg, name='accountReg'),
+    path('my-customers/', views.my_customers, name='my_customers'),
+    
+    
     path('payment/', views.payment, name='payment'),
+    path('view_payment/', views.view_payments, name='view_payments'),
+    
     path('cashFloatRequest/', views.cashFloatRequest, name='cashFloatRequest'),
+    
+    path('customer-care/', views.customer_care, name='customer_care'),
     path('calculate/', views.calculate, name='calculate'),
 
     path('efloat_account/', views.open_e_float_account, name='open_efloat_account'),

@@ -7,7 +7,7 @@ from .models import User, Branch, Owner, Agent, Customer
 
 class UserRegisterForm(UserCreationForm):
     role = forms.ChoiceField(
-        choices=[('OWNER', 'Owner'),('AGENT', 'Agent'), ('CUSTOMER', 'Customer')],  # Removed "Admin"
+        choices=[('OWNER', 'Owner'),('AGENT', 'Agent')],  # Removed "Admin"
         widget=forms.Select(attrs={'class': 'form-control'})
     )
     class Meta:
@@ -34,6 +34,7 @@ class AgentRegistrationForm(forms.ModelForm):
 
 class CustomerRegistrationForm(forms.ModelForm):
     user = forms.ModelChoiceField(queryset=User.objects.filter(role='CUSTOMER'), required=True)
+    
     class Meta:
         model = Customer
         fields = ['user', 'agent', 'branch', 'phone_number', 'full_name', 'customer_location', 'digital_address', 'id_type', 'id_number', 'date_of_birth', 'customer_picture']

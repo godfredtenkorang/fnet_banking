@@ -1,13 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from users.models import User, Branch, Customer, Agent
 from banking.forms import DrawerDepositForm, EFloatAccountForm
 from banking.models import Bank, CustomerAccount, Drawer, EFloatAccount
 from django.utils import timezone
 from django.contrib import messages
-from .models import CustomerCashIn, CustomerCashOut, BankDeposit, BankWithdrawal, CashAndECashRequest
+from .models import CustomerCashIn, CustomerCashOut, BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest
 from decimal import Decimal
 from django.http import JsonResponse
+from django.contrib.auth.hashers import make_password
+from django.core.files.storage import default_storage
 
 
 @login_required
@@ -318,39 +320,96 @@ def TotalTransactionSum(request):
 def PaymentSummary(request):
     return render(request, 'agent/PaymentSummary.html')
 
+def is_agent(user):
+    return user.role == 'AGENT'
+
+def my_customers(request):
+    customers = Customer.objects.all()
+    context = {
+        'customers': customers,
+        'title': 'My Customers'
+    }
+    return render(request, 'agent/my_customers.html', context)
+
 @login_required
+@user_passes_test(is_agent)
 def customerReg(request):
-    users = User.objects.filter(role='CUSTOMER')
+    # users = User.objects.filter(role='CUSTOMER')
     branches = Branch.objects.all()
     if request.method == 'POST':
-        customer_id = request.POST['username']
-        branch_id = request.POST['branch']
-        phone_number = request.POST['phone_number']
-        full_name = request.POST['full_name']
-        customer_location = request.POST['customer_location']
-        digital_address = request.POST['digital_address']
-        id_type = request.POST['id_type']
-        id_number = request.POST['id_number']
-        date_of_birth = request.POST['date_of_birth']
-        customer_picture = request.FILES['customer_picture']
+        username = request.POST.get('username')
+        branch_id = request.POST.get('branch')
+        phone_number = request.POST.get('phone_number')
+        full_name = request.POST.get('full_name')
+        customer_location = request.POST.get('customer_location')
+        digital_address = request.POST.get('digital_address')
+        id_type = request.POST.get('id_type')
+        id_number = request.POST.get('id_number')
+        date_of_birth = request.POST.get('date_of_birth')
+        customer_picture = request.FILES.get('customer_picture')
+        password = request.POST.get('password')
         
-        user = get_object_or_404(User, id=customer_id)
+        # Validate required fields
+        if not (username and password and phone_number and full_name and branch_id):
+            messages.error(request, 'Please fill in all required fields.')
+            return redirect('customerReg')
+        
+        # Check if the username already exists
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'Username already taken.')
+            return redirect('customerReg')
+        
+        # Check if the phone number already exists
+        if User.objects.filter(phone_number=phone_number).exists():
+            messages.error(request, 'Phone number already registered.')
+            return redirect('customerReg')
+        
+        # Create the user
+        user = User.objects.create(
+            username=username,
+            password=make_password(password),  # Hash the password
+            phone_number=phone_number,
+            role='CUSTOMER',
+            is_approved=True  # Automatically approve customers
+        )
+        
+        # user = get_object_or_404(User, id=customer_id)
         branch = get_object_or_404(Branch, id=branch_id)
-        agent = Agent.objects.get(user=request.user)
         
-        customers = Customer(user=user, agent=agent, branch=branch, phone_number=phone_number, full_name=full_name, customer_location=customer_location, digital_address=digital_address, id_type=id_type, id_number=id_number, date_of_birth=date_of_birth, customer_picture=customer_picture)
+        # Save the customer picture
+        if customer_picture:
+            picture_path = default_storage.save(f'customer_pic/{customer_picture.name}', customer_picture)
+        else:
+            picture_path = ''
+            
+        # agent = Agent.objects.get(user=request.user)
         
-        customers.save()
-        
+        # Create the customer
+        Customer.objects.create(
+            user=user,
+            agent=request.user.agent,  # Assign the current agent
+            branch=branch,
+            phone_number=phone_number,
+            full_name=full_name,
+            customer_location=customer_location,
+            digital_address=digital_address,
+            id_type=id_type,
+            id_number=id_number,
+            date_of_birth=date_of_birth,
+            customer_picture=picture_path
+        )
+        messages.success(request, 'Customer registered successfully!')
         return redirect('customerReg')
 
     context = {
-        'users': users,
+        # 'users': users,
         'branches': branches,
         'title': 'Customer Registration'
     }
     return render(request, 'agent/customerReg.html', context)
 
+@login_required
+@user_passes_test(is_agent)
 def accountReg(request):
     if request.method == 'POST':
         phone_number = request.POST['phone_number']
@@ -377,7 +436,32 @@ def accountReg(request):
 
 @login_required
 def payment(request):
-    return render(request, 'agent/payment.html')
+    agent = request.user.agent
+    if request.method == 'POST':
+        mode_of_payment = request.POST.get('mode_of_payment')
+        bank = request.POST.get('bank')
+        network = request.POST.get('network')
+        branch = request.POST.get('branch')
+        amount = request.POST.get('amount')
+        payments = PaymentRequest(mode_of_payment=mode_of_payment, bank=bank, network=network, branch=branch, amount=amount)
+        payments.agent = agent
+        payments.save()
+        messages.success(request, 'Request submitted successfully. Waiting for Owner approveal.')
+        return redirect('payment')
+    context = {
+        'title': 'Payment Requests'
+    }
+    return render(request, 'agent/payment.html', context)
+
+@login_required
+def view_payments(request):
+    agent = request.user.agent
+    payments = PaymentRequest.objects.filter(agent=agent).order_by('-created_at')
+    context = {
+        'payments': payments,
+        'title': 'Payments'
+    }
+    return render(request, 'agent/view_payments.html', context)
 
 @login_required
 def cashFloatRequest(request):
@@ -403,6 +487,12 @@ def cashFloatRequest(request):
     }
     
     return render(request, 'agent/cashFloatRequest.html', context)
+
+def customer_care(request):
+    context = {
+        'title': 'Customer Care'
+    }
+    return render(request, 'agent/customer_care.html', context)
 
 def calculate(request):
     return render(request, 'agent/calculate.html')
