@@ -14,38 +14,44 @@
     <div class="stat-container">
 
 
-        <a href="" class="stat">
-            <h2>Total Agency Request</h2>
+        <a href="{% url 'cashin_summary' %}" class="stat">
+            <h2>Total Cash In</h2>
             <h3>400 Gh</h3>
       
       
             <!-- <p>Click to view total</p> -->
         </a>
         
-        <a href="" class="stat">
-            <h2>Total Withdrawal</h2>
+        <a href="{% url 'cashout_summary' %}" class="stat">
+            <h2>Total Cash Out</h2>
          <h3>400 Gh</h3>
       
             <!-- <p>Click to view total</p> -->
         </a>
         
-        <a href="" class="stat">
-            <h2>Total Cash Received</h2>
+        <a href="{% url 'bank_deposit_summary' %}" class="stat">
+            <h2>Total Bank Deposit</h2>
          <h3>400 Gh</h3>
       
             <!-- <p>Click to view total</p> -->
         </a>
         
-        <a href="" class="stat">
-            <h2>Total MTN Received</h2>
+        <a href="{% url 'bank_withdrawal_summary' %}" class="stat">
+            <h2>Total Bank Withdrawal</h2>
          <h3>400 Gh</h3>
       
             <!-- <p>Click to view total</p> -->
             
         </a>
         
-        <a href="" class="stat">
-            <h2>Total Telecel Received</h2>
+        <a href="{% url 'cash_summary' %}" class="stat">
+            <h2>Total Cash / E-Cash</h2>
+         <h3>400 Gh</h3>
+      
+            <!-- <p>Click to view total</p> -->
+        </a>
+        <a href="{% url 'payment_summary' %}" class="stat">
+            <h2>Total Payments</h2>
          <h3>400 Gh</h3>
       
             <!-- <p>Click to view total</p> -->
