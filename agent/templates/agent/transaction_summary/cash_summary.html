@@ -136,30 +136,30 @@
         <table>
             <thead>
                 <tr>
-                    <th>Mode of Payment</th>
-                    <th>Bank/Network/Branch</th>
+                    <th>Float Type</th>
+                    <th>Bank/Network/Cash</th>
                     <th>Amount</th>
                     <th>Date/Time</th>
                     <th>Status</th>
                 </tr>
             </thead>
             <tbody>
-                {% for payment in payments %}
+                {% for cash in cash_requests %}
                 <tr>
 
-                    <td>{{ payment.mode_of_payment }}</td>
+                    <td>{{ cash.float_type }}</td>
                     <td>
-                        {% if payment.mode_of_payment == 'Bank' %}
-                        {{ payment.bank }}
-                        {% elif payment.mode_of_payment == 'Telco' %}
-                        {{ payment.network }}
-                        {% else %}
-                        {{ payment.branch }}
+                        {% if cash.float_type == 'Bank' %}
+                        {{ cash.bank }}
+                        {% elif cash.float_type == 'Telco' %}
+                        {{ cash.network }}
+                        {% elif cash.float_type == 'Cash' %}
+                        Cash
                         {% endif %}
                     </td>
-                    <td data-label="Amount">${{ payment.amount }}</td>
-                    <td>{{ payment.created_at }}</td>
-                    <td>{{ payment.status }}</td>
+                    <td data-label="Amount">GH¢{{ cash.amount }}</td>
+                    <td>{{ cash.created_at }}</td>
+                    <td>{{ cash.status }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

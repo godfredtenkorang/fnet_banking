@@ -136,30 +136,28 @@
         <table>
             <thead>
                 <tr>
-                    <th>Mode of Payment</th>
-                    <th>Bank/Network/Branch</th>
+                    <th>Network</th>
+                    <th>Customer Phone</th>
+                    <th>Deposit Type</th>
+                    <th>Depositor Name</th>
+                    <th>Depositor Number</th>
                     <th>Amount</th>
                     <th>Date/Time</th>
-                    <th>Status</th>
+            
                 </tr>
             </thead>
             <tbody>
-                {% for payment in payments %}
+                {% for cashout in cashouts %}
                 <tr>
-
-                    <td>{{ payment.mode_of_payment }}</td>
-                    <td>
-                        {% if payment.mode_of_payment == 'Bank' %}
-                        {{ payment.bank }}
-                        {% elif payment.mode_of_payment == 'Telco' %}
-                        {{ payment.network }}
-                        {% else %}
-                        {{ payment.branch }}
-                        {% endif %}
-                    </td>
-                    <td data-label="Amount">${{ payment.amount }}</td>
-                    <td>{{ payment.created_at }}</td>
-                    <td>{{ payment.status }}</td>
+            
+                    <td>{{ cashout.network }}</td>
+                    <td>{{ cashout.customer_phone }}</td>
+                    <td>{{ cashout.deposit_type }}</td>
+                    <td>{{ cashout.depositor_name }}</td>
+                    <td>{{ cashout.depositor_number }}</td>
+                    <td data-label="Amount">GH¢{{ cashout.amount }}</td>
+                    <td>{{ cashout.date_withdrawn }} {{ cashout.time_withdrawn }}</td>
+            
                 </tr>
                 {% endfor %}
             </tbody>

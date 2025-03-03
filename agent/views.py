@@ -318,9 +318,8 @@ def TotalTransactionSum(request):
     return render(request, 'agent/transaction_summary/TotalTransactionSum.html')
 
 @login_required
-
 def cashin_summary(request):
-    agent = request.user.agent
+    agent = request.user
     cashins = CustomerCashIn.objects.filter(agent=agent).order_by('-date_deposited', '-time_deposited')
     context = {
         'cashins': cashins,
@@ -328,8 +327,9 @@ def cashin_summary(request):
     }
     return render(request, 'agent/transaction_summary/cashin_summary.html', context)
 
+@login_required
 def cashout_summary(request):
-    agent = request.user.agent
+    agent = request.user
     cashouts = CustomerCashOut.objects.filter(agent=agent).order_by('-date_withdrawn', '-time_withdrawn')
     context = {
         'cashouts': cashouts,
@@ -337,6 +337,7 @@ def cashout_summary(request):
     }
     return render(request, 'agent/transaction_summary/cashout_summary.html', context)
 
+@login_required
 def bank_deposit_summary(request):
     agent = request.user.agent
     bank_deposits = BankDeposit.objects.filter(agent=agent).order_by('-date_deposited', '-time_deposited')

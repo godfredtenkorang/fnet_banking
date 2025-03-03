@@ -11,6 +11,16 @@ from decimal import Decimal
 from django.utils import timezone
 
 
+def unapproved_users_count(request):
+    unapproved_cash_count = CashAndECashRequest.objects.filter(status='Pending').count()
+    unapproved_payment_count = PaymentRequest.objects.filter(status='Pending').count()
+    
+    context = {
+        'unapproved_cash_count': unapproved_cash_count,
+        'unapproved_payment_count': unapproved_payment_count,
+    }
+    return context
+
 # Check if the user is an Owner
 def is_owner(user):
     return user.role == 'OWNER'

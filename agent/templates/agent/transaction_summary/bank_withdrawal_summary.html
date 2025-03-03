@@ -136,31 +136,30 @@
         <table>
             <thead>
                 <tr>
-                    <th>Mode of Payment</th>
-                    <th>Bank/Network/Branch</th>
+                    <th>Customer Phone</th>
+                    <th>Bank</th>
+                    <th>Account Number</th>
+                    <th>Account Name</th>
+                    <th>Date</th>
+                    <th>Time</th>
                     <th>Amount</th>
-                    <th>Date/Time</th>
                     <th>Status</th>
+            
                 </tr>
             </thead>
             <tbody>
-                {% for payment in payments %}
+                {% for withdrawal in bank_withdrawals %}
                 <tr>
-
-                    <td>{{ payment.mode_of_payment }}</td>
-                    <td>
-                        {% if payment.mode_of_payment == 'Bank' %}
-                        {{ payment.bank }}
-                        {% elif payment.mode_of_payment == 'Telco' %}
-                        {{ payment.network }}
-                        {% else %}
-                        {{ payment.branch }}
-                        {% endif %}
-                    </td>
-                    <td data-label="Amount">${{ payment.amount }}</td>
-                    <td>{{ payment.created_at }}</td>
-                    <td>{{ payment.status }}</td>
+                    <td>{{withdrawal.customer_phone}}</td>
+                    <td>{{withdrawal.bank}}</td>
+                    <td>{{withdrawal.account_number}}</td>
+                    <td>{{withdrawal.account_name}}</td>
+                    <td>{{withdrawal.date_withdrawn}}</td>
+                    <td>{{withdrawal.time_withdrawn}}</td>
+                    <td data-label="Amount">{{withdrawal.amount}}</td>
+                    <td>{{withdrawal.status}}</td>
                 </tr>
+            
                 {% endfor %}
             </tbody>
         </table>
