@@ -1172,6 +1172,54 @@ color: var(--one-use-color);
 }
 
 
+.e-Page{
+  display: flex;
+  flex-direction: column;
+align-items: center;
+justify-content: center;
+width: 100%;
+height: 100vh;
+padding: 2%;
+}
+
+.e-p{
+  width: 100%;
+ 
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+  font-size: 1.3rem;
+ 
+
+}
+
+.e-p h4{
+font-size: 2rem;
+color: var(--one-use-color);
+}
+
+.e-p i{
+  font-size: 3rem;
+  color: var(--background-color1);
+  background-color: var(--red);
+  padding: 30px 30px;
+  border-radius: 50%;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1410,6 +1458,16 @@ color: var(--one-use-color);
  }
  .template-row i{
   font-size: 2rem;
+ }
+ .e-p{
+  font-size: 1rem;
+ }
+ .e-p h4{
+  font-size: 1rem;
+ }
+ .e-p i{
+  font-size: 1.5rem;
+  padding: 15px;
  }
 }
 

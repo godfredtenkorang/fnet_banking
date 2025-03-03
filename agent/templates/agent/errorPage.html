@@ -1,0 +1,26 @@
+{% extends 'agent/base.html' %} {% load static %} {% block content %}
+
+  <div class="main">
+    <div style="background-color:#000; width:100%;">
+        {% if messages %}
+        {% for message in messages %}
+        <p style="color: #97c8b3; font-size:30px; text-align:center;">{{ message }}</p>
+        {% endfor %}
+        {% endif %}
+    </div>
+   
+
+    <div class="e-Page">
+        <div class="e-p">
+
+            <i class="fas fa-exclamation-triangle icon"></i>
+            <h4>404 - Page Not Found</h4>
+            <p>Sorry, the page you are looking for might have been removed or is temporarily unavailable.</p>
+            
+        </div>
+    </div>
+  
+    
+  </div>  
+ 
+{% endblock %}

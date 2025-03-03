@@ -48,4 +48,5 @@ urlpatterns = [
     path('bank_withdrawal_notifications/', views.bank_withdrawal_notifications, name='bank_withdrawal_notifications'),
     path('cash_notifications/', views.cash_notifications, name='cash_notifications'),
     path('payment_notifications/', views.payment_notifications, name='payment_notifications'),
+    path('errorPage/', views.errorPage, name='errorPage'),
 ]
