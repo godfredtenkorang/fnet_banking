@@ -1,0 +1,132 @@
+{% extends 'agent/base.html' %}
+{% load static %}
+{% block content %}
+
+
+<div class="main">
+    <div style="background-color:#000; width:100%;">
+        {% if messages %}
+        {% for message in messages %}
+        <p style="color: red; font-size:30px; text-align:center;">{{ message }}</p>
+        {% endfor %}
+        {% endif %}
+    </div>
+    
+    <div class="notifications">
+        <div class="noti">
+            <i class="fa-solid fa-check"></i>
+            <h1>Transaction Sucessful</h1>
+
+        </div>
+    </div>
+  
+
+</div>
+
+
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Get form fields
+    const customerPhone = document.getElementById("customerPhone");
+    const accountNumber = document.getElementById("accountNumber");
+    const accountName = document.getElementById("accountName");
+    const selectBank = document.getElementById("selectBank");
+
+    // Get display elements
+    const displayPhone = document.getElementById("displayPhone");
+    const displayAccountNumber = document.getElementById("displayAccountNumber");
+    const displayAccountName = document.getElementById("displayAccountName");
+    const displayBank = document.getElementById("displayBank");
+
+    // Get confirmation elements
+    const confirmCheck = document.getElementById("confirmCheck");
+    const confirmMessage = document.querySelector(".confirmInfoMessage");
+    const okayMessage = document.querySelector(".okay");
+    const submitBtn = document.getElementById("submitBtn");
+    const form = document.getElementById("networkForm");
+
+    // Function to check if all fields are filled
+    function checkFieldsFilled() {
+        if (
+            customerPhone.value.trim() &&
+            accountNumber.value.trim() &&
+            accountName.value.trim() &&
+            selectBank.value
+        ) {
+            okayMessage.style.display = "block"; // Show confirmation message
+        } else {
+            okayMessage.style.display = "none"; // Hide message if any field is empty
+        }
+    }
+
+    // Update customer details in real-time
+    customerPhone.addEventListener("input", function () {
+        displayPhone.textContent = this.value;
+        checkFieldsFilled();
+    });
+
+    accountNumber.addEventListener("input", function () {
+        displayAccountNumber.textContent = this.value;
+        checkFieldsFilled();
+    });
+
+    accountName.addEventListener("input", function () {
+        displayAccountName.textContent = this.value;
+        checkFieldsFilled();
+    });
+
+    selectBank.addEventListener("change", function () {
+        displayBank.textContent = this.value;
+        checkFieldsFilled();
+    });
+
+    // Handle form submission
+    form.addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent default submission
+
+        // Validate checkbox
+        if (!confirmCheck.checked) {
+            confirmMessage.textContent = "Please check the confirmation box before submitting.";
+            confirmMessage.style.color = "red";
+            confirmCheck.scrollIntoView({ behavior: "smooth" });
+            return;
+        }
+
+        // Validate empty fields
+        if (!customerPhone.value.trim() || !accountNumber.value.trim() || !accountName.value.trim() || !selectBank.value) {
+            confirmMessage.textContent = "Please fill in all fields before submitting.";
+            confirmMessage.style.color = "red";
+            return;
+        }
+
+        // If all conditions are met, allow submission
+        confirmMessage.textContent = "Confirmation has been done.";
+        confirmMessage.style.color = "green";
+
+        // Scroll back to the submit button
+        submitBtn.scrollIntoView({ behavior: "smooth" });
+
+        // Submit form (simulate actual submission)
+        form.submit();
+    });
+
+    // Scroll back to submit button when checkbox is clicked
+    confirmCheck.addEventListener("change", function () {
+        if (this.checked) {
+            confirmMessage.textContent = "Confirmation has been done click on submit  ⬇️.";
+            confirmMessage.style.color = "green";
+            submitBtn.scrollIntoView({ behavior: "smooth" });
+        } else {
+            confirmMessage.textContent = "";
+        }
+    });
+});
+
+
+</script>
+
+
+{% endblock %}
