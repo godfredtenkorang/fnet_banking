@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from users.models import User, Branch, Customer, Agent
 from banking.forms import DrawerDepositForm, EFloatAccountForm
-from banking.models import Bank, CustomerAccount, Drawer, EFloatAccount
+from banking.models import Bank, CustomerAccount, Drawer, EFloatAccount, CustomerPaymentAtBank
 from django.utils import timezone
 from django.contrib import messages
 from .models import CustomerCashIn, CustomerCashOut, BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest, CustomerComplain, HoldCustomerAccount, CustomerFraud
@@ -749,7 +749,40 @@ def view_customer_fraud(request):
     return render(request, 'agent/customer_care/fraud_views.html', context)
 
 def calculate(request):
-    return render(request, 'agent/calculate.html')
+    if request.method == 'POST':
+        customer_name = request.POST.get('customer_name')
+        phone_number = request.POST.get('phone_number')
+        amount = request.POST.get('amount')
+        d_200 = request.POST.get('d_200')
+        d_100 = request.POST.get('d_100')
+        d_50 = request.POST.get('d_50')
+        d_20 = request.POST.get('d_20')
+        d_10 = request.POST.get('d_10')
+        d_5 = request.POST.get('d_5')
+        d_2 = request.POST.get('d_2')
+        d_1 = request.POST.get('d_1')
+        
+         # Create a new CustomerPaymentAtBank instance
+        payment = CustomerPaymentAtBank(
+            customer_name=customer_name,
+            phone_number=phone_number,
+            amount=amount,
+            d_200=d_200,
+            d_100=d_100,
+            d_50=d_50,
+            d_20=d_20,
+            d_10=d_10,
+            d_5=d_5,
+            d_2=d_2,
+            d_1=d_1
+        )
+        payment.save()
+        return redirect('calculate')
+    
+    context = {
+        'title': 'Customer Payment',
+    }
+    return render(request, 'agent/calculate.html', context)
 
 
 

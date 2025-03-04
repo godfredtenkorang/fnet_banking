@@ -324,3 +324,24 @@ class EFloatAccount(models.Model):
         
     def __str__(self):
         return f"E-Float Account for {self.agent.user.username} on {self.date}"
+    
+    
+class CustomerPaymentAtBank(models.Model):
+    customer_name = models.CharField(max_length=100)
+    phone_number = models.CharField(max_length=12)
+    amount = models.DecimalField(decimal_places=2, max_digits=19, default=0.0)
+    d_200 = models.IntegerField(default=0, null=True, blank=True)
+    d_100 = models.IntegerField(default=0, null=True, blank=True)
+    d_50 = models.IntegerField(default=0, null=True, blank=True)
+    d_20 = models.IntegerField(default=0, null=True, blank=True)
+    d_10 = models.IntegerField(default=0, null=True, blank=True)
+    d_5 = models.IntegerField(default=0, null=True, blank=True)
+    d_2 = models.IntegerField(default=0, null=True, blank=True)
+    d_1 = models.IntegerField(default=0, null=True, blank=True)
+    date_added = models.DateField(auto_now_add=True)
+    time_added = models.TimeField(auto_now_add=True)
+    
+
+        
+    def __str__(self):
+        return f"{self.customer_name} - Total: {self.amount}"
