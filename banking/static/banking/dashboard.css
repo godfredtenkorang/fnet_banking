@@ -631,7 +631,7 @@ input[type="checkbox"] {
   padding: 2% 4%;
   display: flex;
   flex-direction: column;
-  text-align: center;
+  
   background-color: var(--white);
   width: 100%;
   max-width: 50%;
@@ -659,18 +659,17 @@ input[type="checkbox"] {
 .currencyNote{
   display: flex;
 gap: 1rem;
-  align-items: center;
+ 
   flex-direction: column;
 }
 .clear{
   padding-top: 5%;
 }
-.clear button{
-width: 100px;
-height: 5vh;
 
+.warning{
+  padding: 5% 0;
+  color: var(--red);
 }
-
 
 
 
