@@ -15,7 +15,17 @@ urlpatterns = [
     path('withdrawal/', views.withdrawal, name='withdrawal'),
     path('view_bank_withdrawals/', views.view_bank_withdrawals, name='view_bank_withdrawals'),
     
+    # Transaction summaries
     path('TotalTransactionSum/', views.TotalTransactionSum, name='TotalTransactionSum'),
+    path('cashin_summary/', views.cashin_summary, name='cashin_summary'),
+    path('cashout_summary/', views.cashout_summary, name='cashout_summary'),
+    path('bank_deposit_summary/', views.bank_deposit_summary, name='bank_deposit_summary'),
+    path('bank_withdrawal_summary/', views.bank_withdrawal_summary, name='bank_withdrawal_summary'),
+    path('cash_summary/', views.cash_summary, name='cash_summary'),
+    path('payment_summary/', views.payment_summary, name='payment_summary'),
+    
+    
+    
     path('PaymentSummary/', views.PaymentSummary, name='PaymentSummary'),
     
     path('customerReg/', views.customerReg, name='customerReg'),

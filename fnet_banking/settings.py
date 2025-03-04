@@ -72,6 +72,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'users.views.unapproved_users_count',
+                'owner.views.unapproved_users_count',
                 # 'users.views.get_users',
                 # 'owner.views.get_owner',
             ],

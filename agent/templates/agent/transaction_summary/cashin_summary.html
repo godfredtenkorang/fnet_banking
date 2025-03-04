@@ -126,7 +126,7 @@
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
-            <h1>Payments</h1>
+            <h1>Cash-In Summary</h1>
         </div>
     </div>
 
@@ -136,30 +136,28 @@
         <table>
             <thead>
                 <tr>
-                    <th>Mode of Payment</th>
-                    <th>Bank/Network/Branch</th>
+                    <th>Network</th>
+                    <th>Customer Phone</th>
+                    <th>Deposit Type</th>
+                    <th>Depositor Name</th>
+                    <th>Depositor Number</th>
                     <th>Amount</th>
                     <th>Date/Time</th>
-                    <th>Status</th>
+                    
                 </tr>
             </thead>
             <tbody>
-                {% for payment in payments %}
+                {% for cashin in cashins %}
                 <tr>
+
+                    <td>{{ cashin.network }}</td>
+                    <td>{{ cashin.customer_phone }}</td>
+                    <td>{{ cashin.deposit_type }}</td>
+                    <td>{{ cashin.depositor_name }}</td>
+                    <td>{{ cashin.depositor_number }}</td>
+                    <td data-label="Amount">GH¢{{ cashin.amount }}</td>
+                    <td>{{ cashin.date_deposited }} {{ cashin.time_deposited }}</td>
                     
-                    <td>{{ payment.mode_of_payment }}</td>
-                    <td>
-                        {% if payment.mode_of_payment == 'Bank' %}
-                        {{ payment.bank }}
-                        {% elif payment.mode_of_payment == 'Telco' %}
-                        {{ payment.network }}
-                        {% else %}
-                        {{ payment.branch }}
-                        {% endif %}
-                    </td>
-                    <td data-label="Amount">GH¢{{ payment.amount }}</td>
-                    <td>{{ payment.created_at }}</td>
-                    <td>{{ payment.status }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

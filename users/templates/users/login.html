@@ -18,12 +18,21 @@
 
     <style>
         .login-container {
-            background-image: url("{% static 'banking/img/login.jpg' %}");
+            background-image: url("{% static 'banking/img/login.jpeg' %}");
             background-size: cover;
             background-position: center;
             min-height: 100vh;
             /* Adjust the height as needed */
             width: 100%;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Bokor&family=Sigmar&display=swap');
+
+        h3 {
+            font-family: "Sigmar", serif;
+            font-weight: 700;
+            font-style: normal;
+            font-size: 30px;
         }
     </style>
 
@@ -39,12 +48,12 @@
 
         <div class="login-form">
 
-            <p>Please login with your detail</p>
+            <h3>Please login with your detail</h3>
             <div class="login">
                 <form method="POST">
                     {% csrf_token %}
                     {{form.as_p}}
-                    <button type="submit">Submit</button>
+                    <button type="submit">Login</button>
                     <p>Or you dont have account ? then <a href="{% url 'register'%}">Sign Up</a></p>
                     <p>If there are any difficulties, <a href="{% url 'customerSupport' %}">contact support</a></p>
 

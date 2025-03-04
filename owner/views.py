@@ -11,6 +11,16 @@ from decimal import Decimal
 from django.utils import timezone
 
 
+def unapproved_users_count(request):
+    unapproved_cash_count = CashAndECashRequest.objects.filter(status='Pending').count()
+    unapproved_payment_count = PaymentRequest.objects.filter(status='Pending').count()
+    
+    context = {
+        'unapproved_cash_count': unapproved_cash_count,
+        'unapproved_payment_count': unapproved_payment_count,
+    }
+    return context
+
 # Check if the user is an Owner
 def is_owner(user):
     return user.role == 'OWNER'
@@ -75,6 +85,12 @@ def e_cash_requests(request):
 def approve_cash_and_ecash_request(request, request_id):
     request_obj = get_object_or_404(CashAndECashRequest, id=request_id)
     
+    account = request_obj.agent.e_float_drawers.filter(date=request_obj.created_at).first()
+    
+    if not account:
+        messages.error(request, 'No e-float account found for this date')
+        return redirect('view_payment_requests')
+    
     if request.method == 'POST':
         approved_amount = request.POST.get('approved_amount')
         try:
@@ -97,6 +113,7 @@ def approve_cash_and_ecash_request(request, request_id):
                 request_obj.status = 'Approved'
                 messages.success(request, 'Request fully approved.')
             # Save the request status and arrears
+            account.update_balance_for_cash_and_ecash(request_obj.bank, request_obj.network, request_obj.amount, request_obj.status)
             request_obj.save()
             return redirect('cash_requests')
         except ValueError:
@@ -179,12 +196,51 @@ def view_payment_requests(request):
     }
     return render(request, 'owner/payments/pending_payments.html', context)
 
+
+@login_required
+def approve_bank_deposit(request, deposit_id):
+    deposit = get_object_or_404(BankDeposit, id=deposit_id)
+    account = deposit.agent.e_float_drawers.filter(date=deposit.date_deposited).first()
+    
+    if not account:
+        messages.error(request, 'No e-float account found for this date')
+        return redirect('bank_deposit_requests')
+    
+    # Check if the bank has sufficient balance
+    bank_balance = getattr(account, f"{deposit.bank.lower()}_balance")
+    if deposit.amount > bank_balance:
+        messages.error(request, f'Insufficient balance is {deposit.bank}')
+        return redirect('bank_deposit_requests')
+    
+    
+
+
+
 @login_required
 @user_passes_test(is_owner)
 def approve_payment(request, payment_id):
     payment = get_object_or_404(PaymentRequest, id=payment_id)
+    account = payment.agent.e_float_drawers.filter(date=payment.created_at).first()
+    
+    if not account:
+        messages.error(request, 'No e-float account found for this date')
+        return redirect('view_payment_requests')
+    
+    # Check if the bank has sufficient balance
+    # bank_balance = getattr(account, f"{payment.bank.lower()}_balance")
+    # network_balance = getattr(account, f"{payment.network.lower()}_balance")
+    
+    # if payment.amount > bank_balance:
+    #     messages.error(request, f'Insufficient balance is {payment.bank}')
+    #     return redirect('view_payment_requests')
+    
+    # elif payment.amount > network_balance:
+    #     messages.error(request, f'Insufficient balance is {payment.network}')
+    #     return redirect('view_payment_requests')
+    
     payment.status = 'Approved'
     payment.save()
+    account.update_balance_for_payments(payment.bank, payment.network, payment.amount, payment.status)
     messages.success(request, 'Payment request approved successfully.')
     return redirect('view_payment_requests')
 
@@ -298,6 +354,8 @@ def reject_bank_withdrawal(request, withdrawal_id):
     withdrawal.save()
     messages.success(request, 'Bank Withdrawal rejected')
     return redirect('bank_withdrawal_requests')
+
+
 
 @login_required
 def bank_withdrawal_requests(request):

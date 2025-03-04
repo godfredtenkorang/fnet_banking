@@ -9,7 +9,7 @@ User = settings.AUTH_USER_MODEL
 
 MOBILE_MONEY_DEPOSIT_TYPE = (
     ("Loading", "Loading"),
-    ("Deposit", "Deposit"),
+    ("Direct", "Direct"),
 )
 
 NETWORKS = (

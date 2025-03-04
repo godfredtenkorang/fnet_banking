@@ -313,9 +313,68 @@ def view_bank_withdrawals(request):
     }
     return render(request, 'agent/financial_services/view_bank_withdrawals.html', context)
 
-
+# Transaction summaries start----------
 def TotalTransactionSum(request):
-    return render(request, 'agent/TotalTransactionSum.html')
+    return render(request, 'agent/transaction_summary/TotalTransactionSum.html')
+
+@login_required
+def cashin_summary(request):
+    agent = request.user
+    cashins = CustomerCashIn.objects.filter(agent=agent).order_by('-date_deposited', '-time_deposited')
+    context = {
+        'cashins': cashins,
+        'title': 'Cash In Summary'
+    }
+    return render(request, 'agent/transaction_summary/cashin_summary.html', context)
+
+@login_required
+def cashout_summary(request):
+    agent = request.user
+    cashouts = CustomerCashOut.objects.filter(agent=agent).order_by('-date_withdrawn', '-time_withdrawn')
+    context = {
+        'cashouts': cashouts,
+        'title': 'Cash Out Summary'
+    }
+    return render(request, 'agent/transaction_summary/cashout_summary.html', context)
+
+@login_required
+def bank_deposit_summary(request):
+    agent = request.user.agent
+    bank_deposits = BankDeposit.objects.filter(agent=agent).order_by('-date_deposited', '-time_deposited')
+    context = {
+        'bank_deposits': bank_deposits,
+        'title': 'Bank Deposits Summary'
+    }
+    return render(request, 'agent/transaction_summary/bank_deposit_summary.html', context)
+
+def bank_withdrawal_summary(request):
+    agent = request.user.agent
+    bank_withdrawals = BankWithdrawal.objects.filter(agent=agent).order_by('-date_withdrawn', '-time_withdrawn')
+    context = {
+        'bank_withdrawals': bank_withdrawals,
+        'title': 'Bank Withdrawals Summary'
+    }
+    return render(request, 'agent/transaction_summary/bank_withdrawal_summary.html', context)
+
+def cash_summary(request):
+    agent = request.user.agent
+    cash_requests = CashAndECashRequest.objects.filter(agent=agent).order_by('-created_at')
+    context = {
+        'cash_requests': cash_requests,
+        'title': 'Cash Summary'
+    }
+    return render(request, 'agent/transaction_summary/cash_summary.html', context)
+
+def payment_summary(request):
+    agent = request.user.agent
+    payments = PaymentRequest.objects.filter(agent=agent).order_by('-created_at')
+    context = {
+        'payments': payments,
+        'title': 'Payments Summury'
+    }
+    return render(request, 'agent/transaction_summary/payment_summary.html', context)
+
+# Transaction summaries end-------------
 
 def PaymentSummary(request):
     return render(request, 'agent/PaymentSummary.html')
@@ -437,17 +496,41 @@ def accountReg(request):
 @login_required
 def payment(request):
     agent = request.user.agent
+    today = timezone.now().date()
+    
+    account = get_object_or_404(EFloatAccount, agent=agent, date=today)
+    
     if request.method == 'POST':
         mode_of_payment = request.POST.get('mode_of_payment')
         bank = request.POST.get('bank')
         network = request.POST.get('network')
         branch = request.POST.get('branch')
         amount = request.POST.get('amount')
+        
         payments = PaymentRequest(mode_of_payment=mode_of_payment, bank=bank, network=network, branch=branch, amount=amount)
         payments.agent = agent
+        
+        
+        # bank_balance = getattr(account, f"{payments.bank.lower()}_balance")
+        
+        # network_balance = getattr(account, f"{payments.network.lower()}_balance")
+        
+        # get_payment = Decimal(payments.amount)
+        
+        
+        # if get_payment > Decimal(bank_balance):
+        #     messages.error(request, f'Insufficient balance in {payments.bank}.')
+        #     return redirect('agencyBank')
+        
+        # elif get_payment > Decimal(network_balance):
+        #     messages.error(request, f'Insufficient balance in {payments.network}.')
+        #     return redirect('agencyBank')
+        
         payments.save()
-        messages.success(request, 'Request submitted successfully. Waiting for Owner approveal.')
+        account.update_balance_for_payments(payments.bank, payments.network, payments.amount, payments.status)
+
         return redirect('payment_notifications')
+
     context = {
         'title': 'Payment Requests'
     }
@@ -466,6 +549,8 @@ def view_payments(request):
 @login_required
 def cashFloatRequest(request):
     agent = request.user.agent
+    today = timezone.now().date()
+    account = get_object_or_404(EFloatAccount, agent=agent, date=today)
     
     if request.method == 'POST':
         float_type = request.POST.get('float_type')
@@ -477,7 +562,7 @@ def cashFloatRequest(request):
         
         floats.agent = agent
         floats.save()
-        
+        account.update_balance_for_cash_and_ecash(floats.bank, floats.network, floats.amount, floats.status)
         messages.success(request, 'Request submitted successfully. Waiting for Owner approveal.')
         
         return redirect('cash_notifications')
@@ -599,6 +684,7 @@ def view_customer_fraud(request):
 
 def calculate(request):
     return render(request, 'agent/calculate.html')
+
 
 
 # Notifications
