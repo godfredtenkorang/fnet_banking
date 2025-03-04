@@ -706,3 +706,6 @@ def cash_notifications(request):
 
 def payment_notifications(request):
     return render(request, 'agent/notifications/payment_notifications.html')
+
+def errorPage(request):
+    return render(request, 'agent/errorPage.html')

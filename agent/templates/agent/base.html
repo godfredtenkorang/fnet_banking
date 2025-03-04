@@ -15,8 +15,8 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
+   
+  
     {% if title %}
     <title>Fnet - {{ title }}</title>
     {% else %}
@@ -53,33 +53,56 @@
         />
       </div>
 
-     <div class="dashboard-header-detail">
-      <div class="button-btn">
-        <a href="{% url 'calculate' %}">
-            <p title="calculator"><i class="fa-solid fa-calculator"></i> </p>
-        </a>
-     </div>
-     <div class="user-name">
-      <p><i class="fa-solid fa-user"></i> {{user.username}}</p>
-  </div>
+
+ <div class="header-ul">
+    
+
+<div class="user-role">
   
-  <div class="role">
-      <p><i class="fa-solid fa-id-badge"></i> {{user.role}}</p>
+ <div class="user-name">
+  <p><i class="fa-solid fa-user"></i> {{user.username}}</p>
+</div>
+
+<div class="role">
+  <p><i class="fa-solid fa-id-badge"></i> {{user.role}}</p>
+</div>
+</div>
+
+   
+     <div class="dashDrop">
+      <button class="drop">Drop down <i class="fa-solid fa-caret-down"></i> </button>
+      <div class="dashboard-header-detail">
+     
+        <div class="cashes">
+          <div class="c-cash">
+            <p><i class="fa-solid fa-cash-register"></i> Cash</p>
+          </div>
+          <div class="c-cash">
+            <p><i class="fa-solid fa-cash-register"></i> Payment</p>
+          </div>
+         </div>
+        <div class="button-btn">
+          <a href="{% url 'calculate' %}">
+              <p title="calculator"><i class="fa-solid fa-calculator"> calculator </i> </p>
+          </a>
+       </div>
+      
+    
+    
+    <div class="current-date">
+      <p id="date"></p>
   </div>
-  
-  <!-- <div class="branch">
-      <p><i class="fa-solid fa-location-dot"></i> Accra Branch</p>
-  </div> -->
-  <div class="current-date">
-    <p id="date"></p>
-</div>
-<div class="current-time">
-    <p id="time"></p>
-</div>
-<div class="day">
-    <p id="day"></p>
-</div>
-     </div>
+  <div class="current-time">
+      <p id="time"></p>
+  </div>
+  <div class="day">
+      <p id="day"></p>
+  </div>
+       </div>
+    </div>
+
+ </div>
+    
     </header>
 
     <div class="main-container">
@@ -303,5 +326,37 @@
     }
   });
 </script>
+
+
+
+
+<script>
+  const dashboard_header_detail = document.querySelector(".dashboard-header-detail")
+  const drop = document.querySelector(".drop")
+ 
+
+  drop.addEventListener("click", ()=>{
+    dashboard_header_detail.classList.toggle("show-drop")
+  })
+
+
+
+
+
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
   </body>
 </html>
