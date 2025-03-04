@@ -112,7 +112,26 @@ def view_e_float_account(request):
 #     return render(request, 'agent/close_drawer.html', context)
 
 def agent_dashboard(request):
-    return render(request, 'agent/dashboard.html')
+    agent = request.user.agent
+    agent_id = request.user
+    total_cashins = CustomerCashIn.total_cash_for_customer(agent=agent_id)
+    total_cashouts = CustomerCashOut.total_cashout_for_customer(agent=agent_id)
+    total_deposits = BankDeposit.total_bank_deposit_for_customer(agent=agent)
+    total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(agent=agent)
+    total_ecash = CashAndECashRequest.total_ecash_for_customer(agent=agent)
+    total_payments = PaymentRequest.total_payment_for_customer(agent=agent)
+    customers = Customer.objects.filter(agent=agent)
+    context = {
+        'total_cashins': total_cashins,
+        'total_cashouts': total_cashouts,
+        'total_deposits': total_deposits,
+        'total_withdrawals': total_withdrawals,
+        'total_ecash': total_ecash,
+        'total_payments': total_payments,
+        'customers': customers,
+        'title': 'Dashboard'
+    }
+    return render(request, 'agent/dashboard.html', context)
 
 
 @login_required
@@ -315,7 +334,26 @@ def view_bank_withdrawals(request):
 
 # Transaction summaries start----------
 def TotalTransactionSum(request):
-    return render(request, 'agent/transaction_summary/TotalTransactionSum.html')
+    agent = request.user.agent
+    agent_id = request.user
+    total_cashins = CustomerCashIn.total_cash_for_customer(agent=agent_id)
+    total_cashouts = CustomerCashOut.total_cashout_for_customer(agent=agent_id)
+    total_deposits = BankDeposit.total_bank_deposit_for_customer(agent=agent)
+    total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(agent=agent)
+    total_ecash = CashAndECashRequest.total_ecash_for_customer(agent=agent)
+    total_payments = PaymentRequest.total_payment_for_customer(agent=agent)
+    
+    context = {
+        'total_cashins': total_cashins,
+        'total_cashouts': total_cashouts,
+        'total_deposits': total_deposits,
+        'total_withdrawals': total_withdrawals,
+        'total_ecash': total_ecash,
+        'total_payments': total_payments,
+        'title': 'Transaction Summary'
+
+    }
+    return render(request, 'agent/transaction_summary/TotalTransactionSum.html', context)
 
 @login_required
 def cashin_summary(request):

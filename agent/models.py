@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from users.models import Agent
 from django.utils import timezone
+from django.db.models import Sum
 
 # Create your models here.
 
@@ -39,6 +40,11 @@ class CustomerCashIn(models.Model):
     # agent_commission = models.DecimalField(max_digits=19, decimal_places=2, default=0.0)
     date_deposited = models.DateField(auto_now_add=True)
     time_deposited = models.TimeField(auto_now_add=True)
+    
+    @classmethod
+    def total_cash_for_customer(cls, agent):
+        total = cls.objects.filter(agent=agent).aggregate(Sum('amount'))
+        return total['amount__sum'] or 0
 
     def __str__(self):
         return f"CashIn of ${self.amount} on {self.network} by {self.depositor_name}"
@@ -55,6 +61,11 @@ class CustomerCashOut(models.Model):
     # agent_commission = models.DecimalField(max_digits=19, decimal_places=2, default=0.0)
     date_withdrawn = models.DateField(auto_now_add=True)
     time_withdrawn = models.TimeField(auto_now_add=True)
+    
+    @classmethod
+    def total_cashout_for_customer(cls, agent):
+        total = cls.objects.filter(agent=agent).aggregate(Sum('amount'))
+        return total['amount__sum'] or 0
 
     def __str__(self):
         return f"CashOut of ${self.amount} on {self.network} by {self.customer_phone}"
@@ -70,6 +81,11 @@ class BankDeposit(models.Model):
     status = models.CharField(max_length=100, choices=REQUEST_STATUS, default='Pending')
     date_deposited = models.DateField(default=timezone.now)
     time_deposited = models.TimeField(default=timezone.now)
+    
+    @classmethod
+    def total_bank_deposit_for_customer(cls, agent):
+        total = cls.objects.filter(agent=agent).aggregate(Sum('amount'))
+        return total['amount__sum'] or 0
     
     def __str__(self):
         return f"Bank Deposit of GH¢{self.amount} to {self.bank} by {self.phone_number} ({self.status})"
@@ -87,6 +103,11 @@ class BankWithdrawal(models.Model):
     date_withdrawn = models.DateField(default=timezone.now)
     time_withdrawn = models.TimeField(default=timezone.now)
     status = models.CharField(max_length=20, choices=REQUEST_STATUS, default='Pending')
+    
+    @classmethod
+    def total_bank_withdrawal_for_customer(cls, agent):
+        total = cls.objects.filter(agent=agent).aggregate(Sum('amount'))
+        return total['amount__sum'] or 0
     
     def __str__(self):
         return f"Bank Withdrawal of GH¢{self.amount} from {self.bank} by {self.customer_phone} ({self.status})"
@@ -130,6 +151,11 @@ class CashAndECashRequest(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    @classmethod
+    def total_ecash_for_customer(cls, agent):
+        total = cls.objects.filter(agent=agent).aggregate(Sum('amount'))
+        return total['amount__sum'] or 0
 
     def __str__(self):
         return f"{self.float_type} Request of GH¢{self.amount} by {self.agent.user.username}"
@@ -222,6 +248,11 @@ class PaymentRequest(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    @classmethod
+    def total_payment_for_customer(cls, agent):
+        total = cls.objects.filter(agent=agent).aggregate(Sum('amount'))
+        return total['amount__sum'] or 0
     
     def __str__(self):
         return f"Payment of ${self.amount} via {self.mode_of_payment} by {self.agent.user.username} ({self.status})"

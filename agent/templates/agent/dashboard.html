@@ -1,4 +1,5 @@
 {% extends 'agent/base.html' %}
+{% load humanize %}
 {% load static %}
 {% block content %}
 
@@ -155,28 +156,28 @@
 
     <div class="stat-chat-container">
         <a href="{% url 'cashin_summary' %}" class="stat">
-            <h2>Total Cash In</h2>
-            <h3 class="valuesP">200 Gh</h3>
+            <h2>Total Cash In(¢)</h2>
+            <h3 class="valuesP">{{total_cashins}}</h3>
         </a>
         <a href="{% url 'cashout_summary' %}" class="stat">
-            <h2>Total Cash Out</h2>
-            <h3 class="valuesP">100 Gh</h3>
+            <h2>Total Cash Out(¢)</h2>
+            <h3 class="valuesP">{{total_cashouts}}</h3>
         </a>
         <a href="{% url 'bank_deposit_summary' %}" class="stat">
-            <h2>Total Bank Deposit</h2>
-            <h3 class="valuesP">400 Gh</h3>
+            <h2>Total Bank Deposit(¢)</h2>
+            <h3 class="valuesP">{{total_deposits}}</h3>
         </a>
         <a href="{% url 'bank_withdrawal_summary' %}" class="stat">
-            <h2>Total Bank Withdrawal</h2>
-            <h3 class="valuesP">500 Gh</h3>
+            <h2>Total Bank Withdrawal(¢)</h2>
+            <h3 class="valuesP">{{total_withdrawals}}</h3>
         </a>
         <a href="{% url 'cash_summary' %}" class="stat">
-            <h2>Total Cash / E-Cash</h2>
-            <h3 class="valuesP">400 Gh</h3>
+            <h2>Total Cash / E-Cash(¢)</h2>
+            <h3 class="valuesP">{{total_ecash}}</h3>
         </a>
         <a href="{% url 'payment_summary' %}" class="stat">
-            <h2>Total Payments</h2>
-            <h3 class="valuesP">400 Gh</h3>
+            <h2>Total Payments(¢)</h2>
+            <h3 class="valuesP">{{total_payments}}</h3>
         </a>
     </div>
 
