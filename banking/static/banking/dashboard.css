@@ -48,7 +48,8 @@ header {
   justify-content: space-between;
   align-items: center;
   color: var(--white);
-  flex-wrap: wrap;
+
+
 }
 header a{
   color: var(--white);
@@ -754,15 +755,42 @@ height: 5vh;
 
 
 /* dashboard-header-detail */
+.header-ul{
+  display: flex;
+  gap: 1rem;
+  position: relative;
+}
 .dashboard-header-detail{
   display: flex;
   gap: 1rem;
   align-items: center;
 }
+.drop{
+  display: none;
+}
+.dashDrop{
+  display: flex;
+  position: relative;
+  gap: 1rem;
+}
+.dashDrop button{
+  width: 120px;
+  min-height: 5vh;
+  background-color: var(--orangeColor);
+  color: var(--white);
+  cursor: pointer;
+  border: none;
+}
 
-
-
-
+.user-role{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+}
+.button-btn a{
+  font-size: 1rem;
+}
 
   
 /* grid-template */
@@ -1210,6 +1238,11 @@ color: var(--one-use-color);
 }
 
 
+.cashes{
+  display: flex;
+  gap: 5px;
+ 
+}
 
 
 
@@ -1430,12 +1463,68 @@ color: var(--one-use-color);
  .noti{
   max-width: none;
  }
- .current-date, .current-time , .current-time, .branch, .day{
-  display: none;
+header{
+  padding: 10px 7px;
+  
+  gap: 2rem;
+}
+ .dashboard-header-detail{
+ display: none;
+  position: absolute;
+padding: 10px;
+top: 120%;
+  right: 3px;
+  flex-direction: column;
+  background-color: var(--white);
+  width: 150px;
+  color: #000;
+ 
  }
- header a{
-  font-size: 1rem;
+ @keyframes drops {
+  0%{
+    transform: translateY(10px);
+  }
  }
+
+ .dashboard-header-detail.show-drop {
+  animation: drops ease 0.5s;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
+  transition: box-shadow 0.3s ease-in-out;
+  border-radius: 10px;
+ }
+
+
+ .drop{
+  display: block;
+ }
+ .user-role{
+  font-size: 14px;
+  
+ }
+ .cashes{
+  flex-direction: column;
+ }
+
+ .dashDrop{
+  display: flex;
+ }
+
+ .dashDrop button{
+  width: 80px;
+  font-size: 10px;
+  padding: 5px;
+ 
+ }
+
+ .button-btn a{
+  color: #000;
+  font-size: 12px;
+ }
+
+ 
+ 
  .grid-template{
   grid-template-columns: 1fr;
   margin: 5% 1%;
