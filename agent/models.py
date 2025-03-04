@@ -228,10 +228,10 @@ class PaymentRequest(models.Model):
         ("MELCOM MANHYIA", "MELCOM MANHYIA"),
         ("MELCOM TAFO", "MELCOM TAFO"),
         ("AHODWO MELCOM", "AHODWO MELCOM"),
+        ("ADUM MELCOM", "ADUM MELCOM"),
         ("ADUM MELCOM ANNEX", "ADUM MELCOM ANNEX"),
         ("MELCOM SUAME", "MELCOM SUAME"),
         ("KUMASI MALL MELCOM", "KUMASI MALL MELCOM"),
-        ("MOBILIZATION", "MOBILIZATION"),
     )
     
     STATUS_CHOICES = [
@@ -244,6 +244,7 @@ class PaymentRequest(models.Model):
     bank = models.CharField(max_length=50, choices=BANK_CHOICES, null= True, blank=True)
     network = models.CharField(max_length=30, choices=NETWORK_CHOICES, null= True, blank=True)
     branch = models.CharField(max_length=30, choices=BRANCHES, null= True, blank=True)
+    name = models.CharField(max_length=100, null=True, blank=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     created_at = models.DateTimeField(auto_now_add=True)

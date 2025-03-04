@@ -89,7 +89,7 @@
                 <div class="input" id="branch" style="display: none;">
                     <label for="branchNames">Select Branch</label> <br />
                     <select id="branchNames" name="branch">
-                        <option value="" disabled selected>Select network</option>
+                        <option value="" disabled selected>Select branch</option>
                         <option value="DVLA">DVLA</option>
                         <option value="HEAD OFFICE">HEAD OFFICE</option>
                         <option value="KEJETIA">KEJETIA</option>
@@ -103,6 +103,10 @@
                         <option value="KUMASI MALL MELCOM">KUMASI MALL MELCOM</option>
                         <option value="MOBILIZATION">MOBILIZATION</option>
                     </select>
+                </div>
+                <div class="input" id="name" style="display: none;">
+                    <label for="name">Name</label> <br />
+                    <input type="text" id="name" name="name" required placeholder="Enter Name" />
                 </div>
 
                 <div class="input" id="amount" style="display: none;">
@@ -133,6 +137,7 @@
         const bankSection = document.getElementById("bank");
         const telcoSection = document.getElementById("telco");
         const branchSection = document.getElementById("branch");
+        const nameSection = document.getElementById('name');
         const amountField = document.getElementById("amount");
         const submitButton = document.getElementById("submitBtn");
 
@@ -145,6 +150,7 @@
             telcoSection.style.display = "none";
             branchSection.style.display = "none";
             amountField.style.display = "none";
+            nameSection.style.display = "none"
             submitButton.style.display = "none";
 
             // Show the appropriate fields based on selection
@@ -158,6 +164,7 @@
                 submitButton.style.display = "block";
             } else if (selectedValue === "Branch") {
                 branchSection.style.display = "block"
+                nameSection.style.display = "block"
                 amountField.style.display = "block";
                 submitButton.style.display = "block";
             }
