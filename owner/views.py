@@ -5,10 +5,12 @@ from users.forms import AgentRegistrationForm
 from users.models import Agent, Owner
 from banking.models import EFloatAccount
 from banking.forms import AddCapitalForm
-from agent.models import BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest, CustomerComplain, HoldCustomerAccount, CustomerFraud
+from agent.models import BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest, CustomerComplain, HoldCustomerAccount, CustomerFraud, CashInCommission, CashOutCommission
 from django.contrib import messages
 from decimal import Decimal
 from django.utils import timezone
+from datetime import datetime
+from django.db.models import Sum
 
 
 def unapproved_users_count(request):
@@ -405,6 +407,52 @@ def pay_to(request):
 
 def all_transaction(request):
     return render(request, 'owner/agent_Detail/all_transaction.html')  
+
+def commission(request):
+    filter_type = request.GET.get('filter', 'daily') # Default to daily
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    if filter_type == 'daily':
+        cashincommissions = CashInCommission.objects.filter(date=datetime.today())
+        cashoutcommissions = CashOutCommission.objects.filter(date=datetime.today())
+    elif filter_type == 'monthly':
+        start_of_month = datetime.today().replace(day=1)
+        cashincommissions = CashInCommission.objects.filter(date__gte=start_of_month, date__lte=datetime.today())
+        cashoutcommissions = CashOutCommission.objects.filter(date__gte=start_of_month, date__lte=datetime.today())
+    elif start_date and end_date:
+        cashincommissions = CashInCommission.objects.filter(date__gte=start_date, date__lte=end_date)
+        cashoutcommissions = CashOutCommission.objects.filter(date__gte=start_date, date__lte=end_date)
+    else:
+        cashincommissions = CashInCommission.objects.none()
+        cashoutcommissions = CashOutCommission.objects.none()
+        
+    # Calculate totals
+    cashin_total_amount = sum(cashincommission.customer_cash_in.amount for cashincommission in cashincommissions)
+    cashout_total_amount = sum(cashoutcommission.customer_cash_out.amount for cashoutcommission in cashoutcommissions)
+    
+    total_cash_received = sum(cashincommission.customer_cash_in.cash_received for cashincommission in cashincommissions)
+    total_cash_paid = sum(cashoutcommission.customer_cash_out.cash_paid for cashoutcommission in cashoutcommissions)
+    
+    cash_in_total_commission = cashincommissions.aggregate(Sum('amount'))['amount__sum'] or 0
+    cash_out_total_commission = cashoutcommissions.aggregate(Sum('amount'))['amount__sum'] or 0
+    
+    all_total_commission = cash_in_total_commission + cash_out_total_commission
+    
+    context = {
+        'all_total_commission': all_total_commission,
+        'cashin_total_amount': cashin_total_amount,
+        'cashout_total_amount': cashout_total_amount,
+        'total_cash_received': total_cash_received,
+        'total_cash_paid': total_cash_paid,
+        'cash_in_total_commission': cash_in_total_commission,
+        'cash_out_total_commission': cash_out_total_commission,
+        'cashincommissions': cashincommissions,
+        'cashoutcommissions': cashoutcommissions,
+        'filter_type': filter_type,
+        'title': 'Commission'
+    }
+    return render(request, 'owner/agent_Detail/commission.html', context)
 
 @login_required
 @user_passes_test(is_owner)

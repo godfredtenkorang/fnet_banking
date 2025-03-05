@@ -3,6 +3,7 @@ from django.conf import settings
 from users.models import Agent
 from django.utils import timezone
 from django.db.models import Sum
+from decimal  import Decimal
 
 # Create your models here.
 
@@ -36,6 +37,7 @@ class CustomerCashIn(models.Model):
     depositor_number = models.CharField(max_length=30, blank=True, default="")
     # reference = models.CharField(max_length=100, blank=True, default="")
     amount = models.DecimalField(max_digits=19, decimal_places=2, blank=True)
+    cash_received = models.DecimalField(max_digits=19, decimal_places=2, default=0.00, blank=True)
     # charges = models.DecimalField(max_digits=19, decimal_places=2, default=0.0)
     # agent_commission = models.DecimalField(max_digits=19, decimal_places=2, default=0.0)
     date_deposited = models.DateField(auto_now_add=True)
@@ -45,10 +47,28 @@ class CustomerCashIn(models.Model):
     def total_cash_for_customer(cls, agent):
         total = cls.objects.filter(agent=agent).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
+    
+    def save(self, *args, **kwargs):
+        commission_amount = self.cash_received - self.amount
+        
+        # Save the CustomerCashIn instance
+        super().save(*args, **kwargs)
+        
+        CashInCommission.objects.update_or_create(
+            customer_cash_in=self, defaults={'amount': commission_amount} 
+        )
 
     def __str__(self):
-        return f"CashIn of ${self.amount} on {self.network} by {self.depositor_name}"
+        return f"CashIn of ${self.amount} on {self.network} by {self.agent.username}"
     
+
+class CashInCommission(models.Model):
+    customer_cash_in = models.OneToOneField(CustomerCashIn, on_delete=models.CASCADE, related_name='cashincommission')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)  # Commission amount
+    date = models.DateField(auto_now_add=True)  # Date of the commission
+    
+    def __str__(self):
+        return f"Commission: {self.amount} for {self.customer_cash_in.agent.username}"
 
 class CustomerCashOut(models.Model):
     agent = models.ForeignKey(User, on_delete=models.CASCADE, related_name="customer_cash_outs")
@@ -57,6 +77,7 @@ class CustomerCashOut(models.Model):
     # customer_name = models.CharField(max_length=30, blank=True)
     # reference = models.CharField(max_length=100, blank=True, default="")
     amount = models.DecimalField(max_digits=19, decimal_places=2, blank=True)
+    cash_paid = models.DecimalField(max_digits=19, decimal_places=2, default=0.00, blank=True)
     # charges = models.DecimalField(max_digits=19, decimal_places=2, default=0.0)
     # agent_commission = models.DecimalField(max_digits=19, decimal_places=2, default=0.0)
     date_withdrawn = models.DateField(auto_now_add=True)
@@ -66,10 +87,29 @@ class CustomerCashOut(models.Model):
     def total_cashout_for_customer(cls, agent):
         total = cls.objects.filter(agent=agent).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
+    
+    def save(self, *args, **kwargs):
+        commission_amount = self.cash_paid - self.amount
+        
+        # Save the CustomerCashIn instance
+        super().save(*args, **kwargs)
+        
+        CashOutCommission.objects.update_or_create(
+            customer_cash_out=self, defaults={'amount': commission_amount} 
+        )
 
     def __str__(self):
         return f"CashOut of ${self.amount} on {self.network} by {self.customer_phone}"
     
+
+class CashOutCommission(models.Model):
+    customer_cash_out = models.OneToOneField(CustomerCashOut, on_delete=models.CASCADE, related_name='cashoutcommission')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)  # Commission amount
+    date = models.DateField(auto_now_add=True)  # Date of the commission
+    
+    def __str__(self):
+        return f"Commission: {self.amount} for {self.customer_cash_out.agent.username}"
+
 
 class BankDeposit(models.Model):
     agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name='bank_deposits')
@@ -149,8 +189,8 @@ class CashAndECashRequest(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     arrears = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # Track remaining balance
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateField(auto_now=True)
     
     @classmethod
     def total_ecash_for_customer(cls, agent):
@@ -247,8 +287,8 @@ class PaymentRequest(models.Model):
     name = models.CharField(max_length=100, null=True, blank=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateField(auto_now=True)
     
     @classmethod
     def total_payment_for_customer(cls, agent):

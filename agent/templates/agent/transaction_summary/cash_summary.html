@@ -126,7 +126,7 @@
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
-            <h1>Cash & E-Cash Summary</h1>
+            <h1>Cash & E-Cash Summary for {{date}}</h1>
         </div>
     </div>
 
@@ -138,7 +138,7 @@
                 <tr>
                     <th>Float Type</th>
                     <th>Bank/Network/Cash</th>
-                    <th>Amount</th>
+                    <th>Amount(GH¢)</th>
                     <th>Date/Time</th>
                     <th>Status</th>
                 </tr>
@@ -157,7 +157,7 @@
                         Cash
                         {% endif %}
                     </td>
-                    <td data-label="Amount">GH¢{{ cash.amount }}</td>
+                    <td data-label="Amount">{{ cash.amount }}</td>
                     <td>{{ cash.created_at }}</td>
                     <td>{{ cash.status }}</td>
                 </tr>

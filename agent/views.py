@@ -10,6 +10,7 @@ from decimal import Decimal
 from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password
 from django.core.files.storage import default_storage
+from django.db.models import Sum
 
 def is_agent(user):
     return user.role == 'AGENT'
@@ -155,10 +156,13 @@ def cashIn(request):
         depositor_name = request.POST.get('depositor_name')
         depositor_number = request.POST.get('depositor_number')
         amount = request.POST.get('amount')
+        cash_received = request.POST.get('cash_received')
         
+        amount = Decimal(amount)
+        cash_received = Decimal(cash_received)
 
         
-        cash_in = CustomerCashIn(network=network, customer_phone=customer_phone, deposit_type=deposit_type, depositor_name=depositor_name, depositor_number=depositor_number, amount=amount)
+        cash_in = CustomerCashIn(network=network, customer_phone=customer_phone, deposit_type=deposit_type, depositor_name=depositor_name, depositor_number=depositor_number, amount=amount, cash_received=cash_received)
         
         cash_in.agent = agent.user
         
@@ -193,10 +197,12 @@ def cashOut(request):
         network = request.POST.get('network')
         customer_phone = request.POST.get('customer_phone')
         amount = request.POST.get('amount')
+        cash_paid = request.POST.get('cash_paid')
         
-
+        amount = Decimal(amount)
+        cash_paid = Decimal(cash_paid)
         
-        cash_out = CustomerCashOut(network=network, customer_phone=customer_phone, amount=amount)
+        cash_out = CustomerCashOut(network=network, customer_phone=customer_phone, amount=amount, cash_paid=cash_paid)
         
         cash_out.agent = agent.user
         
@@ -369,66 +375,132 @@ def TotalTransactionSum(request):
     return render(request, 'agent/transaction_summary/TotalTransactionSum.html', context)
 
 @login_required
-@user_passes_test(is_agent)
-def cashin_summary(request):
-    agent = request.user
-    cashins = CustomerCashIn.objects.filter(agent=agent).order_by('-date_deposited', '-time_deposited')
+def cashin_summary_date(request):
+    dates = CustomerCashIn.objects.values('date_deposited').annotate(total_amount=Sum('amount'))
     context = {
+        'dates': dates
+    }
+    return render(request, 'agent/transaction_summary/cashin_summary_date.html', context)
+
+@login_required
+@user_passes_test(is_agent)
+def cashin_summary(request, date):
+    agent = request.user
+    cashins = CustomerCashIn.objects.filter(agent=agent, date_deposited=date).order_by('-date_deposited', '-time_deposited')
+    context = {
+        'date': date,
         'cashins': cashins,
         'title': 'Cash In Summary'
     }
     return render(request, 'agent/transaction_summary/cashin_summary.html', context)
 
+
+@login_required
+def cashout_summary_date(request):
+    dates = CustomerCashOut.objects.values('date_withdrawn').annotate(total_amount=Sum('amount'))
+    context = {
+        'dates': dates
+    }
+    return render(request, 'agent/transaction_summary/cashout_summary_date.html', context)
+
+
 @login_required
 @user_passes_test(is_agent)
-def cashout_summary(request):
+def cashout_summary(request, date):
     agent = request.user
-    cashouts = CustomerCashOut.objects.filter(agent=agent).order_by('-date_withdrawn', '-time_withdrawn')
+    cashouts = CustomerCashOut.objects.filter(agent=agent, date_withdrawn=date).order_by('-date_withdrawn', '-time_withdrawn')
     context = {
+        'date': date,
         'cashouts': cashouts,
         'title': 'Cash Out Summary'
     }
     return render(request, 'agent/transaction_summary/cashout_summary.html', context)
 
+
+@login_required
+def bank_deposit_summary_date(request):
+    dates = BankDeposit.objects.values('date_deposited').annotate(total_amount=Sum('amount'))
+    context = {
+        'dates': dates
+    }
+    return render(request, 'agent/transaction_summary/bank_deposit_summary_date.html', context)
+
+
 @login_required
 @user_passes_test(is_agent)
-def bank_deposit_summary(request):
+def bank_deposit_summary(request, date):
     agent = request.user.agent
-    bank_deposits = BankDeposit.objects.filter(agent=agent).order_by('-date_deposited', '-time_deposited')
+    bank_deposits = BankDeposit.objects.filter(agent=agent, date_deposited=date).order_by('-date_deposited', '-time_deposited')
     context = {
+        'date': date,
         'bank_deposits': bank_deposits,
         'title': 'Bank Deposits Summary'
     }
     return render(request, 'agent/transaction_summary/bank_deposit_summary.html', context)
 
+
+@login_required
+def bank_withdrawal_summary_date(request):
+    dates = BankWithdrawal.objects.values('date_withdrawn').annotate(total_amount=Sum('amount'))
+    context = {
+        'dates': dates
+    }
+    return render(request, 'agent/transaction_summary/bank_withdrawal_summary_date.html', context)
+
+
 @login_required
 @user_passes_test(is_agent)
-def bank_withdrawal_summary(request):
+def bank_withdrawal_summary(request, date):
     agent = request.user.agent
-    bank_withdrawals = BankWithdrawal.objects.filter(agent=agent).order_by('-date_withdrawn', '-time_withdrawn')
+    bank_withdrawals = BankWithdrawal.objects.filter(agent=agent, date_withdrawn=date).order_by('-date_withdrawn', '-time_withdrawn')
     context = {
+        'date': date,
         'bank_withdrawals': bank_withdrawals,
         'title': 'Bank Withdrawals Summary'
     }
     return render(request, 'agent/transaction_summary/bank_withdrawal_summary.html', context)
 
+
+@login_required
+def cash_summary_date(request):
+    dates = CashAndECashRequest.objects.values('created_at').annotate(total_amount=Sum('amount'))
+    context = {
+        'dates': dates
+    }
+    return render(request, 'agent/transaction_summary/cash_summary_date.html', context)
+
+
+
 @login_required
 @user_passes_test(is_agent)
-def cash_summary(request):
+def cash_summary(request, date):
     agent = request.user.agent
-    cash_requests = CashAndECashRequest.objects.filter(agent=agent).order_by('-created_at')
+    cash_requests = CashAndECashRequest.objects.filter(agent=agent, created_at=date).order_by('-created_at')
     context = {
+        'date': date,
         'cash_requests': cash_requests,
         'title': 'Cash Summary'
     }
     return render(request, 'agent/transaction_summary/cash_summary.html', context)
 
+
+@login_required
+def payment_summary_date(request):
+    dates = PaymentRequest.objects.values('created_at').annotate(total_amount=Sum('amount'))
+    context = {
+        'dates': dates
+    }
+    return render(request, 'agent/transaction_summary/payment_summary_date.html', context)
+
+
+
 @login_required
 @user_passes_test(is_agent)
-def payment_summary(request):
+def payment_summary(request, date):
     agent = request.user.agent
-    payments = PaymentRequest.objects.filter(agent=agent).order_by('-created_at')
+    payments = PaymentRequest.objects.filter(agent=agent, created_at=date).order_by('-created_at')
     context = {
+        'date': date,
         'payments': payments,
         'title': 'Payments Summury'
     }

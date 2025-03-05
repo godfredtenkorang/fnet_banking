@@ -1,0 +1,42 @@
+{% extends 'agent/base.html' %}
+{% load humanize %}
+{% load static %}
+{% block content %}
+
+
+
+<div class="main">
+    <div class="banner-container">
+        <img src="{% static 'banking/img/ban.jpg' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Transaction Summary</h1>
+        </div>
+    </div>
+    <div class="stat-container">
+
+        {% for entry in dates %}
+
+        <a href="{% url 'payment_summary' entry.created_at %}" class="stat">
+            <h2>{{entry.created_at}}</h2>
+
+
+
+            <!-- <p>Click to view total</p> -->
+        </a>
+        {% endfor %}
+
+
+
+
+
+    </div>
+</div>
+
+
+</div>
+
+
+
+
+
+{% endblock %}

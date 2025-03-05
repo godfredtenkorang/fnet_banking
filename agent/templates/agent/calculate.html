@@ -7,94 +7,97 @@
             <h1>calculate</h1>
         </div>
     </div>
-   
-    
+
+
     <div class="calculate">
         <div class="calc">
-            <form action="" method="POST">
+            <form method="POST">
                 {% csrf_token %}
-            <div class="input">
-                <input type="text" placeholder="Teller's Name" name="customer_name" id="name">
-            </div>
-            <div class="input">
-                <input type="tel" placeholder="233550222888" name="phone_number" id="tel">
-            </div>
-            <div class="input">
-                <input type="number" placeholder="Enter Amount" name="amount" id="amount">
-            </div>
+                <div class="input">
+                    <input type="text" placeholder="Teller's Name" name="customer_name" id="name">
+                </div>
+                <div class="input">
+                    <input type="tel" placeholder="+233550222888" name="phone_number" id="tel">
+                </div>
+                <div class="input">
+                    <input type="number" placeholder="Enter Amount" name="amount" id="amount">
+                </div>
 
-            <div class="currencyNoteGrid">
-                <div class="currencyNote">
-                    <div class="input">
-                        <input type="text" name="d_200" id="twoHundrend" value="0" placeholder=" 200 GH₵ Notes">
-                        <div class="counter">
-                            <p class="numberOfNote">0</p>
+                <div class="currencyNoteGrid">
+                    <div class="currencyNote">
+                        <div class="input">
+                            <input type="text" name="d_200" id="twoHundrend" value="0" placeholder=" 200 GH₵ Notes">
+                            <div class="counter">
+                                <p class="numberOfNote">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="currencyNote">
+                        <div class="input">
+                            <input type="text" name="d_100" id="oneHundred" value="0" placeholder=" 100 GH₵ Notes">
+                            <div class="counter">
+                                <p class="numberOfNote">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="currencyNote">
+                        <div class="input">
+                            <input type="text" name="d_50" id="fifty" value="0" placeholder=" 50 GH₵ Notes">
+                            <div class="counter">
+                                <p class="numberOfNote">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="currencyNote">
+                        <div class="input">
+                            <input type="text" name="d_20" id="twenty" value="0" placeholder=" 20 GH₵ Notes">
+                            <div class="counter">
+                                <p class="numberOfNote">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="currencyNote">
+                        <div class="input">
+                            <input type="text" name="d_10" id="ten" value="0" placeholder=" 10 GH₵ Notes">
+                            <div class="counter">
+                                <p class="numberOfNote">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="currencyNote">
+                        <div class="input">
+                            <input type="text" name="d_5" id="five" value="0" placeholder=" 5 GH₵ Notes">
+                            <div class="counter">
+                                <p class="numberOfNote">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="currencyNote">
+                        <div class="input">
+                            <input type="text" name="d_2" id="two" value="0" placeholder=" 2 GH₵ Notes">
+                            <div class="counter">
+                                <p class="numberOfNote">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="currencyNote">
+                        <div class="input">
+                            <input type="text" name="d_1" id="one" value="0" placeholder=" 1 GH₵ Notes">
+                            <div class="counter">
+                                <p class="numberOfNote">0</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="currencyNote">
-                    <div class="input">
-                        <input type="text" name="d_100" id="oneHundred" value="0" placeholder=" 100 GH₵ Notes">
-                        <div class="counter">
-                            <p class="numberOfNote">0</p>
-                        </div>
-                    </div>
+                <div class="share">
+                    <button>share</button>
                 </div>
-                <div class="currencyNote">
-                    <div class="input">
-                        <input type="text" name="d_50" id="fifty" value="0" placeholder=" 50 GH₵ Notes">
-                        <div class="counter">
-                            <p class="numberOfNote">0</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="currencyNote">
-                    <div class="input">
-                        <input type="text" name="d_20" id="twenty" value="0" placeholder=" 20 GH₵ Notes">
-                        <div class="counter">
-                            <p class="numberOfNote">0</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="currencyNote">
-                    <div class="input">
-                        <input type="text" name="d_10" id="ten" value="0" placeholder=" 10 GH₵ Notes">
-                        <div class="counter">
-                            <p class="numberOfNote">0</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="currencyNote">
-                    <div class="input">
-                        <input type="text" name="d_5" id="five" value="0" placeholder=" 5 GH₵ Notes">
-                        <div class="counter">
-                            <p class="numberOfNote">0</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="currencyNote">
-                    <div class="input">
-                        <input type="text" name="d_2" id="two" value="0" placeholder=" 2 GH₵ Notes">
-                        <div class="counter">
-                            <p class="numberOfNote">0</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="currencyNote">
-                    <div class="input">
-                        <input type="text" name="d_1" id="one" value="0" placeholder=" 1 GH₵ Notes">
-                        <div class="counter">
-                            <p class="numberOfNote">0</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
+            </form>
             <!-- <div class="calc-btn">
         <button>Calculate</button>
       </div> -->
             <div class="total">
-                <p>Total is <span class="totals">0</span> </p>
+                <p>Total is GH₵<span class="totals">0</span> </p>
                 <p class="warning"></p>
             </div>
             <div class="breakdown">
@@ -106,9 +109,7 @@
 
 
 
-            <div class="share">
-                <button>share</button>
-            </div>
+            
             <div class="clear">
                 <button>Clear</button>
             </div>
@@ -117,7 +118,7 @@
 
         </div>
     </div>
-    
+
 </div>
 
 
@@ -518,116 +519,116 @@ document.addEventListener("DOMContentLoaded", function () {
   </script> -->
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const amountInput = document.getElementById("amount");
-    const noteInputs = document.querySelectorAll(".currencyNote input");
-    const numberOfNoteElements = document.querySelectorAll(".numberOfNote");
-    const totalDisplay = document.querySelector(".totals");
-    const breakdownList = document.querySelector(".cediBreakdown");
-    const warningMsg = document.querySelector(".warning");
-    const shareButton = document.querySelector(".share button");
+    document.addEventListener("DOMContentLoaded", function () {
+        const amountInput = document.getElementById("amount");
+        const noteInputs = document.querySelectorAll(".currencyNote input");
+        const numberOfNoteElements = document.querySelectorAll(".numberOfNote");
+        const totalDisplay = document.querySelector(".totals");
+        const breakdownList = document.querySelector(".cediBreakdown");
+        const warningMsg = document.querySelector(".warning");
+        const shareButton = document.querySelector(".share button");
 
-    let totalAmount = 0;
+        let totalAmount = 0;
 
-    // Function to update the breakdown and check amount match
-    function updateBreakdown() {
-        let total = 0;
-        breakdownList.innerHTML = "";
+        // Function to update the breakdown and check amount match
+        function updateBreakdown() {
+            let total = 0;
+            breakdownList.innerHTML = "";
 
-        noteInputs.forEach((note, index) => {
-            let denomination = parseInt(note.placeholder.replace(/[^0-9]/g, ""), 10);
-            let count = note.value ? parseInt(note.value.replace(/,/g, ""), 10) : 0;
-            let noteTotal = denomination * count;
-            total += noteTotal;
+            noteInputs.forEach((note, index) => {
+                let denomination = parseInt(note.placeholder.replace(/[^0-9]/g, ""), 10);
+                let count = note.value ? parseInt(note.value.replace(/,/g, ""), 10) : 0;
+                let noteTotal = denomination * count;
+                total += noteTotal;
 
-            // Display calculated total per note
-            numberOfNoteElements[index].textContent = count > 0 ? `${noteTotal}` : "";
+                // Display calculated total per note
+                numberOfNoteElements[index].textContent = count > 0 ? `${noteTotal}` : "";
 
-            // Add to breakdown if greater than 0
-            if (count > 0) {
-                let listItem = document.createElement("li");
-                listItem.textContent = `${denomination} cedi: ${count}qty = ${noteTotal}`;
-                breakdownList.appendChild(listItem);
+                // Add to breakdown if greater than 0
+                if (count > 0) {
+                    let listItem = document.createElement("li");
+                    listItem.textContent = `${denomination} cedi: ${count}qty = ${noteTotal}`;
+                    breakdownList.appendChild(listItem);
+                }
+            });
+
+            totalAmount = total;
+            totalDisplay.textContent = total;
+
+            let enteredAmount = parseInt(amountInput.value, 10);
+            if (totalAmount !== enteredAmount) {
+                warningMsg.textContent = "Total does not match entered amount.";
+                shareButton.disabled = true;
+            } else {
+                warningMsg.textContent = "";
+                shareButton.disabled = false;
             }
-        });
-
-        totalAmount = total;
-        totalDisplay.textContent = total;
-
-        let enteredAmount = parseInt(amountInput.value, 10);
-        if (totalAmount !== enteredAmount) {
-            warningMsg.textContent = "Total does not match entered amount.";
-            shareButton.disabled = true;
-        } else {
-            warningMsg.textContent = "";
-            shareButton.disabled = false;
         }
-    }
 
-    // Listen for amount input change
-    amountInput.addEventListener("input", function () {
-        updateBreakdown();
-    });
-
-    // Listen for note quantity input change
-    noteInputs.forEach(input => {
-        input.value = ""; // Start with empty input
-        input.addEventListener("input", function () {
-            this.value = this.value.replace(/[^0-9]/g, ""); // Allow only numbers
+        // Listen for amount input change
+        amountInput.addEventListener("input", function () {
             updateBreakdown();
         });
-    });
 
-    // Function to validate phone number format
-    function isValidPhoneNumber(phoneNumber) {
-        const ghanaPattern = /^\+233\d{9}$/; // Example: +233XXXXXXXXX
-        return ghanaPattern.test(phoneNumber);
-    }
-
-    // Share functionality
-    shareButton.addEventListener("click", function () {
-        if (totalAmount !== parseInt(amountInput.value, 10)) {
-            warningMsg.textContent = "Total does not match entered amount.";
-            return;
-        }
-
-        let tellerName = document.getElementById("name").value;
-        let phoneNumber = document.getElementById("tel").value.trim();
-
-        // Validate phone number format
-        if (!isValidPhoneNumber(phoneNumber)) {
-            warningMsg.textContent = "Invalid phone number format. Please enter a number in the format: +233XXXXXXXXX . Example is +233536626936";
-            return;
-        }
-
-        // Clear warning message if everything is correct
-        warningMsg.textContent = "";
-
-        let breakdownText = `Teller: ${tellerName}\nPhone: ${phoneNumber}\nAmount: ${totalAmount} GH₵\nBreakdown:\n`;
-        document.querySelectorAll(".cediBreakdown li").forEach(item => {
-            breakdownText += `${item.textContent}\n`;
+        // Listen for note quantity input change
+        noteInputs.forEach(input => {
+            input.value = ""; // Start with empty input
+            input.addEventListener("input", function () {
+                this.value = this.value.replace(/[^0-9]/g, ""); // Allow only numbers
+                updateBreakdown();
+            });
         });
 
-        let shareUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(breakdownText)}`;
-        window.open(shareUrl, "_blank");
+        // Function to validate phone number format
+        function isValidPhoneNumber(phoneNumber) {
+            const ghanaPattern = /^\+233\d{9}$/; // Example: +233XXXXXXXXX
+            return ghanaPattern.test(phoneNumber);
+        }
 
-        // Refresh the page after a short delay
-        setTimeout(() => {
-            location.reload();
-        }, 2000); // 2-second delay to allow WhatsApp to open before reloading
-    });
+        // Share functionality
+        shareButton.addEventListener("click", function () {
+            if (totalAmount !== parseInt(amountInput.value, 10)) {
+                warningMsg.textContent = "Total does not match entered amount.";
+                return;
+            }
 
-    // Clear button functionality
-    document.querySelector(".clear button").addEventListener("click", function () {
-        amountInput.value = "";
-        noteInputs.forEach(input => input.value = "");
-        numberOfNoteElements.forEach(el => el.textContent = "");
-        breakdownList.innerHTML = "";
-        totalDisplay.textContent = "0";
-        warningMsg.textContent = "";
-        shareButton.disabled = true;
+            let tellerName = document.getElementById("name").value;
+            let phoneNumber = document.getElementById("tel").value.trim();
+
+            // Validate phone number format
+            if (!isValidPhoneNumber(phoneNumber)) {
+                warningMsg.textContent = "Invalid phone number format. Please enter a number in the format: +233XXXXXXXXX . Example is +233536626936";
+                return;
+            }
+
+            // Clear warning message if everything is correct
+            warningMsg.textContent = "";
+
+            let breakdownText = `Teller: ${tellerName}\nPhone: ${phoneNumber}\nAmount: ${totalAmount} GH₵\nBreakdown:\n`;
+            document.querySelectorAll(".cediBreakdown li").forEach(item => {
+                breakdownText += `${item.textContent}\n`;
+            });
+
+            let shareUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(breakdownText)}`;
+            window.open(shareUrl, "_blank");
+
+            // Refresh the page after a short delay
+            setTimeout(() => {
+                location.reload();
+            }, 2000); // 2-second delay to allow WhatsApp to open before reloading
+        });
+
+        // Clear button functionality
+        document.querySelector(".clear button").addEventListener("click", function () {
+            amountInput.value = "";
+            noteInputs.forEach(input => input.value = "");
+            numberOfNoteElements.forEach(el => el.textContent = "");
+            breakdownList.innerHTML = "";
+            totalDisplay.textContent = "0";
+            warningMsg.textContent = "";
+            shareButton.disabled = true;
+        });
     });
-});
 
 </script>
 {% endblock %}
