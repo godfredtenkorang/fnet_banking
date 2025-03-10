@@ -15,6 +15,14 @@ urlpatterns = [
     path('mobilization_account_registration/', views.customer_account_registration, name='customer_account_registration'),
     path('mobilization_all_customers/', views.my_customers, name='mobilization_all_customers'),
     path('mobilization_all_customers/<int:customer_id>/accounts/', views.my_customer_detail, name='mobilization_customer_detail'),
+    path('mobilization_transaction_summary/', views.transaction_summary, name='mobilization_transaction_summary'),
+    path('mobilization_deposit_summary_date/', views.bank_deposit_summary_date, name='mobilization_deposit_summary_date'),
+    path('mobilization_deposit_summary/<str:date>/', views.bank_deposit_summary, name='mobilization_deposit_summary'),
+    path('mobilization_withdrawal_summary_date/', views.bank_withdrawal_summary_date, name='mobilization_withdrawal_summary_date'),
+    path('mobilization_withdrawal_summary/<str:date>/', views.bank_withdrawal_summary, name='mobilization_withdrawal_summary'),
+    path('mobilization_payment_summary_date/', views.payment_summary_date, name='mobilization_payment_summary_date'),
+    path('mobilization_payment_summary/<str:date>/', views.payment_summary, name='mobilization_payment_summary'),
+    
     
     # Notifications
     
@@ -22,4 +30,6 @@ urlpatterns = [
     path('mobilization_bank_withdrawal_success/', views.bank_withdrawal_notifications, name='mobilization_bank_withdrawal_success'),
     path('mobilization_payment_success/', views.payment_notifications, name='mobilization_payment_success'),
     path('mobilization_payto_success/', views.payto_notifications, name='mobilization_payto_success'),
+    
+    
 ]

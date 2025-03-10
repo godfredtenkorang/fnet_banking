@@ -6,6 +6,7 @@ from django.contrib import messages
 from users.models import MobilizationCustomer, User, Branch
 from django.contrib.auth.hashers import make_password
 from django.core.files.storage import default_storage
+from django.db.models import Sum
 
 def is_mobilization(user):
     return user.role == 'MOBILIZATION'
@@ -268,6 +269,84 @@ def my_customer_detail(request, customer_id):
     }
     return render(request, 'mobilization/my_customer_detail.html', context)
 
+
+def transaction_summary(request):
+    mobilization = request.user.mobilization
+    total_deposits = BankDeposit.total_bank_deposit_for_customer(mobilization=mobilization)
+    total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(mobilization=mobilization)
+    total_payments = PaymentRequest.total_payment_for_customer(mobilization=mobilization)
+    
+    context = {
+        'total_deposits': total_deposits,
+        'total_withdrawals': total_withdrawals,
+        'total_payments': total_payments,
+        'title': 'Transaction Summary'
+
+    }
+    return render(request, 'mobilization/transactions/transaction_summary.html', context)
+
+@login_required
+def bank_deposit_summary_date(request):
+    dates = BankDeposit.objects.values('date_deposited').annotate(total_amount=Sum('amount'))
+    context = {
+        'dates': dates
+    }
+    return render(request, 'mobilization/transactions/bank_deposit_summary_date.html', context)
+
+
+@login_required
+def bank_deposit_summary(request, date):
+    mobilization = request.user.mobilization
+    bank_deposits = BankDeposit.objects.filter(mobilization=mobilization, date_deposited=date).order_by('-date_deposited', '-time_deposited')
+    context = {
+        'date': date,
+        'bank_deposits': bank_deposits,
+        'title': 'Bank Deposits Summary'
+    }
+    return render(request, 'mobilization/transactions/bank_deposit_summary.html', context)
+
+
+@login_required
+def bank_withdrawal_summary_date(request):
+    dates = BankWithdrawal.objects.values('date_withdrawn').annotate(total_amount=Sum('amount'))
+    context = {
+        'dates': dates
+    }
+    return render(request, 'mobilization/transactions/bank_withdrawal_summary_date.html', context)
+
+
+@login_required
+def bank_withdrawal_summary(request, date):
+    mobilization = request.user.mobilization
+    bank_withdrawals = BankWithdrawal.objects.filter(mobilization=mobilization, date_withdrawn=date).order_by('-date_withdrawn', '-time_withdrawn')
+    context = {
+        'date': date,
+        'bank_withdrawals': bank_withdrawals,
+        'title': 'Bank Withdrawals Summary'
+    }
+    return render(request, 'mobilization/transactions/bank_withdrawal_summary.html', context)
+
+
+@login_required
+def payment_summary_date(request):
+    dates = PaymentRequest.objects.values('created_at').annotate(total_amount=Sum('amount'))
+    context = {
+        'dates': dates
+    }
+    return render(request, 'mobilization/transactions/payment_summary_date.html', context)
+
+
+
+@login_required
+def payment_summary(request, date):
+    mobilization = request.user.mobilization
+    payments = PaymentRequest.objects.filter(mobilization=mobilization, created_at=date).order_by('-created_at')
+    context = {
+        'date': date,
+        'payments': payments,
+        'title': 'Payments Summury'
+    }
+    return render(request, 'mobilization/transactions/payment_summary.html', context)
 
 
 def bank_deposit_notifications(request):

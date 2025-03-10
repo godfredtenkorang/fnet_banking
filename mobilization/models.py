@@ -94,8 +94,8 @@ class BankWithdrawal(models.Model):
     status = models.CharField(max_length=20, choices=REQUEST_STATUS, default='Pending')
     
     @classmethod
-    def total_bank_withdrawal_for_customer(cls, agent):
-        total = cls.objects.filter(agent=agent).aggregate(Sum('amount'))
+    def total_bank_withdrawal_for_customer(cls, mobilization):
+        total = cls.objects.filter(mobilization=mobilization).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
     
     def __str__(self):
