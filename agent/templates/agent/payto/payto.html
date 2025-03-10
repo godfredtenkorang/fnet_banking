@@ -1,0 +1,230 @@
+{% extends 'agent/base.html' %} {% load static %} {% block content %}
+<style>
+    .result {
+        margin-top: 20px;
+        font-weight: bold;
+        color: red;
+    }
+</style>
+<div class="main">
+    <div style="background-color:#000; width:100%;">
+        {% if messages %}
+        {% for message in messages %}
+        <p style="color: #97c8b3; font-size:30px; text-align:center;">{{ message }}</p>
+        {% endfor %}
+        {% endif %}
+    </div>
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Payto</h1>
+        </div>
+    </div>
+    <div class="form">
+
+        <form id="networkForm" method="POST">
+            {% csrf_token %}
+            <div class="form-grid">
+                <div class="input">
+                    <label for="network">Select Network</label> <br />
+                    <select id="network" name="network">
+                        <option value="" disabled selected>Select network</option>
+                        <option value="Mtn">MTN</option>
+                        <option value="Telecel">Telecel</option>
+                        <option value="AirtelTigo">AirtelTigo</option>
+                    </select>
+                </div>
+                
+                <div class="input">
+                    <label for="customerNumber">Agent Number</label> <br />
+                    <input type="tel" id="customerNumber" name="agent_number" required placeholder="Agent Number" />
+                    <p id="message" class="message"></p>
+                
+                </div>
+
+                
+
+                
+
+                <div class="input">
+                    <label>Select Deposit Type</label> <br />
+                    <select id="depositType" name="deposit_type" required>
+                        <option value="" disabled selected>Select deposit type</option>
+                        <option value="Agent">Agent</option>
+                        <option value="Merchant">Merchant</option>
+                    </select>
+                </div>
+
+                <div class="input depositor_name" id="agentNumberField" style="display: none; opacity: 0; transition: opacity 0.3s;">
+                    <label>Sent to Agent Number</label> <br />
+                    <input type="text" name="sent_to_agent_number" />
+                </div>
+
+                <div class="input depositor_name" id="merchantCodeField"
+                    style="display: none; opacity: 0; transition: opacity 0.3s;">
+                    <label>Merchant Code</label> <br />
+                    <input type="text" name="merchant_code" />
+                </div>
+
+                <div class="input depositor_name" id="merchantNumberField"
+                    style="display: none; opacity: 0; transition: opacity 0.3s;">
+                    <label>Merchant Number</label> <br />
+                    <input type="tel" name="merchant_number" />
+                </div>
+
+                <div class="input">
+                    <label>Amount</label> <br />
+
+                    <input type="number" id="amountSent" name="amount" step="0.01" required
+                         />
+                </div>
+                <div class="input">
+                    <label>Reference</label> <br />
+
+                    <input type="text" id="reference" name="reference" required
+                         />
+                </div>
+
+
+            </div>
+            <div class="result" id="resultMessage"></div>
+            <button type="submit" id="">Submit</button>
+        </form>
+    </div>
+
+</div>
+<script>
+    const networkPrefixes = {
+        MTN: ["024", "025", "053", "054", "055", "059"],
+        AirtelTigo: ["027", "057", "026", "056"],
+        Expresso: ["028"],
+        Vodafone: ["020", "050"],
+    };
+
+    const numberInput = document.getElementById("customerNumber");
+    const networkSelect = document.getElementById("network");
+    const message = document.getElementById("message");
+    const submitBtn = document.getElementById("submitBtn");
+
+    numberInput.addEventListener("input", (e) => {
+        let value = e.target.value;
+
+        // Remove non-numeric characters
+        if (/\D/.test(value)) {
+            message.innerText = "Only numbers are allowed!";
+            message.className = "message invalid";
+            message.style.display = "block";
+            numberInput.value = value.replace(/\D/g, ""); // Remove letters
+            return;
+        }
+
+        // Limit to 10 digits
+        if (value.length > 10) {
+            message.innerText = "Number cannot exceed 10 digits!";
+            message.className = "message invalid";
+            message.style.display = "block";
+            numberInput.value = value.slice(0, 10);
+            return;
+        }
+
+        message.style.display = "none"; // Hide message if valid
+    });
+
+    function validateNumber() {
+        let number = numberInput.value.trim();
+        let selectedNetwork = networkSelect.value;
+
+        if (!number || !selectedNetwork) {
+            message.innerText = "Enter a number and select a network!";
+            message.className = "message invalid";
+            message.style.display = "block";
+            submitBtn.disabled = true;
+            return;
+        }
+
+        if (number.length < 10) {
+            message.innerText = "Number must be exactly 10 digits!";
+            message.className = "message invalid";
+            message.style.display = "block";
+            submitBtn.disabled = true;
+            return;
+        }
+
+        let prefix = number.substring(0, 3); // Extract first 3 digits
+
+        if (networkPrefixes[selectedNetwork].includes(prefix)) {
+            message.innerText = "Number matches the selected network!";
+            message.className = "message valid";
+            message.style.display = "block";
+            submitBtn.disabled = false;
+        } else {
+            message.innerText = "Invalid number for selected network!";
+            message.className = "message invalid";
+            message.style.display = "block";
+            submitBtn.disabled = true;
+        }
+    }
+
+    numberInput.addEventListener("input", validateNumber);
+    networkSelect.addEventListener("change", validateNumber);
+
+    submitBtn.addEventListener("click", (e) => {
+        if (numberInput.value.length < 10) {
+            message.innerText = "Number must be exactly 10 digits before submitting!";
+            message.className = "message invalid";
+            message.style.display = "block";
+            e.preventDefault(); // Prevent form submission
+        }
+    });
+
+
+</script>
+<script>
+    document.getElementById("depositType").addEventListener("change", function () {
+        const merchantCodeField = document.getElementById("merchantCodeField");
+        const merchantNumberField = document.getElementById("merchantNumberField");
+        const agentNumberField = document.getElementById("agentNumberField");
+
+        if (this.value === "Merchant") {
+            merchantCodeField.style.display = "block";
+            merchantNumberField.style.display = "block";
+            setTimeout(() => {
+                merchantCodeField.style.opacity = "1";
+                merchantNumberField.style.opacity = "1";
+            }, 10); // Allows transition to work
+        } 
+        else {
+            merchantCodeField.style.opacity = "0";
+            merchantNumberField.style.opacity = "0";
+            setTimeout(() => {
+                merchantCodeField.style.display = "none";
+                merchantNumberField.style.display = "none";
+            }, 300); // Matches transition duration
+        }
+        if (this.value === "Agent") {
+            agentNumberField.style.display = "block";
+            setTimeout(() => {
+                agentNumberField.style.opacity = "1";
+            }, 10); // Allows transition to work
+        } else {
+            agentNumberField.style.opacity = "0";
+            setTimeout(() => {
+                agentNumberField.style.display = "none";
+            }, 300); // Matches transition duration
+        }
+    });
+</script>
+<script>
+    function calculateCommission() {
+        const amountSent = parseFloat(document.getElementById('amountSent').value);
+        const cashReceived = parseFloat(document.getElementById('cashReceived').value);
+
+        if (!isNaN(amountSent) && !isNaN(cashReceived)) {
+            const commission = amountSent - cashReceived;
+            document.getElementById('resultMessage').innerText = `Commission: GH¢${commission.toFixed(2)}`;
+        } else {
+            document.getElementById('resultMessage').innerText = "";
+        }
+    }
+</script>
+{% endblock %}

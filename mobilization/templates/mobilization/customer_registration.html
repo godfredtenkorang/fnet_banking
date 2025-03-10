@@ -1,0 +1,282 @@
+{% extends 'mobilization/base.html' %}
+{% load static %}
+{% block content %}
+
+
+<div class="main">
+    <div style="background-color:#000; width:100%;">
+        {% if messages %}
+        {% for message in messages %}
+        <p style="color: #97c8b3; font-size:30px; text-align:center;">{{ message }}</p>
+        {% endfor %}
+        {% endif %}
+    </div>
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Customer Registration</h1>
+        </div>
+    </div>
+    <div class="customer">
+        <div class="forms">
+            <form id="networkForm" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-grid">
+                    <div class="input">
+                        <label for="username">Username</label> <br />
+                        <input type="text" name="username" id="username" required placeholder="Fnetbank" />
+                    </div>
+                    <div class="input">
+                        <label for="branch">Branch</label> <br />
+                        <select id="branch" name="branch" required>
+                            <option value="" disabled selected>Select Branch</option>
+                            {% for branch in branches %}
+                            <option value="{{branch.id}}">{{branch.name}}</option>
+                            {% endfor %}
+
+                        </select>
+                    </div>
+                    <div class="input">
+                        <label for="customerPhone">Customer Phone Number</label> <br />
+                        <input type="text" name="phone_number" id="customerPhone" required placeholder="Phone Number" />
+                    </div>
+
+                    <div class="input">
+                        <label for="customerName">Full Name</label> <br />
+                        <input type="text" name="full_name" id="customerName" required placeholder="Full Name" />
+                    </div>
+
+                    <div class="input">
+                        <label for="customerLocation">Customer Location</label> <br />
+                        <input type="text" name="customer_location" id="customerLocation" required
+                            placeholder="Location" />
+                    </div>
+
+                    <div class="input">
+                        <label for="digitalAddress">Digital Address</label> <br />
+                        <input type="text" name="digital_address" id="digitalAddress" required
+                            placeholder="Digital Address" />
+                    </div>
+
+                    <div class="input">
+                        <label for="idType">ID Type</label> <br />
+                        <select id="idType" name="id_type" required>
+                            <option value="" disabled selected>Select ID Type</option>
+                            <option value="GhanaCard">Ghana Card</option>
+                            <option value="Passport">Passport</option>
+                            <option value="DriverLicense">Driver's License</option>
+                            <option value="VoterID">Voter ID</option>
+                        </select>
+                    </div>
+
+                    <div class="input">
+                        <label for="idNumber">ID Number</label> <br />
+                        <input type="text" name="id_number" id="idNumber" required placeholder="ID Number" />
+                    </div>
+
+                    <div class="input">
+                        <label for="dob">Date of Birth</label> <br />
+                        <input type="date" name="date_of_birth" id="dob" required />
+                    </div>
+
+                    <div class="input">
+                        <label for="customerPhoto">Upload Customer Picture</label> <br />
+                        <input type="file" name="customer_picture" id="customerPhoto" accept="image/*" required />
+                    </div>
+                    <div class="input">
+                        <label for="password">Password</label> <br />
+                        <input type="text" name="password" id="password" required placeholder="Default: 12345678" />
+                    </div>
+                </div>
+                <p class="confirmInfoMessage" style="color: red; font-weight: bold;"></p>
+
+                <button type="submit" id="submitBtn">Submit</button>
+            </form>
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <div class="customer-info">
+
+            <div class="cust-flex">
+                <div class="customer-img">
+                    <img id="previewImg" src="" alt="Customer Image">
+                </div>
+                <div class="customer-detail">
+                    <p><strong>Name:</strong> <span id="displayName"></span></p>
+                    <p><strong>Phone:</strong> <span id="displayPhone"></span></p>
+                    <p><strong>Location:</strong> <span id="displayLocation"></span></p>
+                    <p><strong>Digital Address:</strong> <span id="displayDigitalAddress"></span></p>
+                    <p><strong>ID Type:</strong> <span id="displayIdType"></span></p>
+                    <p><strong>ID Number:</strong> <span id="displayIdNumber"></span></p>
+                    <p><strong>Date of Birth:</strong> <span id="displayDob"></span></p>
+                </div>
+            </div>
+            <p class="okay" style="display: none; padding: 20px 0; color: green; font-weight: bold;">Above are the
+                information of the customer you are registering. Click on the checkbox to confirm.</p>
+
+            <div class="confirm-info">
+                <input type="checkbox" id="confirmCheck"> <label for="confirmCheck">I confirm that the details are
+                    correct</label>
+            </div>
+        </div>
+
+
+
+
+    </div>
+
+</div>
+
+
+
+</div>
+
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Get form fields
+        const form = document.getElementById("networkForm");
+        const nameInput = document.getElementById("customerName");
+        const phoneInput = document.getElementById("customerPhone");
+        const locationInput = document.getElementById("customerLocation");
+        const digitalAddressInput = document.getElementById("digitalAddress");
+        const idTypeInput = document.getElementById("idType");
+        const idNumberInput = document.getElementById("idNumber");
+        const dobInput = document.getElementById("dob");
+        const photoInput = document.getElementById("customerPhoto");
+        const confirmCheck = document.getElementById("confirmCheck");
+        const submitBtn = document.getElementById("submitBtn");
+        const messageBox = document.querySelector(".confirmInfoMessage");
+        const okayMessage = document.querySelector(".okay");
+
+        // Customer Info Display
+        const displayName = document.getElementById("displayName");
+        const displayPhone = document.getElementById("displayPhone");
+        const displayLocation = document.getElementById("displayLocation");
+        const displayDigitalAddress = document.getElementById("displayDigitalAddress");
+        const displayIdType = document.getElementById("displayIdType");
+        const displayIdNumber = document.getElementById("displayIdNumber");
+        const displayDob = document.getElementById("displayDob");
+        const previewImg = document.getElementById("previewImg");
+
+        // Function to check if all fields are filled
+        function checkAllFieldsFilled() {
+            const requiredFields = [nameInput, phoneInput, locationInput, digitalAddressInput, idTypeInput, idNumberInput, dobInput, photoInput];
+            return requiredFields.every(field => {
+                if (field.type === "file") {
+                    return field.files.length > 0;
+                }
+                return field.value.trim() !== "";
+            });
+        }
+
+        // Function to update customer details dynamically
+        function updateCustomerDetails() {
+            displayName.textContent = nameInput.value.trim();
+            displayPhone.textContent = phoneInput.value.trim();
+            displayLocation.textContent = locationInput.value.trim();
+            displayDigitalAddress.textContent = digitalAddressInput.value.trim();
+            displayIdType.textContent = idTypeInput.value.trim();
+            displayIdNumber.textContent = idNumberInput.value.trim();
+            displayDob.textContent = dobInput.value;
+
+            // Display uploaded image
+            if (photoInput.files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    previewImg.src = e.target.result;
+                };
+                reader.readAsDataURL(photoInput.files[0]);
+            }
+        }
+
+        // Listen for input changes and update the customer details
+        document.querySelectorAll("input, select").forEach(field => {
+            field.addEventListener("input", function () {
+                updateCustomerDetails();
+                if (checkAllFieldsFilled()) {
+                    okayMessage.style.display = "block";
+                } else {
+                    okayMessage.style.display = "none";
+                }
+            });
+        });
+
+        // Scroll to submit button when checkbox is clicked & update message
+        confirmCheck.addEventListener("change", function () {
+            if (confirmCheck.checked) {
+                messageBox.textContent = "✅ You have confirmed your details. You can now submit the form.";
+                messageBox.style.color = "green";
+                submitBtn.scrollIntoView({ behavior: "smooth", block: "center" });
+            } else {
+                messageBox.textContent = "⚠ Please confirm that the details are correct before submitting.";
+                messageBox.style.color = "red";
+            }
+        });
+
+        // Handle form submission
+        form.addEventListener("submit", function (event) {
+            messageBox.textContent = ""; // Clear previous messages
+
+            // Validate date of birth (DOB should not be in the future)
+            const today = new Date();
+            const selectedDate = new Date(dobInput.value);
+            if (selectedDate > today) {
+                messageBox.textContent = "⚠ Date of birth not accepted. Please select a valid date.";
+                messageBox.style.color = "red";
+                dobInput.scrollIntoView({ behavior: "smooth", block: "center" });
+                event.preventDefault();
+                return;
+            }
+
+            // If checkbox is not checked, scroll to it and show a message
+            if (!confirmCheck.checked) {
+                messageBox.textContent = "⚠ Please confirm that the details are correct before submitting.";
+                messageBox.style.color = "red";
+                confirmCheck.scrollIntoView({ behavior: "smooth", block: "center" });
+                event.preventDefault();
+                return;
+            }
+
+            // Validate required fields
+            if (!checkAllFieldsFilled()) {
+                messageBox.textContent = "⚠ Please fill all required fields before submitting.";
+                messageBox.style.color = "red";
+                event.preventDefault();
+                return;
+            }
+
+            // Scroll to the submit button
+            submitBtn.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+    });
+
+
+</script>
+
+{% endblock %}

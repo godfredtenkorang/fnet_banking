@@ -53,10 +53,15 @@ urlpatterns = [
     path('cash_out_detail/', views.cash_out_detail, name='cash_out_detail'),
     path('pay_to/', views.pay_to, name='pay_to'),
     path('all_transaction/', views.all_transaction, name='all_transaction'),
+    path('commission/', views.commission, name='commission'),
     
     path('customer_care_view/', views.customer_care, name='my_customer_care'),
     path('complains/', views.complains, name='all_complains'),
     path('fraud/', views.fraud, name='all_fraud'),
     path('hold-account/', views.hold_account, name='all_hold_account'),
+    
+    
+    
+    path('register_mobilization/', views.register_mobilization, name='register_mobilization'),
 
 ]

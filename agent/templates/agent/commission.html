@@ -1,0 +1,309 @@
+{% extends 'agent/base.html' %} {% load static %} {% block content %}
+
+
+
+
+
+<style>
+    /* Default table styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+
+    th {
+        background: #007bff;
+        color: white;
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+    td {
+        font-size: 12px;
+    }
+
+    /* Button Styling */
+    .approve-btn {
+        background: #28a745;
+        color: white;
+
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+
+        height: 6vh !important;
+    }
+
+    .decline-btn {
+        background: #dc3545;
+        color: white;
+
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+
+        height: 6vh !important;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+    }
+
+    /* Table row background color using child selectors */
+    tbody tr:nth-child(odd) {
+        background-color: #f9f9f9;
+        /* Light gray for odd rows */
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #e9ecef;
+        /* Slightly darker gray for even rows */
+    }
+
+    /* Mobile Responsive Table */
+    @media screen and (max-width: 968px) {
+
+        table,
+        thead,
+        tbody,
+        th,
+        td,
+        tr {
+            display: block;
+            width: 100%;
+        }
+
+        thead {
+            display: none;
+        }
+
+        tr {
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            padding: 8px;
+            background: #f9f9f9;
+        }
+
+        td {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border: none;
+            text-align: left;
+        }
+
+        td::before {
+            content: attr(data-label);
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        /* Stack buttons at the bottom */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .action-buttons button {
+            width: 100% !important;
+        }
+    }
+
+    .total-info {
+        font-weight: bold;
+        margin-top: 20px;
+    }
+
+    .summary {
+        margin-top: 30px;
+        padding: 15px;
+        border: 1px solid #ccc;
+        background-color: #f9f9f9;
+    }
+</style>
+
+
+<div class="main">
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Commission </h1>
+        </div>
+    </div>
+    <div class="total-info">
+        <p>Total Commission : GH¢{{ all_total_commission }}</p>
+    </div>
+
+    <div class="summary">
+        <h2>Cash In</h2>
+        <p>Total Amount: GH¢{{ cashin_total_amount }}</p>
+        <p>Total Cash Received: GH¢{{ total_cash_received }}</p>
+        <p>Total Commission: GH¢{{ cash_in_total_commission }}</p>
+    </div>
+    <div class="summary">
+        <h2>Cash Out</h2>
+        <p>Total Amount: GH¢{{ cashout_total_amount }}</p>
+        <p>Total Cash Paid: GH¢{{ total_cash_paid }}</p>
+        <p>Total Commission: GH¢{{ cash_out_total_commission }}</p>
+    </div>
+    <div class="customer-form">
+        <div>
+            <a href="?filter=daily">Daily</a> |
+            <a href="?filter=monthly">Monthly</a>
+        </div>
+
+        <br><br>
+        <div class="customerlogin">
+            <form id="myForm" action="{% url 'agent-commission' %}" method="get">
+                {% csrf_token %}
+                <label for="start_date">Start Date:</label>
+                <input type="date" id="start_date" name="start_date">
+
+                <label for="end_date">End Date:</label>
+                <input type="date" id="end_date" name="end_date">
+
+                <button type="submit">Filter</button>
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-container">
+        <table>
+            <h1>Cash in Summary</h1>
+            <br>
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Amount Sent</th>
+                    <th>Cash Received</th>
+                    <th>Commission</th>
+                    <th>Date</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                {% for commission in cashincommissions %}
+                <tr>
+                    <td data-label="Customer">{{ commission.customer_cash_in.customer_phone }}</td>
+                    <td data-label="Amount Sent">{{ commission.customer_cash_in.amount }}</td>
+                    <td data-label="Cash Received">{{ commission.customer_cash_in.cash_received }}</td>
+                    <td data-label="Commission">{{ commission.amount }}</td>
+                    <td data-label="Date">{{ commission.date }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <br><br>
+        <table>
+            <h1>Cash Out Summary</h1>
+            <br>
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Amount Withdrawal</th>
+                    <th>Cash Paid</th>
+                    <th>Commission</th>
+                    <th>Date</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                {% for commission in cashoutcommissions %}
+                <tr>
+                    <td data-label="Customer">{{ commission.customer_cash_out.customer_phone }}</td>
+                    <td data-label="Amount Withdrawal">{{ commission.customer_cash_out.amount }}</td>
+                    <td data-label="Cash Paid">{{ commission.customer_cash_out.cash_paid }}</td>
+                    <td data-label="Commission">{{ commission.amount }}</td>
+                    <td data-label="Date">{{ commission.date }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <br><br><br><br>
+
+        <!-- Pop-up to show total -->
+        <div class="total-pop">
+            <div class="total-background">
+                <p>Total</p>
+                <p class="cashrecieved">$0</p>
+                <p class="cashsent"></p>
+                <button class="closeTotal">Close</button>
+            </div>
+        </div>
+
+        <!-- Button to Calculate Total -->
+        <div class="total-btn">
+            <button class="calculate-total"><i class="fas fa-coins"></i> Total</button>
+        </div>
+
+    </div>
+
+
+
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const totalBtn = document.querySelector(".calculate-total");
+            const totalPop = document.querySelector(".total-pop");
+            const cashSentEl = document.querySelector(".cashsent");
+            const cashReceivedEl = document.querySelector(".cashrecieved");
+            const closeTotalBtn = document.querySelector(".closeTotal");
+
+            // Function to Calculate Totals
+            function calculateTotal() {
+                let totalSent = 0;
+                let totalReceived = 0;
+
+                document.querySelectorAll("td[data-label='Amount Sent']").forEach(td => {
+                    let amount = parseFloat(td.textContent.replace("$", "")) || 0;
+                    totalSent += amount;
+                });
+
+                document.querySelectorAll("td[data-label='Cash Received']").forEach(td => {
+                    let amount = parseFloat(td.textContent.replace("$", "")) || 0;
+                    totalReceived += amount;
+                });
+
+                // Update Popup
+                cashSentEl.textContent = `Total Sent: $${totalSent}`;
+                cashReceivedEl.textContent = `Total Received: $${totalReceived}`;
+
+                // Show Popup
+                totalPop.style.display = "flex";
+                setTimeout(() => {
+                    totalPop.classList.add("active");
+                }, 50);
+            }
+
+            // Function to Close Popup
+            function closePopup() {
+                totalPop.classList.remove("active");
+                setTimeout(() => {
+                    totalPop.style.display = "none";
+                }, 300);
+            }
+
+            // Event Listeners
+            totalBtn.addEventListener("click", calculateTotal);
+            closeTotalBtn.addEventListener("click", closePopup);
+        });
+    </script>
+
+
+
+    {% endblock %}

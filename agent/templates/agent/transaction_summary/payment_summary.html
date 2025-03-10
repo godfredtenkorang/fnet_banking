@@ -138,7 +138,7 @@
                 <tr>
                     <th>Mode of Payment</th>
                     <th>Bank/Network/Branch</th>
-                    <th>Amount</th>
+                    <th>Amount(GH¢)</th>
                     <th>Date/Time</th>
                     <th>Status</th>
                 </tr>
@@ -157,7 +157,7 @@
                         {{ payment.branch }}
                         {% endif %}
                     </td>
-                    <td data-label="Amount">${{ payment.amount }}</td>
+                    <td data-label="Amount">{{ payment.amount }}</td>
                     <td>{{ payment.created_at }}</td>
                     <td>{{ payment.status }}</td>
                 </tr>

@@ -15,7 +15,7 @@
     <div class="stat-container">
 
 
-        <a href="{% url 'cashin_summary' %}" class="stat">
+        <a href="{% url 'cashin_summary_date' %}" class="stat">
             <h2>Total Cash In</h2>
             <h3>GH¢ {{total_cashins|floatformat:2|intcomma}}</h3>
       
@@ -23,21 +23,21 @@
             <!-- <p>Click to view total</p> -->
         </a>
         
-        <a href="{% url 'cashout_summary' %}" class="stat">
+        <a href="{% url 'cashout_summary_date' %}" class="stat">
             <h2>Total Cash Out</h2>
          <h3>GH¢ {{total_cashouts|floatformat:2|intcomma}}</h3>
       
             <!-- <p>Click to view total</p> -->
         </a>
         
-        <a href="{% url 'bank_deposit_summary' %}" class="stat">
+        <a href="{% url 'bank_deposit_summary_date' %}" class="stat">
             <h2>Total Bank Deposit</h2>
          <h3>GH¢ {{total_deposits|floatformat:2|intcomma}}</h3>
       
             <!-- <p>Click to view total</p> -->
         </a>
         
-        <a href="{% url 'bank_withdrawal_summary' %}" class="stat">
+        <a href="{% url 'bank_withdrawal_summary_date' %}" class="stat">
             <h2>Total Bank Withdrawal</h2>
          <h3>GH¢ {{total_withdrawals|floatformat:2|intcomma}}</h3>
       
@@ -45,13 +45,13 @@
             
         </a>
         
-        <a href="{% url 'cash_summary' %}" class="stat">
+        <a href="{% url 'cash_summary_date' %}" class="stat">
             <h2>Total Cash / E-Cash</h2>
          <h3>GH¢ {{total_ecash|floatformat:2|intcomma}}</h3>
       
             <!-- <p>Click to view total</p> -->
         </a>
-        <a href="{% url 'payment_summary' %}" class="stat">
+        <a href="{% url 'payment_summary_date' %}" class="stat">
             <h2>Total Payments</h2>
          <h3>GH¢ {{total_payments|floatformat:2|intcomma}}</h3>
       

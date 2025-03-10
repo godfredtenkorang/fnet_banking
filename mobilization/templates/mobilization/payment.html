@@ -1,0 +1,179 @@
+{% extends 'mobilization/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="main">
+    <div style="background-color:#000; width:100%;">
+        {% if messages %}
+        {% for message in messages %}
+        <p style="color: #97c8b3; font-size:30px; text-align:center;">{{ message }}</p>
+        {% endfor %}
+        {% endif %}
+    </div>
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Make Payment</h1>
+        </div>
+    </div>
+
+    <div class="form">
+        <form id="networkForm" method="post">
+            {% csrf_token %}
+            <div class="form-grid">
+                <div class="input">
+                    <label for="cashFloatType">Select Mode of Payment</label> <br />
+                    <select id="cashFloatType" name="mode_of_payment" required>
+                        <option value="" disabled selected>Request</option>
+                        <option value="Telco">Telco</option>
+                        <option value="Bank">Bank</option>
+                        <option value="Branch">Branch</option>
+
+                    </select>
+                </div>
+
+                <div class="input" id="bank" style="display: none;">
+                    <label for="BankNames">Select Bank</label> <br />
+                    <select id="BankNames" name="bank">
+                        <option value="" disabled selected>Select Bank</option>
+                        <option value="Ecobank">Ecobank</option>
+                        <option value="Access_Bank">Access Bank</option>
+                        <option value="Calbank">Cal Bank</option>
+                        <option value="Fidelity">Fidelity Bank</option>
+                        <option value="GTBank">GT Bank</option>
+                        <option value="Adansi rural bank">Adansi rural bank</option>
+                        <option value="Kwumawuman Bank">Kwumawuman Bank</option>
+                        <option value="Pan Africa">Pan Africa</option>
+                        <option value="SGSSB">SGSSB</option>
+                        <option value="Atwima Rural Bank">Atwima Rural Bank</option>
+                        <option value="Omnibsic Bank">Omnibsic Bank</option>
+                        <option value="Omini bank">Omini bank</option>
+                        <option value="Stanbic Bank">Stanbic Bank</option>
+                        <option value="First Bank of Nigeria">First Bank of Nigeria</option>
+                        <option value="Adehyeman Savings and loans">Adehyeman Savings and loans</option>
+                        <option value="ARB Apex Bank Limited">ARB Apex Bank Limited</option>
+                        <option value="Absa Bank">Absa Bank</option>
+                        <option value="Agriculture Development bank">Agriculture Development bank</option>
+                        <option value="Bank of Africa">Bank of Africa</option>
+                        <option value="Bank of Ghana">Bank of Ghana</option>
+                        <option value="Consolidated Bank Ghana">Consolidated Bank Ghana</option>
+                        <option value="First Atlantic Bank">First Atlantic Bank</option>
+                        <option value="First National Bank">First National Bank</option>
+                        <option value="G-Money">G-Money</option>
+                        <option value="GCB BanK LTD">GCB BanK LTD</option>
+                        <option value="Ghana Pay">Ghana Pay</option>
+                        <option value="GHL Bank Ltd">GHL Bank Ltd</option>
+                        <option value="National Investment Bank">National Investment Bank</option>
+                        <option value="Opportunity International Savings And Loans">Opportunity International Savings
+                            And Loans</option>
+                        <option value="Republic Bank Ltd">Republic Bank Ltd</option>
+                        <option value="Sahel Sahara Bank">Sahel Sahara Bank</option>
+                        <option value="Sinapi Aba Savings and Loans">Sinapi Aba Savings and Loans</option>
+                        <option value="Societe Generale Ghana Ltd">Societe Generale Ghana Ltd</option>
+                        <option value="Standard Chartered">Standard Chartered</option>
+                        <option value="Universal Merchant Bank">Universal Merchant Bank</option>
+                        <option value="Zenith Bank">Zenith Bank</option>
+
+                    </select>
+                </div>
+
+                <div class="input" id="telco" style="display: none;">
+                    <label for="network">Select Network</label> <br />
+                    <select id="network" name="network">
+                        <option value="" disabled selected>Select network</option>
+                        <option value="Mtn">MTN</option>
+                        <option value="Airtel_Tigo">AirtelTigo</option>
+                        <option value="Telecel">Telecel</option>
+                    </select>
+                </div>
+
+                <div class="input" id="branch" style="display: none;">
+                    <label for="branchNames">Select Branch</label> <br />
+                    <select id="branchNames" name="branch">
+                        <option value="" disabled selected>Select branch</option>
+                        <option value="DVLA">DVLA</option>
+                        <option value="HEAD OFFICE">HEAD OFFICE</option>
+                        <option value="KEJETIA">KEJETIA</option>
+                        <option value="MELCOM SANTASI">MELCOM SANTASI</option>
+                        <option value="MELCOM TANOSO">MELCOM TANOSO</option>
+                        <option value="MELCOM MANHYIA">MELCOM MANHYIA</option>
+                        <option value="MELCOM TAFO">MELCOM TAFO</option>
+                        <option value="AHODWO MELCOM">AHODWO MELCOM</option>
+                        <option value="ADUM MELCOM ANNEX">ADUM MELCOM ANNEX</option>
+                        <option value="MELCOM SUAME">MELCOM SUAME</option>
+                        <option value="KUMASI MALL MELCOM">KUMASI MALL MELCOM</option>
+                        <option value="MOBILIZATION">MOBILIZATION</option>
+                    </select>
+                </div>
+                <div class="input" id="name" style="display: none;">
+                    <label for="name">Name</label> <br />
+                    <input type="text" id="name" name="name" placeholder="Enter Name" />
+                </div>
+
+                <div class="input" id="amount" style="display: none;">
+                    <label for="amountInput">Amount</label> <br />
+                    <input type="number" id="amountInput" name="amount" required placeholder="Enter Amount" min="0" />
+                </div>
+            </div>
+
+            <button id="submitBtn" style="display: none;">Send</button>
+            <br>
+            <div style="display: flex; text-align:center; justify-content:center;">
+                <a class="btn41-43 btn-41" href="">View Payments</a>
+            </div>
+        </form>
+
+
+    </div>
+
+
+
+</div>
+
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const cashFloatType = document.getElementById("cashFloatType");
+        const bankSection = document.getElementById("bank");
+        const telcoSection = document.getElementById("telco");
+        const branchSection = document.getElementById("branch");
+        const nameSection = document.getElementById('name');
+        const amountField = document.getElementById("amount");
+        const submitButton = document.getElementById("submitBtn");
+
+        // Function to show the correct fields
+        cashFloatType.addEventListener("change", function () {
+            const selectedValue = cashFloatType.value;
+
+            // Reset all fields to hidden
+            bankSection.style.display = "none";
+            telcoSection.style.display = "none";
+            branchSection.style.display = "none";
+            amountField.style.display = "none";
+            nameSection.style.display = "none"
+            submitButton.style.display = "none";
+
+            // Show the appropriate fields based on selection
+            if (selectedValue === "Bank") {
+                bankSection.style.display = "block";
+                amountField.style.display = "block";
+                submitButton.style.display = "block";
+            } else if (selectedValue === "Telco") {
+                telcoSection.style.display = "block";
+                amountField.style.display = "block";
+                submitButton.style.display = "block";
+            } else if (selectedValue === "Branch") {
+                branchSection.style.display = "block"
+                nameSection.style.display = "block"
+                amountField.style.display = "block";
+                submitButton.style.display = "block";
+            }
+        });
+    });
+
+
+
+</script>
+
+{% endblock %}

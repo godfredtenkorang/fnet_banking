@@ -126,7 +126,7 @@
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
-            <h1>Cash-In Summary</h1>
+            <h1>Cash-In Summary for {{date}}</h1>
         </div>
     </div>
 
@@ -141,7 +141,7 @@
                     <th>Deposit Type</th>
                     <th>Depositor Name</th>
                     <th>Depositor Number</th>
-                    <th>Amount</th>
+                    <th>Amount(GH¢)</th>
                     <th>Date/Time</th>
                     
                 </tr>
@@ -155,7 +155,7 @@
                     <td>{{ cashin.deposit_type }}</td>
                     <td>{{ cashin.depositor_name }}</td>
                     <td>{{ cashin.depositor_number }}</td>
-                    <td data-label="Amount">GH¢{{ cashin.amount }}</td>
+                    <td data-label="Amount">{{ cashin.amount }}</td>
                     <td>{{ cashin.date_deposited }} {{ cashin.time_deposited }}</td>
                     
                 </tr>

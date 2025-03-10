@@ -126,7 +126,7 @@
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
-            <h1>Cash-Out Summary</h1>
+            <h1>Cash-Out Summary for {{date}}</h1>
         </div>
     </div>
 
@@ -141,7 +141,7 @@
                     <th>Deposit Type</th>
                     <th>Depositor Name</th>
                     <th>Depositor Number</th>
-                    <th>Amount</th>
+                    <th>Amount(GH¢)</th>
                     <th>Date/Time</th>
             
                 </tr>
@@ -155,7 +155,7 @@
                     <td>{{ cashout.deposit_type }}</td>
                     <td>{{ cashout.depositor_name }}</td>
                     <td>{{ cashout.depositor_number }}</td>
-                    <td data-label="Amount">GH¢{{ cashout.amount }}</td>
+                    <td data-label="Amount">{{ cashout.amount }}</td>
                     <td>{{ cashout.date_withdrawn }} {{ cashout.time_withdrawn }}</td>
             
                 </tr>
@@ -192,7 +192,7 @@
             function calculateTotal() {
                 let total = 0;
                 document.querySelectorAll("td[data-label='Amount']").forEach(td => {
-                    let amount = parseFloat(td.textContent.replace("$", "")) || 0;
+                    let amount = parseFloat(td.textContent.replace("GH¢", "")) || 0;
                     total += amount;
                 });
 

@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path('dashboard/', views.agent_dashboard, name='agent-dashboard'),
+    path('agent-payto/', views.payto, name='agent_payto'),
     path('cashIn/', views.cashIn, name='cashIn'),
     path('cashOut/', views.cashOut, name='cashOut'),
     
@@ -17,12 +18,19 @@ urlpatterns = [
     
     # Transaction summaries
     path('TotalTransactionSum/', views.TotalTransactionSum, name='TotalTransactionSum'),
-    path('cashin_summary/', views.cashin_summary, name='cashin_summary'),
-    path('cashout_summary/', views.cashout_summary, name='cashout_summary'),
-    path('bank_deposit_summary/', views.bank_deposit_summary, name='bank_deposit_summary'),
-    path('bank_withdrawal_summary/', views.bank_withdrawal_summary, name='bank_withdrawal_summary'),
-    path('cash_summary/', views.cash_summary, name='cash_summary'),
-    path('payment_summary/', views.payment_summary, name='payment_summary'),
+    path('cashin_summary_date/', views.cashin_summary_date, name='cashin_summary_date'),
+    path('cashin_summary/<str:date>/', views.cashin_summary, name='cashin_summary'),
+    path('cashout_summary_date/', views.cashout_summary_date, name='cashout_summary_date'),
+    path('cashout_summary/<str:date>/', views.cashout_summary, name='cashout_summary'),
+    path('bank_deposit_summary_date/', views.bank_deposit_summary_date, name='bank_deposit_summary_date'),
+    path('bank_deposit_summary/<str:date>/', views.bank_deposit_summary, name='bank_deposit_summary'),
+    path('bank_withdrawal_summary_date/', views.bank_withdrawal_summary_date, name='bank_withdrawal_summary_date'),
+    path('bank_withdrawal_summary/<str:date>/', views.bank_withdrawal_summary, name='bank_withdrawal_summary'),
+    path('cash_summary_date/', views.cash_summary_date, name='cash_summary_date'),
+    path('cash_summary/<str:date>/', views.cash_summary, name='cash_summary'),
+    path('payment_summary_date/', views.payment_summary_date, name='payment_summary_date'),
+    path('payment_summary/<str:date>/', views.payment_summary, name='payment_summary'),
+    path('agent-commission/', views.commission, name='agent-commission'),
     
     
     
@@ -31,6 +39,7 @@ urlpatterns = [
     path('customerReg/', views.customerReg, name='customerReg'),
     path('accountReg/', views.accountReg, name='accountReg'),
     path('my-customers/', views.my_customers, name='my_customers'),
+    path('my-customer-detail/<int:customer_id>/accounts/', views.my_customer_detail, name='my_customer_detail'),
     
     
     path('payment/', views.payment, name='payment'),
@@ -58,5 +67,6 @@ urlpatterns = [
     path('bank_withdrawal_notifications/', views.bank_withdrawal_notifications, name='bank_withdrawal_notifications'),
     path('cash_notifications/', views.cash_notifications, name='cash_notifications'),
     path('payment_notifications/', views.payment_notifications, name='payment_notifications'),
+    path('payto_notifications/', views.payto_notifications, name='payto_notifications'),
     path('errorPage/', views.errorPage, name='errorPage'),
 ]

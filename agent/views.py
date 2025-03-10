@@ -5,11 +5,13 @@ from banking.forms import DrawerDepositForm, EFloatAccountForm
 from banking.models import Bank, CustomerAccount, Drawer, EFloatAccount, CustomerPaymentAtBank
 from django.utils import timezone
 from django.contrib import messages
-from .models import CustomerCashIn, CustomerCashOut, BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest, CustomerComplain, HoldCustomerAccount, CustomerFraud
+from .models import CustomerCashIn, CustomerCashOut, BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest, CustomerComplain, HoldCustomerAccount, CustomerFraud, CustomerPayTo, CashInCommission, CashOutCommission
+from datetime import datetime
 from decimal import Decimal
 from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password
 from django.core.files.storage import default_storage
+from django.db.models import Sum
 
 def is_agent(user):
     return user.role == 'AGENT'
@@ -139,6 +141,31 @@ def agent_dashboard(request):
     return render(request, 'agent/dashboard.html', context)
 
 
+def payto(request):
+    agent = request.user
+    if request.method == 'POST':
+        agent_number = request.POST.get('agent_number')
+        network = request.POST.get('network')
+        deposit_type = request.POST.get('deposit_type')
+        sent_to_agent_number = request.POST.get('sent_to_agent_number')
+        merchant_code = request.POST.get('merchant_code')
+        merchant_number = request.POST.get('merchant_number')
+        amount = request.POST.get('amount')
+        reference = request.POST.get('reference')
+        
+        paytos = CustomerPayTo(agent_number=agent_number, network=network, deposit_type=deposit_type, sent_to_agent_number=sent_to_agent_number, merchant_code=merchant_code, merchant_number=merchant_number, amount=amount, reference=reference)
+        
+        paytos.agent = agent
+        
+        paytos.save()
+        
+        return redirect('payto_notifications')
+        
+    context = {
+        'title': 'Payto'
+    }
+    return render(request, 'agent/payto/payto.html', context)
+
 @login_required
 @user_passes_test(is_agent)
 def cashIn(request):
@@ -155,10 +182,13 @@ def cashIn(request):
         depositor_name = request.POST.get('depositor_name')
         depositor_number = request.POST.get('depositor_number')
         amount = request.POST.get('amount')
+        cash_received = request.POST.get('cash_received')
         
+        amount = Decimal(amount)
+        cash_received = Decimal(cash_received)
 
         
-        cash_in = CustomerCashIn(network=network, customer_phone=customer_phone, deposit_type=deposit_type, depositor_name=depositor_name, depositor_number=depositor_number, amount=amount)
+        cash_in = CustomerCashIn(network=network, customer_phone=customer_phone, deposit_type=deposit_type, depositor_name=depositor_name, depositor_number=depositor_number, amount=amount, cash_received=cash_received)
         
         cash_in.agent = agent.user
         
@@ -193,10 +223,12 @@ def cashOut(request):
         network = request.POST.get('network')
         customer_phone = request.POST.get('customer_phone')
         amount = request.POST.get('amount')
+        cash_paid = request.POST.get('cash_paid')
         
-
+        amount = Decimal(amount)
+        cash_paid = Decimal(cash_paid)
         
-        cash_out = CustomerCashOut(network=network, customer_phone=customer_phone, amount=amount)
+        cash_out = CustomerCashOut(network=network, customer_phone=customer_phone, amount=amount, cash_paid=cash_paid)
         
         cash_out.agent = agent.user
         
@@ -369,66 +401,132 @@ def TotalTransactionSum(request):
     return render(request, 'agent/transaction_summary/TotalTransactionSum.html', context)
 
 @login_required
-@user_passes_test(is_agent)
-def cashin_summary(request):
-    agent = request.user
-    cashins = CustomerCashIn.objects.filter(agent=agent).order_by('-date_deposited', '-time_deposited')
+def cashin_summary_date(request):
+    dates = CustomerCashIn.objects.values('date_deposited').annotate(total_amount=Sum('amount'))
     context = {
+        'dates': dates
+    }
+    return render(request, 'agent/transaction_summary/cashin_summary_date.html', context)
+
+@login_required
+@user_passes_test(is_agent)
+def cashin_summary(request, date):
+    agent = request.user
+    cashins = CustomerCashIn.objects.filter(agent=agent, date_deposited=date).order_by('-date_deposited', '-time_deposited')
+    context = {
+        'date': date,
         'cashins': cashins,
         'title': 'Cash In Summary'
     }
     return render(request, 'agent/transaction_summary/cashin_summary.html', context)
 
+
+@login_required
+def cashout_summary_date(request):
+    dates = CustomerCashOut.objects.values('date_withdrawn').annotate(total_amount=Sum('amount'))
+    context = {
+        'dates': dates
+    }
+    return render(request, 'agent/transaction_summary/cashout_summary_date.html', context)
+
+
 @login_required
 @user_passes_test(is_agent)
-def cashout_summary(request):
+def cashout_summary(request, date):
     agent = request.user
-    cashouts = CustomerCashOut.objects.filter(agent=agent).order_by('-date_withdrawn', '-time_withdrawn')
+    cashouts = CustomerCashOut.objects.filter(agent=agent, date_withdrawn=date).order_by('-date_withdrawn', '-time_withdrawn')
     context = {
+        'date': date,
         'cashouts': cashouts,
         'title': 'Cash Out Summary'
     }
     return render(request, 'agent/transaction_summary/cashout_summary.html', context)
 
+
+@login_required
+def bank_deposit_summary_date(request):
+    dates = BankDeposit.objects.values('date_deposited').annotate(total_amount=Sum('amount'))
+    context = {
+        'dates': dates
+    }
+    return render(request, 'agent/transaction_summary/bank_deposit_summary_date.html', context)
+
+
 @login_required
 @user_passes_test(is_agent)
-def bank_deposit_summary(request):
+def bank_deposit_summary(request, date):
     agent = request.user.agent
-    bank_deposits = BankDeposit.objects.filter(agent=agent).order_by('-date_deposited', '-time_deposited')
+    bank_deposits = BankDeposit.objects.filter(agent=agent, date_deposited=date).order_by('-date_deposited', '-time_deposited')
     context = {
+        'date': date,
         'bank_deposits': bank_deposits,
         'title': 'Bank Deposits Summary'
     }
     return render(request, 'agent/transaction_summary/bank_deposit_summary.html', context)
 
+
+@login_required
+def bank_withdrawal_summary_date(request):
+    dates = BankWithdrawal.objects.values('date_withdrawn').annotate(total_amount=Sum('amount'))
+    context = {
+        'dates': dates
+    }
+    return render(request, 'agent/transaction_summary/bank_withdrawal_summary_date.html', context)
+
+
 @login_required
 @user_passes_test(is_agent)
-def bank_withdrawal_summary(request):
+def bank_withdrawal_summary(request, date):
     agent = request.user.agent
-    bank_withdrawals = BankWithdrawal.objects.filter(agent=agent).order_by('-date_withdrawn', '-time_withdrawn')
+    bank_withdrawals = BankWithdrawal.objects.filter(agent=agent, date_withdrawn=date).order_by('-date_withdrawn', '-time_withdrawn')
     context = {
+        'date': date,
         'bank_withdrawals': bank_withdrawals,
         'title': 'Bank Withdrawals Summary'
     }
     return render(request, 'agent/transaction_summary/bank_withdrawal_summary.html', context)
 
+
+@login_required
+def cash_summary_date(request):
+    dates = CashAndECashRequest.objects.values('created_at').annotate(total_amount=Sum('amount'))
+    context = {
+        'dates': dates
+    }
+    return render(request, 'agent/transaction_summary/cash_summary_date.html', context)
+
+
+
 @login_required
 @user_passes_test(is_agent)
-def cash_summary(request):
+def cash_summary(request, date):
     agent = request.user.agent
-    cash_requests = CashAndECashRequest.objects.filter(agent=agent).order_by('-created_at')
+    cash_requests = CashAndECashRequest.objects.filter(agent=agent, created_at=date).order_by('-created_at')
     context = {
+        'date': date,
         'cash_requests': cash_requests,
         'title': 'Cash Summary'
     }
     return render(request, 'agent/transaction_summary/cash_summary.html', context)
 
+
+@login_required
+def payment_summary_date(request):
+    dates = PaymentRequest.objects.values('created_at').annotate(total_amount=Sum('amount'))
+    context = {
+        'dates': dates
+    }
+    return render(request, 'agent/transaction_summary/payment_summary_date.html', context)
+
+
+
 @login_required
 @user_passes_test(is_agent)
-def payment_summary(request):
+def payment_summary(request, date):
     agent = request.user.agent
-    payments = PaymentRequest.objects.filter(agent=agent).order_by('-created_at')
+    payments = PaymentRequest.objects.filter(agent=agent, created_at=date).order_by('-created_at')
     context = {
+        'date': date,
         'payments': payments,
         'title': 'Payments Summury'
     }
@@ -445,12 +543,23 @@ def PaymentSummary(request):
 @login_required
 @user_passes_test(is_agent)
 def my_customers(request):
-    customers = Customer.objects.all()
+    agent = request.user.agent
+    customers = Customer.objects.filter(agent=agent)
     context = {
         'customers': customers,
         'title': 'My Customers'
     }
     return render(request, 'agent/my_customers.html', context)
+
+def my_customer_detail(request, customer_id):
+    customer = get_object_or_404(Customer, id=customer_id)
+    accounts = customer.accounts.all()
+    context = {
+        'customer': customer,
+        'accounts': accounts,
+        'title': 'Customer Detail'
+    }
+    return render(request, 'agent/my_customer_detail.html', context)
 
 @login_required
 @user_passes_test(is_agent)
@@ -575,20 +684,21 @@ def payment(request):
         payments.agent = agent
         
         
-        # bank_balance = getattr(account, f"{payments.bank.lower()}_balance")
+        bank_balance = getattr(account, f"{payments.bank.lower()}_balance")
+        network_balance = getattr(account, f"{payments.network.lower()}_balance")
+       
+        get_payment = Decimal(payments.amount)
         
-        # network_balance = getattr(account, f"{payments.network.lower()}_balance")
+
+
+        if get_payment > Decimal(bank_balance):
+            messages.error(request, f'Insufficient balance in {payments.bank}.')
+            return redirect('payment')
         
-        # get_payment = Decimal(payments.amount)
+        elif get_payment > Decimal(network_balance):
+            messages.error(request, f'Insufficient balance in {payments.network}.')
+            return redirect('payment')
         
-        
-        # if get_payment > Decimal(bank_balance):
-        #     messages.error(request, f'Insufficient balance in {payments.bank}.')
-        #     return redirect('agencyBank')
-        
-        # elif get_payment > Decimal(network_balance):
-        #     messages.error(request, f'Insufficient balance in {payments.network}.')
-        #     return redirect('agencyBank')
         
         payments.save()
         account.update_balance_for_payments(payments.bank, payments.network, payments.amount, payments.status)
@@ -806,5 +916,57 @@ def cash_notifications(request):
 def payment_notifications(request):
     return render(request, 'agent/notifications/payment_notifications.html')
 
+def payto_notifications(request):
+    return render(request, 'agent/notifications/payto_notifications.html')
+
 def errorPage(request):
     return render(request, 'agent/errorPage.html')
+
+
+def commission(request):
+    filter_type = request.GET.get('filter', 'daily') # Default to daily
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    agent = Agent.objects.get(user=request.user)
+    
+    if filter_type == 'daily':
+        cashincommissions = CashInCommission.objects.filter(customer_cash_in__agent=request.user, date=datetime.today())
+        cashoutcommissions = CashOutCommission.objects.filter(customer_cash_out__agent=request.user, date=datetime.today())
+    elif filter_type == 'monthly':
+        start_of_month = datetime.today().replace(day=1)
+        cashincommissions = CashInCommission.objects.filter(customer_cash_in__agent=request.user, date__gte=start_of_month, date__lte=datetime.today())
+        cashoutcommissions = CashOutCommission.objects.filter(customer_cash_out__agent=request.user, date__gte=start_of_month, date__lte=datetime.today())
+    elif start_date and end_date:
+        cashincommissions = CashInCommission.objects.filter(customer_cash_in__agent=request.user, date__gte=start_date, date__lte=end_date)
+        cashoutcommissions = CashOutCommission.objects.filter(customer_cash_out__agent=request.user, date__gte=start_date, date__lte=end_date)
+    else:
+        cashincommissions = CashInCommission.objects.none()
+        cashoutcommissions = CashOutCommission.objects.none()
+        
+    # Calculate totals
+    cashin_total_amount = sum(cashincommission.customer_cash_in.amount for cashincommission in cashincommissions)
+    cashout_total_amount = sum(cashoutcommission.customer_cash_out.amount for cashoutcommission in cashoutcommissions)
+    
+    total_cash_received = sum(cashincommission.customer_cash_in.cash_received for cashincommission in cashincommissions)
+    total_cash_paid = sum(cashoutcommission.customer_cash_out.cash_paid for cashoutcommission in cashoutcommissions)
+    
+    cash_in_total_commission = cashincommissions.aggregate(Sum('amount'))['amount__sum'] or 0
+    cash_out_total_commission = cashoutcommissions.aggregate(Sum('amount'))['amount__sum'] or 0
+    
+    all_total_commission = cash_in_total_commission + cash_out_total_commission
+    
+    context = {
+        'all_total_commission': all_total_commission,
+        'cashin_total_amount': cashin_total_amount,
+        'cashout_total_amount': cashout_total_amount,
+        'total_cash_received': total_cash_received,
+        'total_cash_paid': total_cash_paid,
+        'cash_in_total_commission': cash_in_total_commission,
+        'cash_out_total_commission': cash_out_total_commission,
+        'cashincommissions': cashincommissions,
+        'cashoutcommissions': cashoutcommissions,
+        'filter_type': filter_type,
+        'title': 'Commission'
+    }
+    return render(request, 'agent/commission.html', context)
