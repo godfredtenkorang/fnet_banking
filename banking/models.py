@@ -314,7 +314,7 @@ class EFloatAccount(models.Model):
 class CustomerPaymentAtBank(models.Model):
     agent = models.ForeignKey(Agent, on_delete=models.CASCADE, null=True, blank=True)
     customer_name = models.CharField(max_length=100)
-    phone_number = models.CharField(max_length=12)
+    phone_number = models.CharField(max_length=13)
     amount = models.DecimalField(decimal_places=2, max_digits=19, default=0.0)
     d_200 = models.CharField(max_length=100, null=True, blank=True)
     d_100 = models.CharField(max_length=100, null=True, blank=True)
