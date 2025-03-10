@@ -425,7 +425,13 @@ padding: 20px;
 
 
 
-
+.stat-container-ten-box{
+  padding: 1% 2%;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr ;
+  gap: 1rem;
+  width: 100%;
+}
 
 .stat-container {
   padding: 1% 2%;
@@ -470,6 +476,33 @@ padding: 20px;
   position: relative; /* Needed for absolute positioning */
   overflow: hidden;
 }
+
+
+
+.stat-container-ten-box .stat {
+  width: 100%;
+  max-width: 100%;
+  height: 10vh;
+  background-color: var(--whiteColor);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.1), -4px -4px 10px rgba(0, 0, 0, 0.1);
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  text-align: center;
+  gap: 1rem;
+  position: relative; /* Needed for absolute positioning */
+  overflow: hidden;
+}
+.stat-container-ten-box h2{
+  font-size: 15px;
+}
+.stat-container-ten-box p{
+  font-size: 12px;
+  font-weight: bolder;
+}
 .stat p {
   font-size: 1rem;
   font-weight: bolder;
@@ -477,30 +510,31 @@ padding: 20px;
 .stat-chart p{
   font-size: 0.4rem;
 }
-.stat:first-child {
+.stat:nth-child(6n + 1) {
   background-color: #337ab7; /* Blue */
   color: white;
 }
-.stat:nth-child(2) {
+.stat:nth-child(6n + 2) {
   background-color: #ee335e; /* Pink */
   color: white;
 }
-.stat:nth-child(3) {
+.stat:nth-child(6n + 3) {
   background-color: #22c03c; /* Green */
   color: white;
 }
-.stat:nth-child(4) {
+.stat:nth-child(6n + 4) {
   background-color: #ee335e; /* Pink */
   color: white;
 }
-.stat:nth-child(5) {
+.stat:nth-child(6n + 5) {
   background-color: #f39c12; /* Orange */
   color: white;
 }
-.stat:nth-child(6) {
+.stat:nth-child(6n + 6) {
   background-color: #9b59b6; /* Purple */
   color: white;
 }
+
 
 /* Growth line animation */
 .stat::after {
@@ -1372,6 +1406,12 @@ color: var(--one-use-color);
    0%{
      transform: translateY(10px);
    }
+
+   
+  }
+
+  .stat-container-ten-box{
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   }
   .dashboard-header-detail.show-drop {
     animation: drops ease 0.5s;
@@ -1544,6 +1584,9 @@ header{
   padding: 10px 7px;
   
   gap: 2rem;
+}
+.stat-container-ten-box{
+  grid-template-columns: 1fr 1fr 1fr;
 }
  .dashboard-header-detail{
  display: none;
