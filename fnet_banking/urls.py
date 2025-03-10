@@ -26,4 +26,5 @@ urlpatterns = [
     path('owner/', include('owner.urls')),
     path('customer/', include('customer.urls')),
     path('agent/', include('agent.urls')),
+    path('mobilization/', include('mobilization.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

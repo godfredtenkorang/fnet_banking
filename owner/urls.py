@@ -59,5 +59,9 @@ urlpatterns = [
     path('complains/', views.complains, name='all_complains'),
     path('fraud/', views.fraud, name='all_fraud'),
     path('hold-account/', views.hold_account, name='all_hold_account'),
+    
+    
+    
+    path('register_mobilization/', views.register_mobilization, name='register_mobilization'),
 
 ]

@@ -121,16 +121,22 @@
 
 
 <div class="main">
+    <div style="background-color:#000; width:100%;">
+        {% if messages %}
+        {% for message in messages %}
+        <p style="color: #97c8b3; font-size:30px; text-align:center;">{{ message }}</p>
+        {% endfor %}
+        {% endif %}
+    </div>
 
-
-    <div class="pay-to-link">
+    <!-- <div class="pay-to-link">
         <a href="{% url 'cash_requests' %}" class="activeBtn">
             <button><i class="fas fa-user-tie"></i> Cash Requests</button>
         </a>
         <a href="{% url 'ecash_requests' %}">
             <button><i class="fas fa-store"></i> E-Cash Request</button>
         </a>
-    </div>
+    </div> -->
 
 
     <div class="form">

@@ -11,6 +11,9 @@ from decimal import Decimal
 from django.utils import timezone
 from datetime import datetime
 from django.db.models import Sum
+from users.models import User, Branch, Mobilization
+from django.contrib.auth.hashers import make_password
+from django.contrib import messages
 
 
 def unapproved_users_count(request):
@@ -99,13 +102,14 @@ def approve_cash_and_ecash_request(request, request_id):
             approved_amount = Decimal(approved_amount)
             if approved_amount < 0 or approved_amount > request_obj.amount:
                 messages.error(request, 'Invalid approved amount')
-                return redirect('cash_requests')
+                return redirect('approve_cash_and_ecash_request', request_id=request_obj.id)
             
             # Calculate the remaining amount (arrears)
             remaining_amount = request_obj.amount - approved_amount
             request_obj.arrears = remaining_amount
             
             # If there are arrears, keep the status as Pending
+            
             if remaining_amount > 0:
                 request_obj.status = 'Pending'
                 messages.success(request, f'Partial approval successful. Approved Amount: GH¢{approved_amount}, Remaining Amount: GH¢{remaining_amount}')
@@ -484,3 +488,147 @@ def hold_account(request):
         'title': 'Hold Account'
     }
     return render(request, 'owner/customerCare/holdAccount.html', context)  
+
+
+def register_mobilization(request):
+    users = User.objects.filter(role='MOBILIZATION')
+    branches = Branch.objects.all()
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        branch_id = request.POST.get('branch')
+        email = request.POST.get('email')
+        full_name = request.POST.get('full_name')
+        phone_number = request.POST.get('phone_number')
+        company_name = request.POST.get('company_name')
+        company_phone = request.POST.get('customer_phone')
+        digital_address = request.POST.get('digital_address')
+        mobilization_code = request.POST.get('mobilization_code')
+        password = request.POST.get('password')
+        
+        # Validate required fields
+        if not (username and password and phone_number and full_name and branch_id):
+            messages.error(request, 'Please fill in all required fields.')
+            return redirect('register_mobilization')
+        
+        # Check if the username already exists
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'Username already taken.')
+            return redirect('register_mobilization')
+        
+        # Check if the phone number already exists
+        if User.objects.filter(phone_number=phone_number).exists():
+            messages.error(request, 'Phone number already registered.')
+            return redirect('register_mobilization')
+        
+        # Create the user
+        user = User.objects.create(
+            username=username,
+            password=make_password(password),  # Hash the password
+            phone_number=phone_number,
+            role='MOBILIZATION',
+            is_approved=True  # Automatically approve customers
+        )
+        
+        # user = get_object_or_404(User, id=customer_id)
+        branch = get_object_or_404(Branch, id=branch_id)
+        
+        # agent = Agent.objects.get(user=request.user)
+        
+        Mobilization.objects.create(
+            user=user,
+            owner=request.user.owner,  # Assign the current owner
+            branch=branch,
+            email=email,
+            full_name=full_name,
+            phone_number=phone_number,
+            company_name=company_name,
+            company_number=company_phone,
+            digital_address=digital_address,
+            mobilization_code=mobilization_code,
+        )
+        messages.success(request, 'Mobilization registered successfully!')
+        return redirect('register_mobilization')
+        
+    context = {
+#         # 'users': users,
+        'branches': branches,
+        'title': 'Mobilization Registration'
+    }
+    return render(request, 'owner/mobilization/register_mobilization.html', context)
+
+# @login_required
+# @user_passes_test(is_owner)
+# def customerReg(request):
+#     # users = User.objects.filter(role='CUSTOMER')
+#     branches = Branch.objects.all()
+#     if request.method == 'POST':
+#         username = request.POST.get('username')
+#         branch_id = request.POST.get('branch')
+#         phone_number = request.POST.get('phone_number')
+#         full_name = request.POST.get('full_name')
+#         customer_location = request.POST.get('customer_location')
+#         digital_address = request.POST.get('digital_address')
+#         id_type = request.POST.get('id_type')
+#         id_number = request.POST.get('id_number')
+#         date_of_birth = request.POST.get('date_of_birth')
+#         customer_picture = request.FILES.get('customer_picture')
+#         password = request.POST.get('password')
+        
+#         # Validate required fields
+#         if not (username and password and phone_number and full_name and branch_id):
+#             messages.error(request, 'Please fill in all required fields.')
+#             return redirect('customerReg')
+        
+#         # Check if the username already exists
+#         if User.objects.filter(username=username).exists():
+#             messages.error(request, 'Username already taken.')
+#             return redirect('customerReg')
+        
+#         # Check if the phone number already exists
+#         if User.objects.filter(phone_number=phone_number).exists():
+#             messages.error(request, 'Phone number already registered.')
+#             return redirect('customerReg')
+        
+#         # Create the user
+#         user = User.objects.create(
+#             username=username,
+#             password=make_password(password),  # Hash the password
+#             phone_number=phone_number,
+#             role='CUSTOMER',
+#             is_approved=True  # Automatically approve customers
+#         )
+        
+#         # user = get_object_or_404(User, id=customer_id)
+#         branch = get_object_or_404(Branch, id=branch_id)
+        
+#         # Save the customer picture
+#         if customer_picture:
+#             picture_path = default_storage.save(f'customer_pic/{customer_picture.name}', customer_picture)
+#         else:
+#             picture_path = ''
+            
+#         # agent = Agent.objects.get(user=request.user)
+        
+#         # Create the customer
+#         Customer.objects.create(
+#             user=user,
+#             agent=request.user.agent,  # Assign the current agent
+#             branch=branch,
+#             phone_number=phone_number,
+#             full_name=full_name,
+#             customer_location=customer_location,
+#             digital_address=digital_address,
+#             id_type=id_type,
+#             id_number=id_number,
+#             date_of_birth=date_of_birth,
+#             customer_picture=picture_path
+#         )
+#         messages.success(request, 'Customer registered successfully!')
+#         return redirect('customerReg')
+
+#     context = {
+#         # 'users': users,
+#         'branches': branches,
+#         'title': 'Customer Registration'
+#     }
+#     return render(request, 'agent/customerReg.html', context)

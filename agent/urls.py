@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path('dashboard/', views.agent_dashboard, name='agent-dashboard'),
+    path('agent-payto/', views.payto, name='agent_payto'),
     path('cashIn/', views.cashIn, name='cashIn'),
     path('cashOut/', views.cashOut, name='cashOut'),
     
@@ -29,6 +30,7 @@ urlpatterns = [
     path('cash_summary/<str:date>/', views.cash_summary, name='cash_summary'),
     path('payment_summary_date/', views.payment_summary_date, name='payment_summary_date'),
     path('payment_summary/<str:date>/', views.payment_summary, name='payment_summary'),
+    path('agent-commission/', views.commission, name='agent-commission'),
     
     
     
@@ -37,6 +39,7 @@ urlpatterns = [
     path('customerReg/', views.customerReg, name='customerReg'),
     path('accountReg/', views.accountReg, name='accountReg'),
     path('my-customers/', views.my_customers, name='my_customers'),
+    path('my-customer-detail/<int:customer_id>/accounts/', views.my_customer_detail, name='my_customer_detail'),
     
     
     path('payment/', views.payment, name='payment'),
@@ -64,5 +67,6 @@ urlpatterns = [
     path('bank_withdrawal_notifications/', views.bank_withdrawal_notifications, name='bank_withdrawal_notifications'),
     path('cash_notifications/', views.cash_notifications, name='cash_notifications'),
     path('payment_notifications/', views.payment_notifications, name='payment_notifications'),
+    path('payto_notifications/', views.payto_notifications, name='payto_notifications'),
     path('errorPage/', views.errorPage, name='errorPage'),
 ]

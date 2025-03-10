@@ -69,6 +69,38 @@ class CashInCommission(models.Model):
     
     def __str__(self):
         return f"Commission: {self.amount} for {self.customer_cash_in.agent.username}"
+    
+
+class ArchivedCustomerCashIn(models.Model):
+    agent = models.ForeignKey(User, on_delete=models.CASCADE)
+    network = models.CharField(max_length=20, choices=NETWORKS, blank=True, default="Select Network")
+    customer_phone = models.CharField(max_length=10, blank=True)
+    # customer_name = models.CharField(max_length=30, blank=True)
+    deposit_type = models.CharField(max_length=20, blank=True, choices=MOBILE_MONEY_DEPOSIT_TYPE)
+    depositor_name = models.CharField(max_length=30, blank=True, default="")
+    depositor_number = models.CharField(max_length=30, blank=True, default="")
+    # reference = models.CharField(max_length=100, blank=True, default="")
+    amount = models.DecimalField(max_digits=19, decimal_places=2, blank=True)
+    cash_received = models.DecimalField(max_digits=19, decimal_places=2, default=0.00, blank=True)
+    # charges = models.DecimalField(max_digits=19, decimal_places=2, default=0.0)
+    # agent_commission = models.DecimalField(max_digits=19, decimal_places=2, default=0.0)
+    date_deposited = models.DateField(auto_now_add=True)
+    time_deposited = models.TimeField(auto_now_add=True)
+    
+
+    def __str__(self):
+        return f"CashIn of ${self.amount} on {self.network} by {self.agent.username}"
+    
+
+class ArchivedCashInCommission(models.Model):
+    customer_cash_in = models.OneToOneField(CustomerCashIn, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)  # Commission amount
+    date = models.DateField(auto_now_add=True)  # Date of the commission
+    
+    def __str__(self):
+        return f"Commission: {self.amount} for {self.customer_cash_in.agent.username}"
+    
+
 
 class CustomerCashOut(models.Model):
     agent = models.ForeignKey(User, on_delete=models.CASCADE, related_name="customer_cash_outs")
@@ -330,3 +362,56 @@ class CustomerFraud(models.Model):
     
     def __str__(self):
         return f"Fraud alert from {self.customer_phone} - {self.reasons}"
+    
+
+
+
+class CustomerPayTo(models.Model):
+    PAY_TO_DEPOSIT_TYPE = (
+        ("Agent", "Agent"),
+        ("Merchant", "Merchant"),
+    )
+
+    NETWORKS = (
+        ("Mtn", "Mtn"),
+        ("Telecel", "Telecel"),
+        ("AirtelTigo", "AirtelTigo"),
+    )
+
+    REQUEST_STATUS = (
+        ("Pending", "Pending"),
+        ("Approved", "Approved"),
+        ("Rejected", "Rejected")
+    )
+    agent = models.ForeignKey(User, on_delete=models.CASCADE, related_name="customer_pay_to")
+    agent_number = models.CharField(max_length=10, blank=True)
+    network = models.CharField(max_length=20, choices=NETWORKS, blank=True, default="Select Network")
+    # customer_name = models.CharField(max_length=30, blank=True)
+    deposit_type = models.CharField(max_length=20, blank=True, choices=PAY_TO_DEPOSIT_TYPE)
+    sent_to_agent_number = models.CharField(max_length=30, blank=True, default="")
+    merchant_code = models.CharField(max_length=30, blank=True, default="")
+    merchant_number = models.CharField(max_length=30, blank=True, default="")
+    amount = models.DecimalField(max_digits=19, decimal_places=2, blank=True)
+    reference = models.CharField(max_length=100, blank=True, default="")
+    # charges = models.DecimalField(max_digits=19, decimal_places=2, default=0.0)
+    # agent_commission = models.DecimalField(max_digits=19, decimal_places=2, default=0.0)
+    date_deposited = models.DateField(auto_now_add=True)
+    time_deposited = models.TimeField(auto_now_add=True)
+    
+    # @classmethod
+    # def total_cash_for_customer(cls, agent):
+    #     total = cls.objects.filter(agent=agent).aggregate(Sum('amount'))
+    #     return total['amount__sum'] or 0
+    
+    # def save(self, *args, **kwargs):
+    #     commission_amount = self.cash_received - self.amount
+        
+    #     # Save the CustomerCashIn instance
+    #     super().save(*args, **kwargs)
+        
+    #     CashInCommission.objects.update_or_create(
+    #         customer_cash_in=self, defaults={'amount': commission_amount} 
+    #     )
+
+    def __str__(self):
+        return f"Pay To of GH¢{self.amount} on {self.network} by {self.agent.username}"

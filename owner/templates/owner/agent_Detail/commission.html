@@ -164,7 +164,7 @@
     
         <br><br>
         <div class="customerlogin">
-            <form id="myForm" method="POST">
+            <form id="myForm" action="{% url 'commission' %}" method="get">
                 {% csrf_token %}
                 <label for="start_date">Start Date:</label>
                 <input type="date" id="start_date" name="start_date">
@@ -232,6 +232,7 @@
                 {% endfor %}
             </tbody>
         </table>
+        <br><br><br><br>
 
         <!-- Pop-up to show total -->
         <div class="total-pop">

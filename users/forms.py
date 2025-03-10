@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.forms.widgets import PasswordInput, TextInput
 
-from .models import User, Branch, Owner, Agent, Customer
+from .models import User, Branch, Owner, Agent, Customer, Mobilization
 
 class UserRegisterForm(UserCreationForm):
     role = forms.ChoiceField(
@@ -38,6 +38,12 @@ class CustomerRegistrationForm(forms.ModelForm):
     class Meta:
         model = Customer
         fields = ['user', 'agent', 'branch', 'phone_number', 'full_name', 'customer_location', 'digital_address', 'id_type', 'id_number', 'date_of_birth', 'customer_picture']
+    
+class MobilizationRegistrationForm(forms.ModelForm):
+    user = forms.ModelChoiceField(queryset=User.objects.filter(role='MOBILIZATION'), required=True)
+    class Meta:
+        model = Mobilization
+        fields = ['user', 'owner', 'branch', 'email', 'full_name', 'phone_number', 'company_name', 'company_number', 'digital_address', 'mobilization_code']
         
 class LoginForm(AuthenticationForm):
     username = forms.CharField(widget=TextInput(attrs={

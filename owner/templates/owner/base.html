@@ -70,9 +70,9 @@
         <div class="dashboard-header-detail">
        
           <div class="cashes">
-            <div class="c-cash">
+            <!-- <div class="c-cash">
               <p><i class="fa-solid fa-cash-register"></i> Cash</p>
-            </div>
+            </div> -->
             <!-- <div class="c-cash">
               <p><i class="fa-solid fa-cash-register"></i> Payment</p>
             </div> -->
@@ -105,7 +105,7 @@
             <nav class="nav">
                 <div class="nav-upper-options">
 
-                    <a href="{% url 'get_all_agents' %}">
+                    <a href="">
 
                         <div class="nav-option option1 button">
                             <h3><i class="fa-solid fa-book"></i> Accounts</h3>
@@ -125,6 +125,12 @@
                             </h3>
                             
                         </div>
+                    </a>
+                    <a href="{% url 'register_mobilization' %}">
+                    
+                      <div class="nav-option option1 button">
+                        <h3><i class="fa-solid fa-book"></i> Register Mobilization</h3>
+                      </div>
                     </a>
                     <!-- acivities button -->
                     <a href="{% url 'report' %}">

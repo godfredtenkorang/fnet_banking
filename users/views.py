@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import auth
-from .forms import UserRegisterForm, OwnerRegistrationForm, AgentRegistrationForm, CustomerRegistrationForm, LoginForm
-from .models import User, Owner, Agent, Customer, Branch
+from .forms import UserRegisterForm, OwnerRegistrationForm, AgentRegistrationForm, CustomerRegistrationForm, LoginForm, MobilizationRegistrationForm
+from .models import User, Owner, Agent, Customer, Branch, Mobilization
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 
@@ -51,6 +51,8 @@ def login_user(request):
                         return redirect("owner-dashboard")
                     elif user.role == "AGENT":
                         return redirect("agent-dashboard")
+                    elif user.role == "MOBILIZATION":
+                        return redirect("mobilization_dashboard")
                 elif user.is_blocked:
                     messages.error(request, "Your account has been blocked. Please contact the admin.")
                 else:
@@ -83,6 +85,9 @@ def is_owner(user):
 
 def is_agent(user):
     return user.role == 'AGENT'
+
+def is_mobilization(user):
+    return user.role == 'MOBILIZATION'
 
 # Admin Dashboard
 def admin_dashboard(request):

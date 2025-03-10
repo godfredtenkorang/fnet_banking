@@ -23,8 +23,9 @@ class User(AbstractUser):
         ('OWNER', 'Owner'),
         ('AGENT', 'Agent'),
         ('CUSTOMER', 'Customer'),
+        ('MOBILIZATION', 'Mobilization')
     ]
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+    role = models.CharField(max_length=12, choices=ROLE_CHOICES)
     is_approved = models.BooleanField(default=False)
     is_blocked = models.BooleanField(default=False)
     phone_number = models.CharField(max_length=15, unique=True)
@@ -75,6 +76,38 @@ class Agent(models.Model):
 class Customer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')
     agent = models.ForeignKey(Agent, on_delete=models.CASCADE)
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
+    phone_number = models.CharField(max_length=10, null=True, blank=True)
+    full_name = models.CharField(max_length=100, null=True, blank=True)
+    customer_location = models.CharField(max_length=100, null=True, blank=True)
+    digital_address = models.CharField(max_length=100, null=True, blank=True)
+    id_type = models.CharField(max_length=20, null=True, blank=True)
+    id_number = models.CharField(max_length=100, null=True, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)
+    customer_picture = models.ImageField(upload_to='customer_pic/', default='')
+    date_created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+
+    def __str__(self):
+        return self.full_name
+    
+class Mobilization(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='mobilization')
+    owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
+    email = models.EmailField(null=True, blank=True)
+    full_name = models.CharField(max_length=100, null=True, blank=True)
+    phone_number = models.CharField(max_length=10, null=True, blank=True)
+    company_name = models.CharField(max_length=100, null=True, blank=True)
+    company_number = models.CharField(max_length=10, null=True, blank=True)
+    digital_address = models.CharField(max_length=50, null=True, blank=True)
+    mobilization_code = models.CharField(max_length=20, null=True, blank=True)
+
+    def __str__(self):
+        return self.full_name
+    
+class MobilizationCustomer(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='mobilizationcustomer')
+    mobilization = models.ForeignKey(Mobilization, on_delete=models.CASCADE)
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     phone_number = models.CharField(max_length=10, null=True, blank=True)
     full_name = models.CharField(max_length=100, null=True, blank=True)

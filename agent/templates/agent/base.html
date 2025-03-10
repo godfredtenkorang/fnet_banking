@@ -64,7 +64,7 @@
     </div>
     
     <div class="role">
-      <p><i class="fa-solid fa-id-badge"></i> {{user.role}}</p>
+      <p><i class="fa-solid fa-id-badge"></i> Branch</p>
     </div>
     </div>
     
@@ -80,9 +80,9 @@
           </a>
          
             <div class="cashes">
-              <div class="c-cash">
+              <!-- <div class="c-cash">
                 <p><i class="fa-solid fa-cash-register"></i> Cash</p>
-              </div>
+              </div> -->
               <!-- <div class="c-cash">
                 <p><i class="fa-solid fa-cash-register"></i> Payment</p>
               </div> -->
@@ -134,7 +134,7 @@
 
            
             
-            <a href="">
+            <a href="{% url 'agent_payto' %}">
                 <div class="nav-option option1 button">
                   <h3><i class="fa-solid fa-cash-register"></i> Pay to</h3>
                 </div>
@@ -147,6 +147,11 @@
             <a href="{% url 'cashOut' %}">
                 <div class="nav-option option1 button">
                   <h3><i class="fa-solid fa-cash-register"></i> Cash Out</h3>
+                </div>
+              </a>
+              <a href="{% url 'agent-commission' %}">
+                <div class="nav-option option1 button">
+                  <h3><i class="fa-solid fa-cash-register"></i> Commission</h3>
                 </div>
               </a>
             <!-- home button -->

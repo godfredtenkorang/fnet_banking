@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'users',
     'banking',
     'owner',
+    'mobilization',
 ]
 
 MIDDLEWARE = [
