@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import MobilizationPayTo, BankDeposit, BankWithdrawal, PaymentRequest, CustomerAccount
+from .models import MobilizationPayTo, BankDeposit, BankWithdrawal, PaymentRequest, CustomerAccount, TellerCalculator
 from django.contrib import messages
 from users.models import MobilizationCustomer, User, Branch
 from django.contrib.auth.hashers import make_password
@@ -347,6 +347,44 @@ def payment_summary(request, date):
         'title': 'Payments Summury'
     }
     return render(request, 'mobilization/transactions/payment_summary.html', context)
+
+
+def calculator(request):
+    mobilization = request.user.mobilization
+    if request.method == 'POST':
+        customer_name = request.POST.get('customer_name')
+        phone_number = request.POST.get('phone_number')
+        amount = request.POST.get('amount')
+        d_200 = request.POST.get('d_200')
+        d_100 = request.POST.get('d_100')
+        d_50 = request.POST.get('d_50')
+        d_20 = request.POST.get('d_20')
+        d_10 = request.POST.get('d_10')
+        d_5 = request.POST.get('d_5')
+        d_2 = request.POST.get('d_2')
+        d_1 = request.POST.get('d_1')
+        
+         # Create a new CustomerPaymentAtBank instance
+        payment = TellerCalculator(
+            customer_name=customer_name,
+            phone_number=phone_number,
+            amount=amount,
+            d_200=d_200,
+            d_100=d_100,
+            d_50=d_50,
+            d_20=d_20,
+            d_10=d_10,
+            d_5=d_5,
+            d_2=d_2,
+            d_1=d_1
+        )
+        payment.mobilization = mobilization
+        payment.save()
+        return redirect('mobilization_calculator')
+    context = {
+        'title': 'Calculator'
+    }
+    return render(request, 'mobilization/calculator.html', context)
 
 
 def bank_deposit_notifications(request):

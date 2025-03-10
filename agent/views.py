@@ -187,10 +187,19 @@ def cashIn(request):
         amount = Decimal(amount)
         cash_received = Decimal(cash_received)
 
-        
-        cash_in = CustomerCashIn(network=network, customer_phone=customer_phone, deposit_type=deposit_type, depositor_name=depositor_name, depositor_number=depositor_number, amount=amount, cash_received=cash_received)
-        
-        cash_in.agent = agent.user
+        if CustomerFraud.objects.filter(customer_phone=customer_phone).exists():
+            messages.warning(request, 'Warning: This customer is flagged as a fraudster!')
+            return render(request, 'agent/cashIn.html', {
+                'is_fraudster': True,
+                'network':network, 
+                'customer_phone':customer_phone, 
+                'deposit_type':deposit_type, 
+                'depositor_name':depositor_name, 
+                'depositor_number':depositor_number, 
+                'amount':amount, 
+                'cash_received':cash_received
+            })
+        cash_in = CustomerCashIn.objects.create(agent=request.user, network=network, customer_phone=customer_phone, deposit_type=deposit_type, depositor_name=depositor_name, depositor_number=depositor_number, amount=amount, cash_received=cash_received)
         
 
         
@@ -200,7 +209,6 @@ def cashIn(request):
             messages.error(request, f"Insufficient balance in {cash_in.network}. Kindly make a request.")
             return redirect('cashIn')
     
-        cash_in.save()
         account.update_balance_for_cash_in(cash_in.network, cash_in.amount)
         messages.success(request, 'Customer Cash-In recorded succussfully.')
         return redirect('cashin_notifications')
@@ -859,6 +867,7 @@ def view_customer_fraud(request):
     return render(request, 'agent/customer_care/fraud_views.html', context)
 
 def calculate(request):
+    agent = request.user.agent
     if request.method == 'POST':
         customer_name = request.POST.get('customer_name')
         phone_number = request.POST.get('phone_number')
@@ -886,6 +895,7 @@ def calculate(request):
             d_2=d_2,
             d_1=d_1
         )
+        payment.agent = agent
         payment.save()
         return redirect('calculate')
     

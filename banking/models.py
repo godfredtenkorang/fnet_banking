@@ -312,17 +312,18 @@ class EFloatAccount(models.Model):
     
     
 class CustomerPaymentAtBank(models.Model):
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE, null=True, blank=True)
     customer_name = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=12)
     amount = models.DecimalField(decimal_places=2, max_digits=19, default=0.0)
-    d_200 = models.IntegerField(default=0, null=True, blank=True)
-    d_100 = models.IntegerField(default=0, null=True, blank=True)
-    d_50 = models.IntegerField(default=0, null=True, blank=True)
-    d_20 = models.IntegerField(default=0, null=True, blank=True)
-    d_10 = models.IntegerField(default=0, null=True, blank=True)
-    d_5 = models.IntegerField(default=0, null=True, blank=True)
-    d_2 = models.IntegerField(default=0, null=True, blank=True)
-    d_1 = models.IntegerField(default=0, null=True, blank=True)
+    d_200 = models.CharField(max_length=12, null=True, blank=True)
+    d_100 = models.CharField(max_length=12, null=True, blank=True)
+    d_50 = models.CharField(max_length=12, null=True, blank=True)
+    d_20 = models.CharField(max_length=12, null=True, blank=True)
+    d_10 = models.CharField(max_length=12, null=True, blank=True)
+    d_5 = models.CharField(max_length=12, null=True, blank=True)
+    d_2 = models.CharField(max_length=12, null=True, blank=True)
+    d_1 = models.CharField(max_length=12, null=True, blank=True)
     date_added = models.DateField(auto_now_add=True)
     time_added = models.TimeField(auto_now_add=True)
     

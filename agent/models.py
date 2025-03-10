@@ -42,6 +42,20 @@ class CustomerCashIn(models.Model):
     # agent_commission = models.DecimalField(max_digits=19, decimal_places=2, default=0.0)
     date_deposited = models.DateField(auto_now_add=True)
     time_deposited = models.TimeField(auto_now_add=True)
+    is_fraudster = models.BooleanField(default=False)  # Track if the customer is a fraudster
+    
+    def check_fraud(self):
+        if CustomerFraud.objects.filter(customer_phone=self.customer_phone).exists():
+            self.is_fraudster = True
+        else:
+            self.is_fraudster = False
+            
+    def save(self, *args, **kwargs):
+        # Check for fraud before saving
+        self.check_fraud()
+        
+        # Save the CustomerCashIn instance
+        super().save(*args, **kwargs)
     
     @classmethod
     def total_cash_for_customer(cls, agent):
