@@ -12,25 +12,60 @@
             <h1>Transaction Summary </h1>
         </div>
     </div>
+    <div class="customer-form">
+        <!-- Date Filter Form -->
+        <div class="customerlogin">
+            <form method="get" action="{% url 'cashin_summary_date' %}">
+                <label for="start_date">Start Date:</label>
+                <input type="date" id="start_date" name="start_date">
+
+                <label for="end_date">End Date:</label>
+                <input type="date" id="end_date" name="end_date">
+
+                <button type="submit">Filter</button>
+            </form>
+            <div class="pagination">
+                <span class="step-links">
+                    {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                    {% endif %}
+            
+                    <span class="current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                    </span>
+            
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        
+    </div>
+    
     <div class="stat-container-ten-box">
 
         {% for entry in dates %}
 
         <a href="{% url 'cashin_summary' entry.date_deposited %}" class="stat">
             <h2>{{entry.date_deposited}}</h2>
-            
+
 
 
             <!-- <p>Click to view total</p> -->
         </a>
-      
+        
+
         {% endfor %}
 
-        
+
 
 
 
     </div>
+    <br><br><br>
 </div>
 
 

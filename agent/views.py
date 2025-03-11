@@ -6,12 +6,13 @@ from banking.models import Bank, CustomerAccount, Drawer, EFloatAccount, Custome
 from django.utils import timezone
 from django.contrib import messages
 from .models import CustomerCashIn, CustomerCashOut, BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest, CustomerComplain, HoldCustomerAccount, CustomerFraud, CustomerPayTo, CashInCommission, CashOutCommission
-from datetime import datetime
+from datetime import datetime, timedelta, date
 from decimal import Decimal
 from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password
 from django.core.files.storage import default_storage
 from django.db.models import Sum
+from django.core.paginator import Paginator
 
 def is_agent(user):
     return user.role == 'BRANCH'
@@ -438,9 +439,37 @@ def TotalTransactionSum(request):
 
 @login_required
 def cashin_summary_date(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    # Set default date range (last 30 days)
+    if not start_date and not end_date:
+        end_date = date.today()
+        start_date = end_date - timedelta(days=30)
+        
+     # Convert start_date and end_date to date objects if they are strings
+    if start_date and isinstance(start_date, str):
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+    if end_date and isinstance(end_date, str):
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+    
     dates = CustomerCashIn.objects.values('date_deposited').annotate(total_amount=Sum('amount'))
+    
+    if start_date:
+        dates = dates.filter(date_deposited__gte=start_date)
+    if end_date:
+        dates = dates.filter(date_deposited__lte=end_date)
+        
+    paginator = Paginator(dates, 30)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
     context = {
-        'dates': dates
+        'page_obj': page_obj,
+        'dates': dates,
+        'start_date': start_date,
+        'end_date': end_date,
+        'title': 'Cash in Summary'
     }
     return render(request, 'agent/transaction_summary/cashin_summary_date.html', context)
 

@@ -27,7 +27,7 @@ class OwnerRegistrationForm(forms.ModelForm):
         fields = ['user', 'branch', 'email', 'full_name', 'phone_number', 'company_name', 'company_number', 'digital_address', 'agent_code']
 
 class AgentRegistrationForm(forms.ModelForm):
-    user = forms.ModelChoiceField(queryset=User.objects.filter(role='AGENT'), required=True)
+    user = forms.ModelChoiceField(queryset=User.objects.filter(role='BRANCH'), required=True)
     class Meta:
         model = Agent
         fields = ['user', 'owner', 'branch', 'email', 'full_name', 'phone_number', 'company_name', 'company_number', 'digital_address', 'agent_code']
