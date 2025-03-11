@@ -21,7 +21,7 @@ class User(AbstractUser):
     ROLE_CHOICES = [
         ('ADMIN', 'Admin'),
         ('OWNER', 'Owner'),
-        ('AGENT', 'Agent'),
+        ('BRANCH', 'Branch'),
         ('CUSTOMER', 'Customer'),
         ('MOBILIZATION', 'Mobilization')
     ]

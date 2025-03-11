@@ -7,7 +7,7 @@ from .models import User, Branch, Owner, Agent, Customer, Mobilization
 
 class UserRegisterForm(UserCreationForm):
     role = forms.ChoiceField(
-        choices=[('OWNER', 'Owner'),('AGENT', 'Agent')],  # Removed "Admin"
+        choices=[('OWNER', 'Owner'),('BRANCH', 'Branch'), ('MOBILIZATION', 'Mobilization')],  # Removed "Admin"
         widget=forms.Select(attrs={'class': 'form-control'})
     )
     class Meta:

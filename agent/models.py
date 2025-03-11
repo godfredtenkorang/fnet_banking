@@ -58,8 +58,8 @@ class CustomerCashIn(models.Model):
         super().save(*args, **kwargs)
     
     @classmethod
-    def total_cash_for_customer(cls, agent):
-        total = cls.objects.filter(agent=agent).aggregate(Sum('amount'))
+    def total_cash_for_customer(cls, agent, date_deposited):
+        total = cls.objects.filter(agent=agent, date_deposited=date_deposited).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
     
     def save(self, *args, **kwargs):
@@ -130,8 +130,8 @@ class CustomerCashOut(models.Model):
     time_withdrawn = models.TimeField(auto_now_add=True)
     
     @classmethod
-    def total_cashout_for_customer(cls, agent):
-        total = cls.objects.filter(agent=agent).aggregate(Sum('amount'))
+    def total_cashout_for_customer(cls, agent, date_withdrawn):
+        total = cls.objects.filter(agent=agent, date_withdrawn=date_withdrawn).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
     
     def save(self, *args, **kwargs):
@@ -169,8 +169,8 @@ class BankDeposit(models.Model):
     time_deposited = models.TimeField(default=timezone.now)
     
     @classmethod
-    def total_bank_deposit_for_customer(cls, agent):
-        total = cls.objects.filter(agent=agent).aggregate(Sum('amount'))
+    def total_bank_deposit_for_customer(cls, agent, date_deposited):
+        total = cls.objects.filter(agent=agent, date_deposited=date_deposited).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
     
     def __str__(self):
@@ -191,8 +191,8 @@ class BankWithdrawal(models.Model):
     status = models.CharField(max_length=20, choices=REQUEST_STATUS, default='Pending')
     
     @classmethod
-    def total_bank_withdrawal_for_customer(cls, agent):
-        total = cls.objects.filter(agent=agent).aggregate(Sum('amount'))
+    def total_bank_withdrawal_for_customer(cls, agent, date_withdrawn):
+        total = cls.objects.filter(agent=agent, date_withdrawn=date_withdrawn).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
     
     def __str__(self):
@@ -239,8 +239,8 @@ class CashAndECashRequest(models.Model):
     updated_at = models.DateField(auto_now=True)
     
     @classmethod
-    def total_ecash_for_customer(cls, agent):
-        total = cls.objects.filter(agent=agent).aggregate(Sum('amount'))
+    def total_ecash_for_customer(cls, agent, created_at):
+        total = cls.objects.filter(agent=agent, created_at=created_at).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
 
     def __str__(self):
@@ -337,8 +337,8 @@ class PaymentRequest(models.Model):
     updated_at = models.DateField(auto_now=True)
     
     @classmethod
-    def total_payment_for_customer(cls, agent):
-        total = cls.objects.filter(agent=agent).aggregate(Sum('amount'))
+    def total_payment_for_customer(cls, agent, created_at):
+        total = cls.objects.filter(agent=agent, created_at=created_at).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
     
     def __str__(self):
@@ -398,7 +398,7 @@ class CustomerPayTo(models.Model):
         ("Rejected", "Rejected")
     )
     agent = models.ForeignKey(User, on_delete=models.CASCADE, related_name="customer_pay_to")
-    agent_number = models.CharField(max_length=10, blank=True)
+    agent_number = models.CharField(max_length=10, null=True, blank=True)
     network = models.CharField(max_length=20, choices=NETWORKS, blank=True, default="Select Network")
     # customer_name = models.CharField(max_length=30, blank=True)
     deposit_type = models.CharField(max_length=20, blank=True, choices=PAY_TO_DEPOSIT_TYPE)

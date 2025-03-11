@@ -14,7 +14,7 @@ from django.core.files.storage import default_storage
 from django.db.models import Sum
 
 def is_agent(user):
-    return user.role == 'AGENT'
+    return user.role == 'BRANCH'
 
 @login_required
 @user_passes_test(is_agent)
@@ -121,12 +121,13 @@ def view_e_float_account(request):
 def agent_dashboard(request):
     agent = request.user.agent
     agent_id = request.user
-    total_cashins = CustomerCashIn.total_cash_for_customer(agent=agent_id)
-    total_cashouts = CustomerCashOut.total_cashout_for_customer(agent=agent_id)
-    total_deposits = BankDeposit.total_bank_deposit_for_customer(agent=agent)
-    total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(agent=agent)
-    total_ecash = CashAndECashRequest.total_ecash_for_customer(agent=agent)
-    total_payments = PaymentRequest.total_payment_for_customer(agent=agent)
+    today = timezone.now().date()
+    total_cashins = CustomerCashIn.total_cash_for_customer(agent=agent_id, date_deposited=today)
+    total_cashouts = CustomerCashOut.total_cashout_for_customer(agent=agent_id, date_withdrawn=today)
+    total_deposits = BankDeposit.total_bank_deposit_for_customer(agent=agent, date_deposited=today)
+    total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(agent=agent, date_withdrawn=today)
+    total_ecash = CashAndECashRequest.total_ecash_for_customer(agent=agent, created_at=today)
+    total_payments = PaymentRequest.total_payment_for_customer(agent=agent, created_at=today)
     customers = Customer.objects.filter(agent=agent)
     context = {
         'total_cashins': total_cashins,
@@ -183,26 +184,51 @@ def cashIn(request):
         depositor_number = request.POST.get('depositor_number')
         amount = request.POST.get('amount')
         cash_received = request.POST.get('cash_received')
+        action = request.POST.get('action')  # 'proceed' or 'cancel'
         
         amount = Decimal(amount)
         cash_received = Decimal(cash_received)
 
         if CustomerFraud.objects.filter(customer_phone=customer_phone).exists():
-            messages.warning(request, 'Warning: This customer is flagged as a fraudster!')
-            return render(request, 'agent/cashIn.html', {
-                'is_fraudster': True,
-                'network':network, 
-                'customer_phone':customer_phone, 
-                'deposit_type':deposit_type, 
-                'depositor_name':depositor_name, 
-                'depositor_number':depositor_number, 
-                'amount':amount, 
-                'cash_received':cash_received
-            })
-        cash_in = CustomerCashIn.objects.create(agent=request.user, network=network, customer_phone=customer_phone, deposit_type=deposit_type, depositor_name=depositor_name, depositor_number=depositor_number, amount=amount, cash_received=cash_received)
+            if action == 'proceed':
+                cash_in = CustomerCashIn.objects.create(
+                    agent=request.user, 
+                    network=network, 
+                    customer_phone=customer_phone, 
+                    deposit_type=deposit_type, 
+                    depositor_name=depositor_name, 
+                    depositor_number=depositor_number, 
+                    amount=amount, 
+                    cash_received=cash_received,
+                    is_fraudster=True,
+                )
         
+                messages.warning(request, 'Transaction completed with a flagged fraudster!')
+                return render(request, 'agent/cashIn.html', {
+                    'is_fraudster': True,
+                    'network':network, 
+                    'customer_phone':customer_phone, 
+                    'deposit_type':deposit_type, 
+                    'depositor_name':depositor_name, 
+                    'depositor_number':depositor_number, 
+                    'amount':amount, 
+                    'cash_received':cash_received
+                })
+            elif action == 'cancel':
+                messages.info(request, 'Transaction canceled due to fraudster alert.')
+                return redirect('cashIn')
+            
+        cash_in = CustomerCashIn.objects.create(
+            agent=request.user, 
+            network=network, 
+            customer_phone=customer_phone, 
+            deposit_type=deposit_type, 
+            depositor_name=depositor_name, 
+            depositor_number=depositor_number, 
+            amount=amount, 
+            cash_received=cash_received
+        )
 
-        
         network_balance = getattr(account, f"{cash_in.network.lower()}_balance")
         get_amount = Decimal(cash_in.amount)
         if get_amount > Decimal(network_balance):
@@ -213,7 +239,7 @@ def cashIn(request):
         messages.success(request, 'Customer Cash-In recorded succussfully.')
         return redirect('cashin_notifications')
     context = {
-        'title': 'Cash In'
+        'title': 'Cash In',
     }
     return render(request, 'agent/cashIn.html', context)
 
@@ -389,12 +415,14 @@ def view_bank_withdrawals(request):
 def TotalTransactionSum(request):
     agent = request.user.agent
     agent_id = request.user
-    total_cashins = CustomerCashIn.total_cash_for_customer(agent=agent_id)
-    total_cashouts = CustomerCashOut.total_cashout_for_customer(agent=agent_id)
-    total_deposits = BankDeposit.total_bank_deposit_for_customer(agent=agent)
-    total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(agent=agent)
-    total_ecash = CashAndECashRequest.total_ecash_for_customer(agent=agent)
-    total_payments = PaymentRequest.total_payment_for_customer(agent=agent)
+    today = timezone.now().date()
+    
+    total_cashins = CustomerCashIn.total_cash_for_customer(agent=agent_id, date_deposited=today)
+    total_cashouts = CustomerCashOut.total_cashout_for_customer(agent=agent_id, date_withdrawn=today)
+    total_deposits = BankDeposit.total_bank_deposit_for_customer(agent=agent, date_deposited=today)
+    total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(agent=agent, date_withdrawn=today)
+    total_ecash = CashAndECashRequest.total_ecash_for_customer(agent=agent, created_at=today)
+    total_payments = PaymentRequest.total_payment_for_customer(agent=agent, created_at=today)
     
     context = {
         'total_cashins': total_cashins,
@@ -692,20 +720,20 @@ def payment(request):
         payments.agent = agent
         
         
-        bank_balance = getattr(account, f"{payments.bank.lower()}_balance")
-        network_balance = getattr(account, f"{payments.network.lower()}_balance")
+        # bank_balance = getattr(account, f"{payments.bank.lower()}_balance")
+        # network_balance = getattr(account, f"{payments.network.lower()}_balance")
        
-        get_payment = Decimal(payments.amount)
+        # get_payment = Decimal(payments.amount)
         
 
 
-        if get_payment > Decimal(bank_balance):
-            messages.error(request, f'Insufficient balance in {payments.bank}.')
-            return redirect('payment')
+        # if get_payment > Decimal(bank_balance):
+        #     messages.error(request, f'Insufficient balance in {payments.bank}.')
+        #     return redirect('payment')
         
-        elif get_payment > Decimal(network_balance):
-            messages.error(request, f'Insufficient balance in {payments.network}.')
-            return redirect('payment')
+        # elif get_payment > Decimal(network_balance):
+        #     messages.error(request, f'Insufficient balance in {payments.network}.')
+        #     return redirect('payment')
         
         
         payments.save()

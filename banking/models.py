@@ -268,37 +268,21 @@ class EFloatAccount(models.Model):
     def update_balance_for_cash_and_ecash(self, bank, network, amount, status):
         amount = Decimal(amount)
         if status == 'Approved':
-            if bank == 'Mtn':
+            if network == 'Mtn':
                 self.mtn_balance += amount
-            elif network == 'Mtn':
-                self.mtn_balance += amount
-            elif bank == 'Telecel':
-                self.telecel_balance += amount
             elif network == 'Telecel':
                 self.telecel_balance += amount
-            elif bank == 'AirtelTigo':
-                self.airtel_tigo_balance += amount
             elif network == 'Airtel Tigo':
                 self.airtel_tigo_balance += amount
             elif bank == 'Ecobank':
                 self.ecobank_balance += amount
-            elif network == 'Ecobank':
-                self.ecobank_balance += amount
             elif bank == 'Fidelity':
-                self.fidelity_balance += amount
-            elif network == 'Fidelity':
                 self.fidelity_balance += amount
             elif bank == 'Calbank':
                 self.calbank_balance += amount
-            elif network == 'Calbank':
-                self.calbank_balance += amount
             elif bank == 'GTBank':
                 self.gtbank_balance += amount
-            elif network == 'GTBank':
-                self.gtbank_balance += amount
             elif bank == 'Access Bank':
-                self.access_bank_balance += amount
-            elif network == 'Access Bank':
                 self.access_bank_balance += amount
 
             # Add to the Cash at Hand balance

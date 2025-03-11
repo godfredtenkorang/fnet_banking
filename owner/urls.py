@@ -61,7 +61,20 @@ urlpatterns = [
     path('hold-account/', views.hold_account, name='all_hold_account'),
     
     
+    # Mobilization Registration
+    # path('register_mobilization/', views.register_mobilization, name='register_mobilization'),
+    path('register_mobilization/', views.registerMobilization, name='register_mobilization'),
+    path('my_mobilizations/', views.myMobilization, name='my_mobilizations'),
     
-    path('register_mobilization/', views.register_mobilization, name='register_mobilization'),
+    # Mobilization Approvals
+    path('mobilization_bank_deposit_requests/', views.mobilization_bank_deposit_requests, name='mobilization_bank_deposit_requests'),
+    path('approve_mobilization_bank_deposit/<int:deposit_id>/', views.approve_mobilization_bank_deposit, name='approve_mobilization_bank_deposit'),
+    path('reject_mobilization_bank_deposit/<int:deposit_id>/', views.reject_mobilization_bank_deposit, name='reject_mobilization_bank_deposit'),
+    path('mobilization_bank_withdrawal_requests/', views.mobilization_bank_withdrawal_requests, name='mobilization_bank_withdrawal_requests'),
+    path('approve_mobilization_bank_withdrawal/<int:withdrawal_id>/', views.approve_mobilization_withdrawal, name='approve_mobilization_withdrawal'),
+    path('reject_mobilization_bank_withdrwal/<int:withdrawal_id>/', views.reject_mobilization_withdrawal, name='reject_mobilization_withdrawal'),
+    path('mobilization_payment_requests/', views.mobilization_payment_requests, name='mobilization_payment_requests'),
+    path('approve_mobilization_payment/<int:payment_id>/', views.approve_mobilization_payment, name='approve_mobilization_payment'),
+    path('reject_mobilization_payment/<int:payment_id>/', views.reject_mobilization_payment, name='reject_mobilization_payment'),
 
 ]

@@ -17,11 +17,13 @@
             <h1>Mobilization Registration</h1>
         </div>
     </div>
-    <div class="customer">
-        <div class="forms">
-            <form id="networkForm" method="POST" enctype="multipart/form-data">
+    <div class="customer-form">
+
+        <div class="customerlogin">
+            <form id="networkForm" method="POST">
                 {% csrf_token %}
-                <div class="form-grid">
+                {{form.as_p}}
+                <!-- <div class="form-grid">
                     <div class="input">
                         <label for="username">Username</label> <br />
                         <input type="text" name="username" id="username" required placeholder="Fnetbank" />
@@ -80,7 +82,7 @@
                         <input type="text" name="password" id="password" required placeholder="Default: 12345678" />
                     </div>
                 </div>
-                <p class="confirmInfoMessage" style="color: red; font-weight: bold;"></p>
+                <p class="confirmInfoMessage" style="color: red; font-weight: bold;"></p> -->
 
                 <button type="submit" id="submitBtn">Submit</button>
             </form>
@@ -110,7 +112,7 @@
 
 
 
-        <div class="customer-info">
+        <!-- <div class="customer-info">
 
             <div class="cust-flex">
                 <div class="customer-img">
@@ -133,7 +135,7 @@
                 <input type="checkbox" id="confirmCheck"> <label for="confirmCheck">I confirm that the details are
                     correct</label>
             </div>
-        </div>
+        </div> -->
 
 
 

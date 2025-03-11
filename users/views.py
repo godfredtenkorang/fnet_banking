@@ -49,7 +49,7 @@ def login_user(request):
                         return redirect("admin_dashboard")
                     elif user.role == "OWNER":
                         return redirect("owner-dashboard")
-                    elif user.role == "AGENT":
+                    elif user.role == "BRANCH":
                         return redirect("agent-dashboard")
                     elif user.role == "MOBILIZATION":
                         return redirect("mobilization_dashboard")
@@ -84,7 +84,7 @@ def is_owner(user):
     return user.role == 'OWNER'
 
 def is_agent(user):
-    return user.role == 'AGENT'
+    return user.role == 'BRANCH'
 
 def is_mobilization(user):
     return user.role == 'MOBILIZATION'
