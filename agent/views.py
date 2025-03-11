@@ -488,9 +488,35 @@ def cashin_summary(request, date):
 
 @login_required
 def cashout_summary_date(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    # Set default date range (last 30 days)
+    if not start_date and not end_date:
+        end_date = date.today()
+        start_date = end_date - timedelta(days=30)
+        
+     # Convert start_date and end_date to date objects if they are strings
+    if start_date and isinstance(start_date, str):
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+    if end_date and isinstance(end_date, str):
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+        
     dates = CustomerCashOut.objects.values('date_withdrawn').annotate(total_amount=Sum('amount'))
+    
+    if start_date:
+        dates = dates.filter(date_withdrawn__gte=start_date)
+    if end_date:
+        dates = dates.filter(date_withdrawn__lte=end_date)
+        
+    paginator = Paginator(dates, 30)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     context = {
-        'dates': dates
+        'page_obj': page_obj,
+        'dates': dates,
+        'start_date': start_date,
+        'end_date': end_date,
     }
     return render(request, 'agent/transaction_summary/cashout_summary_date.html', context)
 
@@ -510,9 +536,33 @@ def cashout_summary(request, date):
 
 @login_required
 def bank_deposit_summary_date(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    # Set default date range (last 30 days)
+    if not start_date and not end_date:
+        end_date = date.today()
+        start_date = end_date - timedelta(days=30)
+        
+     # Convert start_date and end_date to date objects if they are strings
+    if start_date and isinstance(start_date, str):
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+    if end_date and isinstance(end_date, str):
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
     dates = BankDeposit.objects.values('date_deposited').annotate(total_amount=Sum('amount'))
+    if start_date:
+        dates = dates.filter(date_deposited__gte=start_date)
+    if end_date:
+        dates = dates.filter(date_deposited__lte=end_date)
+        
+    paginator = Paginator(dates, 30)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     context = {
-        'dates': dates
+        'page_obj': page_obj,
+        'dates': dates,
+        'start_date': start_date,
+        'end_date': end_date,
     }
     return render(request, 'agent/transaction_summary/bank_deposit_summary_date.html', context)
 
@@ -532,9 +582,33 @@ def bank_deposit_summary(request, date):
 
 @login_required
 def bank_withdrawal_summary_date(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    # Set default date range (last 30 days)
+    if not start_date and not end_date:
+        end_date = date.today()
+        start_date = end_date - timedelta(days=30)
+        
+     # Convert start_date and end_date to date objects if they are strings
+    if start_date and isinstance(start_date, str):
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+    if end_date and isinstance(end_date, str):
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
     dates = BankWithdrawal.objects.values('date_withdrawn').annotate(total_amount=Sum('amount'))
+    if start_date:
+        dates = dates.filter(date_withdrawn__gte=start_date)
+    if end_date:
+        dates = dates.filter(date_withdrawn__lte=end_date)
+        
+    paginator = Paginator(dates, 30)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     context = {
-        'dates': dates
+        'page_obj': page_obj,
+        'dates': dates,
+        'start_date': start_date,
+        'end_date': end_date,
     }
     return render(request, 'agent/transaction_summary/bank_withdrawal_summary_date.html', context)
 
@@ -554,9 +628,33 @@ def bank_withdrawal_summary(request, date):
 
 @login_required
 def cash_summary_date(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    # Set default date range (last 30 days)
+    if not start_date and not end_date:
+        end_date = date.today()
+        start_date = end_date - timedelta(days=30)
+        
+     # Convert start_date and end_date to date objects if they are strings
+    if start_date and isinstance(start_date, str):
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+    if end_date and isinstance(end_date, str):
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
     dates = CashAndECashRequest.objects.values('created_at').annotate(total_amount=Sum('amount'))
+    if start_date:
+        dates = dates.filter(created_at__gte=start_date)
+    if end_date:
+        dates = dates.filter(created_at__lte=end_date)
+        
+    paginator = Paginator(dates, 30)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     context = {
-        'dates': dates
+        'page_obj': page_obj,
+        'dates': dates,
+        'start_date': start_date,
+        'end_date': end_date,
     }
     return render(request, 'agent/transaction_summary/cash_summary_date.html', context)
 
@@ -577,9 +675,33 @@ def cash_summary(request, date):
 
 @login_required
 def payment_summary_date(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    # Set default date range (last 30 days)
+    if not start_date and not end_date:
+        end_date = date.today()
+        start_date = end_date - timedelta(days=30)
+        
+     # Convert start_date and end_date to date objects if they are strings
+    if start_date and isinstance(start_date, str):
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+    if end_date and isinstance(end_date, str):
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
     dates = PaymentRequest.objects.values('created_at').annotate(total_amount=Sum('amount'))
+    if start_date:
+        dates = dates.filter(created_at__gte=start_date)
+    if end_date:
+        dates = dates.filter(created_at__lte=end_date)
+        
+    paginator = Paginator(dates, 30)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     context = {
-        'dates': dates
+        'page_obj': page_obj,
+        'dates': dates,
+        'start_date': start_date,
+        'end_date': end_date,
     }
     return render(request, 'agent/transaction_summary/payment_summary_date.html', context)
 

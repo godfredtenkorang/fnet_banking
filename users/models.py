@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 BRANCHES = (
-    ("Please select", "Please select="),
     ("DVLA", "DVLA"),
     ("HEAD OFFICE", "HEAD OFFICE"),
     ("KEJETIA", "KEJETIA"),
