@@ -28,23 +28,23 @@ class OwnerRegistrationForm(forms.ModelForm):
         fields = ['owner', 'branch', 'email', 'full_name', 'phone_number', 'company_name', 'company_number', 'digital_address', 'agent_code']
 
 class AgentRegistrationForm(forms.ModelForm):
-    user = forms.ModelChoiceField(queryset=User.objects.filter(role='BRANCH'), required=True)
+    agent = forms.ModelChoiceField(queryset=User.objects.filter(role='BRANCH'), required=True)
     class Meta:
         model = Agent
-        fields = ['user', 'owner', 'branch', 'email', 'full_name', 'phone_number', 'company_name', 'company_number', 'digital_address', 'agent_code']
+        fields = ['agent', 'owner', 'branch', 'email', 'full_name', 'phone_number', 'company_name', 'company_number', 'digital_address', 'agent_code']
 
 class CustomerRegistrationForm(forms.ModelForm):
-    user = forms.ModelChoiceField(queryset=User.objects.filter(role='CUSTOMER'), required=True)
+    customer = forms.ModelChoiceField(queryset=User.objects.filter(role='CUSTOMER'), required=True)
     
     class Meta:
         model = Customer
-        fields = ['user', 'agent', 'branch', 'phone_number', 'full_name', 'customer_location', 'digital_address', 'id_type', 'id_number', 'date_of_birth', 'customer_picture']
+        fields = ['customer', 'agent', 'branch', 'phone_number', 'full_name', 'customer_location', 'digital_address', 'id_type', 'id_number', 'date_of_birth', 'customer_picture']
     
 class MobilizationRegistrationForm(forms.ModelForm):
-    user = forms.ModelChoiceField(queryset=User.objects.filter(role='MOBILIZATION'), required=True)
+    mobilization = forms.ModelChoiceField(queryset=User.objects.filter(role='MOBILIZATION'), required=True)
     class Meta:
         model = Mobilization
-        fields = ['user', 'owner', 'branch', 'email', 'full_name', 'phone_number', 'company_name', 'company_number', 'digital_address', 'mobilization_code']
+        fields = ['mobilization', 'owner', 'branch', 'email', 'full_name', 'phone_number', 'company_name', 'company_number', 'digital_address', 'mobilization_code']
         
 class LoginForm(AuthenticationForm):
     phone_number = forms.CharField(max_length=15)

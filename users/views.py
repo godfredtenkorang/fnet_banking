@@ -2,10 +2,13 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import auth
+from django.contrib.auth.backends import ModelBackend
 from .forms import UserRegisterForm, OwnerRegistrationForm, AgentRegistrationForm, CustomerRegistrationForm, LoginForm, MobilizationRegistrationForm
 from .models import User, Owner, Agent, Customer, Branch, Mobilization
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
+
+from .utils import send_otp
 
 
 
@@ -38,23 +41,12 @@ def login_user(request):
         
         
         if user is not None:
-            if user.is_approved and not user.is_blocked:
-                login(request, user)
-                if user.role == "ADMIN":
-                    return redirect("admin_dashboard")
-                elif user.role == "OWNER":
-                    return redirect("owner-dashboard")
-                elif user.role == "BRANCH":
-                    return redirect("agent-dashboard")
-                elif user.role == "MOBILIZATION":
-                    return redirect("mobilization_dashboard")
-            elif user.is_blocked:
-                messages.error(request, "Your account has been blocked. Please contact the admin.")
-            else:
-                messages.error(request, "Your account is not yet approved by the admin.")
+            user.generate_otp()
+            send_otp(user.phone_number, user.otp)
+            request.session['phone_number'] = phone_number  # Store phone number in session
+            return redirect('verify_otp')
         else:
-            messages.error(request, "Invalid username or password.")
-                
+            messages.error(request, 'Invalid phone number or password.')
 
         
     context = {
@@ -63,6 +55,42 @@ def login_user(request):
     }
     
     return render(request, 'users/login.html', context)
+
+def verify_otp(request):
+    if request.method == 'POST':
+        otp = request.POST.get('otp')
+        phone_number = request.session.get('phone_number')
+
+        if phone_number:
+            user = User.objects.get(phone_number=phone_number)
+            if user.is_otp_valid(otp):
+                backend = 'django.contrib.auth.backends.ModelBackend'  # Default backend
+                login(request, user, backend=backend)
+                if user.is_approved and not user.is_blocked:
+                    if user.role == "ADMIN":
+                        return redirect("admin_dashboard")
+                    elif user.role == "OWNER":
+                        return redirect("owner-dashboard")
+                    elif user.role == "BRANCH":
+                        return redirect("agent-dashboard")
+                    elif user.role == "MOBILIZATION":
+                        return redirect("mobilization_dashboard")
+                elif user.is_blocked:
+                    messages.error(request, "Your account has been blocked. Please contact the admin.")
+                else:
+                    messages.error(request, "Your account is not yet approved by the admin.")
+            else:
+                messages.error(request, 'Invalid or expired OTP.')
+        else:
+            messages.error(request, 'Session expired. Please log in again.')
+            return redirect('login')
+        
+    context = {
+      
+        'title': 'Verify OTP'
+    }
+    
+    return render(request, 'users/verify_otp.html', context)
 
 
 def logout(request):

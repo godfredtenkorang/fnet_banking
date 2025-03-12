@@ -73,7 +73,7 @@ class CustomerCashIn(models.Model):
         )
 
     def __str__(self):
-        return f"CashIn of ${self.amount} on {self.network} by {self.agent}"
+        return f"CashIn of ${self.amount} on {self.network}"
     
 
 class CashInCommission(models.Model):
@@ -82,7 +82,7 @@ class CashInCommission(models.Model):
     date = models.DateField(auto_now_add=True)  # Date of the commission
     
     def __str__(self):
-        return f"Commission: {self.amount} for {self.customer_cash_in.agent}"
+        return f"Commission: {self.amount}"
     
 
 class ArchivedCustomerCashIn(models.Model):
@@ -154,7 +154,7 @@ class CashOutCommission(models.Model):
     date = models.DateField(auto_now_add=True)  # Date of the commission
     
     def __str__(self):
-        return f"Commission: {self.amount} for {self.customer_cash_out.agent}"
+        return f"Commission: {self.amount} "
 
 
 class BankDeposit(models.Model):
@@ -428,4 +428,4 @@ class CustomerPayTo(models.Model):
     #     )
 
     def __str__(self):
-        return f"Pay To of GH¢{self.amount} on {self.network} by {self.agent}"
+        return f"Pay To of GH¢{self.amount} on {self.network} by {self.agent.phone_number}"

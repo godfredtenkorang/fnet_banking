@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'banking/mainStyle.css' %}">
+    <!-- Boxicons CDN Link -->
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP</title>
+</head>
+
+<body>
+
+
+
+    <style>
+        .login-container {
+            background-image: url("{% static 'banking/img/login.jpeg' %}");
+            background-size: cover;
+            background-position: center;
+            min-height: 100vh;
+            /* Adjust the height as needed */
+            width: 100%;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Bokor&family=Sigmar&display=swap');
+
+        h3 {
+            font-family: "Sigmar", serif;
+            font-weight: 700;
+            font-style: normal;
+            font-size: 30px;
+        }
+    </style>
+
+
+    <div class="login-container">
+        <div style="background-color:#000; width:100%;">
+            {% if messages %}
+            {% for message in messages %}
+            <p style="color: red; font-size:30px; text-align:center;">{{ message }}</p>
+            {% endfor %}
+            {% endif %}
+        </div>
+
+        <div class="login-form">
+
+            <h3>Verify OTP</h3>
+            <br><br>
+            <div class="login">
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <label for="phone_number">Enter OTP</label>
+                    <input type="text" id="otp" name="otp" required>
+                    <br><br>
+                    <button type="submit">Verify</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+</body>
+
+</html>

@@ -72,7 +72,7 @@ def registerMobilization(request):
         form = MobilizationRegistrationForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('registerAgent')
+            return redirect('register_mobilization')
     else:
         form = MobilizationRegistrationForm()
     context = {

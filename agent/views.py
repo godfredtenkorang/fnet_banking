@@ -1117,7 +1117,7 @@ def commission(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     
-    agent = Agent.objects.get(user=request.user)
+    agent = Agent.objects.get(agent=request.user)
     
     if filter_type == 'daily':
         cashincommissions = CashInCommission.objects.filter(customer_cash_in__agent=request.user, date=datetime.today())

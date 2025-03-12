@@ -108,7 +108,7 @@ class EFloatAccount(models.Model):
             self.cash_at_hand
         )
     def calculate_difference(self):
-        self.difference = Decimal(self.grand_total()) - self.capital_amount
+        self.difference = Decimal(self.grand_total()) - Decimal(self.capital_amount)
         return self.difference
     
     def add_capital(self, additional_capital):
@@ -292,7 +292,7 @@ class EFloatAccount(models.Model):
             self.save()
         
     def __str__(self):
-        return f"E-Float Account for {self.agent.user} on {self.date}"
+        return f"E-Float Account for {self.agent.agent} on {self.date}"
     
     
 class CustomerPaymentAtBank(models.Model):

@@ -25,15 +25,15 @@ class OwnerAdmin(admin.ModelAdmin):
 
 @admin.register(Agent)
 class AgentAdmin(admin.ModelAdmin):
-    list_display = ('user', 'owner', 'branch')
+    list_display = ('agent', 'owner', 'branch')
 
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ('user', 'agent', 'branch')
+    list_display = ('customer', 'agent', 'branch')
     
 @admin.register(Mobilization)
 class MobilizationAdmin(admin.ModelAdmin):
-    list_display = ('user', 'owner', 'branch')
+    list_display = ('mobilization', 'owner', 'branch')
     
 @admin.register(MobilizationCustomer)
 class MobilizationCustomerAdmin(admin.ModelAdmin):

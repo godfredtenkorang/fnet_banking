@@ -1,3 +1,5 @@
+from datetime import timedelta
+from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager, AbstractBaseUser, PermissionsMixin
 
@@ -44,6 +46,19 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_blocked = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    otp = models.CharField(max_length=6, blank=True, null=True)
+    otp_expiry = models.DateTimeField(blank=True, null=True)
+    
+    def generate_otp(self):
+        # Generate a 6-digit OTP
+        import random
+        self.otp = str(random.randint(100000, 999999))
+        self.otp_expiry = timezone.now() + timedelta(minutes=5)  # OTP expires in 5 minutes
+        self.save()
+
+    def is_otp_valid(self, otp):
+        # Check if the OTP is valid and not expired
+        return self.otp == otp and self.otp_expiry > timezone.now()
     
     USERNAME_FIELD = 'phone_number'
     REQUIRED_FIELDS = []
@@ -72,10 +87,10 @@ class Owner(models.Model):
     agent_code = models.CharField(max_length=20, null=True, blank=True)
 
     def __str__(self):
-        return self.owner
+        return self.owner.phone_number
 
 class Agent(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='agent')
+    agent = models.OneToOneField(User, on_delete=models.CASCADE, related_name='agent')
     owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     email = models.EmailField(null=True, blank=True)
@@ -87,10 +102,10 @@ class Agent(models.Model):
     agent_code = models.CharField(max_length=20, null=True, blank=True)
 
     def __str__(self):
-        return self.user
+        return self.agent
 
 class Customer(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')
+    customer = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')
     agent = models.ForeignKey(Agent, on_delete=models.CASCADE)
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     phone_number = models.CharField(max_length=10, null=True, blank=True)
@@ -107,7 +122,7 @@ class Customer(models.Model):
         return self.full_name
     
 class Mobilization(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='mobilization')
+    mobilization = models.OneToOneField(User, on_delete=models.CASCADE, related_name='mobilization')
     owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     email = models.EmailField(null=True, blank=True)
