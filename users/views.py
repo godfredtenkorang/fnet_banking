@@ -30,41 +30,35 @@ def register(request):
 
 
 def login_user(request):
-    form = LoginForm()
     
     if request.method == 'POST':
-        form = LoginForm(request, data=request.POST)
+        phone_number = request.POST.get('phone_number')
+        password = request.POST.get('password')
+        user = authenticate(request, username=phone_number, password=password)
         
-        if form.is_valid():
-            username = request.POST.get('username')
-            password = request.POST.get('password')
-            
-            user = authenticate(request, username=username, password=password)
-            
-            
-            if user is not None:
-                if user.is_approved and not user.is_blocked:
-                    login(request, user)
-                    if user.role == "ADMIN":
-                        return redirect("admin_dashboard")
-                    elif user.role == "OWNER":
-                        return redirect("owner-dashboard")
-                    elif user.role == "BRANCH":
-                        return redirect("agent-dashboard")
-                    elif user.role == "MOBILIZATION":
-                        return redirect("mobilization_dashboard")
-                elif user.is_blocked:
-                    messages.error(request, "Your account has been blocked. Please contact the admin.")
-                else:
-                    messages.error(request, "Your account is not yet approved by the admin.")
+        
+        if user is not None:
+            if user.is_approved and not user.is_blocked:
+                login(request, user)
+                if user.role == "ADMIN":
+                    return redirect("admin_dashboard")
+                elif user.role == "OWNER":
+                    return redirect("owner-dashboard")
+                elif user.role == "BRANCH":
+                    return redirect("agent-dashboard")
+                elif user.role == "MOBILIZATION":
+                    return redirect("mobilization_dashboard")
+            elif user.is_blocked:
+                messages.error(request, "Your account has been blocked. Please contact the admin.")
             else:
-                messages.error(request, "Invalid username or password.")
+                messages.error(request, "Your account is not yet approved by the admin.")
+        else:
+            messages.error(request, "Invalid username or password.")
                 
-    else:
-        form = LoginForm()
+
         
     context = {
-        'form': form,
+      
         'title': 'Login'
     }
     

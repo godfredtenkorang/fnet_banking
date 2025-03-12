@@ -73,7 +73,7 @@ class CustomerCashIn(models.Model):
         )
 
     def __str__(self):
-        return f"CashIn of ${self.amount} on {self.network} by {self.agent.username}"
+        return f"CashIn of ${self.amount} on {self.network} by {self.agent}"
     
 
 class CashInCommission(models.Model):
@@ -82,7 +82,7 @@ class CashInCommission(models.Model):
     date = models.DateField(auto_now_add=True)  # Date of the commission
     
     def __str__(self):
-        return f"Commission: {self.amount} for {self.customer_cash_in.agent.username}"
+        return f"Commission: {self.amount} for {self.customer_cash_in.agent}"
     
 
 class ArchivedCustomerCashIn(models.Model):
@@ -103,7 +103,7 @@ class ArchivedCustomerCashIn(models.Model):
     
 
     def __str__(self):
-        return f"CashIn of ${self.amount} on {self.network} by {self.agent.username}"
+        return f"CashIn of ${self.amount} on {self.network} by {self.agent}"
     
 
 class ArchivedCashInCommission(models.Model):
@@ -112,7 +112,7 @@ class ArchivedCashInCommission(models.Model):
     date = models.DateField(auto_now_add=True)  # Date of the commission
     
     def __str__(self):
-        return f"Commission: {self.amount} for {self.customer_cash_in.agent.username}"
+        return f"Commission: {self.amount} for {self.customer_cash_in.agent}"
     
 
 
@@ -154,7 +154,7 @@ class CashOutCommission(models.Model):
     date = models.DateField(auto_now_add=True)  # Date of the commission
     
     def __str__(self):
-        return f"Commission: {self.amount} for {self.customer_cash_out.agent.username}"
+        return f"Commission: {self.amount} for {self.customer_cash_out.agent}"
 
 
 class BankDeposit(models.Model):
@@ -244,7 +244,7 @@ class CashAndECashRequest(models.Model):
         return total['amount__sum'] or 0
 
     def __str__(self):
-        return f"{self.float_type} Request of GH¢{self.amount} by {self.agent.user.username}"
+        return f"{self.float_type} Request of GH¢{self.amount} by {self.agent.user}"
     
 
 class PaymentRequest(models.Model):
@@ -342,7 +342,7 @@ class PaymentRequest(models.Model):
         return total['amount__sum'] or 0
     
     def __str__(self):
-        return f"Payment of ${self.amount} via {self.mode_of_payment} by {self.agent.user.username} ({self.status})"
+        return f"Payment of ${self.amount} via {self.mode_of_payment} by {self.agent.user} ({self.status})"
     
     
 class CustomerComplain(models.Model):
@@ -352,7 +352,7 @@ class CustomerComplain(models.Model):
     date = models.DateField(auto_now_add=True)
     
     def __str__(self):
-        return f"Complain from {self.agent.user.username} - {self.title}"
+        return f"Complain from {self.agent.user} - {self.title}"
     
 
 class HoldCustomerAccount(models.Model):
@@ -428,4 +428,4 @@ class CustomerPayTo(models.Model):
     #     )
 
     def __str__(self):
-        return f"Pay To of GH¢{self.amount} on {self.network} by {self.agent.username}"
+        return f"Pay To of GH¢{self.amount} on {self.network} by {self.agent}"

@@ -77,7 +77,7 @@ class Drawer(models.Model):
     
     
     def __str__(self):
-        return f"Drawer from {self.agent.user.username} on {self.date}"
+        return f"Drawer from {self.agent.user} on {self.date}"
     
     
 class EFloatAccount(models.Model):
@@ -292,7 +292,7 @@ class EFloatAccount(models.Model):
             self.save()
         
     def __str__(self):
-        return f"E-Float Account for {self.agent.user.username} on {self.date}"
+        return f"E-Float Account for {self.agent.user} on {self.date}"
     
     
 class CustomerPaymentAtBank(models.Model):

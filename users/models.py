@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, BaseUserManager, AbstractBaseUser, PermissionsMixin
 
 BRANCHES = (
     ("DVLA", "DVLA"),
@@ -16,7 +16,21 @@ BRANCHES = (
     ("MOBILIZATION", "MOBILIZATION"),
 )
 
-class User(AbstractUser):
+class UserManager(BaseUserManager):
+    def create_user(self, phone_number, password=None, **extra_fields):
+        if not phone_number:
+            raise ValueError('The Phone Number must be set')
+        user = self.model(phone_number=phone_number, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, phone_number, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        return self.create_user(phone_number, password, **extra_fields)
+
+class User(AbstractBaseUser, PermissionsMixin):
     ROLE_CHOICES = [
         ('ADMIN', 'Admin'),
         ('OWNER', 'Owner'),
@@ -25,16 +39,19 @@ class User(AbstractUser):
         ('MOBILIZATION', 'Mobilization')
     ]
     role = models.CharField(max_length=12, choices=ROLE_CHOICES)
+    phone_number = models.CharField(max_length=15, unique=True)
     is_approved = models.BooleanField(default=False)
     is_blocked = models.BooleanField(default=False)
-    phone_number = models.CharField(max_length=15, unique=True)
+    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     
-    REQUIRED_FIELDS = ['phone_number']
-    USERNAME_FIELD = 'username'
+    USERNAME_FIELD = 'phone_number'
+    REQUIRED_FIELDS = []
     
+    objects = UserManager()
     
     def __str__(self):
-        return self.username
+        return self.phone_number
 
 class Branch(models.Model):
     name = models.CharField(max_length=100, choices=BRANCHES)
@@ -44,7 +61,7 @@ class Branch(models.Model):
         return self.name
     
 class Owner(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='owner')
+    owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name='owner')
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     email = models.EmailField(null=True, blank=True)
     full_name = models.CharField(max_length=100, null=True, blank=True)
@@ -55,7 +72,7 @@ class Owner(models.Model):
     agent_code = models.CharField(max_length=20, null=True, blank=True)
 
     def __str__(self):
-        return self.user.username
+        return self.owner
 
 class Agent(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='agent')
@@ -70,7 +87,7 @@ class Agent(models.Model):
     agent_code = models.CharField(max_length=20, null=True, blank=True)
 
     def __str__(self):
-        return self.user.username
+        return self.user
 
 class Customer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')

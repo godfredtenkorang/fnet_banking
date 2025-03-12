@@ -152,6 +152,7 @@ LOGIN_URL = 'login'
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Default backend
     'users.backends.ApprovedUserBackend',     # Custom backend
+    'users.backends.PhoneNumberBackend',
 ]
 
 # Default primary key field type

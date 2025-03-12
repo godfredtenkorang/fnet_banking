@@ -114,7 +114,7 @@ tbody tr:nth-child(even) {
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
-            <h1>Agents</h1>
+            <h1>Owners</h1>
         </div>
     </div>
 
@@ -136,7 +136,7 @@ tbody tr:nth-child(even) {
                 {% for owner in my_owners %}
                 <tr>
                     <td data-label="Customer ID">{{ owner.agent_code }}</td>
-                    <td data-label="Username">{{ owner.user.username }}</td>
+                    <td data-label="Username">{{ owner.owner.phone_number }}</td>
                     <td data-label="Company">{{ owner.company_name }}</td>
                     <td data-label="Email">{{ owner.email }}</td>
                     <td data-label="Full Name">{{ owner.full_name }}</td>

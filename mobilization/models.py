@@ -60,7 +60,7 @@ class MobilizationPayTo(models.Model):
     #     )
 
     def __str__(self):
-        return f"Pay To of GH¢{self.amount} on {self.network} by {self.mobilization.username}"
+        return f"Pay To of GH¢{self.amount} on {self.network} by {self.mobilization}"
     
     
 class BankDeposit(models.Model):
@@ -197,7 +197,7 @@ class PaymentRequest(models.Model):
         return total['amount__sum'] or 0
     
     def __str__(self):
-        return f"Payment of ${self.amount} via {self.mode_of_payment} by {self.mobilization.user.username} ({self.status})"
+        return f"Payment of ${self.amount} via {self.mode_of_payment} by {self.mobilization.user} ({self.status})"
     
     
 class CustomerAccount(models.Model):

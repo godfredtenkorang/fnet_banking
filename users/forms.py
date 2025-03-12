@@ -1,3 +1,4 @@
+import re
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import AuthenticationForm
@@ -12,19 +13,19 @@ class UserRegisterForm(UserCreationForm):
     )
     class Meta:
         model = User
-        fields = ['username', 'phone_number', 'password1', 'password2', 'role']
+        fields = ['phone_number', 'password1', 'password2', 'role']
         
     def __init__(self, *args, **kwargs):
         super(UserRegisterForm, self).__init__(*args, **kwargs)
         
-        for fieldname in ['username', 'password1', 'password2']:
+        for fieldname in ['password1', 'password2']:
             self.fields[fieldname].help_text = None
         
 class OwnerRegistrationForm(forms.ModelForm):
-    user = forms.ModelChoiceField(queryset=User.objects.filter(role='OWNER'), required=True)
+    owner = forms.ModelChoiceField(queryset=User.objects.filter(role='OWNER'), required=True)
     class Meta:
         model = Owner
-        fields = ['user', 'branch', 'email', 'full_name', 'phone_number', 'company_name', 'company_number', 'digital_address', 'agent_code']
+        fields = ['owner', 'branch', 'email', 'full_name', 'phone_number', 'company_name', 'company_number', 'digital_address', 'agent_code']
 
 class AgentRegistrationForm(forms.ModelForm):
     user = forms.ModelChoiceField(queryset=User.objects.filter(role='BRANCH'), required=True)
@@ -46,13 +47,11 @@ class MobilizationRegistrationForm(forms.ModelForm):
         fields = ['user', 'owner', 'branch', 'email', 'full_name', 'phone_number', 'company_name', 'company_number', 'digital_address', 'mobilization_code']
         
 class LoginForm(AuthenticationForm):
-    username = forms.CharField(widget=TextInput(attrs={
-        'class': 'form-control',
-        'placeholder': 'Username',
-        'required': 'required'
-    }), label='')
-    password = forms.CharField(widget=PasswordInput(attrs={
-        'class': 'form-control',
-        'placeholder': 'Password',
-        'required': 'required'
-    }), label='')
+    phone_number = forms.CharField(max_length=15)
+    password = forms.CharField(widget=forms.PasswordInput)
+
+    def clean_phone_number(self):
+        phone_number = self.cleaned_data['phone_number']
+        if not re.match(r'^\+?1?\d{9,15}$', phone_number):
+            raise forms.ValidationError('Invalid phone number format.')
+        return phone_number
