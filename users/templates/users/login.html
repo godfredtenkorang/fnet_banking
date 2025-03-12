@@ -53,14 +53,14 @@
             <div class="login">
                 <form method="POST">
                     {% csrf_token %}
-                    
+
                     <label for="phone_number">Phone Number:</label>
                     <input type="text" id="phone_number" name="phone_number" required>
                     <br>
-                    
                     <label for="password">Password:</label>
                     <input type="password" id="password" name="password" required>
-                    <br>
+                    <span id="toggle-password" style="cursor: pointer;">Show Password</span>
+                    <br><br>
                     <button type="submit">Login</button>
                     <p>Or you dont have account ? then <a href="{% url 'register'%}">Sign Up</a></p>
                     <p>If there are any difficulties, <a href="{% url 'customerSupport' %}">contact support</a></p>
@@ -84,5 +84,18 @@
 
 
 </body>
+<script>
+    // JavaScript to toggle password visibility using an eye icon
+    document.getElementById('toggle-password').addEventListener('click', function () {
+        const passwordField = document.getElementById('password');
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';  // Show password
+            this.textContent = 'Show Password';  // Change icon to open eye
+        } else {
+            passwordField.type = 'password';  // Hide password
+            this.textContent = 'Show Password';  // Change icon to closed eye
+        }
+    });
+</script>
 
 </html>
