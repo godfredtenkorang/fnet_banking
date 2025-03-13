@@ -104,11 +104,27 @@ class Agent(models.Model):
     agent_code = models.CharField(max_length=20, null=True, blank=True)
 
     def __str__(self):
-        return self.agent
+        return self.agent.phone_number
+    
+class Mobilization(models.Model):
+    mobilization = models.OneToOneField(User, on_delete=models.CASCADE, related_name='mobilization')
+    owner = models.ForeignKey(Owner, on_delete=models.CASCADE, null=True, blank=True)
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
+    email = models.EmailField(null=True, blank=True)
+    full_name = models.CharField(max_length=100, null=True, blank=True)
+    phone_number = models.CharField(max_length=10, null=True, blank=True)
+    company_name = models.CharField(max_length=100, null=True, blank=True)
+    company_number = models.CharField(max_length=10, null=True, blank=True)
+    digital_address = models.CharField(max_length=50, null=True, blank=True)
+    mobilization_code = models.CharField(max_length=20, null=True, blank=True)
+
+    def __str__(self):
+        return self.full_name
 
 class Customer(models.Model):
     customer = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')
-    agent = models.ForeignKey(Agent, on_delete=models.CASCADE)
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE, null=True, blank=True)
+    mobilization = models.ForeignKey(Mobilization, on_delete=models.CASCADE, null=True, blank=True)
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     phone_number = models.CharField(max_length=10, null=True, blank=True)
     full_name = models.CharField(max_length=100, null=True, blank=True)
@@ -121,22 +137,9 @@ class Customer(models.Model):
     date_created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     def __str__(self):
-        return self.full_name
+        return self.customer.phone_number
     
-class Mobilization(models.Model):
-    mobilization = models.OneToOneField(User, on_delete=models.CASCADE, related_name='mobilization')
-    owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
-    branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
-    email = models.EmailField(null=True, blank=True)
-    full_name = models.CharField(max_length=100, null=True, blank=True)
-    phone_number = models.CharField(max_length=10, null=True, blank=True)
-    company_name = models.CharField(max_length=100, null=True, blank=True)
-    company_number = models.CharField(max_length=10, null=True, blank=True)
-    digital_address = models.CharField(max_length=50, null=True, blank=True)
-    mobilization_code = models.CharField(max_length=20, null=True, blank=True)
 
-    def __str__(self):
-        return self.full_name
     
 class MobilizationCustomer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='mobilizationcustomer')

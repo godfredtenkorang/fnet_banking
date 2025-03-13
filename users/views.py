@@ -8,7 +8,8 @@ from .models import User, Owner, Agent, Customer, Branch, Mobilization
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 
-from .utils import send_otp
+from .utils import send_otp, send_otp_via_email
+from django.core.mail import send_mail
 
 
 
@@ -44,6 +45,7 @@ def login_user(request):
             user.generate_otp()
             send_otp(user.phone_number, user.otp)
             request.session['phone_number'] = phone_number  # Store phone number in session
+            send_otp_via_email(user.email, user.otp)
             return redirect('verify_otp')
         else:
             messages.error(request, 'Invalid phone number or password.')

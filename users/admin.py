@@ -29,7 +29,7 @@ class AgentAdmin(admin.ModelAdmin):
 
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ('customer', 'agent', 'branch')
+    list_display = ('customer', 'agent', 'mobilization', 'branch')
     
 @admin.register(Mobilization)
 class MobilizationAdmin(admin.ModelAdmin):

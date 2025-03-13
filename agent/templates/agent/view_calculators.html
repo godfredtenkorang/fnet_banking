@@ -158,14 +158,46 @@
                     <td>{{ calculator.customer_name }}</td>
                     <td>{{ calculator.phone_number }}</td>
                     <td>{{ calculator.amount }}</td>
+                    {% if calculator.d_200 %}
                     <td>{{ calculator.d_200 }}</td>
+                    {% else %}
+                    <td>N/A</td>
+                    {% endif %}
+                    {% if calculator.d_100 %}
                     <td>{{ calculator.d_100 }}</td>
+                    {% else %}
+                    <td>N/A</td>
+                    {% endif %}
+                    {% if calculator.d_50 %}
                     <td>{{ calculator.d_50 }}</td>
+                    {% else %}
+                    <td>N/A</td>
+                    {% endif %}
+                    {% if calculator.d_20 %}
                     <td>{{ calculator.d_20 }}</td>
+                    {% else %}
+                    <td>N/A</td>
+                    {% endif %}
+                    {% if calculator.d_10 %}
                     <td>{{ calculator.d_10 }}</td>
+                    {% else %}
+                    <td>N/A</td>
+                    {% endif %}
+                    {% if calculator.d_5 %}
                     <td>{{ calculator.d_5 }}</td>
+                    {% else %}
+                    <td>N/A</td>
+                    {% endif %}
+                    {% if calculator.d_2 %}
                     <td>{{ calculator.d_2 }}</td>
+                    {% else %}
+                    <td>N/A</td>
+                    {% endif %}
+                    {% if calculator.d_1 %}
                     <td>{{ calculator.d_1 }}</td>
+                    {% else %}
+                    <td>N/A</td>
+                    {% endif %}
                     <td>{{ calculator.date_added }}</td>
                     <td>{{ calculator.time_added }}</td>
                 </tr>

@@ -2,7 +2,7 @@ from django.db import models
 from users.models import User, Mobilization
 from django.utils import timezone
 from django.db.models import Sum
-from users.models import MobilizationCustomer
+from users.models import MobilizationCustomer, Customer
 
 REQUEST_STATUS = (
     ("Pending", "Pending"),
@@ -201,7 +201,7 @@ class PaymentRequest(models.Model):
     
     
 class CustomerAccount(models.Model):
-    customer = models.ForeignKey(MobilizationCustomer, on_delete=models.CASCADE, related_name='customeraccounts')
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='customeraccounts')
     account_number = models.CharField(max_length=16, blank=True)
     account_name = models.CharField(max_length=100, blank=True)
     bank = models.CharField(max_length=100, blank=True, default='')

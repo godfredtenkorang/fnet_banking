@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import MobilizationPayTo, BankDeposit, BankWithdrawal, PaymentRequest, CustomerAccount, TellerCalculator
 from django.contrib import messages
-from users.models import MobilizationCustomer, User, Branch
+from users.models import MobilizationCustomer, User, Branch, Customer
 from django.contrib.auth.hashers import make_password
 from django.core.files.storage import default_storage
 from django.db.models import Sum
@@ -206,8 +206,8 @@ def customer_registration(request):
         # agent = Agent.objects.get(user=request.user)
         
         # Create the customer
-        MobilizationCustomer.objects.create(
-            user=user,
+        Customer.objects.create(
+            customer=user,
             mobilization=request.user.mobilization,  # Assign the current agent
             branch=branch,
             phone_number=phone_number,
@@ -243,11 +243,12 @@ def customer_account_registration(request):
         customer_accounts = CustomerAccount(account_number=account_number, account_name=account_name, bank=bank, phone_number=phone_number)
         
         try:
-            customer = MobilizationCustomer.objects.get(phone_number=phone_number)
+            customer = Customer.objects.get(phone_number=phone_number)
             customer_accounts.customer = customer
             customer_accounts.save()
+            messages.success(request, 'Customer registered successfully!')
             return redirect('customer_account_registration')
-        except MobilizationCustomer.DoesNotExist:
+        except Customer.DoesNotExist:
             messages.error(request, 'Customer with this phone number does not exist.')
         
     context = {
@@ -259,7 +260,7 @@ def customer_account_registration(request):
 @user_passes_test(is_mobilization)
 def my_customers(request):
     mobilization = request.user.mobilization
-    customers = MobilizationCustomer.objects.filter(mobilization=mobilization)
+    customers = Customer.objects.filter(mobilization=mobilization)
     context = {
         'customers': customers,
         'title': 'My Customers'
@@ -269,7 +270,7 @@ def my_customers(request):
 @login_required
 @user_passes_test(is_mobilization)
 def my_customer_detail(request, customer_id):
-    customer = get_object_or_404(MobilizationCustomer, id=customer_id)
+    customer = get_object_or_404(Customer, id=customer_id)
     accounts = customer.customeraccounts.all()
     context = {
         'customer': customer,
