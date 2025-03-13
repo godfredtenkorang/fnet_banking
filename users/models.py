@@ -133,7 +133,7 @@ class Customer(models.Model):
     id_type = models.CharField(max_length=20, null=True, blank=True)
     id_number = models.CharField(max_length=100, null=True, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
-    customer_picture = models.ImageField(upload_to='customer_pic/', default='')
+    customer_picture = models.ImageField(upload_to='customer_pic/', default='', null=True, blank=True)
     date_created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     def __str__(self):

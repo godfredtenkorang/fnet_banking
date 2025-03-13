@@ -56,7 +56,7 @@ def verify_registration_otp(request):
             del request.session['registration_otp']
             del request.session['registration_user_id']
             
-            messages.success(request, "Registration complete! You are now logged in.")
+            messages.success(request, "Registration completed! You are now logged in.")
             return redirect("login")
             
         else:
