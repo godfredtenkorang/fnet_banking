@@ -24,6 +24,7 @@ urlpatterns = [
     path('mobilization_payment_summary/<str:date>/', views.payment_summary, name='mobilization_payment_summary'),
     
     path('mobilization_calculator/', views.calculator, name='mobilization_calculator'),
+    path('view_mobilization_calculator/', views.view_calculator, name='view_mobilization_calculator'),
     
     
     # Notifications

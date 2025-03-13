@@ -1,4 +1,4 @@
-{% extends 'mobilization/base.html' %} {% load static %} {% block content %}
+{% extends 'agent/base.html' %} {% load static %} {% block content %}
 
 
 
@@ -126,7 +126,7 @@
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
-            <h1>My Customers</h1>
+            <h1>All Calculators</h1>
         </div>
     </div>
 
@@ -136,34 +136,38 @@
         <table>
             <thead>
                 <tr>
-                    <th>Username</th>
-                    <th>Branch</th>
-                    <th>Phone</th>
-                    <th>Full Name</th>
-                    <th>Location</th>
-                    <th>Digital Address</th>
-                    <th>ID Type</th>
-                    <th>ID Number</th>
-                    <th>DOB</th>
-                    <th>Picture</th>
-                    <th>Account</th>
+                    <th>Teller Name</th>
+                    <th>Phone Number</th>
+                    <th>Amount</th>
+                    <th>200 notes</th>
+                    <th>100 notes</th>
+                    <th>50 notes</th>
+                    <th>20 notes</th>
+                    <th>10 notes</th>
+                    <th>5 notes</th>
+                    <th>2 notes</th>
+                    <th>1 notes</th>
+                    <th>Date Added</th>
+                    <th>Time Added</th>
                 </tr>
             </thead>
             <tbody>
-                {% for customer in customers %}
+                {% for calculator in calculators %}
                 <tr>
 
-                    <td>{{ customer.user.phone_number }}</td>
-                    <td>{{ customer.branch }}</td>
-                    <td>{{ customer.phone_number }}</td>
-                    <td>{{ customer.full_name }}</td>
-                    <td>{{ customer.customer_location }}</td>
-                    <td>{{ customer.digital_address }}</td>
-                    <td>{{ customer.id_type }}</td>
-                    <td>{{ customer.id_number }}</td>
-                    <td>{{ customer.date_of_birth }}</td>
-                    <td><a href="{{ customer.customer_picture.url }}">Image</a></td>
-                    <td><a href="{% url 'mobilization_customer_detail' customer.id %}">Link</a></td>
+                    <td>{{ calculator.customer_name }}</td>
+                    <td>{{ calculator.phone_number }}</td>
+                    <td>{{ calculator.amount }}</td>
+                    <td>{{ calculator.d_200 }}</td>
+                    <td>{{ calculator.d_100 }}</td>
+                    <td>{{ calculator.d_50 }}</td>
+                    <td>{{ calculator.d_20 }}</td>
+                    <td>{{ calculator.d_10 }}</td>
+                    <td>{{ calculator.d_5 }}</td>
+                    <td>{{ calculator.d_2 }}</td>
+                    <td>{{ calculator.d_1 }}</td>
+                    <td>{{ calculator.date_added }}</td>
+                    <td>{{ calculator.time_added }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

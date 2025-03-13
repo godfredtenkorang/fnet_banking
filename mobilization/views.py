@@ -11,6 +11,9 @@ from django.db.models import Sum
 def is_mobilization(user):
     return user.role == 'MOBILIZATION'
 # Create your views here.
+
+@login_required
+@user_passes_test(is_mobilization)
 def dashboard(request):
     mobilization = request.user.mobilization
     customers = MobilizationCustomer.objects.filter(mobilization=mobilization)
@@ -20,7 +23,8 @@ def dashboard(request):
     }
     return render(request, 'mobilization/dashboard.html', context)
 
-
+@login_required
+@user_passes_test(is_mobilization)
 def payto(request):
     mobilization = request.user
     if request.method == 'POST':
@@ -125,7 +129,8 @@ def bank_withdrawal(request):
     return render(request, 'mobilization/bank_withdrawal.html', context)
 
 
-
+@login_required
+@user_passes_test(is_mobilization)
 def payment(request):
     mobilization = request.user.mobilization
 
@@ -149,11 +154,12 @@ def payment(request):
     return render(request, 'mobilization/payment.html', context)
 
 
+@login_required
+@user_passes_test(is_mobilization)
 def customer_registration(request):
     # users = User.objects.filter(role='CUSTOMER')
     branches = Branch.objects.all()
     if request.method == 'POST':
-        username = request.POST.get('username')
         branch_id = request.POST.get('branch')
         phone_number = request.POST.get('phone_number')
         full_name = request.POST.get('full_name')
@@ -166,14 +172,14 @@ def customer_registration(request):
         password = request.POST.get('password')
         
         # Validate required fields
-        if not (username and password and phone_number and full_name and branch_id):
+        if not (phone_number and password and full_name and branch_id):
             messages.error(request, 'Please fill in all required fields.')
             return redirect('mobilization_customer_registration')
         
         # Check if the username already exists
-        if User.objects.filter(username=username).exists():
-            messages.error(request, 'Username already taken.')
-            return redirect('mobilization_customer_registration')
+        # if User.objects.filter(username=username).exists():
+        #     messages.error(request, 'Username already taken.')
+        #     return redirect('mobilization_customer_registration')
         
         # Check if the phone number already exists
         if User.objects.filter(phone_number=phone_number).exists():
@@ -182,7 +188,6 @@ def customer_registration(request):
         
         # Create the user
         user = User.objects.create(
-            username=username,
             password=make_password(password),  # Hash the password
             phone_number=phone_number,
             role='CUSTOMER',
@@ -225,7 +230,8 @@ def customer_registration(request):
 
     return render(request, 'mobilization/customer_registration.html', context)
 
-
+@login_required
+@user_passes_test(is_mobilization)
 def customer_account_registration(request):
     if request.method == 'POST':
         phone_number = request.POST['phone_number']
@@ -249,7 +255,8 @@ def customer_account_registration(request):
     }
     return render(request, 'mobilization/customer_account_registration.html', context)
 
-
+@login_required
+@user_passes_test(is_mobilization)
 def my_customers(request):
     mobilization = request.user.mobilization
     customers = MobilizationCustomer.objects.filter(mobilization=mobilization)
@@ -259,6 +266,8 @@ def my_customers(request):
     }
     return render(request, 'mobilization/my_customers.html', context)
 
+@login_required
+@user_passes_test(is_mobilization)
 def my_customer_detail(request, customer_id):
     customer = get_object_or_404(MobilizationCustomer, id=customer_id)
     accounts = customer.customeraccounts.all()
@@ -269,7 +278,8 @@ def my_customer_detail(request, customer_id):
     }
     return render(request, 'mobilization/my_customer_detail.html', context)
 
-
+@login_required
+@user_passes_test(is_mobilization)
 def transaction_summary(request):
     mobilization = request.user.mobilization
     total_deposits = BankDeposit.total_bank_deposit_for_customer(mobilization=mobilization)
@@ -286,6 +296,7 @@ def transaction_summary(request):
     return render(request, 'mobilization/transactions/transaction_summary.html', context)
 
 @login_required
+@user_passes_test(is_mobilization)
 def bank_deposit_summary_date(request):
     dates = BankDeposit.objects.values('date_deposited').annotate(total_amount=Sum('amount'))
     context = {
@@ -295,6 +306,7 @@ def bank_deposit_summary_date(request):
 
 
 @login_required
+@user_passes_test(is_mobilization)
 def bank_deposit_summary(request, date):
     mobilization = request.user.mobilization
     bank_deposits = BankDeposit.objects.filter(mobilization=mobilization, date_deposited=date).order_by('-date_deposited', '-time_deposited')
@@ -307,6 +319,7 @@ def bank_deposit_summary(request, date):
 
 
 @login_required
+@user_passes_test(is_mobilization)
 def bank_withdrawal_summary_date(request):
     dates = BankWithdrawal.objects.values('date_withdrawn').annotate(total_amount=Sum('amount'))
     context = {
@@ -316,6 +329,7 @@ def bank_withdrawal_summary_date(request):
 
 
 @login_required
+@user_passes_test(is_mobilization)
 def bank_withdrawal_summary(request, date):
     mobilization = request.user.mobilization
     bank_withdrawals = BankWithdrawal.objects.filter(mobilization=mobilization, date_withdrawn=date).order_by('-date_withdrawn', '-time_withdrawn')
@@ -328,6 +342,7 @@ def bank_withdrawal_summary(request, date):
 
 
 @login_required
+@user_passes_test(is_mobilization)
 def payment_summary_date(request):
     dates = PaymentRequest.objects.values('created_at').annotate(total_amount=Sum('amount'))
     context = {
@@ -336,8 +351,8 @@ def payment_summary_date(request):
     return render(request, 'mobilization/transactions/payment_summary_date.html', context)
 
 
-
 @login_required
+@user_passes_test(is_mobilization)
 def payment_summary(request, date):
     mobilization = request.user.mobilization
     payments = PaymentRequest.objects.filter(mobilization=mobilization, created_at=date).order_by('-created_at')
@@ -348,7 +363,8 @@ def payment_summary(request, date):
     }
     return render(request, 'mobilization/transactions/payment_summary.html', context)
 
-
+@login_required
+@user_passes_test(is_mobilization)
 def calculator(request):
     mobilization = request.user.mobilization
     if request.method == 'POST':
@@ -385,6 +401,17 @@ def calculator(request):
         'title': 'Calculator'
     }
     return render(request, 'mobilization/calculator.html', context)
+
+@login_required
+@user_passes_test(is_mobilization)
+def view_calculator(request):
+    mobilization = request.user.mobilization
+    calculators = TellerCalculator.objects.filter(mobilization=mobilization)
+    context = {
+        'calculators': calculators,
+        'title': 'View Calculator'
+    }
+    return render(request, 'mobilization/view_calculators.html', context)
 
 
 def bank_deposit_notifications(request):

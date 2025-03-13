@@ -42,6 +42,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     ]
     role = models.CharField(max_length=12, choices=ROLE_CHOICES)
     phone_number = models.CharField(max_length=15, unique=True)
+    email = models.EmailField(blank=True, null=True)  # Optional email field
     is_approved = models.BooleanField(default=False)
     is_blocked = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)

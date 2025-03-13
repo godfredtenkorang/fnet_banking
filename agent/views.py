@@ -754,7 +754,6 @@ def customerReg(request):
     # users = User.objects.filter(role='CUSTOMER')
     branches = Branch.objects.all()
     if request.method == 'POST':
-        username = request.POST.get('username')
         branch_id = request.POST.get('branch')
         phone_number = request.POST.get('phone_number')
         full_name = request.POST.get('full_name')
@@ -767,14 +766,14 @@ def customerReg(request):
         password = request.POST.get('password')
         
         # Validate required fields
-        if not (username and password and phone_number and full_name and branch_id):
+        if not (phone_number and password and full_name and branch_id):
             messages.error(request, 'Please fill in all required fields.')
             return redirect('customerReg')
         
         # Check if the username already exists
-        if User.objects.filter(username=username).exists():
-            messages.error(request, 'Username already taken.')
-            return redirect('customerReg')
+        # if User.objects.filter(phone_number=phone_number).exists():
+        #     messages.error(request, 'Username already taken.')
+        #     return redirect('customerReg')
         
         # Check if the phone number already exists
         if User.objects.filter(phone_number=phone_number).exists():
@@ -783,7 +782,6 @@ def customerReg(request):
         
         # Create the user
         user = User.objects.create(
-            username=username,
             password=make_password(password),  # Hash the password
             phone_number=phone_number,
             role='CUSTOMER',
@@ -803,7 +801,7 @@ def customerReg(request):
         
         # Create the customer
         Customer.objects.create(
-            user=user,
+            customer=user,
             agent=request.user.agent,  # Assign the current agent
             branch=branch,
             phone_number=phone_number,
@@ -841,6 +839,7 @@ def accountReg(request):
             customer = Customer.objects.get(phone_number=phone_number)
             customer_accounts.customer = customer
             customer_accounts.save()
+            messages.success(request, 'Customer registered successfully!')
             return redirect('accountReg')
         except Customer.DoesNotExist:
             messages.error(request, 'Customer with this phone number does not exist.')
@@ -1082,6 +1081,19 @@ def calculate(request):
         'title': 'Customer Payment',
     }
     return render(request, 'agent/calculate.html', context)
+
+
+@login_required
+@user_passes_test(is_agent)
+def view_calculator(request):
+    agent = request.user.agent
+    calculators = CustomerPaymentAtBank.objects.filter(agent=agent)
+    context = {
+        'calculators': calculators,
+        'title': 'View Calculator'
+    }
+    return render(request, 'agent/view_calculators.html', context)
+
 
 
 

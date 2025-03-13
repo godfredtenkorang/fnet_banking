@@ -56,6 +56,7 @@ urlpatterns = [
     path('view-customer-fraud/', views.view_customer_fraud, name='view_customer_fraud'),
     
     path('calculate/', views.calculate, name='calculate'),
+    path('view_calculate/', views.view_calculator, name='view_calculator'),
 
     path('efloat_account/', views.open_e_float_account, name='open_efloat_account'),
     path('view_efloat_account/', views.view_e_float_account, name='view_efloat_account'),

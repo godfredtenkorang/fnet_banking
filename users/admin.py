@@ -3,7 +3,7 @@ from .models import User, Branch, Owner, Agent, Customer, Mobilization, Mobiliza
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('phone_number', 'role', 'is_approved', 'is_blocked')
+    list_display = ('phone_number', 'email', 'role', 'is_approved', 'is_blocked')
     list_editable = ('is_approved', 'is_blocked')  # Allow editing approval status directly from the list view
     actions = ['block_users', 'unblock_users']
 

@@ -113,6 +113,9 @@
             <div class="clear">
                 <button>Clear</button>
             </div>
+            <div class="clear">
+                <a href="{% url 'view_mobilization_calculator' %}"><button>View</button></a>
+            </div>
 
 
 
@@ -547,7 +550,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Add to breakdown if greater than 0
                 if (count > 0) {
                     let listItem = document.createElement("li");
-                    listItem.textContent = `${denomination} cedi: ${count}qty = ${noteTotal}`;
+                    listItem.textContent = `${denomination} cedi: ${count}pieces = ${noteTotal}`;
                     breakdownList.appendChild(listItem);
                 }
             });

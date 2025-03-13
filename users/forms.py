@@ -7,19 +7,26 @@ from django.forms.widgets import PasswordInput, TextInput
 from .models import User, Branch, Owner, Agent, Customer, Mobilization
 
 class UserRegisterForm(UserCreationForm):
+    email = forms.EmailField(required=False)  # Optional email field
     role = forms.ChoiceField(
         choices=[('OWNER', 'Owner'),('BRANCH', 'Branch'), ('MOBILIZATION', 'Mobilization')],  # Removed "Admin"
         widget=forms.Select(attrs={'class': 'form-control'})
     )
     class Meta:
         model = User
-        fields = ['phone_number', 'password1', 'password2', 'role']
+        fields = ['phone_number', 'email', 'password1', 'password2', 'role']
         
     def __init__(self, *args, **kwargs):
         super(UserRegisterForm, self).__init__(*args, **kwargs)
         
         for fieldname in ['password1', 'password2']:
             self.fields[fieldname].help_text = None
+            
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email and User.objects.filter(email=email).exists():
+            raise forms.ValidationError('This email is already in use.')
+        return email
         
 class OwnerRegistrationForm(forms.ModelForm):
     owner = forms.ModelChoiceField(queryset=User.objects.filter(role='OWNER'), required=True)
