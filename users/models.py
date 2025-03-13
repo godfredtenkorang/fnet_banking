@@ -157,3 +157,14 @@ class MobilizationCustomer(models.Model):
 
     def __str__(self):
         return self.full_name
+    
+    
+class OTP(models.Model):
+    phone_number = models.CharField(max_length=10, unique=True)
+    otp_code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(default=timezone.now)
+    
+    
+    def is_valid(self):
+        return (timezone.now() - self.created_at).seconds < 300 # Valid for 5 minutes
+    
