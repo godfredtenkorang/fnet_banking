@@ -214,10 +214,18 @@ def balance(request):
 
 def all_users(request):
     # Fetch all users, owners, agents, and customers
-    users = User.objects.all()
+    admins = User.objects.filter(role="ADMIN")
+    agents = User.objects.filter(role="BRANCH")
+    owners = User.objects.filter(role="OWNER")
+    mobilizations = User.objects.filter(role="MOBILIZATION")
+    customers = User.objects.filter(role="CUSTOMER")
     
     context = {
-        'users': users,
+        'admins': admins,
+        'owners': owners,
+        'agents': agents,
+        'mobilizations': mobilizations,
+        'customers': customers,
         'title': 'Users'
 
     }
