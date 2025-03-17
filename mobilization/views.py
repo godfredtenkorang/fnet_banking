@@ -18,7 +18,7 @@ def mobilization_account(request):
     today = timezone.now().date()
     total_deposits = BankDeposit.total_bank_deposit_for_customer(mobilization=mobilization, date_deposited=today)
     total_payments = PaymentRequest.total_payment_for_customer(mobilization=mobilization, created_at=today)
-    balance_left = total_deposits + total_payments
+    balance_left = total_deposits - total_payments
     context = {
         'total_deposits': total_deposits,
         'total_payments': total_payments,
