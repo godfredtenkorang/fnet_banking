@@ -349,6 +349,46 @@ def agencyBank(request):
         
     return render(request, 'agent/agencyBank.html', context)
 
+
+@login_required
+@user_passes_test(is_agent)
+def record_bank_deposit(request):
+    agent = request.user.agent
+    today = timezone.now().date()
+    
+    account = get_object_or_404(EFloatAccount, agent=agent, date=today)
+    
+    if request.method == 'POST':
+        phone_number = request.POST.get('phone_number')
+        bank = request.POST.get('bank')
+        account_number = request.POST.get('account_number')
+        account_name = request.POST.get('account_name')
+        amount = request.POST.get('amount')
+        
+        bank_deposit = BankDeposit(phone_number=phone_number, bank=bank, account_number=account_number, account_name=account_name, amount=amount)
+        
+        bank_deposit.agent = agent
+        
+        bank_balance = getattr(account, f"{bank_deposit.bank.lower()}_balance")
+        
+        get_deposit = Decimal(bank_deposit.amount)
+        
+        
+        if get_deposit > Decimal(bank_balance):
+            messages.error(request, f'Insufficient balance in {bank_deposit.bank}.')
+            return redirect('agencyBank')
+        
+        bank_deposit.save()
+        account.update_balance_for_bank_deposit(bank_deposit.bank, bank_deposit.amount, bank_deposit.status)
+        messages.success(request, 'Bank Deposit recorded succussfully.')
+        return redirect('bank_deposit_notifications')
+    
+    context = {
+        'title': 'Bank Deposit',
+    }
+        
+    return render(request, 'agent/bank_deposit_without_customer.html', context)
+
 @login_required
 @user_passes_test(is_agent)
 def view_bank_deposits(request):

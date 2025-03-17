@@ -7,6 +7,7 @@ from users.models import MobilizationCustomer, User, Branch, Customer
 from django.contrib.auth.hashers import make_password
 from django.core.files.storage import default_storage
 from django.db.models import Sum
+from django.utils import timezone
 
 def is_mobilization(user):
     return user.role == 'MOBILIZATION'
@@ -16,8 +17,15 @@ def is_mobilization(user):
 @user_passes_test(is_mobilization)
 def dashboard(request):
     mobilization = request.user.mobilization
+    today = timezone.now().date()
     customers = MobilizationCustomer.objects.filter(mobilization=mobilization)
+    total_deposits = BankDeposit.total_bank_deposit_for_customer(mobilization=mobilization, date_deposited=today)
+    total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(mobilization=mobilization, date_withdrawn=today)
+    total_payments = PaymentRequest.total_payment_for_customer(mobilization=mobilization, created_at=today)
     context = {
+        'total_deposits': total_deposits,
+        'total_withdrawals': total_withdrawals,
+        'total_payments': total_payments,
         'customers': customers,
         'title': 'Dashboard'
     }
@@ -282,10 +290,12 @@ def my_customer_detail(request, customer_id):
 @login_required
 @user_passes_test(is_mobilization)
 def transaction_summary(request):
+    
     mobilization = request.user.mobilization
-    total_deposits = BankDeposit.total_bank_deposit_for_customer(mobilization=mobilization)
-    total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(mobilization=mobilization)
-    total_payments = PaymentRequest.total_payment_for_customer(mobilization=mobilization)
+    today = timezone.now().date()
+    total_deposits = BankDeposit.total_bank_deposit_for_customer(mobilization=mobilization, date_deposited=today)
+    total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(mobilization=mobilization, date_withdrawn=today)
+    total_payments = PaymentRequest.total_payment_for_customer(mobilization=mobilization, created_at=today)
     
     context = {
         'total_deposits': total_deposits,

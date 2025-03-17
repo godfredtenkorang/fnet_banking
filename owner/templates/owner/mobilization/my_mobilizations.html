@@ -130,46 +130,20 @@
         </div>
     </div>
 
-
-
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Username</th>
-                    <th>Branch</th>
-                    <th>Phone</th>
-                    <th>Full Name</th>
-                    <th>Email</th>
-                    <th>Digital Address</th>
-                    <th>Company Name</th>
-                    <th>Company Number</th>
-                    <th>Mobilization Code</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for mobilization in mobilizations %}
-                <tr>
-
-                    <td>{{ mobilization.mobilization.phone_number }}</td>
-                    <td>{{ mobilization.branch }}</td>
-                    <td>{{ mobilization.phone_number }}</td>
-                    <td>{{ mobilization.full_name }}</td>
-                    <td>{{ mobilization.email }}</td>
-                    <td>{{ mobilization.digital_address }}</td>
-                    <td>{{ mobilization.company_name }}</td>
-                    <td>{{ mobilization.company_number }}</td>
-                    <td>{{ mobilization.mobilization_code }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-
-
-
-
+    <div class="myagent-grid">
+        {% for mobilization in mobilizations %}
+        <div class="agent">
+            <i class="fa-solid fa-user"></i>
+            <p><strong>Name:</strong> <span>{{ mobilization.full_name }}</span></p>
+            <!-- <p><strong>Username:</strong> <span>{{ agent.user.username }}</span></p> -->
+            <p><strong>Phone:</strong> <span>{{ mobilization.phone_number }}</span></p>
+            <p><strong>Email:</strong> <span>{{ mobilization.email }}</span></p>
+            <a href="{% url 'mobilization_agent_detail' mobilization.id %}">Tap for more</a>
+        </div>
+        {% endfor %}
+    
     </div>
+
 
 
 

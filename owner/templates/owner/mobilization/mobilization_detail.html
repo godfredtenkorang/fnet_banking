@@ -1,0 +1,65 @@
+{% extends 'owner/base.html' %} {% load static %} {% block content %}
+
+
+
+
+
+
+<div class="main">
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>{{mobilization.full_name}}</h1>
+        </div>
+
+    </div>
+
+    <div class="grid-template">
+        <a href="{% url 'agentCustomer' %}" class="grid-row">
+            <i class="fas fa-user"></i> Customer
+        </a>
+        <a href="{% url 'mobilization_bank_deposit_transactions' %}" class="grid-row">
+            <i class="fas fa-university"></i> Bank Deposit
+        </a>
+        <a href="{% url 'mobilization_bank_withdrawal_transactions' %}" class="grid-row">
+            <i class="fas fa-money-bill-wave"></i> Bank Withdrawals
+        </a>
+        <a href="{% url 'mobilization_payment_transactions' %}" class="grid-row">
+            <i class="fas fa-money-bill-wave"></i> Payments
+        </a>
+        <a href="{% url 'all_transaction' %}" class="grid-row">
+            <i class="fas fa-list"></i> All Transactions
+        </a>
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}

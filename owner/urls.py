@@ -77,4 +77,10 @@ urlpatterns = [
     path('approve_mobilization_payment/<int:payment_id>/', views.approve_mobilization_payment, name='approve_mobilization_payment'),
     path('reject_mobilization_payment/<int:payment_id>/', views.reject_mobilization_payment, name='reject_mobilization_payment'),
 
+    # Mobilization Details
+    
+    path('mobilization_detail/<int:mobilization_id>/', views.mobilization_agent_detail, name='mobilization_agent_detail'),
+    path('mobilization_bank_deposit_transactions/', views.mobilization_bank_deposit_transactions, name='mobilization_bank_deposit_transactions'),
+    path('mobilization_bank_withdrawal_transactions/', views.mobilization_bank_withdrawal_transactions, name='mobilization_bank_withdrawal_transactions'),
+    path('mobilization_payment_transactions/', views.mobilization_payment_transactions, name='mobilization_payment_transactions'),
 ]

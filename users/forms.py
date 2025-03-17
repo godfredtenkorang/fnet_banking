@@ -22,11 +22,31 @@ class UserRegisterForm(UserCreationForm):
         for fieldname in ['password1', 'password2']:
             self.fields[fieldname].help_text = None
             
+    def clean_phone_number(self):
+        phone_number = self.cleaned_data.get('phone_number')
+        if not re.match(r'^\+?1?\d{9,15}$', phone_number):
+            raise forms.ValidationError('Invalid phone number format.')
+        if User.objects.filter(phone_number=phone_number).exists():
+            raise forms.ValidationError('This phone number is already registered.')
+        return phone_number
+
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if email and User.objects.filter(email=email).exists():
             raise forms.ValidationError('This email is already in use.')
         return email
+    
+    def clean_password1(self):
+        password1 = self.cleaned_data.get('password1')
+        if len(password1) < 8:
+            raise forms.ValidationError('Password must be at least 8 characters long.')
+        if not re.search(r'[A-Z]', password1):
+            raise forms.ValidationError('Password must contain at least one uppercase letter.')
+        if not re.search(r'[a-z]', password1):
+            raise forms.ValidationError('Password must contain at least one lowercase letter.')
+        if not re.search(r'[0-9]', password1):
+            raise forms.ValidationError('Password must contain at least one digit.')
+        return password1
         
 class OwnerRegistrationForm(forms.ModelForm):
     owner = forms.ModelChoiceField(queryset=User.objects.filter(role='OWNER'), required=True)

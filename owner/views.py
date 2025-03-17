@@ -19,6 +19,7 @@ from mobilization.models import BankWithdrawal as bank_withdrawals
 from mobilization.models import PaymentRequest as payment_requests
 
 
+
 def unapproved_users_count(request):
     unapproved_cash_count = CashAndECashRequest.objects.filter(status='Pending').count()
     unapproved_payment_count = PaymentRequest.objects.filter(status='Pending').count()
@@ -664,3 +665,35 @@ def reject_mobilization_payment(request, payment_id):
     payment.save()
     messages.success(request, 'Payment rejected')
     return redirect('mobilization_payment_requests')
+
+
+def mobilization_agent_detail(request, mobilization_id):
+    mobilization = get_object_or_404(Mobilization, id=mobilization_id)
+    context = {
+        'mobilization': mobilization
+    }
+    return render(request, 'owner/mobilization/mobilization_detail.html', context)
+
+def mobilization_bank_deposit_transactions(request):
+    bank_deposit_transactions = bank_deposits.objects.all()
+    context = {
+        'bank_deposit_transactions': bank_deposit_transactions
+    }
+    return render(request, 'owner/mobilization/bank_deposit_transactions.html', context)
+
+def mobilization_bank_withdrawal_transactions(request):
+    bank_withdrawal_transactions = bank_withdrawals.objects.all()
+    context = {
+        'bank_withdrawal_transactions': bank_withdrawal_transactions
+    }
+    return render(request, 'owner/mobilization/bank_withdrawal_transactions.html', context)
+
+def mobilization_payment_transactions(request):
+    payment_transactions = payment_requests.objects.all()
+    context = {
+        'payment_transactions': payment_transactions
+    }
+    return render(request, 'owner/mobilization/payment_transactions.html', context)
+
+def all_transaction(request):
+    return render(request, 'owner/agent_Detail/all_transaction.html')
