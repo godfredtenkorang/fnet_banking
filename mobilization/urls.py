@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path('', views.dashboard, name='mobilization_dashboard'),
+    path('mobilization_account/', views.mobilization_account, name='mobilization_account'),
     path('mobilization_payto/', views.payto, name='mobilization_payto'),
     
     path('get-banks/', views.get_banks, name='get_banks'),

@@ -13,6 +13,20 @@ def is_mobilization(user):
     return user.role == 'MOBILIZATION'
 # Create your views here.
 
+def mobilization_account(request):
+    mobilization = request.user.mobilization
+    today = timezone.now().date()
+    total_deposits = BankDeposit.total_bank_deposit_for_customer(mobilization=mobilization, date_deposited=today)
+    total_payments = PaymentRequest.total_payment_for_customer(mobilization=mobilization, created_at=today)
+    balance_left = total_deposits + total_payments
+    context = {
+        'total_deposits': total_deposits,
+        'total_payments': total_payments,
+        'balance_left': balance_left,
+        'title': 'Account'
+    }
+    return render(request, 'mobilization/account.html', context)
+
 @login_required
 @user_passes_test(is_mobilization)
 def dashboard(request):
@@ -149,8 +163,9 @@ def payment(request):
         branch = request.POST.get('branch')
         name = request.POST.get('name')
         amount = request.POST.get('amount')
+        transaction_id = request.POST.get('transaction_id')
         
-        payments = PaymentRequest(mode_of_payment=mode_of_payment, bank=bank, network=network, branch=branch, name=name, amount=amount)
+        payments = PaymentRequest(mode_of_payment=mode_of_payment, bank=bank, network=network, branch=branch, name=name, amount=amount, transaction_id=transaction_id)
         payments.mobilization = mobilization
         
         

@@ -70,6 +70,7 @@ class BankDeposit(models.Model):
     account_number = models.CharField(max_length=50)
     account_name = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=15, decimal_places=2)
+    transaction_id = models.CharField(max_length=100, null=True, blank=True)
     status = models.CharField(max_length=100, choices=REQUEST_STATUS, default='Pending')
     date_deposited = models.DateField(default=timezone.now)
     time_deposited = models.TimeField(default=timezone.now)
@@ -187,6 +188,7 @@ class PaymentRequest(models.Model):
     branch = models.CharField(max_length=30, choices=BRANCHES, null= True, blank=True)
     name = models.CharField(max_length=100, null=True, blank=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+    transaction_id = models.CharField(max_length=100, null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
@@ -197,7 +199,7 @@ class PaymentRequest(models.Model):
         return total['amount__sum'] or 0
     
     def __str__(self):
-        return f"Payment of ${self.amount} via {self.mode_of_payment} by {self.mobilization.user} ({self.status})"
+        return f"Payment of ${self.amount} via {self.mode_of_payment} by {self.mobilization.mobilization} ({self.status})"
     
     
 class CustomerAccount(models.Model):

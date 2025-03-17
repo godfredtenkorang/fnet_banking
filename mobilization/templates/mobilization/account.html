@@ -1,0 +1,52 @@
+{% extends 'mobilization/base.html' %}
+{% load humanize %}
+{% load static %}
+{% block content %}
+
+
+
+<div class="main">
+    <div class="banner-container">
+        <img src="{% static 'banking/img/ban.jpg' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Account</h1>
+        </div>
+    </div>
+    <div class="stat-container">
+
+
+        <a  class="stat">
+            <h2>Total Requests</h2>
+            <h3>GH¢ {{total_deposits|floatformat:2|intcomma}}</h3>
+
+            <!-- <p>Click to view total</p> -->
+        </a>
+
+        <a  class="stat">
+            <h2>Total Payments</h2>
+            <h3>GH¢ {{total_payments|floatformat:2|intcomma}}</h3>
+
+            <!-- <p>Click to view total</p> -->
+
+        </a>
+
+        <a  class="stat">
+            <h2>Balance Left</h2>
+            <h3>GH¢ {{balance_left|floatformat:2|intcomma}}</h3>
+
+            <!-- <p>Click to view total</p> -->
+        </a>
+
+
+
+    </div>
+</div>
+
+
+</div>
+
+
+
+
+
+{% endblock %}

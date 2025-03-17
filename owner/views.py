@@ -601,10 +601,20 @@ def mobilization_bank_deposit_requests(request):
 @login_required
 def approve_mobilization_bank_deposit(request, deposit_id):
     deposit = get_object_or_404(bank_deposits, id=deposit_id)
-    deposit.status = 'Approved'
-    deposit.save()
-    messages.success(request, 'Bank Deposit approved succussfully')
-    return redirect('mobilization_bank_deposit_requests')
+    if request.method == 'POST':
+        transaction_id = request.POST.get('transaction_id')
+        if not transaction_id:
+            messages.error(request, 'Transaction ID is required.')
+            return redirect('approve_mobilization_bank_deposit', deposit_id=deposit.id)
+        deposit.transaction_id = transaction_id
+        deposit.status = 'Approved'
+        deposit.save()
+        messages.success(request, 'Bank Deposit approved succussfully')
+        return redirect('mobilization_bank_deposit_requests')
+    context = {
+        'deposit': deposit
+    }
+    return render(request, 'owner/mobilization_approvals/bank_deposit_approval.html', context)
 
 @login_required
 def reject_mobilization_bank_deposit(request, deposit_id):
@@ -653,10 +663,20 @@ def mobilization_payment_requests(request):
 @login_required
 def approve_mobilization_payment(request, payment_id):
     payment = get_object_or_404(payment_requests, id=payment_id)
-    payment.status = 'Approved'
-    payment.save()
-    messages.success(request, 'Payment approved succussfully')
-    return redirect('mobilization_payment_requests')
+    if request.method == 'POST':
+        transaction_id = request.POST.get('transaction_id')
+        if not transaction_id:
+            messages.error(request, 'Transaction ID is required.')
+            return redirect('approve_mobilization_payment', payment_id=payment.id)
+        payment.transaction_id = transaction_id
+        payment.status = 'Approved'
+        payment.save()
+        messages.success(request, 'Payment approved succussfully')
+        return redirect('mobilization_payment_requests')
+    context = {
+        'payment': payment
+    }
+    return render(request, 'owner/mobilization_approvals/payment_approval.html', context)
 
 @login_required
 def reject_mobilization_payment(request, payment_id):
