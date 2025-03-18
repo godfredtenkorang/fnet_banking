@@ -602,11 +602,14 @@ def mobilization_bank_deposit_requests(request):
 def approve_mobilization_bank_deposit(request, deposit_id):
     deposit = get_object_or_404(bank_deposits, id=deposit_id)
     if request.method == 'POST':
-        transaction_id = request.POST.get('transaction_id')
-        if not transaction_id:
+        owner_transaction_id = request.POST.get('owner_transaction_id')
+        if not owner_transaction_id:
             messages.error(request, 'Transaction ID is required.')
             return redirect('approve_mobilization_bank_deposit', deposit_id=deposit.id)
-        deposit.transaction_id = transaction_id
+        if deposit.mobilization_transaction_id != owner_transaction_id:
+            messages.error(request, 'Transaction ID does not match the Mobilization\'s input.')
+            return redirect('approve_mobilization_bank_deposit', deposit_id=deposit.id)
+        deposit.owner_transaction_id = owner_transaction_id
         deposit.status = 'Approved'
         deposit.save()
         messages.success(request, 'Bank Deposit approved succussfully')
@@ -664,11 +667,14 @@ def mobilization_payment_requests(request):
 def approve_mobilization_payment(request, payment_id):
     payment = get_object_or_404(payment_requests, id=payment_id)
     if request.method == 'POST':
-        transaction_id = request.POST.get('transaction_id')
-        if not transaction_id:
+        owner_transaction_id = request.POST.get('owner_transaction_id')
+        if not owner_transaction_id:
             messages.error(request, 'Transaction ID is required.')
             return redirect('approve_mobilization_payment', payment_id=payment.id)
-        payment.transaction_id = transaction_id
+        if payment.mobilization_transaction_id != owner_transaction_id:
+            messages.error(request, 'Transaction ID does not match the Mobilization\'s input.')
+            return redirect('approve_mobilization_payment', payment_id=payment.id)
+        payment.transaction_id = owner_transaction_id
         payment.status = 'Approved'
         payment.save()
         messages.success(request, 'Payment approved succussfully')

@@ -109,9 +109,10 @@ def bank_deposit(request):
         bank = request.POST.get('bank')
         account_number = request.POST.get('account_number')
         account_name = request.POST.get('account_name')
+        mobilization_transaction_id = request.POST.get('mobilization_transaction_id')
         amount = request.POST.get('amount')
         
-        bank_deposit = BankDeposit(phone_number=phone_number, bank=bank, account_number=account_number, account_name=account_name, amount=amount)
+        bank_deposit = BankDeposit(phone_number=phone_number, bank=bank, account_number=account_number, account_name=account_name, mobilization_transaction_id=mobilization_transaction_id, amount=amount)
         
         bank_deposit.mobilization = mobilization
         
@@ -163,9 +164,9 @@ def payment(request):
         branch = request.POST.get('branch')
         name = request.POST.get('name')
         amount = request.POST.get('amount')
-        transaction_id = request.POST.get('transaction_id')
+        mobilization_transaction_id = request.POST.get('mobilization_transaction_id')
         
-        payments = PaymentRequest(mode_of_payment=mode_of_payment, bank=bank, network=network, branch=branch, name=name, amount=amount, transaction_id=transaction_id)
+        payments = PaymentRequest(mode_of_payment=mode_of_payment, bank=bank, network=network, branch=branch, name=name, amount=amount, mobilization_transaction_id=mobilization_transaction_id)
         payments.mobilization = mobilization
         
         
