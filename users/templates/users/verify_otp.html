@@ -55,7 +55,7 @@
                     {% csrf_token %}
 
                     <label for="phone_number">Enter OTP</label>
-                    <input type="text" id="otp" name="otp" required>
+                    <input type="tel" id="otp" name="otp" required>
                     <br><br>
                     <button type="submit">Verify</button>
                     <p><a href="{% url 'login' %}">Request New OTP</a></p>
