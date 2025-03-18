@@ -70,7 +70,7 @@ class BankDeposit(models.Model):
     account_number = models.CharField(max_length=50)
     account_name = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=15, decimal_places=2)
-    mobilization_transaction_id = models.CharField(max_length=100, null=True, blank=True)
+    # mobilization_transaction_id = models.CharField(max_length=100, null=True, blank=True)
     owner_transaction_id = models.CharField(max_length=100, null=True, blank=True)
     status = models.CharField(max_length=100, choices=REQUEST_STATUS, default='Pending')
     date_deposited = models.DateField(default=timezone.now)

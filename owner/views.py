@@ -606,9 +606,6 @@ def approve_mobilization_bank_deposit(request, deposit_id):
         if not owner_transaction_id:
             messages.error(request, 'Transaction ID is required.')
             return redirect('approve_mobilization_bank_deposit', deposit_id=deposit.id)
-        if deposit.mobilization_transaction_id != owner_transaction_id:
-            messages.error(request, 'Transaction ID does not match the Mobilization\'s input.')
-            return redirect('approve_mobilization_bank_deposit', deposit_id=deposit.id)
         deposit.owner_transaction_id = owner_transaction_id
         deposit.status = 'Approved'
         deposit.save()
