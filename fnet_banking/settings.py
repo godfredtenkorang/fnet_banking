@@ -55,7 +55,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'users.middleware.OTPVerificationMiddleware',
+    # 'users.middleware.OTPVerificationMiddleware',
 ]
 
 ROOT_URLCONF = 'fnet_banking.urls'
