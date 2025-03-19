@@ -150,7 +150,7 @@
             <tbody>
                 {% for payment in payment_transactions %}
                 <tr>
-                    <td data-label="Agent">{{payment.mobilization.phone_number}}</td>
+                    <td data-label="Mobilization">{{payment.mobilization.phone_number}}</td>
                     <td data-label="Mode of Payment">{{payment.mode_of_payment}}</td>
                     <td data-label="Bank/Network/Branch">
                         {% if payment.mode_of_payment == 'Bank' %}

@@ -58,7 +58,13 @@
                     <input type="tel" id="otp" name="otp" required>
                     <br><br>
                     <button type="submit">Verify</button>
-                    <p><a href="{% url 'login' %}">Request New OTP</a></p>
+                    <!-- Timer Display -->
+                    <p>Time remaining: <span id="timer">05:00</span></p>
+                    <!-- Resend OTP Link -->
+                    <p id="resend-link" style="display: none;">
+                        <a href="{% url 'resend_otp' %}">Resend OTP</a>
+                    </p>
+              
                 </form>
             </div>
         </div>
@@ -67,5 +73,28 @@
 
 
 </body>
+
+<script>
+    // Set the timer duration (5 minutes)
+    let timeLeft = 300;  // 300 seconds = 5 minutes
+
+    // Function to update the timer
+    function updateTimer() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        document.getElementById('timer').textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+        if (timeLeft > 0) {
+            timeLeft--;  // Decrement the time
+            setTimeout(updateTimer, 1000);  // Update every second
+        } else {
+            // Show the resend OTP link when the timer expires
+            document.getElementById('resend-link').style.display = 'block';
+        }
+    }
+
+    // Start the timer when the page loads
+    updateTimer();
+</script>
 
 </html>

@@ -9,6 +9,7 @@ from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 
 from .utils import send_otp, send_otp_via_email, generate_otp, send_otp_sms
+from django.utils import timezone
 
 
 
@@ -74,11 +75,27 @@ def login_user(request):
         
         
         if user is not None:
-            user.generate_otp()
-            send_otp(user.phone_number, user.otp)
-            request.session['phone_number'] = phone_number  # Store phone number in session
-            send_otp_via_email(user.email, user.otp)
-            return redirect('verify_otp')
+            if user.is_otp_verified_today():
+                login(request, user)
+                if user.is_approved and not user.is_blocked:
+                    if user.role == "ADMIN":
+                        return redirect("admin_dashboard")
+                    elif user.role == "OWNER":
+                        return redirect("owner-dashboard")
+                    elif user.role == "BRANCH":
+                        return redirect("agent-dashboard")
+                    elif user.role == "MOBILIZATION":
+                        return redirect("mobilization_dashboard")
+                elif user.is_blocked:
+                    messages.error(request, "Your account has been blocked. Please contact the admin.")
+                else:
+                    messages.error(request, "Your account is not yet approved by the admin.")
+            else:
+                user.generate_otp()
+                send_otp(user.phone_number, user.otp)
+                request.session['phone_number'] = phone_number  # Store phone number in session
+                send_otp_via_email(user.email, user.otp)
+                return redirect('verify_otp')
         else:
             messages.error(request, 'Invalid phone number or password.')
 
@@ -98,6 +115,8 @@ def verify_otp(request):
         if phone_number:
             user = User.objects.get(phone_number=phone_number)
             if user.is_otp_valid(otp):
+                user.otp_verified_at = timezone.now()
+                user.save()
                 backend = 'django.contrib.auth.backends.ModelBackend'  # Default backend
                 login(request, user, backend=backend)
                 if user.is_approved and not user.is_blocked:
@@ -126,10 +145,23 @@ def verify_otp(request):
     
     return render(request, 'users/verify_otp.html', context)
 
+def resend_otp(request):
+    phone_number = request.session.get('phone_number')
+    if phone_number:
+        user = User.objects.get(phone_number=phone_number)
+        user.generate_otp()  # Generate a new OTP
+        send_otp(user.phone_number, user.otp)  # Send the new OTP
+        send_otp_via_email(user.email, user.otp)
+        messages.success(request, 'A new OTP has been sent to your phone number or email.')
+    else:
+        messages.error(request, 'Session expired. Please register again.')
+    return redirect('verify_otp')
+
 
 def logout(request):
-    auth.logout(request)
     
+    auth.logout(request)
+    messages.success(request, 'Logged out successfully!')
     return redirect('login')
 
 # Role Check Functions

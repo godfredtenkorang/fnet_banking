@@ -50,6 +50,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     otp = models.CharField(max_length=6, blank=True, null=True)
     otp_expiry = models.DateTimeField(blank=True, null=True)
+    otp_verified_at = models.DateTimeField(blank=True, null=True)  # Timestamp of OTP verification
     
     def generate_otp(self):
         # Generate a 6-digit OTP
@@ -61,6 +62,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     def is_otp_valid(self, otp):
         # Check if the OTP is valid and not expired
         return self.otp == otp and self.otp_expiry > timezone.now()
+    
+    def is_otp_verified_today(self):
+        # Check if the OTP was verified within the last 24 hours
+        if self.otp_verified_at:
+            return timezone.now() - self.otp_verified_at < timedelta(days=1)
+        return False
     
     USERNAME_FIELD = 'phone_number'
     REQUIRED_FIELDS = []

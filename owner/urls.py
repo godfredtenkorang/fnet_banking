@@ -11,7 +11,7 @@ urlpatterns = [
     path('get_owner/view_agent_e_float_drawer/<int:agent_id>/', views.view_agent_e_float_drawer, name='view_agent_e_float_drawer'),
     path('get_owner/add_capital_to_drawer/<int:agent_id>/', views.add_capital_to_drawer, name='add_capital_to_drawer'),
 
-    path('report/', views.report, name='report'),
+    path('customers/', views.customers, name='all_agent_customers'),
     
     path('cash_requests/', views.cash_requests, name='cash_requests'),
     path('ecash_requests/', views.e_cash_requests, name='ecash_requests'),
@@ -79,8 +79,10 @@ urlpatterns = [
 
     # Mobilization Details
     
+    path('mobilization_customers/<int:mobilization_id>/', views.mobilization_customers, name='mobilization_customers'),
     path('mobilization_detail/<int:mobilization_id>/', views.mobilization_agent_detail, name='mobilization_agent_detail'),
     path('mobilization_bank_deposit_transactions/', views.mobilization_bank_deposit_transactions, name='mobilization_bank_deposit_transactions'),
     path('mobilization_bank_withdrawal_transactions/', views.mobilization_bank_withdrawal_transactions, name='mobilization_bank_withdrawal_transactions'),
     path('mobilization_payment_transactions/', views.mobilization_payment_transactions, name='mobilization_payment_transactions'),
+    path('mobilization_all_transactions/', views.mobilization_all_transactions, name='mobilization_all_transactions'),
 ]

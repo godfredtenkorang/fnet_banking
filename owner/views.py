@@ -11,7 +11,7 @@ from decimal import Decimal
 from django.utils import timezone
 from datetime import datetime
 from django.db.models import Sum
-from users.models import User, Branch, Mobilization
+from users.models import User, Branch, Mobilization, Customer
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from mobilization.models import BankDeposit as bank_deposits
@@ -93,8 +93,13 @@ def myMobilization(request):
 #     users = Owner.objects.filter(user=request.user)
 #     return {'users': users}
 
-def report(request):
-    return render(request, 'owner/report.html')
+def customers(request):
+    customers = Customer.objects.all()
+    context = {
+        'customers': customers,
+        'title': 'Customers'
+    }
+    return render(request, 'owner/customers.html', context)
 
 def is_owner(user):
     return user.role == 'OWNER'
@@ -696,6 +701,21 @@ def mobilization_agent_detail(request, mobilization_id):
         'mobilization': mobilization
     }
     return render(request, 'owner/mobilization/mobilization_detail.html', context)
+
+def mobilization_customers(request, mobilization_id):
+    mobilization = get_object_or_404(Mobilization, id=mobilization_id)
+    customers = Customer.objects.filter(mobilization=mobilization)
+    context = {
+        'customers': customers,
+        'title': 'Customers'
+    }
+    return render(request, 'owner/mobilization/customers.html', context)
+
+def mobilization_all_transactions(requests):
+    context = {
+        'title': 'All Transactions'
+    }
+    return render(requests, 'owner/mobilization/all_transactions.html', context)
 
 def mobilization_bank_deposit_transactions(request):
     bank_deposit_transactions = bank_deposits.objects.all()

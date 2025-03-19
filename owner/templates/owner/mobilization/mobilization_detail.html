@@ -15,7 +15,7 @@
     </div>
 
     <div class="grid-template">
-        <a href="{% url 'agentCustomer' %}" class="grid-row">
+        <a href="{% url 'mobilization_customers' mobilization.id %}" class="grid-row">
             <i class="fas fa-user"></i> Customer
         </a>
         <a href="{% url 'mobilization_bank_deposit_transactions' %}" class="grid-row">
@@ -27,7 +27,10 @@
         <a href="{% url 'mobilization_payment_transactions' %}" class="grid-row">
             <i class="fas fa-money-bill-wave"></i> Payments
         </a>
-        <a href="{% url 'all_transaction' %}" class="grid-row">
+        <a href="" class="grid-row">
+            <i class="fas fa-money-bill-wave"></i> Report
+        </a>
+        <a href="{% url 'mobilization_all_transactions' %}" class="grid-row">
             <i class="fas fa-list"></i> All Transactions
         </a>
 
