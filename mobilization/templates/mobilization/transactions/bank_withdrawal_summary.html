@@ -143,7 +143,7 @@
                     <th>Date</th>
                     <th>Time</th>
                     <th>Amount(GH¢)</th>
-                    <th>Status</th>
+                    <th>Ghana Card</th>
 
                 </tr>
             </thead>
@@ -157,7 +157,7 @@
                     <td>{{withdrawal.date_withdrawn}}</td>
                     <td>{{withdrawal.time_withdrawn}}</td>
                     <td data-label="Amount">{{withdrawal.amount}}</td>
-                    <td>{{withdrawal.status}}</td>
+                    <td><a href="{{withdrawal.ghana_card.url}}">Image</a></td>
                 </tr>
 
                 {% endfor %}

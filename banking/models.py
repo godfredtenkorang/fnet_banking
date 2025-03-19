@@ -186,7 +186,7 @@ class EFloatAccount(models.Model):
         
         self.save()
         
-    def update_balance_for_bank_deposit(self, bank, amount, status):
+    def update_balance_for_bank_deposit(self, bank, amount):
         amount = Decimal(amount)
         
         if bank == 'Mtn':
@@ -212,7 +212,7 @@ class EFloatAccount(models.Model):
         
         self.save()
             
-    def update_balance_for_bank_withdrawal(self, bank, amount, status):
+    def update_balance_for_bank_withdrawal(self, bank, amount):
         amount = Decimal(amount)
         
         if bank == 'Mtn':

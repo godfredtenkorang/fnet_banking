@@ -164,7 +164,7 @@ class BankDeposit(models.Model):
     account_number = models.CharField(max_length=50)
     account_name = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=15, decimal_places=2)
-    status = models.CharField(max_length=100, choices=REQUEST_STATUS, default='Pending')
+    # status = models.CharField(max_length=100, choices=REQUEST_STATUS, default='Pending')
     date_deposited = models.DateField(default=timezone.now)
     time_deposited = models.TimeField(default=timezone.now)
     
@@ -174,7 +174,7 @@ class BankDeposit(models.Model):
         return total['amount__sum'] or 0
     
     def __str__(self):
-        return f"Bank Deposit of GH¢{self.amount} to {self.bank} by {self.phone_number} ({self.status})"
+        return f"Bank Deposit of GH¢{self.amount} to {self.bank} by {self.phone_number}"
     
     
 
@@ -186,9 +186,10 @@ class BankWithdrawal(models.Model):
     account_number = models.CharField(max_length=20)
     account_name = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+    ghana_card = models.ImageField(upload_to='ghana_card_img/', default='', null=True, blank=True)
     date_withdrawn = models.DateField(default=timezone.now)
     time_withdrawn = models.TimeField(default=timezone.now)
-    status = models.CharField(max_length=20, choices=REQUEST_STATUS, default='Pending')
+    # status = models.CharField(max_length=20, choices=REQUEST_STATUS, default='Pending')
     
     @classmethod
     def total_bank_withdrawal_for_customer(cls, agent, date_withdrawn):
@@ -196,7 +197,7 @@ class BankWithdrawal(models.Model):
         return total['amount__sum'] or 0
     
     def __str__(self):
-        return f"Bank Withdrawal of GH¢{self.amount} from {self.bank} by {self.customer_phone} ({self.status})"
+        return f"Bank Withdrawal of GH¢{self.amount} from {self.bank} by {self.customer_phone}"
     
     
 class CashAndECashRequest(models.Model):

@@ -379,7 +379,7 @@ def record_bank_deposit(request):
             return redirect('agencyBank')
         
         bank_deposit.save()
-        account.update_balance_for_bank_deposit(bank_deposit.bank, bank_deposit.amount, bank_deposit.status)
+        account.update_balance_for_bank_deposit(bank_deposit.bank, bank_deposit.amount)
         messages.success(request, 'Bank Deposit recorded succussfully.')
         return redirect('bank_deposit_notifications')
     
@@ -413,9 +413,10 @@ def withdrawal(request):
         bank = request.POST.get('bank')
         account_number = request.POST.get('account_number')
         account_name = request.POST.get('account_name')
+        ghana_card = request.POST.get('ghana_card')
         amount = request.POST.get('amount')
         
-        bank_withdrawal = BankWithdrawal(customer_phone=phone_number, bank=bank, account_number=account_number, account_name=account_name, amount=amount)
+        bank_withdrawal = BankWithdrawal(customer_phone=phone_number, bank=bank, account_number=account_number, account_name=account_name, ghana_card=ghana_card, amount=amount)
         
         bank_withdrawal.agent = agent
         
@@ -429,7 +430,7 @@ def withdrawal(request):
             return redirect('withdrawal')
         
         bank_withdrawal.save()
-        account.update_balance_for_bank_withdrawal(bank_withdrawal.bank, bank_withdrawal.amount, bank_withdrawal.status)
+        account.update_balance_for_bank_withdrawal(bank_withdrawal.bank, bank_withdrawal.amount)
         messages.success(request, 'Bank Withdrawal recorded succussfully.')
         return redirect('bank_withdrawal_notifications')
     
