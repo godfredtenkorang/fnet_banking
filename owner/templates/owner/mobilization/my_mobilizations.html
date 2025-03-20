@@ -1,0 +1,151 @@
+{% extends 'owner/base.html' %} {% load static %} {% block content %}
+
+
+
+
+
+<style>
+    /* Default table styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+
+    th {
+        background: #007bff;
+        color: white;
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+    td {
+        font-size: 12px;
+    }
+
+    /* Button Styling */
+    .approve-btn {
+        background: #28a745;
+        color: white;
+
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+
+        height: 6vh !important;
+    }
+
+    .decline-btn {
+        background: #dc3545;
+        color: white;
+
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+
+        height: 6vh !important;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+    }
+
+    /* Table row background color using child selectors */
+    tbody tr:nth-child(odd) {
+        background-color: #f9f9f9;
+        /* Light gray for odd rows */
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #e9ecef;
+        /* Slightly darker gray for even rows */
+    }
+
+    /* Mobile Responsive Table */
+    @media screen and (max-width: 968px) {
+
+        table,
+        thead,
+        tbody,
+        th,
+        td,
+        tr {
+            display: block;
+            width: 100%;
+        }
+
+        thead {
+            display: none;
+        }
+
+        tr {
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            padding: 8px;
+            background: #f9f9f9;
+        }
+
+        td {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border: none;
+            text-align: left;
+        }
+
+        td::before {
+            content: attr(data-label);
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        /* Stack buttons at the bottom */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .action-buttons button {
+            width: 100% !important;
+        }
+    }
+</style>
+
+
+<div class="main">
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>My Mobilizations</h1>
+        </div>
+    </div>
+
+    <div class="myagent-grid">
+        {% for mobilization in mobilizations %}
+        <div class="agent">
+            <i class="fa-solid fa-user"></i>
+            <p><strong>Name:</strong> <span>{{ mobilization.full_name }}</span></p>
+            <!-- <p><strong>Username:</strong> <span>{{ agent.user.username }}</span></p> -->
+            <p><strong>Phone:</strong> <span>{{ mobilization.phone_number }}</span></p>
+            <p><strong>Email:</strong> <span>{{ mobilization.email }}</span></p>
+            <a href="{% url 'mobilization_agent_detail' mobilization.id %}">Tap for more</a>
+        </div>
+        {% endfor %}
+    
+    </div>
+
+
+
+
+
+    {% endblock %}

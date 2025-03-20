@@ -56,7 +56,7 @@
   <div class="user-role">
     
    <div class="user-name">
-    <p><i class="fa-solid fa-user"></i> {{user.username}}</p>
+    <p><i class="fa-solid fa-user"></i> {{user.phone_number}}</p>
   </div>
   
   <div class="role">
@@ -77,11 +77,11 @@
               <p><i class="fa-solid fa-cash-register"></i> Payment</p>
             </div> -->
            </div>
-          <div class="button-btn">
+          <!-- <div class="button-btn">
             <a href="">
                 <p title="calculator"><i class="fa-solid fa-calculator"> </i> </p>
             </a>
-         </div>
+         </div> -->
         
       
       
@@ -114,14 +114,14 @@
                     <a href="{% url 'registerAgent' %}">
 
                         <div class="nav-option option1 button">
-                            <h3><i class="fa-solid fa-book"></i> Register Agent</h3>
+                            <h3><i class="fa-solid fa-book"></i> Register Branch</h3>
                         </div>
                     </a>
                     <!-- home button -->
                     <a href="{% url 'myAgent' %}">
 
                         <div class="nav-option option1 button ">
-                            <h3><i class="fa-solid fa-house"></i> My Agent
+                            <h3><i class="fa-solid fa-house"></i> My Branches
                             </h3>
                             
                         </div>
@@ -132,10 +132,18 @@
                         <h3><i class="fa-solid fa-book"></i> Register Mobilization</h3>
                       </div>
                     </a>
+                    <a href="{% url 'my_mobilizations' %}">
+                    
+                      <div class="nav-option option1 button ">
+                        <h3><i class="fa-solid fa-house"></i> My Mobilizations
+                        </h3>
+                    
+                      </div>
+                    </a>
                     <!-- acivities button -->
-                    <a href="{% url 'report' %}">
+                    <a href="{% url 'all_agent_customers' %}">
                         <div class="nav-option option1 button">
-                            <h3><i class="fa-solid fa-book"></i> Report</h3>
+                            <h3><i class="fa-solid fa-book"></i> Customers</h3>
                         </div>
                     </a>
                     
@@ -176,11 +184,18 @@
                         </div>
                     </a> -->
                     
-                    <!-- <a href="{% url 'flot_resources' %}">
-                        <div class="nav-option option1 button">
-                            <h3><i class="fa-solid fa-bookmark"></i> Flot Resources</h3>
+                    <a href="{% url 'mobilization_bank_deposit_requests' %}">
+                      <div class="nav-option option1 button">
+                        <h3><i class="fa-solid fa-book"></i> Mobilization Requests </h3>
+                        <div class="notification">
+                          <i class="fa-solid fa-bell"></i>
+                          <p>{{ mobilization_count }}</p>
+                    
+                    
                         </div>
-                    </a> -->
+                    
+                      </div>
+                    </a>
                     
                     <!-- <a href="{% url 'agent_accounts' %}">
                         <div class="nav-option option1 button">

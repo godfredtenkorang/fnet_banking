@@ -23,8 +23,8 @@
                 {% csrf_token %}
                 <div class="form-grid">
                     <div class="input">
-                        <label for="username">Username</label> <br />
-                        <input type="text" name="username" id="username" required placeholder="Fnetbank" />
+                        <label for="customerPhone">Customer Phone Number</label> <br />
+                        <input type="text" name="phone_number" id="customerPhone" required placeholder="Phone Number" />
                     </div>
                     <div class="input">
                         <label for="branch">Branch</label> <br />
@@ -36,11 +36,6 @@
 
                         </select>
                     </div>
-                    <div class="input">
-                        <label for="customerPhone">Customer Phone Number</label> <br />
-                        <input type="text" name="phone_number" id="customerPhone" required placeholder="Phone Number" />
-                    </div>
-
                     <div class="input">
                         <label for="customerName">Full Name</label> <br />
                         <input type="text" name="full_name" id="customerName" required placeholder="Full Name" />
@@ -80,8 +75,8 @@
                     </div>
 
                     <div class="input">
-                        <label for="customerPhoto">Upload Customer Picture</label> <br />
-                        <input type="file" name="customer_picture" id="customerPhoto" accept="image/*" required />
+                        <label for="customerPhoto">Upload ID Card</label> <br />
+                        <input type="file" name="customer_picture" id="customerPhoto" accept="image/*" />
                     </div>
                     <div class="input">
                         <label for="password">Password</label> <br />
@@ -122,7 +117,7 @@
 
             <div class="cust-flex">
                 <div class="customer-img">
-                    <img id="previewImg" src="" alt="Customer Image">
+                    <img id="previewImg" src="" alt="ID card Image">
                 </div>
                 <div class="customer-detail">
                     <p><strong>Name:</strong> <span id="displayName"></span></p>

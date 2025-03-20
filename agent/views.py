@@ -6,15 +6,16 @@ from banking.models import Bank, CustomerAccount, Drawer, EFloatAccount, Custome
 from django.utils import timezone
 from django.contrib import messages
 from .models import CustomerCashIn, CustomerCashOut, BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest, CustomerComplain, HoldCustomerAccount, CustomerFraud, CustomerPayTo, CashInCommission, CashOutCommission
-from datetime import datetime
+from datetime import datetime, timedelta, date
 from decimal import Decimal
 from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password
 from django.core.files.storage import default_storage
 from django.db.models import Sum
+from django.core.paginator import Paginator
 
 def is_agent(user):
-    return user.role == 'AGENT'
+    return user.role == 'BRANCH'
 
 @login_required
 @user_passes_test(is_agent)
@@ -121,12 +122,13 @@ def view_e_float_account(request):
 def agent_dashboard(request):
     agent = request.user.agent
     agent_id = request.user
-    total_cashins = CustomerCashIn.total_cash_for_customer(agent=agent_id)
-    total_cashouts = CustomerCashOut.total_cashout_for_customer(agent=agent_id)
-    total_deposits = BankDeposit.total_bank_deposit_for_customer(agent=agent)
-    total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(agent=agent)
-    total_ecash = CashAndECashRequest.total_ecash_for_customer(agent=agent)
-    total_payments = PaymentRequest.total_payment_for_customer(agent=agent)
+    today = timezone.now().date()
+    total_cashins = CustomerCashIn.total_cash_for_customer(agent=agent_id, date_deposited=today)
+    total_cashouts = CustomerCashOut.total_cashout_for_customer(agent=agent_id, date_withdrawn=today)
+    total_deposits = BankDeposit.total_bank_deposit_for_customer(agent=agent, date_deposited=today)
+    total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(agent=agent, date_withdrawn=today)
+    total_ecash = CashAndECashRequest.total_ecash_for_customer(agent=agent, created_at=today)
+    total_payments = PaymentRequest.total_payment_for_customer(agent=agent, created_at=today)
     customers = Customer.objects.filter(agent=agent)
     context = {
         'total_cashins': total_cashins,
@@ -183,29 +185,62 @@ def cashIn(request):
         depositor_number = request.POST.get('depositor_number')
         amount = request.POST.get('amount')
         cash_received = request.POST.get('cash_received')
+        action = request.POST.get('action')  # 'proceed' or 'cancel'
         
         amount = Decimal(amount)
         cash_received = Decimal(cash_received)
 
+        if CustomerFraud.objects.filter(customer_phone=customer_phone).exists():
+            if action == 'proceed':
+                cash_in = CustomerCashIn.objects.create(
+                    agent=request.user, 
+                    network=network, 
+                    customer_phone=customer_phone, 
+                    deposit_type=deposit_type, 
+                    depositor_name=depositor_name, 
+                    depositor_number=depositor_number, 
+                    amount=amount, 
+                    cash_received=cash_received,
+                    is_fraudster=True,
+                )
         
-        cash_in = CustomerCashIn(network=network, customer_phone=customer_phone, deposit_type=deposit_type, depositor_name=depositor_name, depositor_number=depositor_number, amount=amount, cash_received=cash_received)
-        
-        cash_in.agent = agent.user
-        
+                messages.warning(request, 'Transaction completed with a flagged fraudster!')
+                return render(request, 'agent/cashIn.html', {
+                    'is_fraudster': True,
+                    'network':network, 
+                    'customer_phone':customer_phone, 
+                    'deposit_type':deposit_type, 
+                    'depositor_name':depositor_name, 
+                    'depositor_number':depositor_number, 
+                    'amount':amount, 
+                    'cash_received':cash_received
+                })
+            elif action == 'cancel':
+                messages.info(request, 'Transaction canceled due to fraudster alert.')
+                return redirect('cashIn')
+            
+        cash_in = CustomerCashIn.objects.create(
+            agent=request.user, 
+            network=network, 
+            customer_phone=customer_phone, 
+            deposit_type=deposit_type, 
+            depositor_name=depositor_name, 
+            depositor_number=depositor_number, 
+            amount=amount, 
+            cash_received=cash_received
+        )
 
-        
         network_balance = getattr(account, f"{cash_in.network.lower()}_balance")
         get_amount = Decimal(cash_in.amount)
         if get_amount > Decimal(network_balance):
             messages.error(request, f"Insufficient balance in {cash_in.network}. Kindly make a request.")
             return redirect('cashIn')
     
-        cash_in.save()
         account.update_balance_for_cash_in(cash_in.network, cash_in.amount)
         messages.success(request, 'Customer Cash-In recorded succussfully.')
         return redirect('cashin_notifications')
     context = {
-        'title': 'Cash In'
+        'title': 'Cash In',
     }
     return render(request, 'agent/cashIn.html', context)
 
@@ -314,6 +349,46 @@ def agencyBank(request):
         
     return render(request, 'agent/agencyBank.html', context)
 
+
+@login_required
+@user_passes_test(is_agent)
+def record_bank_deposit(request):
+    agent = request.user.agent
+    today = timezone.now().date()
+    
+    account = get_object_or_404(EFloatAccount, agent=agent, date=today)
+    
+    if request.method == 'POST':
+        phone_number = request.POST.get('phone_number')
+        bank = request.POST.get('bank')
+        account_number = request.POST.get('account_number')
+        account_name = request.POST.get('account_name')
+        amount = request.POST.get('amount')
+        
+        bank_deposit = BankDeposit(phone_number=phone_number, bank=bank, account_number=account_number, account_name=account_name, amount=amount)
+        
+        bank_deposit.agent = agent
+        
+        bank_balance = getattr(account, f"{bank_deposit.bank.lower()}_balance")
+        
+        get_deposit = Decimal(bank_deposit.amount)
+        
+        
+        if get_deposit > Decimal(bank_balance):
+            messages.error(request, f'Insufficient balance in {bank_deposit.bank}.')
+            return redirect('agencyBank')
+        
+        bank_deposit.save()
+        account.update_balance_for_bank_deposit(bank_deposit.bank, bank_deposit.amount)
+        messages.success(request, 'Bank Deposit recorded succussfully.')
+        return redirect('bank_deposit_notifications')
+    
+    context = {
+        'title': 'Bank Deposit',
+    }
+        
+    return render(request, 'agent/bank_deposit_without_customer.html', context)
+
 @login_required
 @user_passes_test(is_agent)
 def view_bank_deposits(request):
@@ -338,9 +413,10 @@ def withdrawal(request):
         bank = request.POST.get('bank')
         account_number = request.POST.get('account_number')
         account_name = request.POST.get('account_name')
+        ghana_card = request.POST.get('ghana_card')
         amount = request.POST.get('amount')
         
-        bank_withdrawal = BankWithdrawal(customer_phone=phone_number, bank=bank, account_number=account_number, account_name=account_name, amount=amount)
+        bank_withdrawal = BankWithdrawal(customer_phone=phone_number, bank=bank, account_number=account_number, account_name=account_name, ghana_card=ghana_card, amount=amount)
         
         bank_withdrawal.agent = agent
         
@@ -354,7 +430,7 @@ def withdrawal(request):
             return redirect('withdrawal')
         
         bank_withdrawal.save()
-        account.update_balance_for_bank_withdrawal(bank_withdrawal.bank, bank_withdrawal.amount, bank_withdrawal.status)
+        account.update_balance_for_bank_withdrawal(bank_withdrawal.bank, bank_withdrawal.amount)
         messages.success(request, 'Bank Withdrawal recorded succussfully.')
         return redirect('bank_withdrawal_notifications')
     
@@ -381,12 +457,14 @@ def view_bank_withdrawals(request):
 def TotalTransactionSum(request):
     agent = request.user.agent
     agent_id = request.user
-    total_cashins = CustomerCashIn.total_cash_for_customer(agent=agent_id)
-    total_cashouts = CustomerCashOut.total_cashout_for_customer(agent=agent_id)
-    total_deposits = BankDeposit.total_bank_deposit_for_customer(agent=agent)
-    total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(agent=agent)
-    total_ecash = CashAndECashRequest.total_ecash_for_customer(agent=agent)
-    total_payments = PaymentRequest.total_payment_for_customer(agent=agent)
+    today = timezone.now().date()
+    
+    total_cashins = CustomerCashIn.total_cash_for_customer(agent=agent_id, date_deposited=today)
+    total_cashouts = CustomerCashOut.total_cashout_for_customer(agent=agent_id, date_withdrawn=today)
+    total_deposits = BankDeposit.total_bank_deposit_for_customer(agent=agent, date_deposited=today)
+    total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(agent=agent, date_withdrawn=today)
+    total_ecash = CashAndECashRequest.total_ecash_for_customer(agent=agent, created_at=today)
+    total_payments = PaymentRequest.total_payment_for_customer(agent=agent, created_at=today)
     
     context = {
         'total_cashins': total_cashins,
@@ -402,9 +480,37 @@ def TotalTransactionSum(request):
 
 @login_required
 def cashin_summary_date(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    # Set default date range (last 30 days)
+    if not start_date and not end_date:
+        end_date = date.today()
+        start_date = end_date - timedelta(days=30)
+        
+     # Convert start_date and end_date to date objects if they are strings
+    if start_date and isinstance(start_date, str):
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+    if end_date and isinstance(end_date, str):
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+    
     dates = CustomerCashIn.objects.values('date_deposited').annotate(total_amount=Sum('amount'))
+    
+    if start_date:
+        dates = dates.filter(date_deposited__gte=start_date)
+    if end_date:
+        dates = dates.filter(date_deposited__lte=end_date)
+        
+    paginator = Paginator(dates, 30)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
     context = {
-        'dates': dates
+        'page_obj': page_obj,
+        'dates': dates,
+        'start_date': start_date,
+        'end_date': end_date,
+        'title': 'Cash in Summary'
     }
     return render(request, 'agent/transaction_summary/cashin_summary_date.html', context)
 
@@ -423,9 +529,35 @@ def cashin_summary(request, date):
 
 @login_required
 def cashout_summary_date(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    # Set default date range (last 30 days)
+    if not start_date and not end_date:
+        end_date = date.today()
+        start_date = end_date - timedelta(days=30)
+        
+     # Convert start_date and end_date to date objects if they are strings
+    if start_date and isinstance(start_date, str):
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+    if end_date and isinstance(end_date, str):
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+        
     dates = CustomerCashOut.objects.values('date_withdrawn').annotate(total_amount=Sum('amount'))
+    
+    if start_date:
+        dates = dates.filter(date_withdrawn__gte=start_date)
+    if end_date:
+        dates = dates.filter(date_withdrawn__lte=end_date)
+        
+    paginator = Paginator(dates, 30)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     context = {
-        'dates': dates
+        'page_obj': page_obj,
+        'dates': dates,
+        'start_date': start_date,
+        'end_date': end_date,
     }
     return render(request, 'agent/transaction_summary/cashout_summary_date.html', context)
 
@@ -445,9 +577,33 @@ def cashout_summary(request, date):
 
 @login_required
 def bank_deposit_summary_date(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    # Set default date range (last 30 days)
+    if not start_date and not end_date:
+        end_date = date.today()
+        start_date = end_date - timedelta(days=30)
+        
+     # Convert start_date and end_date to date objects if they are strings
+    if start_date and isinstance(start_date, str):
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+    if end_date and isinstance(end_date, str):
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
     dates = BankDeposit.objects.values('date_deposited').annotate(total_amount=Sum('amount'))
+    if start_date:
+        dates = dates.filter(date_deposited__gte=start_date)
+    if end_date:
+        dates = dates.filter(date_deposited__lte=end_date)
+        
+    paginator = Paginator(dates, 30)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     context = {
-        'dates': dates
+        'page_obj': page_obj,
+        'dates': dates,
+        'start_date': start_date,
+        'end_date': end_date,
     }
     return render(request, 'agent/transaction_summary/bank_deposit_summary_date.html', context)
 
@@ -467,9 +623,33 @@ def bank_deposit_summary(request, date):
 
 @login_required
 def bank_withdrawal_summary_date(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    # Set default date range (last 30 days)
+    if not start_date and not end_date:
+        end_date = date.today()
+        start_date = end_date - timedelta(days=30)
+        
+     # Convert start_date and end_date to date objects if they are strings
+    if start_date and isinstance(start_date, str):
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+    if end_date and isinstance(end_date, str):
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
     dates = BankWithdrawal.objects.values('date_withdrawn').annotate(total_amount=Sum('amount'))
+    if start_date:
+        dates = dates.filter(date_withdrawn__gte=start_date)
+    if end_date:
+        dates = dates.filter(date_withdrawn__lte=end_date)
+        
+    paginator = Paginator(dates, 30)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     context = {
-        'dates': dates
+        'page_obj': page_obj,
+        'dates': dates,
+        'start_date': start_date,
+        'end_date': end_date,
     }
     return render(request, 'agent/transaction_summary/bank_withdrawal_summary_date.html', context)
 
@@ -489,9 +669,33 @@ def bank_withdrawal_summary(request, date):
 
 @login_required
 def cash_summary_date(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    # Set default date range (last 30 days)
+    if not start_date and not end_date:
+        end_date = date.today()
+        start_date = end_date - timedelta(days=30)
+        
+     # Convert start_date and end_date to date objects if they are strings
+    if start_date and isinstance(start_date, str):
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+    if end_date and isinstance(end_date, str):
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
     dates = CashAndECashRequest.objects.values('created_at').annotate(total_amount=Sum('amount'))
+    if start_date:
+        dates = dates.filter(created_at__gte=start_date)
+    if end_date:
+        dates = dates.filter(created_at__lte=end_date)
+        
+    paginator = Paginator(dates, 30)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     context = {
-        'dates': dates
+        'page_obj': page_obj,
+        'dates': dates,
+        'start_date': start_date,
+        'end_date': end_date,
     }
     return render(request, 'agent/transaction_summary/cash_summary_date.html', context)
 
@@ -512,9 +716,33 @@ def cash_summary(request, date):
 
 @login_required
 def payment_summary_date(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    # Set default date range (last 30 days)
+    if not start_date and not end_date:
+        end_date = date.today()
+        start_date = end_date - timedelta(days=30)
+        
+     # Convert start_date and end_date to date objects if they are strings
+    if start_date and isinstance(start_date, str):
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+    if end_date and isinstance(end_date, str):
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
     dates = PaymentRequest.objects.values('created_at').annotate(total_amount=Sum('amount'))
+    if start_date:
+        dates = dates.filter(created_at__gte=start_date)
+    if end_date:
+        dates = dates.filter(created_at__lte=end_date)
+        
+    paginator = Paginator(dates, 30)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     context = {
-        'dates': dates
+        'page_obj': page_obj,
+        'dates': dates,
+        'start_date': start_date,
+        'end_date': end_date,
     }
     return render(request, 'agent/transaction_summary/payment_summary_date.html', context)
 
@@ -567,7 +795,6 @@ def customerReg(request):
     # users = User.objects.filter(role='CUSTOMER')
     branches = Branch.objects.all()
     if request.method == 'POST':
-        username = request.POST.get('username')
         branch_id = request.POST.get('branch')
         phone_number = request.POST.get('phone_number')
         full_name = request.POST.get('full_name')
@@ -580,14 +807,14 @@ def customerReg(request):
         password = request.POST.get('password')
         
         # Validate required fields
-        if not (username and password and phone_number and full_name and branch_id):
+        if not (phone_number and password and full_name and branch_id):
             messages.error(request, 'Please fill in all required fields.')
             return redirect('customerReg')
         
         # Check if the username already exists
-        if User.objects.filter(username=username).exists():
-            messages.error(request, 'Username already taken.')
-            return redirect('customerReg')
+        # if User.objects.filter(phone_number=phone_number).exists():
+        #     messages.error(request, 'Username already taken.')
+        #     return redirect('customerReg')
         
         # Check if the phone number already exists
         if User.objects.filter(phone_number=phone_number).exists():
@@ -596,7 +823,6 @@ def customerReg(request):
         
         # Create the user
         user = User.objects.create(
-            username=username,
             password=make_password(password),  # Hash the password
             phone_number=phone_number,
             role='CUSTOMER',
@@ -616,7 +842,7 @@ def customerReg(request):
         
         # Create the customer
         Customer.objects.create(
-            user=user,
+            customer=user,
             agent=request.user.agent,  # Assign the current agent
             branch=branch,
             phone_number=phone_number,
@@ -654,6 +880,7 @@ def accountReg(request):
             customer = Customer.objects.get(phone_number=phone_number)
             customer_accounts.customer = customer
             customer_accounts.save()
+            messages.success(request, 'Customer registered successfully!')
             return redirect('accountReg')
         except Customer.DoesNotExist:
             messages.error(request, 'Customer with this phone number does not exist.')
@@ -684,20 +911,20 @@ def payment(request):
         payments.agent = agent
         
         
-        bank_balance = getattr(account, f"{payments.bank.lower()}_balance")
-        network_balance = getattr(account, f"{payments.network.lower()}_balance")
+        # bank_balance = getattr(account, f"{payments.bank.lower()}_balance")
+        # network_balance = getattr(account, f"{payments.network.lower()}_balance")
        
-        get_payment = Decimal(payments.amount)
+        # get_payment = Decimal(payments.amount)
         
 
 
-        if get_payment > Decimal(bank_balance):
-            messages.error(request, f'Insufficient balance in {payments.bank}.')
-            return redirect('payment')
+        # if get_payment > Decimal(bank_balance):
+        #     messages.error(request, f'Insufficient balance in {payments.bank}.')
+        #     return redirect('payment')
         
-        elif get_payment > Decimal(network_balance):
-            messages.error(request, f'Insufficient balance in {payments.network}.')
-            return redirect('payment')
+        # elif get_payment > Decimal(network_balance):
+        #     messages.error(request, f'Insufficient balance in {payments.network}.')
+        #     return redirect('payment')
         
         
         payments.save()
@@ -859,6 +1086,7 @@ def view_customer_fraud(request):
     return render(request, 'agent/customer_care/fraud_views.html', context)
 
 def calculate(request):
+    agent = request.user.agent
     if request.method == 'POST':
         customer_name = request.POST.get('customer_name')
         phone_number = request.POST.get('phone_number')
@@ -886,6 +1114,7 @@ def calculate(request):
             d_2=d_2,
             d_1=d_1
         )
+        payment.agent = agent
         payment.save()
         return redirect('calculate')
     
@@ -893,6 +1122,19 @@ def calculate(request):
         'title': 'Customer Payment',
     }
     return render(request, 'agent/calculate.html', context)
+
+
+@login_required
+@user_passes_test(is_agent)
+def view_calculator(request):
+    agent = request.user.agent
+    calculators = CustomerPaymentAtBank.objects.filter(agent=agent)
+    context = {
+        'calculators': calculators,
+        'title': 'View Calculator'
+    }
+    return render(request, 'agent/view_calculators.html', context)
+
 
 
 
@@ -928,7 +1170,7 @@ def commission(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     
-    agent = Agent.objects.get(user=request.user)
+    agent = Agent.objects.get(agent=request.user)
     
     if filter_type == 'daily':
         cashincommissions = CashInCommission.objects.filter(customer_cash_in__agent=request.user, date=datetime.today())

@@ -1,0 +1,637 @@
+{% extends 'mobilization/base.html' %} {% load static %} {% block content %}
+
+<div class="main">
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>calculate</h1>
+        </div>
+    </div>
+
+
+    <div class="calculate">
+        <div class="calc">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="input">
+                    <input type="text" placeholder="Teller's Name" name="customer_name" id="name">
+                </div>
+                <div class="input">
+                    <input type="tel" placeholder="+233550222888" name="phone_number" id="tel">
+                </div>
+                <div class="input">
+                    <input type="number" placeholder="Enter Amount" name="amount" id="amount">
+                </div>
+
+                <div class="currencyNoteGrid">
+                    <div class="currencyNote">
+                        <div class="input">
+                            <input type="tel" name="d_200" id="twoHundrend" value="0" placeholder=" 200 GH₵ Notes">
+                            <div class="counter">
+                                <p class="numberOfNote">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="currencyNote">
+                        <div class="input">
+                            <input type="tel" name="d_100" id="oneHundred" value="0" placeholder=" 100 GH₵ Notes">
+                            <div class="counter">
+                                <p class="numberOfNote">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="currencyNote">
+                        <div class="input">
+                            <input type="tel" name="d_50" id="fifty" value="0" placeholder=" 50 GH₵ Notes">
+                            <div class="counter">
+                                <p class="numberOfNote">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="currencyNote">
+                        <div class="input">
+                            <input type="tel" name="d_20" id="twenty" value="0" placeholder=" 20 GH₵ Notes">
+                            <div class="counter">
+                                <p class="numberOfNote">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="currencyNote">
+                        <div class="input">
+                            <input type="tel" name="d_10" id="ten" value="0" placeholder=" 10 GH₵ Notes">
+                            <div class="counter">
+                                <p class="numberOfNote">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="currencyNote">
+                        <div class="input">
+                            <input type="tel" name="d_5" id="five" value="0" placeholder=" 5 GH₵ Notes">
+                            <div class="counter">
+                                <p class="numberOfNote">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="currencyNote">
+                        <div class="input">
+                            <input type="tel" name="d_2" id="two" value="0" placeholder=" 2 GH₵ Notes">
+                            <div class="counter">
+                                <p class="numberOfNote">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="currencyNote">
+                        <div class="input">
+                            <input type="tel" name="d_1" id="one" value="0" placeholder=" 1 GH₵ Notes">
+                            <div class="counter">
+                                <p class="numberOfNote">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="share">
+                    <button>share</button>
+                </div>
+            </form>
+            <!-- <div class="calc-btn">
+        <button>Calculate</button>
+      </div> -->
+            <div class="total">
+                <p>Total is GH₵<span class="totals">0</span> </p>
+                <p class="warning"></p>
+            </div>
+            <div class="breakdown">
+                <p class="tellerName"></p>
+                <p class="tellerNumber"></p>
+                <p class="amount"></p>
+                <ul class="cediBreakdown"></ul>
+            </div>
+
+
+
+
+            <div class="clear">
+                <button>Clear</button>
+            </div>
+            <div class="clear">
+                <a href="{% url 'view_mobilization_calculator' %}"><button>View</button></a>
+            </div>
+
+
+
+        </div>
+    </div>
+
+</div>
+
+
+
+
+
+<!-- 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const buttons = document.querySelectorAll(".currencyNote button");
+    const totalDisplay = document.querySelector(".totals");
+    const calculateBtn = document.querySelector(".calc-btn button");
+    const clearBtn = document.querySelector(".clear button");
+    let noteCounts = JSON.parse(localStorage.getItem("noteCounts")) || {};
+
+    // Restore saved values
+    buttons.forEach((button) => {
+        const noteValue = parseInt(button.textContent);
+        const counter = button.nextElementSibling.querySelector(".numberOfNote");
+        counter.textContent = noteCounts[noteValue] || 0;
+    });
+
+    // Update counter on click
+    buttons.forEach((button) => {
+        button.addEventListener("click", function () {
+            const noteValue = parseInt(button.textContent);
+            const counter = button.nextElementSibling.querySelector(".numberOfNote");
+            let count = parseInt(counter.textContent) + noteValue;
+            counter.textContent = count;
+            noteCounts[noteValue] = count;
+            localStorage.setItem("noteCounts", JSON.stringify(noteCounts));
+        });
+    });
+
+    // Calculate total
+    calculateBtn.addEventListener("click", function () {
+        let total = 0;
+        Object.keys(noteCounts).forEach((note) => {
+            total += parseInt(noteCounts[note]);
+        });
+        totalDisplay.textContent = total;
+    });
+
+    // Clear everything
+    clearBtn.addEventListener("click", function () {
+        buttons.forEach((button) => {
+            const counter = button.nextElementSibling.querySelector(".numberOfNote");
+            counter.textContent = 0;
+        });
+        localStorage.removeItem("noteCounts");
+        noteCounts = {};
+        totalDisplay.textContent = 0;
+    });
+});
+
+
+</script> -->
+
+<!-- <script>
+document.addEventListener("DOMContentLoaded", function () {
+    const amountInput = document.getElementById("amount");
+    const noteInputs = document.querySelectorAll(".currencyNote input");
+    const totalDisplay = document.querySelector(".totals");
+    const warningMsg = document.querySelector(".warning");
+    const calcButton = document.querySelector(".calc-btn button");
+    const clearButton = document.querySelector(".clear button");
+    const shareButton = document.querySelector(".share button");
+    const breakdownList = document.querySelector(".cediBreakdown");
+    const tellerName = document.getElementById("name");
+    const tellerPhone = document.getElementById("tel");
+    const tellerNameDisplay = document.querySelector(".tellerName");
+    const tellerNumberDisplay = document.querySelector(".tellerNumber");
+    const amountDisplay = document.querySelector(".amount");
+
+    let totalAmount = 0;
+
+    // Disable inputs initially
+    noteInputs.forEach(input => input.disabled = true);
+    shareButton.disabled = true;
+
+    // Function to validate phone number
+    function isValidPhoneNumber(phone) {
+        return phone.match(/^233\d{9}$/); // Ensures country code 233 and 9-digit number
+    }
+
+    // Enable inputs only if an amount is entered
+    amountInput.addEventListener("input", function () {
+        if (amountInput.value.trim() !== "") {
+            noteInputs.forEach(input => input.disabled = false);
+            warningMsg.textContent = "";
+        } else {
+            noteInputs.forEach(input => {
+                input.disabled = true;
+                input.value = "";
+            });
+            totalAmount = 0;
+            totalDisplay.textContent = "0";
+            warningMsg.textContent = "Please enter an amount before proceeding.";
+        }
+    });
+
+    // Update note count and total calculation
+    noteInputs.forEach(input => {
+        input.addEventListener("input", function () {
+            let value = this.value.replace(/[^0-9,]/g, ""); // Allow only numbers and commas
+            this.value = value;
+
+            let total = 0;
+            breakdownList.innerHTML = "";
+
+            noteInputs.forEach(note => {
+                let denomination = parseInt(note.placeholder.replace(/[^0-9]/g, ""), 10);
+                let count = note.value ? parseInt(note.value.replace(/,/g, ""), 10) : 0;
+                let noteTotal = denomination * count;
+                total += noteTotal;
+
+                // Update count display
+                note.nextElementSibling.querySelector(".numberOfNote").textContent = count;
+
+                if (count > 0) {
+                    let listItem = document.createElement("li");
+                    listItem.textContent = `${denomination} cedi note: ${count}`;
+                    breakdownList.appendChild(listItem);
+                }
+            });
+
+            totalAmount = total;
+            totalDisplay.textContent = total;
+
+            // Check if total matches entered amount
+            let enteredAmount = parseInt(amountInput.value, 10);
+            if (totalAmount > enteredAmount) {
+                warningMsg.textContent = "Total exceeds entered amount. Adjust the notes.";
+                shareButton.disabled = true;
+            } else if (totalAmount < enteredAmount) {
+                warningMsg.textContent = "Total does not match the entered amount.";
+                shareButton.disabled = true;
+            } else {
+                warningMsg.textContent = "";
+                shareButton.disabled = false;
+                noteInputs.forEach(input => input.readOnly = true); // Make inputs read-only when total is met
+            }
+        });
+
+        // Prevent further typing if amount is reached
+        input.addEventListener("keydown", function (event) {
+            let enteredAmount = parseInt(amountInput.value, 10);
+            if (totalAmount >= enteredAmount && event.key !== "Backspace" && event.key !== "Delete") {
+                event.preventDefault();
+            }
+        });
+    });
+
+    // Handle share button
+    shareButton.addEventListener("click", function () {
+        let phoneNumber = tellerPhone.value.trim();
+        let teller = tellerName.value.trim();
+        let enteredAmount = amountInput.value.trim();
+
+        if (teller === "") {
+            warningMsg.textContent = "Please enter the teller name.";
+            return;
+        }
+
+        if (!isValidPhoneNumber(phoneNumber)) {
+            warningMsg.textContent = "Invalid phone number. Use format: 233XXXXXXXXX.";
+            return;
+        }
+
+        if (enteredAmount === "" || totalAmount === 0 || totalAmount !== parseInt(enteredAmount, 10)) {
+            warningMsg.textContent = "Ensure the amount is correctly entered and matches the total.";
+            return;
+        }
+
+        let message = `Teller: ${teller}\nAmount: ${enteredAmount} GH₵\nBreakdown:\n`;
+        breakdownList.querySelectorAll("li").forEach(item => {
+            message += item.textContent + "\n";
+        });
+
+        let whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, "_blank");
+
+        setTimeout(() => location.reload(), 2000); // Refresh after sharing
+    });
+
+    // Handle clear button
+    clearButton.addEventListener("click", function () {
+        amountInput.value = "";
+        tellerName.value = "";
+        tellerPhone.value = "";
+        noteInputs.forEach(input => {
+            input.value = "";
+            input.readOnly = false;
+            input.nextElementSibling.querySelector(".numberOfNote").textContent = "0";
+        });
+        totalDisplay.textContent = "0";
+        warningMsg.textContent = "";
+        breakdownList.innerHTML = "";
+        shareButton.disabled = true;
+        noteInputs.forEach(input => input.disabled = true);
+    });
+
+    // Calculate button (just to validate)
+    calcButton.addEventListener("click", function () {
+        let enteredAmount = parseInt(amountInput.value, 10);
+        if (isNaN(enteredAmount) || enteredAmount <= 0) {
+            warningMsg.textContent = "Enter a valid amount.";
+            return;
+        }
+
+        if (tellerName.value.trim() === "") {
+            warningMsg.textContent = "Please enter the teller name.";
+            return;
+        }
+
+        if (tellerPhone.value.trim() === "" || !isValidPhoneNumber(tellerPhone.value.trim())) {
+            warningMsg.textContent = "Please enter a valid phone number.";
+            return;
+        }
+
+        tellerNameDisplay.textContent = `Teller: ${tellerName.value}`;
+        tellerNumberDisplay.textContent = `Phone: ${tellerPhone.value}`;
+        amountDisplay.textContent = `Amount: ${enteredAmount} GH₵`;
+    });
+});
+
+</script> -->
+
+
+<!-- <script>
+  document.addEventListener("DOMContentLoaded", function () {
+      const amountInput = document.getElementById("amount");
+      const noteInputs = document.querySelectorAll(".currencyNote input");
+      const totalDisplay = document.querySelector(".totals");
+      const warningMsg = document.querySelector(".warning");
+      const calcButton = document.querySelector(".calc-btn button");
+      const clearButton = document.querySelector(".clear button");
+      const shareButton = document.querySelector(".share button");
+      const breakdownList = document.querySelector(".cediBreakdown");
+      const tellerName = document.getElementById("name");
+      const tellerPhone = document.getElementById("tel");
+      const tellerNameDisplay = document.querySelector(".tellerName");
+      const tellerNumberDisplay = document.querySelector(".tellerNumber");
+      const amountDisplay = document.querySelector(".amount");
+  
+      let totalAmount = 0;
+  
+      // Disable inputs initially
+      noteInputs.forEach(input => input.disabled = true);
+      shareButton.disabled = true;
+  
+      // Function to validate phone number
+      function isValidPhoneNumber(phone) {
+          return phone.match(/^233\d{9}$/); // Ensures country code 233 and 9-digit number
+      }
+  
+      // Enable inputs only if an amount is entered
+      amountInput.addEventListener("input", function () {
+          if (amountInput.value.trim() !== "") {
+              noteInputs.forEach(input => input.disabled = false);
+              warningMsg.textContent = "";
+          } else {
+              noteInputs.forEach(input => {
+                  input.disabled = true;
+                  input.value = "";
+                  input.nextElementSibling.querySelector(".numberOfNote").textContent = "0"; // Reset note count
+              });
+              totalAmount = 0;
+              totalDisplay.textContent = "0";
+              warningMsg.textContent = "Please enter an amount before proceeding.";
+          }
+      });
+  
+      // Update note count and total calculation
+      noteInputs.forEach(input => {
+          input.addEventListener("input", function () {
+              let value = this.value.replace(/[^0-9,]/g, ""); // Allow only numbers and commas
+              this.value = value;
+  
+              let total = 0;
+              breakdownList.innerHTML = "";
+  
+              noteInputs.forEach(note => {
+                  let denomination = parseInt(note.placeholder.replace(/[^0-9]/g, ""), 10);
+                  let count = note.value ? parseInt(note.value.replace(/,/g, ""), 10) : 0;
+                  let noteTotal = denomination * count;
+                  total += noteTotal;
+  
+                  // Update count display
+                  note.nextElementSibling.querySelector(".numberOfNote").textContent = count;
+  
+                  if (count > 0) {
+                      let listItem = document.createElement("li");
+                      listItem.textContent = `${denomination} cedi note: ${count}`;
+                      breakdownList.appendChild(listItem);
+                  }
+              });
+  
+              totalAmount = total;
+              totalDisplay.textContent = total;
+  
+              // Check if total matches entered amount
+              let enteredAmount = parseInt(amountInput.value, 10);
+              if (totalAmount > enteredAmount) {
+                  warningMsg.textContent = "Total exceeds entered amount. Adjust the notes.";
+                  shareButton.disabled = true;
+              } else if (totalAmount < enteredAmount) {
+                  warningMsg.textContent = "Total does not match the entered amount.";
+                  shareButton.disabled = true;
+              } else {
+                  warningMsg.textContent = "";
+                  shareButton.disabled = false;
+                  noteInputs.forEach(input => input.readOnly = true); // Make inputs read-only when total is met
+              }
+          });
+  
+          // Prevent further typing if amount is reached
+          input.addEventListener("keydown", function (event) {
+              let enteredAmount = parseInt(amountInput.value, 10);
+              if (totalAmount >= enteredAmount && event.key !== "Backspace" && event.key !== "Delete") {
+                  event.preventDefault();
+              }
+          });
+      });
+  
+      // Handle share button
+      shareButton.addEventListener("click", function () {
+          let phoneNumber = tellerPhone.value.trim();
+          let teller = tellerName.value.trim();
+          let enteredAmount = amountInput.value.trim();
+  
+          if (teller === "") {
+              warningMsg.textContent = "Please enter the teller name.";
+              return;
+          }
+  
+          if (!isValidPhoneNumber(phoneNumber)) {
+              warningMsg.textContent = "Invalid phone number. Use format: 233XXXXXXXXX.";
+              return;
+          }
+  
+          if (enteredAmount === "" || totalAmount === 0 || totalAmount !== parseInt(enteredAmount, 10)) {
+              warningMsg.textContent = "Ensure the amount is correctly entered and matches the total.";
+              return;
+          }
+  
+          let message = `Teller: ${teller}\nAmount: ${enteredAmount} GH₵\nBreakdown:\n`;
+          breakdownList.querySelectorAll("li").forEach(item => {
+              message += item.textContent + "\n";
+          });
+  
+          let whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+          window.open(whatsappUrl, "_blank");
+  
+          setTimeout(() => location.reload(), 2000); // Refresh after sharing
+      });
+  
+      // Handle clear button
+      clearButton.addEventListener("click", function () {
+          amountInput.value = "";
+          tellerName.value = "";
+          tellerPhone.value = "";
+          noteInputs.forEach(input => {
+              input.value = "";
+              input.readOnly = false;
+              input.nextElementSibling.querySelector(".numberOfNote").textContent = "0"; // Reset note count
+          });
+          totalDisplay.textContent = "0";
+          warningMsg.textContent = "";
+          breakdownList.innerHTML = "";
+          shareButton.disabled = true;
+          noteInputs.forEach(input => input.disabled = true);
+      });
+  
+      // Calculate button (just to validate)
+      calcButton.addEventListener("click", function () {
+          let enteredAmount = parseInt(amountInput.value, 10);
+          if (isNaN(enteredAmount) || enteredAmount <= 0) {
+              warningMsg.textContent = "Enter a valid amount.";
+              return;
+          }
+  
+          if (tellerName.value.trim() === "") {
+              warningMsg.textContent = "Please enter the teller name.";
+              return;
+          }
+  
+          if (tellerPhone.value.trim() === "" || !isValidPhoneNumber(tellerPhone.value.trim())) {
+              warningMsg.textContent = "Please enter a valid phone number.";
+              return;
+          }
+  
+          tellerNameDisplay.textContent = `Teller: ${tellerName.value}`;
+          tellerNumberDisplay.textContent = `Phone: ${tellerPhone.value}`;
+          amountDisplay.textContent = `Amount: ${enteredAmount} GH₵`;
+      });
+  });
+  </script> -->
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const amountInput = document.getElementById("amount");
+        const noteInputs = document.querySelectorAll(".currencyNote input");
+        const numberOfNoteElements = document.querySelectorAll(".numberOfNote");
+        const totalDisplay = document.querySelector(".totals");
+        const breakdownList = document.querySelector(".cediBreakdown");
+        const warningMsg = document.querySelector(".warning");
+        const shareButton = document.querySelector(".share button");
+
+        let totalAmount = 0;
+
+        // Function to update the breakdown and check amount match
+        function updateBreakdown() {
+            let total = 0;
+            breakdownList.innerHTML = "";
+
+            noteInputs.forEach((note, index) => {
+                let denomination = parseInt(note.placeholder.replace(/[^0-9]/g, ""), 10);
+                let count = note.value ? parseInt(note.value.replace(/,/g, ""), 10) : 0;
+                let noteTotal = denomination * count;
+                total += noteTotal;
+
+                // Display calculated total per note
+                numberOfNoteElements[index].textContent = count > 0 ? `${noteTotal}` : "";
+
+                // Add to breakdown if greater than 0
+                if (count > 0) {
+                    let listItem = document.createElement("li");
+                    listItem.textContent = `${denomination} cedi: ${count}pieces = ${noteTotal}`;
+                    breakdownList.appendChild(listItem);
+                }
+            });
+
+            totalAmount = total;
+            totalDisplay.textContent = total;
+
+            let enteredAmount = parseInt(amountInput.value, 10);
+            if (totalAmount !== enteredAmount) {
+                warningMsg.textContent = "Total does not match entered amount.";
+                shareButton.disabled = true;
+            } else {
+                warningMsg.textContent = "";
+                shareButton.disabled = false;
+            }
+        }
+
+        // Listen for amount input change
+        amountInput.addEventListener("input", function () {
+            updateBreakdown();
+        });
+
+        // Listen for note quantity input change
+        noteInputs.forEach(input => {
+            input.value = ""; // Start with empty input
+            input.addEventListener("input", function () {
+                this.value = this.value.replace(/[^0-9]/g, ""); // Allow only numbers
+                updateBreakdown();
+            });
+        });
+
+        // Function to validate phone number format
+        function isValidPhoneNumber(phoneNumber) {
+            const ghanaPattern = /^\+233\d{9}$/; // Example: +233XXXXXXXXX
+            return ghanaPattern.test(phoneNumber);
+        }
+
+        // Share functionality
+        shareButton.addEventListener("click", function () {
+            if (totalAmount !== parseInt(amountInput.value, 10)) {
+                warningMsg.textContent = "Total does not match entered amount.";
+                return;
+            }
+
+            let tellerName = document.getElementById("name").value;
+            let phoneNumber = document.getElementById("tel").value.trim();
+
+            // Validate phone number format
+            if (!isValidPhoneNumber(phoneNumber)) {
+                warningMsg.textContent = "Invalid phone number format. Please enter a number in the format: +233XXXXXXXXX . Example is +233536626936";
+                return;
+            }
+
+            // Clear warning message if everything is correct
+            warningMsg.textContent = "";
+
+            let breakdownText = `Teller: ${tellerName}\nPhone: ${phoneNumber}\nAmount: ${totalAmount} GH₵\nBreakdown:\n`;
+            document.querySelectorAll(".cediBreakdown li").forEach(item => {
+                breakdownText += `${item.textContent}\n`;
+            });
+
+            let shareUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(breakdownText)}`;
+            window.open(shareUrl, "_blank");
+
+            // Refresh the page after a short delay
+            setTimeout(() => {
+                location.reload();
+            }, 2000); // 2-second delay to allow WhatsApp to open before reloading
+        });
+
+        // Clear button functionality
+        document.querySelector(".clear button").addEventListener("click", function () {
+            amountInput.value = "";
+            noteInputs.forEach(input => input.value = "");
+            numberOfNoteElements.forEach(el => el.textContent = "");
+            breakdownList.innerHTML = "";
+            totalDisplay.textContent = "0";
+            warningMsg.textContent = "";
+            shareButton.disabled = true;
+        });
+    });
+
+</script>
+{% endblock %}

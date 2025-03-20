@@ -60,7 +60,7 @@
     <div class="user-role">
       
      <div class="user-name">
-      <p><i class="fa-solid fa-user"></i> {{user.username}}</p>
+      <p><i class="fa-solid fa-user"></i> {{user.phone_number}}</p>
     </div>
     
     <div class="role">
@@ -134,6 +134,11 @@
 
            
             
+            <a href="{% url 'agent-dashboard' %}">
+                <div class="nav-option option1 button">
+                  <h3><i class="fa-solid fa-cash-register"></i> Dashboard</h3>
+                </div>
+              </a>
             <a href="{% url 'agent_payto' %}">
                 <div class="nav-option option1 button">
                   <h3><i class="fa-solid fa-cash-register"></i> Pay to</h3>

@@ -51,7 +51,7 @@
             <div class="user-role">
 
                 <div class="user-name">
-                    <p><i class="fa-solid fa-user"></i> {{user.username}}</p>
+                    <p><i class="fa-solid fa-user"></i> {{user.phone_number}}</p>
                 </div>
 
                 <div class="role">
@@ -68,7 +68,7 @@
 
                     
                     <div class="button-btn">
-                        <a href="{% url 'calculate' %}">
+                        <a href="{% url 'mobilization_calculator' %}">
                             <p title="calculator"><i class="fa-solid fa-calculator"> </i> </p>
                         </a>
                     </div>
@@ -97,11 +97,21 @@
 
 
 
-                    <a href="{% url 'mobilization_payto' %}">
+                    <a href="{% url 'mobilization_dashboard' %}">
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-cash-register"></i> Dashboard</h3>
+                        </div>
+                    </a>
+                    <a href="{% url 'mobilization_account' %}">
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-cash-register"></i> Account</h3>
+                        </div>
+                    </a>
+                    <!-- <a href="{% url 'mobilization_payto' %}">
                         <div class="nav-option option1 button">
                             <h3><i class="fa-solid fa-cash-register"></i> Pay to</h3>
                         </div>
-                    </a>
+                    </a> -->
                     
                     <!-- home button -->
                     <a href="{% url 'mobilization_bank_deposit' %}">
@@ -121,7 +131,7 @@
                         </div>
                     </a>
 
-                    <a href="">
+                    <a href="{% url 'mobilization_transaction_summary' %}">
                         <div class="nav-option option1 button">
                             <h3>
                                 <i class="fa-solid fa-bookmark"></i> Transaction Summary

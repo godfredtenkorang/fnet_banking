@@ -153,6 +153,32 @@
         </div>
     </div>
 
+    <div class="stat-chart">
+    
+    
+        <div class="stat-chat-container">
+            <a href="{% url 'mobilization_deposit_summary_date' %}" class="stat">
+                <h2>Total Bank Deposit(¢)</h2>
+                <h3 class="valuesP">{{total_deposits}}</h3>
+            </a>
+            <a href="{% url 'mobilization_withdrawal_summary_date' %}" class="stat">
+                <h2>Total Bank Withdrawal(¢)</h2>
+                <h3 class="valuesP">{{total_withdrawals}}</h3>
+            </a>
+
+            <a href="{% url 'mobilization_payment_summary_date' %}" class="stat">
+                <h2>Total Payments(¢)</h2>
+                <h3 class="valuesP">{{total_payments}}</h3>
+            </a>
+        </div>
+    
+    
+        <div class="canva-pie-chart">
+            <canvas id="barChart"></canvas>
+        </div>
+    
+    </div>
+
     
 
 
@@ -170,14 +196,14 @@
                     <th>ID Type</th>
                     <th>ID Number</th>
                     <th>DOB</th>
-                    <th>Picture</th>
+                    <th>ID Card</th>
                 </tr>
             </thead>
             <tbody>
                 {% for customer in customers %}
                 <tr>
 
-                    <td>{{ customer.user.username }}</td>
+                    <td>{{ customer.customer.phone_number }}</td>
                     <td>{{ customer.branch }}</td>
                     <td>{{ customer.phone_number }}</td>
                     <td>{{ customer.full_name }}</td>

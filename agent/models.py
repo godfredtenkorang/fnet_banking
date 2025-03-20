@@ -42,10 +42,24 @@ class CustomerCashIn(models.Model):
     # agent_commission = models.DecimalField(max_digits=19, decimal_places=2, default=0.0)
     date_deposited = models.DateField(auto_now_add=True)
     time_deposited = models.TimeField(auto_now_add=True)
+    is_fraudster = models.BooleanField(default=False)  # Track if the customer is a fraudster
+    
+    def check_fraud(self):
+        if CustomerFraud.objects.filter(customer_phone=self.customer_phone).exists():
+            self.is_fraudster = True
+        else:
+            self.is_fraudster = False
+            
+    def save(self, *args, **kwargs):
+        # Check for fraud before saving
+        self.check_fraud()
+        
+        # Save the CustomerCashIn instance
+        super().save(*args, **kwargs)
     
     @classmethod
-    def total_cash_for_customer(cls, agent):
-        total = cls.objects.filter(agent=agent).aggregate(Sum('amount'))
+    def total_cash_for_customer(cls, agent, date_deposited):
+        total = cls.objects.filter(agent=agent, date_deposited=date_deposited).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
     
     def save(self, *args, **kwargs):
@@ -59,7 +73,7 @@ class CustomerCashIn(models.Model):
         )
 
     def __str__(self):
-        return f"CashIn of ${self.amount} on {self.network} by {self.agent.username}"
+        return f"CashIn of ${self.amount} on {self.network}"
     
 
 class CashInCommission(models.Model):
@@ -68,7 +82,7 @@ class CashInCommission(models.Model):
     date = models.DateField(auto_now_add=True)  # Date of the commission
     
     def __str__(self):
-        return f"Commission: {self.amount} for {self.customer_cash_in.agent.username}"
+        return f"Commission: {self.amount}"
     
 
 class ArchivedCustomerCashIn(models.Model):
@@ -89,7 +103,7 @@ class ArchivedCustomerCashIn(models.Model):
     
 
     def __str__(self):
-        return f"CashIn of ${self.amount} on {self.network} by {self.agent.username}"
+        return f"CashIn of ${self.amount} on {self.network} by {self.agent}"
     
 
 class ArchivedCashInCommission(models.Model):
@@ -98,7 +112,7 @@ class ArchivedCashInCommission(models.Model):
     date = models.DateField(auto_now_add=True)  # Date of the commission
     
     def __str__(self):
-        return f"Commission: {self.amount} for {self.customer_cash_in.agent.username}"
+        return f"Commission: {self.amount} for {self.customer_cash_in.agent}"
     
 
 
@@ -116,8 +130,8 @@ class CustomerCashOut(models.Model):
     time_withdrawn = models.TimeField(auto_now_add=True)
     
     @classmethod
-    def total_cashout_for_customer(cls, agent):
-        total = cls.objects.filter(agent=agent).aggregate(Sum('amount'))
+    def total_cashout_for_customer(cls, agent, date_withdrawn):
+        total = cls.objects.filter(agent=agent, date_withdrawn=date_withdrawn).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
     
     def save(self, *args, **kwargs):
@@ -140,7 +154,7 @@ class CashOutCommission(models.Model):
     date = models.DateField(auto_now_add=True)  # Date of the commission
     
     def __str__(self):
-        return f"Commission: {self.amount} for {self.customer_cash_out.agent.username}"
+        return f"Commission: {self.amount} "
 
 
 class BankDeposit(models.Model):
@@ -150,17 +164,17 @@ class BankDeposit(models.Model):
     account_number = models.CharField(max_length=50)
     account_name = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=15, decimal_places=2)
-    status = models.CharField(max_length=100, choices=REQUEST_STATUS, default='Pending')
+    # status = models.CharField(max_length=100, choices=REQUEST_STATUS, default='Pending')
     date_deposited = models.DateField(default=timezone.now)
     time_deposited = models.TimeField(default=timezone.now)
     
     @classmethod
-    def total_bank_deposit_for_customer(cls, agent):
-        total = cls.objects.filter(agent=agent).aggregate(Sum('amount'))
+    def total_bank_deposit_for_customer(cls, agent, date_deposited):
+        total = cls.objects.filter(agent=agent, date_deposited=date_deposited).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
     
     def __str__(self):
-        return f"Bank Deposit of GH¢{self.amount} to {self.bank} by {self.phone_number} ({self.status})"
+        return f"Bank Deposit of GH¢{self.amount} to {self.bank} by {self.phone_number}"
     
     
 
@@ -172,17 +186,18 @@ class BankWithdrawal(models.Model):
     account_number = models.CharField(max_length=20)
     account_name = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+    ghana_card = models.ImageField(upload_to='ghana_card_img/', default='', null=True, blank=True)
     date_withdrawn = models.DateField(default=timezone.now)
     time_withdrawn = models.TimeField(default=timezone.now)
-    status = models.CharField(max_length=20, choices=REQUEST_STATUS, default='Pending')
+    # status = models.CharField(max_length=20, choices=REQUEST_STATUS, default='Pending')
     
     @classmethod
-    def total_bank_withdrawal_for_customer(cls, agent):
-        total = cls.objects.filter(agent=agent).aggregate(Sum('amount'))
+    def total_bank_withdrawal_for_customer(cls, agent, date_withdrawn):
+        total = cls.objects.filter(agent=agent, date_withdrawn=date_withdrawn).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
     
     def __str__(self):
-        return f"Bank Withdrawal of GH¢{self.amount} from {self.bank} by {self.customer_phone} ({self.status})"
+        return f"Bank Withdrawal of GH¢{self.amount} from {self.bank} by {self.customer_phone}"
     
     
 class CashAndECashRequest(models.Model):
@@ -225,12 +240,12 @@ class CashAndECashRequest(models.Model):
     updated_at = models.DateField(auto_now=True)
     
     @classmethod
-    def total_ecash_for_customer(cls, agent):
-        total = cls.objects.filter(agent=agent).aggregate(Sum('amount'))
+    def total_ecash_for_customer(cls, agent, created_at):
+        total = cls.objects.filter(agent=agent, created_at=created_at).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
 
     def __str__(self):
-        return f"{self.float_type} Request of GH¢{self.amount} by {self.agent.user.username}"
+        return f"{self.float_type} Request of GH¢{self.amount} by {self.agent.user}"
     
 
 class PaymentRequest(models.Model):
@@ -323,12 +338,12 @@ class PaymentRequest(models.Model):
     updated_at = models.DateField(auto_now=True)
     
     @classmethod
-    def total_payment_for_customer(cls, agent):
-        total = cls.objects.filter(agent=agent).aggregate(Sum('amount'))
+    def total_payment_for_customer(cls, agent, created_at):
+        total = cls.objects.filter(agent=agent, created_at=created_at).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
     
     def __str__(self):
-        return f"Payment of ${self.amount} via {self.mode_of_payment} by {self.agent.user.username} ({self.status})"
+        return f"Payment of ${self.amount} via {self.mode_of_payment} by {self.agent.user} ({self.status})"
     
     
 class CustomerComplain(models.Model):
@@ -338,7 +353,7 @@ class CustomerComplain(models.Model):
     date = models.DateField(auto_now_add=True)
     
     def __str__(self):
-        return f"Complain from {self.agent.user.username} - {self.title}"
+        return f"Complain from {self.agent.user} - {self.title}"
     
 
 class HoldCustomerAccount(models.Model):
@@ -384,7 +399,7 @@ class CustomerPayTo(models.Model):
         ("Rejected", "Rejected")
     )
     agent = models.ForeignKey(User, on_delete=models.CASCADE, related_name="customer_pay_to")
-    agent_number = models.CharField(max_length=10, blank=True)
+    agent_number = models.CharField(max_length=10, null=True, blank=True)
     network = models.CharField(max_length=20, choices=NETWORKS, blank=True, default="Select Network")
     # customer_name = models.CharField(max_length=30, blank=True)
     deposit_type = models.CharField(max_length=20, blank=True, choices=PAY_TO_DEPOSIT_TYPE)
@@ -414,4 +429,4 @@ class CustomerPayTo(models.Model):
     #     )
 
     def __str__(self):
-        return f"Pay To of GH¢{self.amount} on {self.network} by {self.agent.username}"
+        return f"Pay To of GH¢{self.amount} on {self.network} by {self.agent.phone_number}"

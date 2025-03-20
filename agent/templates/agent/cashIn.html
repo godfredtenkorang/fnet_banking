@@ -20,6 +20,26 @@
       <h1>Cashin</h1>
     </div>
   </div>
+  {% if is_fraudster %}
+    <div class="alert alert-warning">
+      <strong>Warning!</strong> The customer with phone number <strong>{{ customer_phone }}</strong> is flagged as a
+      fraudster.
+    </div>
+
+    <form method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="network" value="{{ network }}">
+      <input type="hidden" name="customer_phone" value="{{ customer_phone }}">
+      <input type="hidden" name="deposit_type" value="{{ deposit_type }}">
+      <input type="hidden" name="depositor_name" value="{{ depositor_name }}">
+      <input type="hidden" name="depositor_number" value="{{ depositor_number }}">
+      <input type="hidden" name="amount" value="{{ amount }}">
+      <input type="hidden" name="cash_received" value="{{ cash_received }}">
+      <button type="submit" name="action" value="proceed">Proceed Anyway</button>
+      <button type="submit" name="action" value="cancel">Cancel</button>
+    </form>
+  {% else %}
+  
   <div class="form">
 
     <form id="networkForm" method="POST">
@@ -92,6 +112,7 @@
       <button type="submit" id="">Submit</button>
     </form>
   </div>
+{% endif %}
 
 </div>
 <script>
@@ -99,7 +120,7 @@
     MTN: ["024", "025", "053", "054", "055", "059"],
     AirtelTigo: ["027", "057", "026", "056"],
     Expresso: ["028"],
-    Vodafone: ["020", "050"],
+    Telecel: ["020", "050"],
   };
 
   const numberInput = document.getElementById("customerNumber");

@@ -55,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'users.middleware.OTPVerificationMiddleware',
 ]
 
 ROOT_URLCONF = 'fnet_banking.urls'
@@ -152,9 +153,25 @@ LOGIN_URL = 'login'
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Default backend
     'users.backends.ApprovedUserBackend',     # Custom backend
+    'users.backends.PhoneNumberBackend',
+    'users.backend.email_backend.EmailBackend',
+    'users.backends.EmailBackend',
 ]
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
+EMAIL_BACKEND = config('EMAIL_BACKEND')
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_PORT = config('EMAIL_PORT')
+EMAIL_USE_TLS = config('EMAIL_USE_TLS')
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+
+
+EMAIL_TIMEOUT = 60
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MNOTIFY_API_KEY= config("MNOTIFY_API_KEY")

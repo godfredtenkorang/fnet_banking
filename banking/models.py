@@ -77,7 +77,7 @@ class Drawer(models.Model):
     
     
     def __str__(self):
-        return f"Drawer from {self.agent.user.username} on {self.date}"
+        return f"Drawer from {self.agent.user} on {self.date}"
     
     
 class EFloatAccount(models.Model):
@@ -108,7 +108,7 @@ class EFloatAccount(models.Model):
             self.cash_at_hand
         )
     def calculate_difference(self):
-        self.difference = Decimal(self.grand_total()) - self.capital_amount
+        self.difference = Decimal(self.grand_total()) - Decimal(self.capital_amount)
         return self.difference
     
     def add_capital(self, additional_capital):
@@ -186,7 +186,7 @@ class EFloatAccount(models.Model):
         
         self.save()
         
-    def update_balance_for_bank_deposit(self, bank, amount, status):
+    def update_balance_for_bank_deposit(self, bank, amount):
         amount = Decimal(amount)
         
         if bank == 'Mtn':
@@ -212,7 +212,7 @@ class EFloatAccount(models.Model):
         
         self.save()
             
-    def update_balance_for_bank_withdrawal(self, bank, amount, status):
+    def update_balance_for_bank_withdrawal(self, bank, amount):
         amount = Decimal(amount)
         
         if bank == 'Mtn':
@@ -268,37 +268,21 @@ class EFloatAccount(models.Model):
     def update_balance_for_cash_and_ecash(self, bank, network, amount, status):
         amount = Decimal(amount)
         if status == 'Approved':
-            if bank == 'Mtn':
+            if network == 'Mtn':
                 self.mtn_balance += amount
-            elif network == 'Mtn':
-                self.mtn_balance += amount
-            elif bank == 'Telecel':
-                self.telecel_balance += amount
             elif network == 'Telecel':
                 self.telecel_balance += amount
-            elif bank == 'AirtelTigo':
-                self.airtel_tigo_balance += amount
             elif network == 'Airtel Tigo':
                 self.airtel_tigo_balance += amount
             elif bank == 'Ecobank':
                 self.ecobank_balance += amount
-            elif network == 'Ecobank':
-                self.ecobank_balance += amount
             elif bank == 'Fidelity':
-                self.fidelity_balance += amount
-            elif network == 'Fidelity':
                 self.fidelity_balance += amount
             elif bank == 'Calbank':
                 self.calbank_balance += amount
-            elif network == 'Calbank':
-                self.calbank_balance += amount
             elif bank == 'GTBank':
                 self.gtbank_balance += amount
-            elif network == 'GTBank':
-                self.gtbank_balance += amount
             elif bank == 'Access Bank':
-                self.access_bank_balance += amount
-            elif network == 'Access Bank':
                 self.access_bank_balance += amount
 
             # Add to the Cash at Hand balance
@@ -308,21 +292,22 @@ class EFloatAccount(models.Model):
             self.save()
         
     def __str__(self):
-        return f"E-Float Account for {self.agent.user.username} on {self.date}"
+        return f"E-Float Account for {self.agent.agent} on {self.date}"
     
     
 class CustomerPaymentAtBank(models.Model):
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE, null=True, blank=True)
     customer_name = models.CharField(max_length=100)
-    phone_number = models.CharField(max_length=12)
+    phone_number = models.CharField(max_length=13)
     amount = models.DecimalField(decimal_places=2, max_digits=19, default=0.0)
-    d_200 = models.IntegerField(default=0, null=True, blank=True)
-    d_100 = models.IntegerField(default=0, null=True, blank=True)
-    d_50 = models.IntegerField(default=0, null=True, blank=True)
-    d_20 = models.IntegerField(default=0, null=True, blank=True)
-    d_10 = models.IntegerField(default=0, null=True, blank=True)
-    d_5 = models.IntegerField(default=0, null=True, blank=True)
-    d_2 = models.IntegerField(default=0, null=True, blank=True)
-    d_1 = models.IntegerField(default=0, null=True, blank=True)
+    d_200 = models.CharField(max_length=100, null=True, blank=True)
+    d_100 = models.CharField(max_length=100, null=True, blank=True)
+    d_50 = models.CharField(max_length=100, null=True, blank=True)
+    d_20 = models.CharField(max_length=100, null=True, blank=True)
+    d_10 = models.CharField(max_length=100, null=True, blank=True)
+    d_5 = models.CharField(max_length=100, null=True, blank=True)
+    d_2 = models.CharField(max_length=100, null=True, blank=True)
+    d_1 = models.CharField(max_length=100, null=True, blank=True)
     date_added = models.DateField(auto_now_add=True)
     time_added = models.TimeField(auto_now_add=True)
     

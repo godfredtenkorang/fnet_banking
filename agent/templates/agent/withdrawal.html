@@ -31,24 +31,66 @@
 
         <div class="input">
           <label for="bank">Select Bank</label> <br />
-          <select id="bank" name="bank" disabled>
-            <option value="">Select Bank</option>
+          <select id="bank" name="bank">
+            <option value="" disabled selected>Select Bank</option>
+            <option value="Ecobank">Ecobank</option>
+            <option value="Access_Bank">Access Bank</option>
+            <option value="Calbank">Cal Bank</option>
+            <option value="Fidelity">Fidelity Bank</option>
+            <option value="GTBank">GT Bank</option>
+            <!-- <option value="Adansi rural bank">Adansi rural bank</option>
+            <option value="Kwumawuman Bank">Kwumawuman Bank</option>
+            <option value="Pan Africa">Pan Africa</option>
+            <option value="SGSSB">SGSSB</option>
+            <option value="Atwima Rural Bank">Atwima Rural Bank</option>
+            <option value="Omnibsic Bank">Omnibsic Bank</option>
+            <option value="Omini bank">Omini bank</option>
+            <option value="Stanbic Bank">Stanbic Bank</option>
+            <option value="First Bank of Nigeria">First Bank of Nigeria</option>
+            <option value="Adehyeman Savings and loans">Adehyeman Savings and loans</option>
+            <option value="ARB Apex Bank Limited">ARB Apex Bank Limited</option>
+            <option value="Absa Bank">Absa Bank</option>
+            <option value="Agriculture Development bank">Agriculture Development bank</option>
+            <option value="Bank of Africa">Bank of Africa</option>
+            <option value="Bank of Ghana">Bank of Ghana</option>
+            <option value="Consolidated Bank Ghana">Consolidated Bank Ghana</option>
+            <option value="First Atlantic Bank">First Atlantic Bank</option>
+            <option value="First National Bank">First National Bank</option>
+            <option value="G-Money">G-Money</option>
+            <option value="GCB BanK LTD">GCB BanK LTD</option>
+            <option value="Ghana Pay">Ghana Pay</option>
+            <option value="GHL Bank Ltd">GHL Bank Ltd</option>
+            <option value="National Investment Bank">National Investment Bank</option>
+            <option value="Opportunity International Savings And Loans">Opportunity International Savings And Loans</option>
+            <option value="Republic Bank Ltd">Republic Bank Ltd</option>
+            <option value="Sahel Sahara Bank">Sahel Sahara Bank</option>
+            <option value="Sinapi Aba Savings and Loans">Sinapi Aba Savings and Loans</option>
+            <option value="Societe Generale Ghana Ltd">Societe Generale Ghana Ltd</option>
+            <option value="Standard Chartered">Standard Chartered</option>
+            <option value="Universal Merchant Bank">Universal Merchant Bank</option>
+            <option value="Zenith Bank">Zenith Bank</option> -->
           </select>
           <p id="BankSelectMessage" class="message"></p> <br>
         </div>
 
 
+  
+
         <div class="input">
           <label for="account_number">Account Number</label> <br />
-          <select id="account_number" name="account_number" disabled>
-            <option value="">Select Account</option>
-          </select>
+          <input type="tel" name="account_number" id="account_number">
         </div>
 
         <div class="input">
           <label for="account_name">Account name</label> <br />
-          <input type="text" name="account_name" id="account_name" readonly>
+          <input type="text" name="account_name" id="account_name">
         </div>
+
+        <div class="input">
+          <label for="ghana_card">Upload Ghana Card</label> <br />
+          <input type="file" name="ghana_card" id="ghana_card" accept="image/*" />
+        </div>
+
         <!-- <div class="input setHide">
                     <label>Account name</label> <br />
                     <input type="text" name="" id="" readonly required>
@@ -64,7 +106,7 @@
         <div class="input">
           <label for="amount">Amount</label> <br />
 
-          <input type="number" id="amount" name="amount" required />
+          <input type="tel" id="amount" name="amount" required />
         </div>
 
       </div>
@@ -80,7 +122,7 @@
 
 </div>
 
-<script>
+<!-- <script>
   $(document).ready(function () {
     // Fetch banks when phone number is entered
     $('#phone_number').on('input', function () {
@@ -131,7 +173,7 @@
 
 
 
-</script>
+</script> -->
 
 <!-- <script>
     document.getElementById("customerNumberBank").addEventListener("input", function (event) {

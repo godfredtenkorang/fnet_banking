@@ -1,0 +1,52 @@
+{% extends 'mobilization/base.html' %}
+{% load humanize %}
+{% load static %}
+{% block content %}
+
+
+
+<div class="main">
+    <div class="banner-container">
+        <img src="{% static 'banking/img/ban.jpg' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Total Transaction Summary</h1>
+        </div>
+    </div>
+    <div class="stat-container">
+
+
+        <a href="{% url 'mobilization_deposit_summary_date' %}" class="stat">
+            <h2>Total Bank Deposit</h2>
+            <h3>GH¢ {{total_deposits|floatformat:2|intcomma}}</h3>
+
+            <!-- <p>Click to view total</p> -->
+        </a>
+
+        <a href="{% url 'mobilization_withdrawal_summary_date' %}" class="stat">
+            <h2>Total Bank Withdrawal</h2>
+            <h3>GH¢ {{total_withdrawals|floatformat:2|intcomma}}</h3>
+
+            <!-- <p>Click to view total</p> -->
+
+        </a>
+
+        <a href="{% url 'mobilization_payment_summary_date' %}" class="stat">
+            <h2>Total Payments</h2>
+            <h3>GH¢ {{total_payments|floatformat:2|intcomma}}</h3>
+
+            <!-- <p>Click to view total</p> -->
+        </a>
+
+
+
+    </div>
+</div>
+
+
+</div>
+
+
+
+
+
+{% endblock %}

@@ -2,7 +2,7 @@ from django.db import models
 from users.models import User, Mobilization
 from django.utils import timezone
 from django.db.models import Sum
-from users.models import MobilizationCustomer
+from users.models import MobilizationCustomer, Customer
 
 REQUEST_STATUS = (
     ("Pending", "Pending"),
@@ -60,7 +60,7 @@ class MobilizationPayTo(models.Model):
     #     )
 
     def __str__(self):
-        return f"Pay To of GH¢{self.amount} on {self.network} by {self.mobilization.username}"
+        return f"Pay To of GH¢{self.amount} on {self.network} by {self.mobilization}"
     
     
 class BankDeposit(models.Model):
@@ -70,13 +70,15 @@ class BankDeposit(models.Model):
     account_number = models.CharField(max_length=50)
     account_name = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=15, decimal_places=2)
+    # mobilization_transaction_id = models.CharField(max_length=100, null=True, blank=True)
+    owner_transaction_id = models.CharField(max_length=100, null=True, blank=True)
     status = models.CharField(max_length=100, choices=REQUEST_STATUS, default='Pending')
     date_deposited = models.DateField(default=timezone.now)
     time_deposited = models.TimeField(default=timezone.now)
     
     @classmethod
-    def total_bank_deposit_for_customer(cls, mobilization):
-        total = cls.objects.filter(mobilization=mobilization).aggregate(Sum('amount'))
+    def total_bank_deposit_for_customer(cls, mobilization, date_deposited):
+        total = cls.objects.filter(mobilization=mobilization, date_deposited=date_deposited).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
     
     def __str__(self):
@@ -89,13 +91,14 @@ class BankWithdrawal(models.Model):
     account_number = models.CharField(max_length=20)
     account_name = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+    ghana_card = models.ImageField(upload_to='ghana_card_img/', default='', null=True, blank=True)
     date_withdrawn = models.DateField(default=timezone.now)
     time_withdrawn = models.TimeField(default=timezone.now)
     status = models.CharField(max_length=20, choices=REQUEST_STATUS, default='Pending')
     
     @classmethod
-    def total_bank_withdrawal_for_customer(cls, agent):
-        total = cls.objects.filter(agent=agent).aggregate(Sum('amount'))
+    def total_bank_withdrawal_for_customer(cls, mobilization, date_withdrawn):
+        total = cls.objects.filter(mobilization=mobilization, date_withdrawn=date_withdrawn).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
     
     def __str__(self):
@@ -187,21 +190,23 @@ class PaymentRequest(models.Model):
     branch = models.CharField(max_length=30, choices=BRANCHES, null= True, blank=True)
     name = models.CharField(max_length=100, null=True, blank=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+    mobilization_transaction_id = models.CharField(max_length=100, null=True, blank=True)
+    owner_transaction_id = models.CharField(max_length=100, null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
     
     @classmethod
-    def total_payment_for_customer(cls, mobilization):
-        total = cls.objects.filter(mobilization=mobilization).aggregate(Sum('amount'))
+    def total_payment_for_customer(cls, mobilization, created_at):
+        total = cls.objects.filter(mobilization=mobilization, created_at=created_at).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
     
     def __str__(self):
-        return f"Payment of ${self.amount} via {self.mode_of_payment} by {self.mobilization.user.username} ({self.status})"
+        return f"Payment of ${self.amount} via {self.mode_of_payment} by {self.mobilization.mobilization} ({self.status})"
     
     
 class CustomerAccount(models.Model):
-    customer = models.ForeignKey(MobilizationCustomer, on_delete=models.CASCADE, related_name='customeraccounts')
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='customeraccounts')
     account_number = models.CharField(max_length=16, blank=True)
     account_name = models.CharField(max_length=100, blank=True)
     bank = models.CharField(max_length=100, blank=True, default='')
@@ -211,3 +216,25 @@ class CustomerAccount(models.Model):
     
     def __str__(self):
         return self.phone_number
+    
+    
+class TellerCalculator(models.Model):
+    mobilization = models.ForeignKey(Mobilization, on_delete=models.CASCADE)
+    customer_name = models.CharField(max_length=100)
+    phone_number = models.CharField(max_length=13)
+    amount = models.DecimalField(decimal_places=2, max_digits=19, default=0.0)
+    d_200 = models.CharField(max_length=100, null=True, blank=True)
+    d_100 = models.CharField(max_length=100, null=True, blank=True)
+    d_50 = models.CharField(max_length=100, null=True, blank=True)
+    d_20 = models.CharField(max_length=100, null=True, blank=True)
+    d_10 = models.CharField(max_length=100, null=True, blank=True)
+    d_5 = models.CharField(max_length=100, null=True, blank=True)
+    d_2 = models.CharField(max_length=100, null=True, blank=True)
+    d_1 = models.CharField(max_length=100, null=True, blank=True)
+    date_added = models.DateField(auto_now_add=True)
+    time_added = models.TimeField(auto_now_add=True)
+    
+
+        
+    def __str__(self):
+        return f"{self.customer_name} - Total: {self.amount}"

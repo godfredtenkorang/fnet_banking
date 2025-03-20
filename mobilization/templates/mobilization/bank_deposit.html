@@ -61,6 +61,10 @@
                     <label>Id Number</label> <br />
                     <input type="text" name="" id="" required>
                   </div> -->
+                <!-- <div class="input" id="transaction_id">
+                    <label for="transaction_id">Transaction ID</label> <br />
+                    <input type="text" id="transaction_id" name="mobilization_transaction_id" placeholder="Enter Transaction ID" />
+                </div> -->
                 <div class="input">
                     <label for="amount">Amount</label> <br />
 
@@ -71,7 +75,7 @@
             <button type="submit" id="submitBtn">Submit</button>
             <div style="display: flex; text-align:center; justify-content:center;">
 
-                <a class="btn41-43 btn-41" href="">View Bank Deposits</a>
+                <a class="btn41-43 btn-41" href="{% url 'get_bank_deposit' %}">View Bank Deposits</a>
             </div>
         </form>
     </div>
@@ -87,7 +91,7 @@
             let phoneNumber = $(this).val();
             if (phoneNumber.length >= 10) { // Assuming phone number is at least 10 digits
                 $.ajax({
-                    url: "{% url 'mobilization_banks' %}",
+                    url: "{% url 'get_banks' %}",
                     data: { 'phone_number': phoneNumber },
                     success: function (data) {
                         $('#bank').empty().append('<option value="">Select Bank</option>');
@@ -104,7 +108,7 @@
             let phoneNumber = $('#phone_number').val();
             let bank = $(this).val();
             $.ajax({
-                url: "{% url 'mobilization_accounts' %}",
+                url: "{% url 'get_accounts' %}",
                 data: { 'phone_number': phoneNumber, 'bank': bank },
                 success: function (data) {
                     $('#account_number').empty().append('<option value="">Select Account</option>');
@@ -120,7 +124,7 @@
         $('#account_number').change(function () {
             let accountNumber = $(this).val();
             $.ajax({
-                url: "{% url 'mobilization_customers' %}",
+                url: "{% url 'get_customer_details' %}",
                 data: { 'account_number': accountNumber },
                 success: function (data) {
                     $('#account_name').val(data.account_name);

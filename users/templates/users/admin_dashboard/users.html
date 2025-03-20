@@ -117,6 +117,13 @@
             width: 100% !important;
         }
     }
+    .user-title {
+        text-align: center;
+        text-decoration: underline;
+        font-size: 40;
+        font-weight: 900;
+        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    }
 </style>
 
 
@@ -130,22 +137,61 @@
 
 
     <div class="table-container">
+        <h2 class="user-title">Admins</h2>
+        <br>
         <table>
             <thead>
                 <tr>
-                    <th>Username</th>
-                    <th>Role</th>
                     <th>Phone Number</th>
+                    <th>Role</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+        
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in admins %}
+                <tr>
+                    <td data-label="username">{{ user.phone_number }}</td>
+                    <td data-label="Role">{{ user.role }}</td>
+                    <td data-label="Email">{{ user.email }}</td>
+                    <td data-label="Action" class="action-buttons">
+                        {% if not user.is_approved %}
+                        <a href="{% url 'approve_user' user.id %}"><button class="approve-btn">Approve</button></a>
+                        {% else %}
+                        <a href="{% url 'unapprove_user' user.id %}"><button class="approve-btn">Unapprove</button></a>
+                        {% endif %}
+                        {% if not user.is_blocked %}
+                        <a href="{% url 'block_user' user.id %}"><button class="decline-btn">Block</button></a>
+                        {% else %}
+                        <a href="{% url 'unblock_user' user.id %}"><button class="decline-btn">Unblock</button></a>
+                        {% endif %}
+                        <a href="{% url 'delete_user' user.id %}"><button class="decline-btn">Delete</button></a>
+                    </td>
+                </tr>
+                {% endfor %}
+        
+            </tbody>
+        </table>
+        <br><br>
+        <h2 class="user-title">Owners</h2>
+        <br>
+        <table>
+            <thead>
+                <tr>
+                    <th>Phone Number</th>
+                    <th>Role</th>
+                    <th>Email</th>
                     <th>Actions</th>
 
                 </tr>
             </thead>
             <tbody>
-                {% for user in users %}
+                {% for user in owners %}
                 <tr>
-                    <td data-label="username">{{ user.username }}</td>
-                    <td data-label="Location">{{ user.role }}</td>
-                    <td data-label="Local District">{{ user.phone_number }}</td>
+                    <td data-label="username">{{ user.phone_number }}</td>
+                    <td data-label="Role">{{ user.role }}</td>
+                    <td data-label="Email">{{ user.email }}</td>
                     <td data-label="Action" class="action-buttons">
                         {% if not user.is_approved %}
                         <a href="{% url 'approve_user' user.id %}"><button class="approve-btn">Approve</button></a>
@@ -162,6 +208,117 @@
                 </tr>
                 {% endfor %}
 
+            </tbody>
+        </table>
+        <br><br>
+        <h2 class="user-title">Branches</h2>
+        <br>
+        <table>
+            <thead>
+                <tr>
+                    <th>Phone Number</th>
+                    <th>Role</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+        
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in agents %}
+                <tr>
+                    <td data-label="username">{{ user.phone_number }}</td>
+                    <td data-label="Role">{{ user.role }}</td>
+                    <td data-label="Email">{{ user.email }}</td>
+                    <td data-label="Action" class="action-buttons">
+                        {% if not user.is_approved %}
+                        <a href="{% url 'approve_user' user.id %}"><button class="approve-btn">Approve</button></a>
+                        {% else %}
+                        <a href="{% url 'unapprove_user' user.id %}"><button class="approve-btn">Unapprove</button></a>
+                        {% endif %}
+                        {% if not user.is_blocked %}
+                        <a href="{% url 'block_user' user.id %}"><button class="decline-btn">Block</button></a>
+                        {% else %}
+                        <a href="{% url 'unblock_user' user.id %}"><button class="decline-btn">Unblock</button></a>
+                        {% endif %}
+                        <a href="{% url 'delete_user' user.id %}"><button class="decline-btn">Delete</button></a>
+                    </td>
+                </tr>
+                {% endfor %}
+        
+            </tbody>
+        </table>
+        <br><br>
+        <h2 class="user-title">Mobilizations</h2>
+        <br>
+        <table>
+            <thead>
+                <tr>
+                    <th>Phone Number</th>
+                    <th>Role</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+        
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in mobilizations %}
+                <tr>
+                    <td data-label="username">{{ user.phone_number }}</td>
+                    <td data-label="Role">{{ user.role }}</td>
+                    <td data-label="Email">{{ user.email }}</td>
+                    <td data-label="Action" class="action-buttons">
+                        {% if not user.is_approved %}
+                        <a href="{% url 'approve_user' user.id %}"><button class="approve-btn">Approve</button></a>
+                        {% else %}
+                        <a href="{% url 'unapprove_user' user.id %}"><button class="approve-btn">Unapprove</button></a>
+                        {% endif %}
+                        {% if not user.is_blocked %}
+                        <a href="{% url 'block_user' user.id %}"><button class="decline-btn">Block</button></a>
+                        {% else %}
+                        <a href="{% url 'unblock_user' user.id %}"><button class="decline-btn">Unblock</button></a>
+                        {% endif %}
+                        <a href="{% url 'delete_user' user.id %}"><button class="decline-btn">Delete</button></a>
+                    </td>
+                </tr>
+                {% endfor %}
+        
+            </tbody>
+        </table>
+        <br><br>
+        <h2 class="user-title">Customers</h2>
+        <br>
+        <table>
+            <thead>
+                <tr>
+                    <th>Phone Number</th>
+                    <th>Role</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+        
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in customers %}
+                <tr>
+                    <td data-label="username">{{ user.phone_number }}</td>
+                    <td data-label="Role">{{ user.role }}</td>
+                    <td data-label="Email">{{ user.email }}</td>
+                    <td data-label="Action" class="action-buttons">
+                        {% if not user.is_approved %}
+                        <a href="{% url 'approve_user' user.id %}"><button class="approve-btn">Approve</button></a>
+                        {% else %}
+                        <a href="{% url 'unapprove_user' user.id %}"><button class="approve-btn">Unapprove</button></a>
+                        {% endif %}
+                        {% if not user.is_blocked %}
+                        <a href="{% url 'block_user' user.id %}"><button class="decline-btn">Block</button></a>
+                        {% else %}
+                        <a href="{% url 'unblock_user' user.id %}"><button class="decline-btn">Unblock</button></a>
+                        {% endif %}
+                        <a href="{% url 'delete_user' user.id %}"><button class="decline-btn">Delete</button></a>
+                    </td>
+                </tr>
+                {% endfor %}
+        
             </tbody>
         </table>
     </div>

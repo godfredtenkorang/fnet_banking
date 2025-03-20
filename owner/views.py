@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required, user_passes_test
-from users.forms import AgentRegistrationForm
+from users.forms import AgentRegistrationForm, MobilizationRegistrationForm
 from users.models import Agent, Owner
 from banking.models import EFloatAccount
 from banking.forms import AddCapitalForm
@@ -11,18 +11,29 @@ from decimal import Decimal
 from django.utils import timezone
 from datetime import datetime
 from django.db.models import Sum
-from users.models import User, Branch, Mobilization
+from users.models import User, Branch, Mobilization, Customer
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
+from mobilization.models import BankDeposit as bank_deposits
+from mobilization.models import BankWithdrawal as bank_withdrawals
+from mobilization.models import PaymentRequest as payment_requests
+
 
 
 def unapproved_users_count(request):
     unapproved_cash_count = CashAndECashRequest.objects.filter(status='Pending').count()
     unapproved_payment_count = PaymentRequest.objects.filter(status='Pending').count()
     
+    pending_deposits_count = bank_deposits.objects.filter(status='Pending').count()
+    pending_withdrawals_count = bank_withdrawals.objects.filter(status='Pending').count()
+    payments_count = payment_requests.objects.filter(status='Pending').count()
+    
+    mobilization_count = pending_deposits_count + pending_withdrawals_count + payments_count
+    
     context = {
         'unapproved_cash_count': unapproved_cash_count,
         'unapproved_payment_count': unapproved_payment_count,
+        'mobilization_count': mobilization_count
     }
     return context
 
@@ -56,12 +67,39 @@ def myAgent(request):
     }
     return render(request, 'owner/myAgent.html', context)
 
+
+def registerMobilization(request):
+    if request.method == 'POST':
+        form = MobilizationRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('register_mobilization')
+    else:
+        form = MobilizationRegistrationForm()
+    context = {
+        'form': form
+    }
+    return render(request, 'owner/mobilization/register_mobilization.html', context)
+
+def myMobilization(request):
+    mobilizations = Mobilization.objects.all()
+    context = {
+        'mobilizations': mobilizations,
+        'title': 'My Mobilizations',
+    }
+    return render(request, 'owner/mobilization/my_mobilizations.html', context)
+
 # def get_owner(request):
 #     users = Owner.objects.filter(user=request.user)
 #     return {'users': users}
 
-def report(request):
-    return render(request, 'owner/report.html')
+def customers(request):
+    customers = Customer.objects.all()
+    context = {
+        'customers': customers,
+        'title': 'Customers'
+    }
+    return render(request, 'owner/customers.html', context)
 
 def is_owner(user):
     return user.role == 'OWNER'
@@ -490,145 +528,215 @@ def hold_account(request):
     return render(request, 'owner/customerCare/holdAccount.html', context)  
 
 
-def register_mobilization(request):
-    users = User.objects.filter(role='MOBILIZATION')
-    branches = Branch.objects.all()
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        branch_id = request.POST.get('branch')
-        email = request.POST.get('email')
-        full_name = request.POST.get('full_name')
-        phone_number = request.POST.get('phone_number')
-        company_name = request.POST.get('company_name')
-        company_phone = request.POST.get('customer_phone')
-        digital_address = request.POST.get('digital_address')
-        mobilization_code = request.POST.get('mobilization_code')
-        password = request.POST.get('password')
-        
-        # Validate required fields
-        if not (username and password and phone_number and full_name and branch_id):
-            messages.error(request, 'Please fill in all required fields.')
-            return redirect('register_mobilization')
-        
-        # Check if the username already exists
-        if User.objects.filter(username=username).exists():
-            messages.error(request, 'Username already taken.')
-            return redirect('register_mobilization')
-        
-        # Check if the phone number already exists
-        if User.objects.filter(phone_number=phone_number).exists():
-            messages.error(request, 'Phone number already registered.')
-            return redirect('register_mobilization')
-        
-        # Create the user
-        user = User.objects.create(
-            username=username,
-            password=make_password(password),  # Hash the password
-            phone_number=phone_number,
-            role='MOBILIZATION',
-            is_approved=True  # Automatically approve customers
-        )
-        
-        # user = get_object_or_404(User, id=customer_id)
-        branch = get_object_or_404(Branch, id=branch_id)
-        
-        # agent = Agent.objects.get(user=request.user)
-        
-        Mobilization.objects.create(
-            user=user,
-            owner=request.user.owner,  # Assign the current owner
-            branch=branch,
-            email=email,
-            full_name=full_name,
-            phone_number=phone_number,
-            company_name=company_name,
-            company_number=company_phone,
-            digital_address=digital_address,
-            mobilization_code=mobilization_code,
-        )
-        messages.success(request, 'Mobilization registered successfully!')
-        return redirect('register_mobilization')
-        
-    context = {
-#         # 'users': users,
-        'branches': branches,
-        'title': 'Mobilization Registration'
-    }
-    return render(request, 'owner/mobilization/register_mobilization.html', context)
-
-# @login_required
-# @user_passes_test(is_owner)
-# def customerReg(request):
-#     # users = User.objects.filter(role='CUSTOMER')
+# def register_mobilization(request):
+#     users = User.objects.filter(role='MOBILIZATION')
 #     branches = Branch.objects.all()
 #     if request.method == 'POST':
 #         username = request.POST.get('username')
 #         branch_id = request.POST.get('branch')
-#         phone_number = request.POST.get('phone_number')
+#         email = request.POST.get('email')
 #         full_name = request.POST.get('full_name')
-#         customer_location = request.POST.get('customer_location')
+#         phone_number = request.POST.get('phone_number')
+#         company_name = request.POST.get('company_name')
+#         company_phone = request.POST.get('customer_phone')
 #         digital_address = request.POST.get('digital_address')
-#         id_type = request.POST.get('id_type')
-#         id_number = request.POST.get('id_number')
-#         date_of_birth = request.POST.get('date_of_birth')
-#         customer_picture = request.FILES.get('customer_picture')
+#         mobilization_code = request.POST.get('mobilization_code')
 #         password = request.POST.get('password')
         
 #         # Validate required fields
 #         if not (username and password and phone_number and full_name and branch_id):
 #             messages.error(request, 'Please fill in all required fields.')
-#             return redirect('customerReg')
+#             return redirect('register_mobilization')
         
 #         # Check if the username already exists
 #         if User.objects.filter(username=username).exists():
 #             messages.error(request, 'Username already taken.')
-#             return redirect('customerReg')
+#             return redirect('register_mobilization')
         
 #         # Check if the phone number already exists
 #         if User.objects.filter(phone_number=phone_number).exists():
 #             messages.error(request, 'Phone number already registered.')
-#             return redirect('customerReg')
+#             return redirect('register_mobilization')
         
 #         # Create the user
 #         user = User.objects.create(
 #             username=username,
 #             password=make_password(password),  # Hash the password
 #             phone_number=phone_number,
-#             role='CUSTOMER',
+#             role='MOBILIZATION',
 #             is_approved=True  # Automatically approve customers
 #         )
         
 #         # user = get_object_or_404(User, id=customer_id)
 #         branch = get_object_or_404(Branch, id=branch_id)
         
-#         # Save the customer picture
-#         if customer_picture:
-#             picture_path = default_storage.save(f'customer_pic/{customer_picture.name}', customer_picture)
-#         else:
-#             picture_path = ''
-            
 #         # agent = Agent.objects.get(user=request.user)
         
-#         # Create the customer
-#         Customer.objects.create(
+#         Mobilization.objects.create(
 #             user=user,
-#             agent=request.user.agent,  # Assign the current agent
+#             owner=request.user.owner,  # Assign the current owner
 #             branch=branch,
-#             phone_number=phone_number,
+#             email=email,
 #             full_name=full_name,
-#             customer_location=customer_location,
+#             phone_number=phone_number,
+#             company_name=company_name,
+#             company_number=company_phone,
 #             digital_address=digital_address,
-#             id_type=id_type,
-#             id_number=id_number,
-#             date_of_birth=date_of_birth,
-#             customer_picture=picture_path
+#             mobilization_code=mobilization_code,
 #         )
-#         messages.success(request, 'Customer registered successfully!')
-#         return redirect('customerReg')
-
+#         messages.success(request, 'Mobilization registered successfully!')
+#         return redirect('register_mobilization')
+        
 #     context = {
-#         # 'users': users,
+# #         # 'users': users,
 #         'branches': branches,
-#         'title': 'Customer Registration'
+#         'title': 'Mobilization Registration'
 #     }
-#     return render(request, 'agent/customerReg.html', context)
+#     return render(request, 'owner/mobilization/register_mobilization.html', context)
+
+@login_required
+def mobilization_bank_deposit_requests(request):
+    pending_deposits = bank_deposits.objects.filter(status='Pending').order_by('-date_deposited', '-time_deposited')
+    context = {
+        'pending_deposits': pending_deposits,
+        'title': 'Bank Deposit Requests'
+    }
+    return render(request, 'owner/mobilization_approvals/bank_deposit.html', context)
+
+@login_required
+def approve_mobilization_bank_deposit(request, deposit_id):
+    deposit = get_object_or_404(bank_deposits, id=deposit_id)
+    if request.method == 'POST':
+        owner_transaction_id = request.POST.get('owner_transaction_id')
+        if not owner_transaction_id:
+            messages.error(request, 'Transaction ID is required.')
+            return redirect('approve_mobilization_bank_deposit', deposit_id=deposit.id)
+        deposit.owner_transaction_id = owner_transaction_id
+        deposit.status = 'Approved'
+        deposit.save()
+        messages.success(request, 'Bank Deposit approved succussfully')
+        return redirect('mobilization_bank_deposit_requests')
+    context = {
+        'deposit': deposit
+    }
+    return render(request, 'owner/mobilization_approvals/bank_deposit_approval.html', context)
+
+@login_required
+def reject_mobilization_bank_deposit(request, deposit_id):
+    deposit = get_object_or_404(bank_deposits, id=deposit_id)
+    deposit.status = 'Rejected'
+    deposit.save()
+    messages.success(request, 'Bank Deposit rejected')
+    return redirect('mobilization_bank_deposit_requests')
+
+@login_required
+def mobilization_bank_withdrawal_requests(request):
+    pending_withdrawals = bank_withdrawals.objects.filter(status='Pending').order_by('-date_withdrawn', '-time_withdrawn')
+    context = {
+        'pending_withdrawals': pending_withdrawals,
+        'title': 'Bank Withdrawal Requests'
+    }
+    return render(request, 'owner/mobilization_approvals/bank_withdrawal.html', context)
+
+@login_required
+def approve_mobilization_withdrawal(request, withdrawal_id):
+    withdrawal = get_object_or_404(bank_withdrawals, id=withdrawal_id)
+    withdrawal.status = 'Approved'
+    withdrawal.save()
+    messages.success(request, 'Bank Withdrawal approved succussfully')
+    return redirect('mobilization_bank_withdrawal_requests')
+
+@login_required
+def reject_mobilization_withdrawal(request, withdrawal_id):
+    withdrawal = get_object_or_404(bank_withdrawals, id=withdrawal_id)
+    withdrawal.status = 'Rejected'
+    withdrawal.save()
+    messages.success(request, 'Bank Withdrawal rejected')
+    return redirect('mobilization_bank_withdrawal_requests')
+
+@login_required
+def mobilization_payment_requests(request):
+    payments = payment_requests.objects.filter(status='Pending').order_by('-created_at')
+    
+    context = {
+        'payments': payments,
+        'title': 'Payment Requests'
+    }
+    return render(request, 'owner/mobilization_approvals/payment.html', context)
+
+
+@login_required
+def approve_mobilization_payment(request, payment_id):
+    payment = get_object_or_404(payment_requests, id=payment_id)
+    if request.method == 'POST':
+        owner_transaction_id = request.POST.get('owner_transaction_id')
+        if not owner_transaction_id:
+            messages.error(request, 'Transaction ID is required.')
+            return redirect('approve_mobilization_payment', payment_id=payment.id)
+        if payment.mobilization_transaction_id != owner_transaction_id:
+            messages.error(request, 'Transaction ID does not match the Mobilization\'s input.')
+            return redirect('approve_mobilization_payment', payment_id=payment.id)
+        payment.transaction_id = owner_transaction_id
+        payment.status = 'Approved'
+        payment.save()
+        messages.success(request, 'Payment approved succussfully')
+        return redirect('mobilization_payment_requests')
+    context = {
+        'payment': payment
+    }
+    return render(request, 'owner/mobilization_approvals/payment_approval.html', context)
+
+@login_required
+def reject_mobilization_payment(request, payment_id):
+    payment = get_object_or_404(payment_requests, id=payment_id)
+    payment.status = 'Rejected'
+    payment.save()
+    messages.success(request, 'Payment rejected')
+    return redirect('mobilization_payment_requests')
+
+
+def mobilization_agent_detail(request, mobilization_id):
+    mobilization = get_object_or_404(Mobilization, id=mobilization_id)
+    context = {
+        'mobilization': mobilization
+    }
+    return render(request, 'owner/mobilization/mobilization_detail.html', context)
+
+def mobilization_customers(request, mobilization_id):
+    mobilization = get_object_or_404(Mobilization, id=mobilization_id)
+    customers = Customer.objects.filter(mobilization=mobilization)
+    context = {
+        'customers': customers,
+        'title': 'Customers'
+    }
+    return render(request, 'owner/mobilization/customers.html', context)
+
+def mobilization_all_transactions(requests):
+    context = {
+        'title': 'All Transactions'
+    }
+    return render(requests, 'owner/mobilization/all_transactions.html', context)
+
+def mobilization_bank_deposit_transactions(request):
+    bank_deposit_transactions = bank_deposits.objects.all()
+    context = {
+        'bank_deposit_transactions': bank_deposit_transactions
+    }
+    return render(request, 'owner/mobilization/bank_deposit_transactions.html', context)
+
+def mobilization_bank_withdrawal_transactions(request):
+    bank_withdrawal_transactions = bank_withdrawals.objects.all()
+    context = {
+        'bank_withdrawal_transactions': bank_withdrawal_transactions
+    }
+    return render(request, 'owner/mobilization/bank_withdrawal_transactions.html', context)
+
+def mobilization_payment_transactions(request):
+    payment_transactions = payment_requests.objects.all()
+    context = {
+        'payment_transactions': payment_transactions
+    }
+    return render(request, 'owner/mobilization/payment_transactions.html', context)
+
+def all_transaction(request):
+    return render(request, 'owner/agent_Detail/all_transaction.html')

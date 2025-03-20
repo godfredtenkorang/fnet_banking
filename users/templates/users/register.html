@@ -18,12 +18,19 @@
 
     <style>
         .login-container {
-            background-image: url("{% static 'banking/img/ban.jpg' %}");
+            background-image: url("{% static 'banking/img/login.jpeg' %}");
             background-size: cover;
             background-position: center;
             min-height: 100vh;
             width: 100%;
 
+        }
+
+        h3 {
+            font-family: "Sigmar", serif;
+            font-weight: 700;
+            font-style: normal;
+            font-size: 30px;
         }
     </style>
     
@@ -31,14 +38,16 @@
 
 
         <div class="login-form">
-            
-            <p>Please provide your details to create an account</p>
-
+            <br><br>
+            <h3>Please provide your details to create an account</h3>
+            <br><br>
             <div class="login">
                 
                 <form method="POST">
                     {% csrf_token %}
                     {{form.as_p}}
+                    <!-- <span id="toggle-password" style="cursor: pointer;">Show Password</span>
+                    <br><br> -->
                     <!-- <div class="input">
                         <label for="fullname">Full Name</label> <br>
                         <input type="text" id="fullname" required placeholder="Enter your full name">
@@ -59,6 +68,7 @@
                     <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
                     <p>If there are any difficulties, <a href="{% url 'customerSupport' %}">contact support</a></p>
                 </form>
+                <br><br>
             </div>
 
         </div>
@@ -78,5 +88,17 @@
 
 
 </body>
-
+<script>
+    // JavaScript to toggle password visibility using an eye icon
+    document.getElementById('toggle-password').addEventListener('click', function () {
+        const passwordField = document.getElementById('password');
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';  // Show password
+            this.textContent = 'Show Password';  // Change icon to open eye
+        } else {
+            passwordField.type = 'password';  // Hide password
+            this.textContent = 'Show Password';  // Change icon to closed eye
+        }
+    });
+</script>
 </html>

@@ -8,6 +8,7 @@ urlpatterns = [
     path('cashOut/', views.cashOut, name='cashOut'),
     
     path('bank_deposit/', views.agencyBank, name='agencyBank'),
+    path('bank_deposit_without_customer/', views.record_bank_deposit, name='bank_deposit_without_customer'),
     path('view_bank_deposits/', views.view_bank_deposits, name='view_bank_deposits'),
     path('get-banks/', views.get_banks, name='get_banks'),
     path('get-accounts/', views.get_accounts, name='get_accounts'),
@@ -56,6 +57,7 @@ urlpatterns = [
     path('view-customer-fraud/', views.view_customer_fraud, name='view_customer_fraud'),
     
     path('calculate/', views.calculate, name='calculate'),
+    path('view_calculate/', views.view_calculator, name='view_calculator'),
 
     path('efloat_account/', views.open_e_float_account, name='open_efloat_account'),
     path('view_efloat_account/', views.view_e_float_account, name='view_efloat_account'),

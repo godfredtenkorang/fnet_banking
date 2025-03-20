@@ -9,7 +9,7 @@
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
-            <h1>Agent</h1>
+            <h1>Branches</h1>
         </div>
     </div>
 
@@ -19,7 +19,7 @@
         <div class="agent">
             <i class="fa-solid fa-user"></i>
             <p><strong>Name:</strong> <span>{{ agent.full_name }}</span></p>
-            <p><strong>Username:</strong> <span>{{ agent.user.username }}</span></p>
+            <!-- <p><strong>Username:</strong> <span>{{ agent.user.username }}</span></p> -->
             <p><strong>Phone:</strong> <span>{{ agent.phone_number }}</span></p>
             <p><strong>Email:</strong> <span>{{ agent.email }}</span></p>
             <a href="{% url 'agentDetail' agent.id %}">Tap for more</a>
