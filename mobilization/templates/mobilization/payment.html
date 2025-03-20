@@ -110,7 +110,7 @@
                     <input type="text" id="name" name="name" placeholder="Enter Name" />
                 </div>
 
-                <div class="input" id="transaction_id" >
+                <div class="input" id="transaction_id" style="display: none;">
                     <label for="transaction_id">Transaction ID</label> <br />
                     <input type="text" id="transaction_id" name="mobilization_transaction_id" placeholder="Enter Transaction ID" />
                 </div>
@@ -124,7 +124,7 @@
             <button id="submitBtn" style="display: none;">Send</button>
             <br>
             <div style="display: flex; text-align:center; justify-content:center;">
-                <a class="btn41-43 btn-41" href="">View Payments</a>
+                <a class="btn41-43 btn-41" href="{% url 'get_payments' %}">View Payments</a>
             </div>
         </form>
 
@@ -144,6 +144,7 @@
         const telcoSection = document.getElementById("telco");
         const branchSection = document.getElementById("branch");
         const nameSection = document.getElementById('name');
+        const transactionID = document.getElementById('transaction_id');
         const amountField = document.getElementById("amount");
         const submitButton = document.getElementById("submitBtn");
 
@@ -156,7 +157,8 @@
             telcoSection.style.display = "none";
             branchSection.style.display = "none";
             amountField.style.display = "none";
-            nameSection.style.display = "none"
+            nameSection.style.display = "none";
+            transactionID.style.display = "none"
             submitButton.style.display = "none";
 
             // Show the appropriate fields based on selection
@@ -164,15 +166,18 @@
                 bankSection.style.display = "block";
                 amountField.style.display = "block";
                 submitButton.style.display = "block";
+                transactionID.style.display = "block";
             } else if (selectedValue === "Telco") {
                 telcoSection.style.display = "block";
                 amountField.style.display = "block";
                 submitButton.style.display = "block";
+                transactionID.style.display = "block";
             } else if (selectedValue === "Branch") {
                 branchSection.style.display = "block"
                 nameSection.style.display = "block"
                 amountField.style.display = "block";
                 submitButton.style.display = "block";
+                transactionID.style.display = "block";
             }
         });
     });

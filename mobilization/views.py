@@ -125,6 +125,34 @@ def bank_deposit(request):
     }
     return render(request, 'mobilization/bank_deposit.html', context)
 
+def get_bank_deposit(request):
+    
+    bank_deposits = BankDeposit.objects.all()
+    context = {
+        'bank_deposits': bank_deposits,
+        'title': 'Bank Deposit Transactions'
+    }
+    return render(request, 'mobilization/get_transactions/bank_deposit.html', context)
+
+def get_bank_withdrawal(request):
+    
+    bank_withdrawals = BankWithdrawal.objects.all()
+    context = {
+        'bank_withdrawals': bank_withdrawals,
+        'title': 'Bank Withdrawal Transactions'
+    }
+    return render(request, 'mobilization/get_transactions/bank_withdrawal.html', context)
+
+
+def get_payments(request):
+    
+    payments = PaymentRequest.objects.all()
+    context = {
+        'payments': payments,
+        'title': 'Payment Transactions'
+    }
+    return render(request, 'mobilization/get_transactions/payment.html', context)
+
 @login_required
 @user_passes_test(is_mobilization)
 def bank_withdrawal(request):
@@ -137,8 +165,9 @@ def bank_withdrawal(request):
         account_number = request.POST.get('account_number')
         account_name = request.POST.get('account_name')
         amount = request.POST.get('amount')
+        ghana_card = request.POST.get('ghana_card')
         
-        bank_withdrawals = BankWithdrawal(customer_phone=phone_number, bank=bank, account_number=account_number, account_name=account_name, amount=amount)
+        bank_withdrawals = BankWithdrawal(customer_phone=phone_number, bank=bank, account_number=account_number, account_name=account_name, amount=amount, ghana_card=ghana_card)
         
         bank_withdrawals.mobilization = mobilization
         

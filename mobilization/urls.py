@@ -13,6 +13,10 @@ urlpatterns = [
     # path('mobilization_accounts/', views.get_accounts, name='mobilization_accounts'),
     # path('mobilization_customers/', views.get_customer_details, name='mobilization_customers'),
     path('mobilization_bank_deposit/', views.bank_deposit, name='mobilization_bank_deposit'),
+    path('get_bank_deposit/', views.get_bank_deposit, name='get_bank_deposit'),
+    path('get_bank_withdrawal/', views.get_bank_withdrawal, name='get_bank_withdrawal'),
+    path('get_payments/', views.get_payments, name='get_payments'),
+    
     path('mobilization_bank_withdrawal/', views.bank_withdrawal, name='mobilization_bank_withdrawal'),
     path('mobilization_payment/', views.payment, name='mobilization_payment'),
     path('mobilization_customer_registration/', views.customer_registration, name='mobilization_customer_registration'),

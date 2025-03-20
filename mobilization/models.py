@@ -91,6 +91,7 @@ class BankWithdrawal(models.Model):
     account_number = models.CharField(max_length=20)
     account_name = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+    ghana_card = models.ImageField(upload_to='ghana_card_img/', default='', null=True, blank=True)
     date_withdrawn = models.DateField(default=timezone.now)
     time_withdrawn = models.TimeField(default=timezone.now)
     status = models.CharField(max_length=20, choices=REQUEST_STATUS, default='Pending')
