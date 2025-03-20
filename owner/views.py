@@ -25,10 +25,10 @@ def unapproved_users_count(request):
     unapproved_payment_count = PaymentRequest.objects.filter(status='Pending').count()
     
     pending_deposits_count = bank_deposits.objects.filter(status='Pending').count()
-    pending_withdrawals_count = bank_withdrawals.objects.filter(status='Pending').count()
+    # pending_withdrawals_count = bank_withdrawals.objects.filter(status='Pending').count()
     payments_count = payment_requests.objects.filter(status='Pending').count()
     
-    mobilization_count = pending_deposits_count + pending_withdrawals_count + payments_count
+    mobilization_count = pending_deposits_count  + payments_count
     
     context = {
         'unapproved_cash_count': unapproved_cash_count,
