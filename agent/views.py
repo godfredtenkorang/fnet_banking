@@ -13,6 +13,7 @@ from django.contrib.auth.hashers import make_password
 from django.core.files.storage import default_storage
 from django.db.models import Sum
 from django.core.paginator import Paginator
+from .forms import CustomerFilterForm
 
 def is_agent(user):
     return user.role == 'BRANCH'
@@ -773,8 +774,13 @@ def PaymentSummary(request):
 def my_customers(request):
     agent = request.user.agent
     customers = Customer.objects.filter(agent=agent)
+    form = CustomerFilterForm(request.GET or None)
+    if form.is_valid():
+        if form.cleaned_data['phone_number']:
+            customers = customers.filter(phone_number__icontains=form.cleaned_data['phone_number'])
     context = {
         'customers': customers,
+        'form': form,
         'title': 'My Customers'
     }
     return render(request, 'agent/my_customers.html', context)

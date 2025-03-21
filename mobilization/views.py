@@ -8,6 +8,7 @@ from django.contrib.auth.hashers import make_password
 from django.core.files.storage import default_storage
 from django.db.models import Sum
 from django.utils import timezone
+from .forms import CustomerFilterForm
 
 def is_mobilization(user):
     return user.role == 'MOBILIZATION'
@@ -314,8 +315,14 @@ def customer_account_registration(request):
 def my_customers(request):
     mobilization = request.user.mobilization
     customers = Customer.objects.filter(mobilization=mobilization)
+    form = CustomerFilterForm(request.GET or None)
+    if form.is_valid():
+        if form.cleaned_data['phone_number']:
+            customers = customers.filter(phone_number__icontains=form.cleaned_data['phone_number'])
+        
     context = {
         'customers': customers,
+        'form': form,
         'title': 'My Customers'
     }
     return render(request, 'mobilization/my_customers.html', context)

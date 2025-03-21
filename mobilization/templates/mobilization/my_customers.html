@@ -78,7 +78,24 @@
          min-width: 800px; /* Ensures columns do not wrap */
      }
  }
- 
+ .customer-filter-form{
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 5% 0; 
+}
+
+.customerfilterlogin{
+  width: 100%;
+  max-width: 60%;
+  min-height: 30vh;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); 
+  background-color: var(--white);
+  padding: 10px;
+}
  </style>
  
 
@@ -90,7 +107,22 @@
         </div>
     </div>
 
+<div class="customer-filter-form">
+    
+    <br><br>
+    <div class="customerfilterlogin">
+        <form id="myForm" method="get">
+            {% csrf_token %}
+            {{form.as_p}}
 
+            <button type="submit">Filter</button>
+        </form>
+        
+
+    </div>
+    
+
+</div>
 
     <div class="table-container">
         <table>
@@ -130,6 +162,8 @@
                 {% endfor %}
             </tbody>
         </table>
+        <br>
+        <br>
 
 
 
