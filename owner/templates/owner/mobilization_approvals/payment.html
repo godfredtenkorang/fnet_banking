@@ -116,6 +116,7 @@
                     <th>Bank/Network/Branch</th>
                     <th>Amount</th>
                     <th>Date/Time</th>
+                    <th>Transaction ID</th>
                     <th>Status</th>
                     <th>Action</th>
                 </tr>
@@ -136,6 +137,7 @@
                     </td>
                     <td data-label="Amount">{{payment.amount}}</td>
                     <td data-label="Date/Time">{{payment.created_at}}</td>
+                    <td data-label="Transaction ID">{{ payment.mobilization_transaction_id }}</td>
                     <td data-label="Status">{{payment.status}}</td>
                     <td data-label="Action" class="action-buttons">
                         <a href="{% url 'approve_mobilization_payment' payment.id %}"><button
