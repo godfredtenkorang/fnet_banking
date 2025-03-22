@@ -39,10 +39,13 @@ def dashboard(request):
     total_deposits = BankDeposit.total_bank_deposit_for_customer(mobilization=mobilization, date_deposited=today, status='Approved')
     total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(mobilization=mobilization, date_withdrawn=today)
     total_payments = PaymentRequest.total_payment_for_customer(mobilization=mobilization, created_at=today, status='Approved')
+    
+    balance_left = total_payments - total_deposits
     context = {
         'total_deposits': total_deposits,
         'total_withdrawals': total_withdrawals,
         'total_payments': total_payments,
+        'balance_left': balance_left,
         'customers': customers,
         'title': 'Dashboard'
     }
@@ -116,8 +119,9 @@ def bank_deposit(request):
         account_name = request.POST.get('account_name')
         # mobilization_transaction_id = request.POST.get('mobilization_transaction_id')
         amount = request.POST.get('amount')
+        receipt = request.POST.get('receipt')
         
-        bank_deposit = BankDeposit(phone_number=phone_number, bank=bank, account_number=account_number, account_name=account_name, amount=amount)
+        bank_deposit = BankDeposit(phone_number=phone_number, bank=bank, account_number=account_number, account_name=account_name, amount=amount, receipt=receipt)
         
         bank_deposit.mobilization = mobilization
         

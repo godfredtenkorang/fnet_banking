@@ -742,6 +742,23 @@ def mobilization_all_transactions(requests):
     }
     return render(requests, 'owner/mobilization/all_transactions.html', context)
 
+def mobilization_account_detail(request, mobilization_id):
+    mobilization = get_object_or_404(Mobilization, id=mobilization_id)
+    today = timezone.now().date()
+    
+    total_deposits = bank_deposits.total_bank_deposit_for_customer(mobilization=mobilization, date_deposited=today, status='Approved')
+    total_payments = payment_requests.total_payment_for_customer(mobilization=mobilization, created_at=today, status='Approved')
+    
+    balance_left = total_payments - total_deposits
+    context = {
+        'mobilization': mobilization,
+        'total_deposits': total_deposits,
+        'total_payments': total_payments,
+        'balance_left': balance_left,
+        'title': 'Account'
+    }
+    return render(request, 'owner/mobilization/account.html', context)
+
 def mobilization_bank_deposit_transactions(request, mobilization_id):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)
     bank_deposit_transactions = bank_deposits.objects.filter(mobilization=mobilization)

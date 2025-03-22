@@ -92,4 +92,6 @@ urlpatterns = [
     path('update_mobilization_payment/<int:payment_id>/', views.update_mobilization_payment, name='update_mobilization_payment'),
 
     path('mobilization_all_transactions/', views.mobilization_all_transactions, name='mobilization_all_transactions'),
+    
+    path('mobilization_account_detail/<int:mobilization_id>/', views.mobilization_account_detail, name='mobilization_account_detail'),
 ]
