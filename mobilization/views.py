@@ -119,7 +119,7 @@ def bank_deposit(request):
         account_name = request.POST.get('account_name')
         # mobilization_transaction_id = request.POST.get('mobilization_transaction_id')
         amount = request.POST.get('amount')
-        receipt = request.POST.get('receipt')
+        receipt = request.FILES.get('receipt')
         
         bank_deposit = BankDeposit(phone_number=phone_number, bank=bank, account_number=account_number, account_name=account_name, amount=amount, receipt=receipt)
         
@@ -174,7 +174,7 @@ def bank_withdrawal(request):
         account_number = request.POST.get('account_number')
         account_name = request.POST.get('account_name')
         amount = request.POST.get('amount')
-        ghana_card = request.POST.get('ghana_card')
+        ghana_card = request.FILES.get('ghana_card')
         
         bank_withdrawals = BankWithdrawal(customer_phone=phone_number, bank=bank, account_number=account_number, account_name=account_name, amount=amount, ghana_card=ghana_card)
         
