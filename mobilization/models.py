@@ -77,9 +77,12 @@ class BankDeposit(models.Model):
     time_deposited = models.TimeField(default=timezone.now)
     
     @classmethod
-    def total_bank_deposit_for_customer(cls, mobilization, date_deposited):
-        total = cls.objects.filter(mobilization=mobilization, date_deposited=date_deposited).aggregate(Sum('amount'))
+    def total_bank_deposit_for_customer(cls, mobilization, date_deposited, status):
+        total = cls.objects.filter(mobilization=mobilization, date_deposited=date_deposited, status=status).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
+    
+    class Meta:
+        ordering = ['-date_deposited']
     
     def __str__(self):
         return f"Bank Deposit of GH¢{self.amount} to {self.bank} by {self.phone_number} ({self.status})"
@@ -100,6 +103,9 @@ class BankWithdrawal(models.Model):
     def total_bank_withdrawal_for_customer(cls, mobilization, date_withdrawn):
         total = cls.objects.filter(mobilization=mobilization, date_withdrawn=date_withdrawn).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
+    
+    class Meta:
+        ordering = ['-date_withdrawn']
     
     def __str__(self):
         return f"Bank Withdrawal of GH¢{self.amount} from {self.bank} by {self.customer_phone} ({self.status})"
@@ -197,9 +203,13 @@ class PaymentRequest(models.Model):
     updated_at = models.DateField(auto_now=True)
     
     @classmethod
-    def total_payment_for_customer(cls, mobilization, created_at):
-        total = cls.objects.filter(mobilization=mobilization, created_at=created_at).aggregate(Sum('amount'))
+    def total_payment_for_customer(cls, mobilization, created_at, status):
+        total = cls.objects.filter(mobilization=mobilization, created_at=created_at, status=status).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
+    
+    class Meta:
+        ordering = ['-created_at']
+        
     
     def __str__(self):
         return f"Payment of ${self.amount} via {self.mode_of_payment} by {self.mobilization.mobilization} ({self.status})"

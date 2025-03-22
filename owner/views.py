@@ -17,6 +17,7 @@ from django.contrib import messages
 from mobilization.models import BankDeposit as bank_deposits
 from mobilization.models import BankWithdrawal as bank_withdrawals
 from mobilization.models import PaymentRequest as payment_requests
+from .forms import BankDepositForm, PaymentForm
 
 
 
@@ -630,6 +631,27 @@ def reject_mobilization_bank_deposit(request, deposit_id):
     return redirect('mobilization_bank_deposit_requests')
 
 @login_required
+def update_mobilization_bank_deposit(request, deposit_id):
+    deposit = get_object_or_404(bank_deposits, id=deposit_id)
+    
+    if request.method == 'POST':
+        form = BankDepositForm(request.POST, instance=deposit)
+        if form.is_valid():
+            updated_deposit = form.save(commit=False)
+            updated_deposit.save()
+            messages.success(request, 'Bank Deposit Updated Successfully.')
+            return redirect('mobilization_bank_deposit_transactions')
+    else:
+        form = BankDepositForm(instance=deposit)
+    context = {
+        'form': form,
+        'deposit': deposit,
+        'title': 'Update Bank Deposit'
+    }
+    return render(request, 'owner/mobilization/update_bank_deposit.html', context)
+        
+
+@login_required
 def mobilization_bank_withdrawal_requests(request):
     pending_withdrawals = bank_withdrawals.objects.filter(status='Pending').order_by('-date_withdrawn', '-time_withdrawn')
     context = {
@@ -695,6 +717,9 @@ def reject_mobilization_payment(request, payment_id):
     return redirect('mobilization_payment_requests')
 
 
+
+
+
 def mobilization_agent_detail(request, mobilization_id):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)
     context = {
@@ -717,26 +742,53 @@ def mobilization_all_transactions(requests):
     }
     return render(requests, 'owner/mobilization/all_transactions.html', context)
 
-def mobilization_bank_deposit_transactions(request):
-    bank_deposit_transactions = bank_deposits.objects.all()
+def mobilization_bank_deposit_transactions(request, mobilization_id):
+    mobilization = get_object_or_404(Mobilization, id=mobilization_id)
+    bank_deposit_transactions = bank_deposits.objects.filter(mobilization=mobilization)
     context = {
+        'mobilization': mobilization,
         'bank_deposit_transactions': bank_deposit_transactions
     }
     return render(request, 'owner/mobilization/bank_deposit_transactions.html', context)
 
-def mobilization_bank_withdrawal_transactions(request):
-    bank_withdrawal_transactions = bank_withdrawals.objects.all()
+def mobilization_bank_withdrawal_transactions(request, mobilization_id):
+    mobilization = get_object_or_404(Mobilization, id=mobilization_id)
+    bank_withdrawal_transactions = bank_withdrawals.objects.filter(mobilization=mobilization)
     context = {
+        'mobilization': mobilization,
         'bank_withdrawal_transactions': bank_withdrawal_transactions
     }
     return render(request, 'owner/mobilization/bank_withdrawal_transactions.html', context)
 
-def mobilization_payment_transactions(request):
-    payment_transactions = payment_requests.objects.all()
+def mobilization_payment_transactions(request, mobilization_id):
+    mobilization = get_object_or_404(Mobilization, id=mobilization_id)
+    payment_transactions = payment_requests.objects.filter(mobilization=mobilization)
     context = {
+        'mobilization': mobilization,
         'payment_transactions': payment_transactions
     }
     return render(request, 'owner/mobilization/payment_transactions.html', context)
+
+@login_required
+def update_mobilization_payment(request, payment_id):
+    payment = get_object_or_404(payment_requests, id=payment_id)
+    
+    if request.method == 'POST':
+        form = PaymentForm(request.POST, instance=payment)
+        if form.is_valid():
+            updated_payment = form.save(commit=False)
+            updated_payment.save()
+            messages.success(request, 'Payment Updated Successfully.')
+            return redirect('mobilization_payment_requests')
+    else:
+        form = PaymentForm(instance=payment)
+    context = {
+        'form': form,
+        'payment': payment,
+        'title': 'Update Payment'
+    }
+    return render(request, 'owner/mobilization/update_payment.html', context)
+        
 
 def all_transaction(request):
     return render(request, 'owner/agent_Detail/all_transaction.html')
