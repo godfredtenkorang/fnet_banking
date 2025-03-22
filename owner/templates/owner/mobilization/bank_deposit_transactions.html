@@ -106,6 +106,7 @@
                     <th>Date</th>
                     <th>Time</th>
                     <th>Amount</th>
+                    <th>Receipt</th>
                     <th>Update</th>
 
                 </tr>
@@ -121,6 +122,7 @@
                     <td data-label="Date">{{bank_deposit.date_deposited}}</td>
                     <td data-label="Time">{{bank_deposit.time_deposited}}</td>
                     <td data-label="Amount">{{bank_deposit.amount}}</td>
+                    <td data-label="Receipt"><a href="{{bank_deposit.receipt.url}}">receipt</a></td>
                     <td data-label="Update"><a href="{% url 'update_mobilization_bank_deposit' bank_deposit.id %}">Link</a></td>
 
                 </tr>
