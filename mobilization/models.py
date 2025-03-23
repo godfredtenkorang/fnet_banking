@@ -3,6 +3,7 @@ from users.models import User, Mobilization
 from django.utils import timezone
 from django.db.models import Sum
 from users.models import MobilizationCustomer, Customer
+from PIL import Image
 
 REQUEST_STATUS = (
     ("Pending", "Pending"),
@@ -81,6 +82,8 @@ class BankDeposit(models.Model):
     def total_bank_deposit_for_customer(cls, mobilization, date_deposited, status):
         total = cls.objects.filter(mobilization=mobilization, date_deposited=date_deposited, status=status).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
+    
+    
     
     class Meta:
         ordering = ['-date_deposited']

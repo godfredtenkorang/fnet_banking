@@ -121,7 +121,14 @@ def bank_deposit(request):
         amount = request.POST.get('amount')
         receipt = request.FILES.get('receipt')
         
-        bank_deposit = BankDeposit(phone_number=phone_number, bank=bank, account_number=account_number, account_name=account_name, amount=amount, receipt=receipt)
+        if receipt:
+            receipt_path = default_storage.save(f'receipt_img/{receipt.name}', receipt)
+        else:
+            receipt_path = ''
+            
+       
+        
+        bank_deposit = BankDeposit(phone_number=phone_number, bank=bank, account_number=account_number, account_name=account_name, amount=amount, receipt=receipt_path)
         
         bank_deposit.mobilization = mobilization
         
