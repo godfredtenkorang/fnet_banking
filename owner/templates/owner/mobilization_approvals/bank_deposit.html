@@ -136,8 +136,11 @@
                     <td data-label="Time">{{pending_deposit.time_deposited}}</td>
                     <td data-label="Amount">{{pending_deposit.amount}}</td>
                     <td data-label="Receipt"><a href="{{pending_deposit.receipt.url}}">receipt</a></td>
-                    <td data-label="Receipt"><a href="{{pending_deposit.screenshot.url}}">screenshot</a></td>
-
+                    {% if pending_deposit.screenshot %}
+                    <td data-label="Screenshot"><a href="{{pending_deposit.screenshot.url}}">screenshot</a></td>
+                    {% else %}
+                    <td>N/A</td>
+                    {% endif %}
                     <td data-label="Action" class="action-buttons">
                         <a href="{% url 'approve_mobilization_bank_deposit' pending_deposit.id %}"><button
                                 class="approve-btn">Approve</button></a>
