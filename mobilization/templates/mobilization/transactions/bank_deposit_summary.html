@@ -106,6 +106,7 @@
                     <th>Amount(GH¢)</th>
                     <th>Receipt</th>
                     <th>Status</th>
+                    <th>Screenshot</th>
 
                 </tr>
             </thead>
@@ -121,6 +122,7 @@
                     <td><a href="{{deposit.receipt.url}}">receipt</a></td>
                     <td data-label="Amount">{{deposit.amount}}</td>
                     <td>{{deposit.status}}</td>
+                    <td><a href="{% url 'screenshot_bank_deposit' deposit.id %}">upload</a></td>
                 </tr>
 
                 {% endfor %}

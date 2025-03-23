@@ -26,6 +26,7 @@ urlpatterns = [
     path('mobilization_transaction_summary/', views.transaction_summary, name='mobilization_transaction_summary'),
     path('mobilization_deposit_summary_date/', views.bank_deposit_summary_date, name='mobilization_deposit_summary_date'),
     path('mobilization_deposit_summary/<str:date>/', views.bank_deposit_summary, name='mobilization_deposit_summary'),
+    path('screenshot_bank_deposit/<int:deposit_id>/', views.screenshot_bank_deposit, name='screenshot_bank_deposit'),
     path('mobilization_withdrawal_summary_date/', views.bank_withdrawal_summary_date, name='mobilization_withdrawal_summary_date'),
     path('mobilization_withdrawal_summary/<str:date>/', views.bank_withdrawal_summary, name='mobilization_withdrawal_summary'),
     path('mobilization_payment_summary_date/', views.payment_summary_date, name='mobilization_payment_summary_date'),

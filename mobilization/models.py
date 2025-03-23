@@ -74,6 +74,7 @@ class BankDeposit(models.Model):
     receipt = models.ImageField(upload_to='receipt_img/', default='', null=True, blank=True)
     # mobilization_transaction_id = models.CharField(max_length=100, null=True, blank=True)
     owner_transaction_id = models.CharField(max_length=100, null=True, blank=True)
+    screenshot = models.ImageField(upload_to='screenshot_img/', default='', null=True, blank=True)
     status = models.CharField(max_length=100, choices=REQUEST_STATUS, default='Pending')
     date_deposited = models.DateField(default=timezone.now)
     time_deposited = models.TimeField(default=timezone.now)

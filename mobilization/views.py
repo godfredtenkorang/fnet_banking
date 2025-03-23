@@ -8,7 +8,7 @@ from django.contrib.auth.hashers import make_password
 from django.core.files.storage import default_storage
 from django.db.models import Sum
 from django.utils import timezone
-from .forms import CustomerFilterForm
+from .forms import CustomerFilterForm, UpdateBankDepositForm
 
 def is_mobilization(user):
     return user.role == 'MOBILIZATION'
@@ -394,6 +394,25 @@ def bank_deposit_summary(request, date):
         'title': 'Bank Deposits Summary'
     }
     return render(request, 'mobilization/transactions/bank_deposit_summary.html', context)
+
+def screenshot_bank_deposit(request, deposit_id):
+    deposit = get_object_or_404(BankDeposit, id=deposit_id)
+    
+    if request.method == 'POST':
+        form = UpdateBankDepositForm(request.POST, request.FILES, instance=deposit)
+        if form.is_valid():
+            updated_screenshot = form.save(commit=False)
+            updated_screenshot.save()
+            messages.success(request, 'Screenshot added Successfully.')
+            return redirect('screenshot_bank_deposit', deposit_id=deposit.id)
+    else:
+        form = UpdateBankDepositForm(instance=deposit)
+        
+    context = {
+        'form': form,
+        'title': 'Bank Deposit Update'
+    }
+    return render(request, 'mobilization/transactions/bank_deposit_update.html', context)
 
 
 @login_required
