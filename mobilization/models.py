@@ -83,7 +83,15 @@ class BankDeposit(models.Model):
         total = cls.objects.filter(mobilization=mobilization, date_deposited=date_deposited, status=status).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
     
-    
+    def save(self):
+        super().save()
+        
+        img = Image.open(self.receipt.path)
+        
+        if img.height > 300 or img.width > 300:
+            output_size = (300, 300)
+            img.thumbnail(output_size)
+            img.save(self.receipt.path)
     
     class Meta:
         ordering = ['-date_deposited']
@@ -107,6 +115,16 @@ class BankWithdrawal(models.Model):
     def total_bank_withdrawal_for_customer(cls, mobilization, date_withdrawn):
         total = cls.objects.filter(mobilization=mobilization, date_withdrawn=date_withdrawn).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
+    
+    def save(self):
+        super().save()
+        
+        img = Image.open(self.ghana_card.path)
+        
+        if img.height > 300 or img.width > 300:
+            output_size = (300, 300)
+            img.thumbnail(output_size)
+            img.save(self.ghana_card.path)
     
     class Meta:
         ordering = ['-date_withdrawn']
