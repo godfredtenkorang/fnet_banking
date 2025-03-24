@@ -27,7 +27,7 @@
         <a href="{% url 'mobilization_payment_transactions' mobilization.id %}" class="grid-row">
             <i class="fas fa-money-bill-wave"></i> Payments
         </a>
-        <a href="" class="grid-row">
+        <a href="{% url 'mobilization_report_view' mobilization.id %}" class="grid-row">
             <i class="fas fa-money-bill-wave"></i> Report
         </a>
         <a href="{% url 'mobilization_all_transactions' %}" class="grid-row">

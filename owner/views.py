@@ -17,6 +17,7 @@ from django.contrib import messages
 from mobilization.models import BankDeposit as bank_deposits
 from mobilization.models import BankWithdrawal as bank_withdrawals
 from mobilization.models import PaymentRequest as payment_requests
+from mobilization.models import Report as mobilization_reports
 from .forms import BankDepositForm, PaymentForm
 
 
@@ -741,6 +742,17 @@ def mobilization_all_transactions(requests):
         'title': 'All Transactions'
     }
     return render(requests, 'owner/mobilization/all_transactions.html', context)
+
+@login_required
+@user_passes_test(is_owner)
+def mobilization_report_view(request, mobilization_id):
+    mobilization = get_object_or_404(Mobilization, id=mobilization_id)
+    reports = mobilization_reports.objects.filter(mobilization=mobilization)
+    context = {
+        'reports': reports,
+        'title': 'Reports'
+    }
+    return render(request, 'owner/reports/mobilization_report.html', context) 
 
 def mobilization_account_detail(request, mobilization_id):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)

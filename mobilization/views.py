@@ -1,14 +1,14 @@
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import MobilizationPayTo, BankDeposit, BankWithdrawal, PaymentRequest, CustomerAccount, TellerCalculator
+from .models import MobilizationPayTo, BankDeposit, BankWithdrawal, PaymentRequest, CustomerAccount, TellerCalculator, Report
 from django.contrib import messages
 from users.models import MobilizationCustomer, User, Branch, Customer
 from django.contrib.auth.hashers import make_password
 from django.core.files.storage import default_storage
 from django.db.models import Sum
 from django.utils import timezone
-from .forms import CustomerFilterForm, UpdateBankDepositForm
+from .forms import CustomerFilterForm, UpdateBankDepositForm, ReportForm
 
 def is_mobilization(user):
     return user.role == 'MOBILIZATION'
@@ -522,3 +522,29 @@ def payment_notifications(request):
 
 def payto_notifications(request):
     return render(request, 'mobilization/notifications/payto_notifications.html')
+
+
+def report(request):
+    mobilization = request.user.mobilization
+    if request.method == 'POST':
+        report = request.POST.get('report')
+        reports = Report(report=report)
+        reports.mobilization = mobilization
+        reports.save()
+        messages.success(request, 'Report submitted successfully.')
+        return redirect('mobilization_report')
+    context = {
+        'title': 'Report'
+    }
+    return render(request, 'mobilization/report.html', context)
+
+
+def view_report(request):
+    mobilization = request.user.mobilization
+    reports = Report.objects.filter(mobilization=mobilization)
+    context = {
+        'reports': reports,
+        'title': 'View Report'
+    }
+    
+    return render(request, 'mobilization/view_report.html', context)

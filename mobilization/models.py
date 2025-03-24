@@ -271,3 +271,12 @@ class TellerCalculator(models.Model):
         
     def __str__(self):
         return f"{self.customer_name} - Total: {self.amount}"
+    
+
+class Report(models.Model):
+    mobilization = models.ForeignKey(Mobilization, on_delete=models.CASCADE)
+    report = models.TextField()
+    date_added = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Report from {self.mobilization.full_name}"

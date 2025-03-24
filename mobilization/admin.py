@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import MobilizationPayTo, BankDeposit, BankWithdrawal, PaymentRequest, CustomerAccount, TellerCalculator
+from .models import MobilizationPayTo, BankDeposit, BankWithdrawal, PaymentRequest, CustomerAccount, TellerCalculator, Report
 
 # Register your models here.
 admin.site.register(MobilizationPayTo)
@@ -8,3 +8,4 @@ admin.site.register(BankWithdrawal)
 admin.site.register(PaymentRequest)
 admin.site.register(CustomerAccount)
 admin.site.register(TellerCalculator)
+admin.site.register(Report)

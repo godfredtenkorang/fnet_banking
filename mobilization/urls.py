@@ -43,5 +43,6 @@ urlpatterns = [
     path('mobilization_payment_success/', views.payment_notifications, name='mobilization_payment_success'),
     path('mobilization_payto_success/', views.payto_notifications, name='mobilization_payto_success'),
     
-    
+    path('mobilization_report/', views.report, name='mobilization_report'),
+    path('mobilization_report_view/', views.view_report, name='mobilization_report_view'),
 ]
