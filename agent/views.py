@@ -5,7 +5,7 @@ from banking.forms import DrawerDepositForm, EFloatAccountForm
 from banking.models import Bank, CustomerAccount, Drawer, EFloatAccount, CustomerPaymentAtBank
 from django.utils import timezone
 from django.contrib import messages
-from .models import CustomerCashIn, CustomerCashOut, BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest, CustomerComplain, HoldCustomerAccount, CustomerFraud, CustomerPayTo, CashInCommission, CashOutCommission
+from .models import CustomerCashIn, CustomerCashOut, BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest, CustomerComplain, HoldCustomerAccount, CustomerFraud, CustomerPayTo, CashInCommission, CashOutCommission, BranchReport
 from datetime import datetime, timedelta, date
 from decimal import Decimal
 from django.http import JsonResponse
@@ -150,13 +150,12 @@ def payto(request):
         agent_number = request.POST.get('agent_number')
         network = request.POST.get('network')
         deposit_type = request.POST.get('deposit_type')
-        sent_to_agent_number = request.POST.get('sent_to_agent_number')
         merchant_code = request.POST.get('merchant_code')
         merchant_number = request.POST.get('merchant_number')
         amount = request.POST.get('amount')
         reference = request.POST.get('reference')
         
-        paytos = CustomerPayTo(agent_number=agent_number, network=network, deposit_type=deposit_type, sent_to_agent_number=sent_to_agent_number, merchant_code=merchant_code, merchant_number=merchant_number, amount=amount, reference=reference)
+        paytos = CustomerPayTo(agent_number=agent_number, network=network, transfer_type=deposit_type,  merchant_code=merchant_code, merchant_number=merchant_number, amount=amount, reference=reference)
         
         paytos.agent = agent
         
@@ -325,8 +324,14 @@ def agencyBank(request):
         account_number = request.POST.get('account_number')
         account_name = request.POST.get('account_name')
         amount = request.POST.get('amount')
+        receipt = request.FILES.get('receipt')
         
-        bank_deposit = BankDeposit(phone_number=phone_number, bank=bank, account_number=account_number, account_name=account_name, amount=amount)
+        if receipt:
+            receipt_path = default_storage.save(f'branch_receipt_img/{receipt.name}', receipt)
+        else:
+            receipt_path = ''
+        
+        bank_deposit = BankDeposit(phone_number=phone_number, bank=bank, account_number=account_number, account_name=account_name, amount=amount, receipt=receipt_path)
         
         bank_deposit.agent = agent
         
@@ -340,7 +345,7 @@ def agencyBank(request):
             return redirect('agencyBank')
         
         bank_deposit.save()
-        account.update_balance_for_bank_deposit(bank_deposit.bank, bank_deposit.amount, bank_deposit.status)
+        account.update_balance_for_bank_deposit(bank_deposit.bank, bank_deposit.amount)
         messages.success(request, 'Bank Deposit recorded succussfully.')
         return redirect('bank_deposit_notifications')
     
@@ -1218,3 +1223,29 @@ def commission(request):
         'title': 'Commission'
     }
     return render(request, 'agent/commission.html', context)
+
+
+def branch_report(request):
+    branch = request.user.agent
+    if request.method == 'POST':
+        report = request.POST.get('report')
+        reports = BranchReport(report=report)
+        reports.branch = branch
+        reports.save()
+        messages.success(request, 'Report submitted successfully.')
+        return redirect('branch_report')
+    context = {
+        'title': 'Report'
+    }
+    return render(request, 'agent/report.html', context)
+
+
+def view_branch_report(request):
+    branch = request.user.agent
+    reports = BranchReport.objects.filter(branch=branch)
+    context = {
+        'reports': reports,
+        'title': 'View Report'
+    }
+    
+    return render(request, 'agent/report_view.html', context)

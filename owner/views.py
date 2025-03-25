@@ -5,7 +5,7 @@ from users.forms import AgentRegistrationForm, MobilizationRegistrationForm
 from users.models import Agent, Owner
 from banking.models import EFloatAccount
 from banking.forms import AddCapitalForm
-from agent.models import BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest, CustomerComplain, HoldCustomerAccount, CustomerFraud, CashInCommission, CashOutCommission
+from agent.models import BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest, CustomerComplain, HoldCustomerAccount, CustomerFraud, CashInCommission, CashOutCommission, BranchReport
 from django.contrib import messages
 from decimal import Decimal
 from django.utils import timezone
@@ -46,7 +46,19 @@ def is_owner(user):
 @login_required
 @user_passes_test(is_owner)
 def owner_dashboard(request):
-    return render(request, 'owner/dashboard.html')
+    pending_requests = CashAndECashRequest.objects.filter(status='Pending').order_by('-created_at')
+    payments = PaymentRequest.objects.filter(status='Pending').order_by('-created_at')
+    
+    pending_deposits = bank_deposits.objects.filter(status='Pending').order_by('-date_deposited', '-time_deposited')
+    mobilization_payments = payment_requests.objects.filter(status='Pending').order_by('-created_at')
+    
+    context = {
+        'pending_requests': pending_requests,
+        'payments': payments,
+        'pending_deposits': pending_deposits,
+        'mobilization_payments': mobilization_payments
+    }
+    return render(request, 'owner/dashboard.html', context)
 
 def registerAgent(request):
     if request.method == 'POST':
@@ -109,7 +121,7 @@ def is_owner(user):
 @login_required
 @user_passes_test(is_owner)
 def cash_requests(request):
-    pending_requests = CashAndECashRequest.objects.filter(float_type='Cash' ,status='Pending').order_by('-created_at')
+    pending_requests = CashAndECashRequest.objects.filter(float_type='Cash', status='Pending').order_by('-created_at')
     context = {
         'pending_requests': pending_requests,
         'title': 'Cash Requests'
@@ -451,6 +463,17 @@ def pay_to(request):
 
 def all_transaction(request):
     return render(request, 'owner/agent_Detail/all_transaction.html')  
+
+@login_required
+@user_passes_test(is_owner)
+def branch_report_view(request, branch_id):
+    branch = get_object_or_404(Agent, id=branch_id)
+    reports = BranchReport.objects.filter(branch=branch)
+    context = {
+        'reports': reports,
+        'title': 'Reports'
+    }
+    return render(request, 'owner/reports/branch_report.html', context) 
 
 def commission(request):
     filter_type = request.GET.get('filter', 'daily') # Default to daily

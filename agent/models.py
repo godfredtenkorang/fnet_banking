@@ -164,6 +164,7 @@ class BankDeposit(models.Model):
     account_number = models.CharField(max_length=50)
     account_name = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=15, decimal_places=2)
+    receipt = models.ImageField(upload_to='branch_receipt_img/', default='', null=True, blank=True)
     # status = models.CharField(max_length=100, choices=REQUEST_STATUS, default='Pending')
     date_deposited = models.DateField(default=timezone.now)
     time_deposited = models.TimeField(default=timezone.now)
@@ -399,11 +400,10 @@ class CustomerPayTo(models.Model):
         ("Rejected", "Rejected")
     )
     agent = models.ForeignKey(User, on_delete=models.CASCADE, related_name="customer_pay_to")
-    agent_number = models.CharField(max_length=10, null=True, blank=True)
     network = models.CharField(max_length=20, choices=NETWORKS, blank=True, default="Select Network")
+    agent_number = models.CharField(max_length=10, null=True, blank=True)
     # customer_name = models.CharField(max_length=30, blank=True)
-    deposit_type = models.CharField(max_length=20, blank=True, choices=PAY_TO_DEPOSIT_TYPE)
-    sent_to_agent_number = models.CharField(max_length=30, blank=True, default="")
+    transfer_type = models.CharField(max_length=20, blank=True, choices=PAY_TO_DEPOSIT_TYPE)
     merchant_code = models.CharField(max_length=30, blank=True, default="")
     merchant_number = models.CharField(max_length=30, blank=True, default="")
     amount = models.DecimalField(max_digits=19, decimal_places=2, blank=True)
@@ -430,3 +430,12 @@ class CustomerPayTo(models.Model):
 
     def __str__(self):
         return f"Pay To of GH¢{self.amount} on {self.network} by {self.agent.phone_number}"
+    
+
+class BranchReport(models.Model):
+    branch = models.ForeignKey(Agent, on_delete=models.CASCADE)
+    report = models.TextField()
+    date_added = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Report from {self.branch.full_name}"

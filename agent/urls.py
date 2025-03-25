@@ -10,9 +10,9 @@ urlpatterns = [
     path('bank_deposit/', views.agencyBank, name='agencyBank'),
     path('bank_deposit_without_customer/', views.record_bank_deposit, name='bank_deposit_without_customer'),
     path('view_bank_deposits/', views.view_bank_deposits, name='view_bank_deposits'),
-    path('get-banks/', views.get_banks, name='get_banks'),
-    path('get-accounts/', views.get_accounts, name='get_accounts'),
-    path('get-customer-details/', views.get_customer_details, name='get_customer_details'),
+    path('get-banks/', views.get_banks, name='branch_get_banks'),
+    path('get-accounts/', views.get_accounts, name='brance_get_accounts'),
+    path('get-customer-details/', views.get_customer_details, name='branch_get_customer_details'),
     
     path('withdrawal/', views.withdrawal, name='withdrawal'),
     path('view_bank_withdrawals/', views.view_bank_withdrawals, name='view_bank_withdrawals'),
@@ -71,4 +71,9 @@ urlpatterns = [
     path('payment_notifications/', views.payment_notifications, name='payment_notifications'),
     path('payto_notifications/', views.payto_notifications, name='payto_notifications'),
     path('errorPage/', views.errorPage, name='errorPage'),
+    
+    
+    
+    path('branch_report/', views.branch_report, name='branch_report'),
+    path('view_branch_report/', views.view_branch_report, name='view_branch_report'),
 ]

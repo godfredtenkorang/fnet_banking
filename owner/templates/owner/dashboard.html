@@ -1,7 +1,129 @@
-{% extends 'owner/base.html' %} {% load static %} {% block content %}
+{% extends 'owner/base.html' %} {% load custom_filters %} {% load static %} {% block content %} 
 
 
+<style>
+    /* Default table styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
 
+    th,
+    td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+
+    th {
+        background: #007bff;
+        color: white;
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+    td {
+        font-size: 12px;
+    }
+
+    /* Button Styling */
+    .approve-btn {
+        background: #28a745;
+        color: white;
+
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+
+        height: 6vh !important;
+    }
+
+    .decline-btn {
+        background: #dc3545;
+        color: white;
+
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+
+        height: 6vh !important;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+    }
+
+    /* Table row background color using child selectors */
+    tbody tr:nth-child(odd) {
+        background-color: #f9f9f9;
+        /* Light gray for odd rows */
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #e9ecef;
+        /* Slightly darker gray for even rows */
+    }
+
+    /* Mobile Responsive Table */
+    @media screen and (max-width: 968px) {
+
+        table,
+        thead,
+        tbody,
+        th,
+        td,
+        tr {
+            display: block;
+            width: 100%;
+        }
+
+        thead {
+            display: none;
+        }
+
+        tr {
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            padding: 8px;
+            background: #f9f9f9;
+        }
+
+        td {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border: none;
+            text-align: left;
+        }
+
+        td::before {
+            content: attr(data-label);
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        /* Stack buttons at the bottom */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .action-buttons button {
+            width: 100% !important;
+        }
+    }
+    .user-title {
+        text-align: center;
+        text-decoration: underline;
+        font-size: 40;
+        font-weight: 900;
+        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    }
+</style>
 
 
 
@@ -12,8 +134,194 @@
             <h1>Welcome, {{user}}!</h1>
         </div>
     </div>
+<div class="table-container">
+    
+    <br>
+    <h2 class="user-title">Cash & E-Cash Requests</h2>
+    <br>
+    <table>
+        <thead>
+            <tr>
+                <th>Agent</th>
+                <th>Float Type</th>
+                <th>Bank/Network</th>
+                <th>Requested Amount</th>
+                <th>Approved Amount</th>
+                <th>Remaining Amount</th>
+                <th>Date/Time</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cash in pending_requests %}
+            <tr>
+                <td data-label="Agent">{{cash.agent.phone_number}}</td>
+                <td data-label="Amount">{{cash.float_type}}</td>
+                <td data-label="Bank/Network">
+                    {% if cash.float_type == 'Bank' %}
+                    {{cash.bank}}
+                    {% elif cash.float_type == 'Telco' %}
+                    {{cash.network}}
+                    {% elif cash.float_type == 'Cash' %}
+                    {{cash.cash}}
+                    {% else %}
+                    N/A
+                    {% endif %}
+                </td>
+                <td data-label="Amount">{{cash.amount}}</td>
+                <td data-label="Remaining">{{cash.amount|subtract:cash.arrears}}</td>
+                <td data-label="Arrears">{{cash.arrears}}</td>
+                <td data-label="Date/Time">{{cash.created_at}}</td>
+                <td data-label="Status">{{cash.status}}</td>
+                <td data-label="Action" class="action-buttons">
+                    <a href="{% url 'approve_cash_and_ecash_request' cash.id %}"><button class="approve-btn">Approve</button></a>
+                    <a href="{% url 'reject_cash_and_ecash_request' cash.id %}"><button class="decline-btn">Reject</button></a>
+                </td>
+            </tr>
+            {% endfor %}
 
+        </tbody>
+    </table>
+    <br><br>
+    <h2 class="user-title">Branches Payment Requests</h2>
+    <br>
+    <table>
+        <thead>
+            <tr>
+                <th>Agent</th>
+                <th>Mode of Payment</th>
+                <th>Bank/Network/Branch</th>
+                <th>Amount</th>
+                <th>Date/Time</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for payment in payments %}
+            <tr>
+                <td data-label="Agent">{{payment.agent.phone_number}}</td>
+                <td data-label="Mode of Payment">{{payment.mode_of_payment}}</td>
+                <td data-label="Bank/Network/Branch">
+                    {% if payment.mode_of_payment == 'Bank' %}
+                    {{payment.bank}}
+                    {% elif payment.mode_of_payment == 'Telco' %}
+                    {{payment.network}}
+                    {% else %}
+                    {{payment.branch}}
+                    {% endif %}
+                </td>
+                <td data-label="Amount">{{payment.amount}}</td>
+                <td data-label="Date/Time">{{payment.created_at}}</td>
+                <td data-label="Status">{{payment.status}}</td>
+                <td data-label="Action" class="action-buttons">
+                    <a href="{% url 'approve_payment' payment.id %}"><button class="approve-btn">Approve</button></a>
+                    <a href="{% url 'reject_payment' payment.id %}"><button class="decline-btn">Reject</button></a>
+                </td>
+            </tr>
+            {% endfor %}
 
+        </tbody>
+    </table>
+    <br><br>
+    <h2 class="user-title">Mobilizations Bank Deposit Requests</h2>
+    <br>
+    <table>
+        <thead>
+            <tr>
+                <th>Mobilization</th>
+                <th>Customer Phone</th>
+                <th>Bank</th>
+                <th>Account Number</th>
+                <th>Account Name</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Amount</th>
+                <th>Receipt</th>
+                <th>Screenshot</th>
+                <th>Actions</th>
+            
+            </tr>
+        </thead>
+        <tbody>
+            {% for pending_deposit in pending_deposits %}
+            <tr>
+                <td data-label="Agent">{{pending_deposit.mobilization}}</td>
+                <td data-label="Customer Number">{{pending_deposit.phone_number}}</td>
+                <td data-label="Bank">{{pending_deposit.bank}}</td>
+                <td data-label="Account Number">{{pending_deposit.account_number}}</td>
+                <td data-label="Account Name">{{pending_deposit.account_name}}</td>
+                <td data-label="Date">{{pending_deposit.date_deposited}}</td>
+                <td data-label="Time">{{pending_deposit.time_deposited}}</td>
+                <td data-label="Amount">{{pending_deposit.amount}}</td>
+                {% if pending_deposit.receipt %}
+                <td data-label="Receipt"><a href="{{pending_deposit.receipt.url}}">receipt</a></td>
+                {% else %}
+                <td>N/A</td>
+                {% endif %}
+                {% if pending_deposit.screenshot %}
+                <td data-label="Screenshot"><a href="{{pending_deposit.screenshot.url}}">screenshot</a></td>
+                {% else %}
+                <td>N/A</td>
+                {% endif %}
+                <td data-label="Action" class="action-buttons">
+                    <a href="{% url 'approve_mobilization_bank_deposit' pending_deposit.id %}"><button
+                            class="approve-btn">Approve</button></a>
+                    <a href="{% url 'reject_mobilization_bank_deposit' pending_deposit.id %}"><button
+                            class="decline-btn">Reject</button></a>
+                </td>
+            </tr>
+            
+            {% endfor %}
+
+        </tbody>
+    </table>
+    <br><br>
+    <h2 class="user-title">Mobilization Payment Requests</h2>
+    <br>
+    <table>
+        <thead>
+            <tr>
+                <th>Mobilization</th>
+                <th>Mode of Payment</th>
+                <th>Bank/Network/Branch</th>
+                <th>Amount</th>
+                <th>Date/Time</th>
+                <th>Transaction ID</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for payment in mobilization_payments %}
+            <tr>
+                <td data-label="Agent">{{payment.mobilization.phone_number}}</td>
+                <td data-label="Mode of Payment">{{payment.mode_of_payment}}</td>
+                <td data-label="Bank/Network/Branch">
+                    {% if payment.mode_of_payment == 'Bank' %}
+                    {{payment.bank}}
+                    {% elif payment.mode_of_payment == 'Telco' %}
+                    {{payment.network}}
+                    {% else %}
+                    {{payment.branch}}
+                    {% endif %}
+                </td>
+                <td data-label="Amount">{{payment.amount}}</td>
+                <td data-label="Date/Time">{{payment.created_at}}</td>
+                <td data-label="Transaction ID">{{ payment.mobilization_transaction_id }}</td>
+                <td data-label="Status">{{payment.status}}</td>
+                <td data-label="Action" class="action-buttons">
+                    <a href="{% url 'approve_mobilization_payment' payment.id %}"><button class="approve-btn">Approve</button></a>
+                    <a href="{% url 'reject_mobilization_payment' payment.id %}"><button class="decline-btn">Reject</button></a>
+                </td>
+            </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+    <br><br>
+</div>
 
 
 

@@ -54,6 +54,7 @@ urlpatterns = [
     path('pay_to/', views.pay_to, name='pay_to'),
     path('all_transaction/', views.all_transaction, name='all_transaction'),
     path('commission/', views.commission, name='commission'),
+    path('branch_reports/<int:branch_id>/', views.branch_report_view, name='branch_report_view'),
     
     path('customer_care_view/', views.customer_care, name='my_customer_care'),
     path('complains/', views.complains, name='all_complains'),

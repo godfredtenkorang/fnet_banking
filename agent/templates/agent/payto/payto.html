@@ -36,8 +36,17 @@
                 </div>
 
                 <div class="input">
+                    <label>Select Transfer Type</label> <br />
+                    <select id="depositType" name="deposit_type" required>
+                        <option value="" disabled selected>Select transfer type</option>
+                        <option value="Agent">Agent</option>
+                        <option value="Merchant">Merchant</option>
+                    </select>
+                </div>
+
+                <div class="input" id="agentNumberField" style="display: none; opacity: 0; transition: opacity 0.3s;">
                     <label for="customerNumber">Agent Number</label> <br />
-                    <input type="tel" id="customerNumber" name="agent_number" required placeholder="Agent Number" />
+                    <input type="tel" id="customerNumber" name="agent_number" placeholder="Agent Number" />
                     <p id="message" class="message"></p>
                 
                 </div>
@@ -46,24 +55,17 @@
 
                 
 
-                <div class="input">
-                    <label>Select Deposit Type</label> <br />
-                    <select id="depositType" name="deposit_type" required>
-                        <option value="" disabled selected>Select deposit type</option>
-                        <option value="Agent">Agent</option>
-                        <option value="Merchant">Merchant</option>
-                    </select>
-                </div>
+                
 
-                <div class="input depositor_name" id="agentNumberField" style="display: none; opacity: 0; transition: opacity 0.3s;">
+                <!-- <div class="input depositor_name" id="agentNumberField" style="display: none; opacity: 0; transition: opacity 0.3s;">
                     <label>Sent to Agent Number</label> <br />
                     <input type="text" name="sent_to_agent_number" />
-                </div>
+                </div> -->
 
                 <div class="input depositor_name" id="merchantCodeField"
                     style="display: none; opacity: 0; transition: opacity 0.3s;">
                     <label>Merchant Code</label> <br />
-                    <input type="text" name="merchant_code" />
+                    <input type="tel" name="merchant_code" />
                 </div>
 
                 <div class="input depositor_name" id="merchantNumberField"

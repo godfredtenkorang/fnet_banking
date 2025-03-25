@@ -105,7 +105,8 @@
                     <th>Date</th>
                     <th>Time</th>
                     <th>Amount(GH¢)</th>
-                    <th>Status</th>
+                    <th>Receipt</th>
+                    <!-- <th>Status</th> -->
             
                 </tr>
             </thead>
@@ -119,7 +120,8 @@
                     <td>{{deposit.date_deposited}}</td>
                     <td>{{deposit.time_deposited}}</td>
                     <td data-label="Amount">{{deposit.amount}}</td>
-                    <td>{{deposit.status}}</td>
+                    <td><a href="{{ deposit.receipt.url }}">receipt</a></td>
+                    <!-- <td>{{deposit.status}}</td> -->
                 </tr>
             
                 {% endfor %}
