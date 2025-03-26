@@ -123,7 +123,13 @@
                     <td data-label="Date">{{bank_deposit.date_deposited}}</td>
                     <td data-label="Time">{{bank_deposit.time_deposited}}</td>
                     <td data-label="Amount">{{bank_deposit.amount}}</td>
+                    {% if bank_deposit.receipt %}
                     <td data-label="Receipt"><a href="{{bank_deposit.receipt.url}}">receipt</a></td>
+                    {% else %}
+                    <td>N/A</td>
+                    {% endif %}
+
+
                     {% if bank_deposit.screenshot %}
                     <td data-label="Screenshot"><a href="{{bank_deposit.screenshot.url}}">screenshot</a></td>
                     {% else %}
