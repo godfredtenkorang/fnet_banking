@@ -106,6 +106,7 @@
                     <th>Date</th>
                     <th>Time</th>
                     <th>Amount</th>
+                    <th>Action</th>
 
                 </tr>
             </thead>
@@ -113,13 +114,14 @@
                 {% for bank_withdrawal in bank_withdrawal_transactions %}
                 <tr>
                     <td data-label="Mobilization">{{bank_withdrawal.mobilization}}</td>
-                    <td data-label="Customer Number">{{bank_withdrawal.phone_number}}</td>
+                    <td data-label="Customer Number">{{bank_withdrawal.customer_phone}}</td>
                     <td data-label="Bank">{{bank_withdrawal.bank}}</td>
                     <td data-label="Account Number">{{bank_withdrawal.account_number}}</td>
                     <td data-label="Account Name">{{bank_withdrawal.account_name}}</td>
-                    <td data-label="Date">{{bank_withdrawal.date_deposited}}</td>
-                    <td data-label="Time">{{bank_withdrawal.time_deposited}}</td>
+                    <td data-label="Date">{{bank_withdrawal.date_withdrawn}}</td>
+                    <td data-label="Time">{{bank_withdrawal.time_withdrawn}}</td>
                     <td data-label="Amount">{{bank_withdrawal.amount}}</td>
+                    <td data-label="Action"><a href="{% url 'delete_mobilization_bank_withdrawal' bank_withdrawal.id %}">delete</a></td>
 
                 </tr>
 

@@ -106,6 +106,7 @@
                     <th>Date/Time</th>
                     <th>Status</th>
                     <th>Update</th>
+                    <th>Action</th>
             
                 </tr>
             </thead>
@@ -126,7 +127,8 @@
                     <td data-label="Amount">{{payment.amount}}</td>
                     <td data-label="Date/Time">{{payment.created_at}}</td>
                     <td data-label="Status">{{payment.status}}</td>
-                    <td data-label="Update"><a href="{% url 'update_mobilization_payment' payment.id %}">Link</a></td>
+                    <td data-label="Update"><a href="{% url 'update_mobilization_payment' payment.id %}">update</a></td>
+                    <td data-label="Action"><a href="{% url 'delete_mobilization_payment' payment.id %}">delete</a></td>
                    
                 </tr>
                 {% endfor %}

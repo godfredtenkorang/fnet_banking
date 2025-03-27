@@ -109,6 +109,7 @@
                     <th>Receipt</th>
                     <th>Screenshot</th>
                     <th>Update</th>
+                    <th>Action</th>
 
                 </tr>
             </thead>
@@ -135,7 +136,8 @@
                     {% else %}
                     <td>N/A</td>
                     {% endif %}
-                    <td data-label="Update"><a href="{% url 'update_mobilization_bank_deposit' bank_deposit.id %}">Link</a></td>
+                    <td data-label="Update"><a href="{% url 'update_mobilization_bank_deposit' bank_deposit.id %}">update</a></td>
+                    <td data-label="Delete"><a href="{% url 'delete_mobilization_bank_deposit' bank_deposit.id %}">delete</a></td>
 
                 </tr>
 

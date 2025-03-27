@@ -110,6 +110,8 @@ tbody tr:nth-child(even) {
                     <th>ID Number</th>
                     <th>Date of Birth</th>
                     <th>ID Picture</th>
+                    <th>Delete</th>
+                    <th>Update</th>
 
                 </tr>
             </thead>
@@ -129,7 +131,13 @@ tbody tr:nth-child(even) {
 
                     <td>
 
-                        <a href="">{{customer.customer_picture}}</a>
+                        <a href="{{customer.customer_picture.url}}">image</a>
+                    </td>
+                    <td>
+                        <a href="{% url 'delete_mobilization_customer' customer.id %}">Delete</a>
+                    </td>
+                    <td>
+                        <a href="{% url 'update_customer' customer.id %}">Update</a>
                     </td>
                 </tr>
 

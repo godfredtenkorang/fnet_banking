@@ -110,6 +110,8 @@
                     <th>ID Number</th>
                     <th>Date of Birth</th>
                     <th>ID Picture</th>
+                    <!-- <th>Action</th> -->
+                    
 
                 </tr>
             </thead>
@@ -129,8 +131,13 @@
 
                     <td>
 
-                        <a href="{{ customer.customer_picture.url }}">{{customer.customer_picture}}</a>
+                        <a href="{{ customer.customer_picture.url }}">image</a>
                     </td>
+                    <!-- <td>
+                    
+                        <a href="{% url 'delete_mobilization_customer' customer.id %}">Delete</a>
+                    </td> -->
+                   
                 </tr>
 
                 {% endfor %}

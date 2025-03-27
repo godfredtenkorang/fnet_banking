@@ -1,0 +1,77 @@
+{% extends 'owner/base.html' %} {% load static %} {% block content %}
+
+
+
+
+
+
+<div class="main">
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Update Customer</h1>
+        </div>
+    </div>
+
+
+
+    <div class="customer-form">
+
+
+        <div class="customerlogin">
+            <form id="myForm" method="POST">
+                {% csrf_token %}
+                {{form.as_p}}
+
+                <button type="submit" id="submitBtn">Save</button>
+            </form>
+
+
+
+
+
+
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+<script>
+    function togglePassword(fieldId, iconId) {
+        var field = document.getElementById(fieldId);
+        if (field.type === "password") {
+            field.type = "text";
+        } else {
+            field.type = "password";
+        }
+    }
+
+    document.getElementById("myForm").addEventListener("submit", function (event) {
+        var password = document.getElementById("password").value;
+        var confirmPassword = document.getElementById("confirm_password").value;
+        var errorMessage = document.getElementById("error-message");
+
+        if (password !== confirmPassword) {
+            event.preventDefault(); // Prevent form submission
+            errorMessage.style.display = "block"; // Show error message
+        } else {
+            errorMessage.style.display = "none"; // Hide error message
+        }
+    });
+</script>
+
+
+
+
+
+
+{% endblock %}

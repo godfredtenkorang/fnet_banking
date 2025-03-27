@@ -66,6 +66,14 @@ class CustomerRegistrationForm(forms.ModelForm):
     class Meta:
         model = Customer
         fields = ['customer', 'agent', 'branch', 'phone_number', 'full_name', 'customer_location', 'digital_address', 'id_type', 'id_number', 'date_of_birth', 'customer_picture']
+        
+class CustomerUpdateForm(forms.ModelForm):
+    customer = forms.ModelChoiceField(queryset=User.objects.filter(role='CUSTOMER'), required=True)
+    
+    class Meta:
+        model = Customer
+        fields = ['customer', 'branch', 'phone_number', 'full_name', 'customer_location', 'digital_address', 'id_type', 'id_number', 'date_of_birth', 'customer_picture']
+        
     
 class MobilizationRegistrationForm(forms.ModelForm):
     mobilization = forms.ModelChoiceField(queryset=User.objects.filter(role='MOBILIZATION'), required=True)

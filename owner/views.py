@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required, user_passes_test
-from users.forms import AgentRegistrationForm, MobilizationRegistrationForm
+from django.urls import reverse
+from users.forms import AgentRegistrationForm, MobilizationRegistrationForm, CustomerUpdateForm
 from users.models import Agent, Owner
 from banking.models import EFloatAccount
 from banking.forms import AddCapitalForm
@@ -114,6 +115,25 @@ def customers(request):
         'title': 'Customers'
     }
     return render(request, 'owner/customers.html', context)
+
+def update_customer(request, customer_id):
+    customer = Customer.objects.get(id=customer_id)
+    if request.method == 'POST':
+        form = CustomerUpdateForm(request.POST, request.FILES, instance=customer)
+        if form.is_valid():
+            updated_customer = form.save(commit=False)
+            updated_customer.save()
+            messages.success(request, 'Customer updated successfully!')
+            return redirect('all_agent_customers')
+    else:
+        form = CustomerUpdateForm(instance=customer)
+        
+    context = {
+        'form': form,
+        'title': 'Update Customer'
+    }
+        
+    return render(request, 'owner/mobilization/customer_update.html', context)
 
 def is_owner(user):
     return user.role == 'OWNER'
@@ -760,6 +780,33 @@ def mobilization_customers(request, mobilization_id):
     }
     return render(request, 'owner/mobilization/customers.html', context)
 
+
+def delete_mobilization_customer(request, mobilization_id):
+    
+    customer = Customer.objects.get(id=mobilization_id)
+    customer.delete()
+    return redirect("mobilization_customers", customer=customer.id)
+
+
+# def update_mobilization_customer(request, mobilization_id):
+#     customer = Customer.objects.get(id=mobilization_id)
+#     if request.method == 'POST':
+#         form = CustomerUpdateForm(request.POST, request.FILES, instance=customer)
+#         if form.is_valid():
+#             updated_customer = form.save(commit=False)
+#             updated_customer.save()
+#             messages.success(request, 'Customer updated successfully!')
+#             return redirect('update_mobilization_customer', mobilization=customer.id)
+#     else:
+#         form = CustomerUpdateForm(instance=customer)
+        
+#     context = {
+#         'form': form,
+#         'title': 'Update Customer'
+#     }
+        
+#     return render(request, 'owner/mobilization/customer_update.html', context)
+
 def mobilization_all_transactions(requests):
     context = {
         'title': 'All Transactions'
@@ -794,32 +841,87 @@ def mobilization_account_detail(request, mobilization_id):
     }
     return render(request, 'owner/mobilization/account.html', context)
 
-def mobilization_bank_deposit_transactions(request, mobilization_id):
+
+@login_required
+def mobilization_bank_deposit_transactions_date(request, mobilization_id):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)
-    bank_deposit_transactions = bank_deposits.objects.filter(mobilization=mobilization)
+    dates = bank_deposits.objects.filter(mobilization=mobilization).values('date_deposited', 'mobilization').annotate(total_amount=Sum('amount'))
     context = {
+        'dates': dates
+    }
+    return render(request, 'owner/mobilization/bank_deposit_transaction_date.html', context)
+
+
+@login_required
+def mobilization_bank_deposit_transactions(request, mobilization_id, date):
+    mobilization = get_object_or_404(Mobilization, id=mobilization_id)
+    bank_deposit_transactions = bank_deposits.objects.filter(mobilization=mobilization, date_deposited=date).order_by('-date_deposited', '-time_deposited')
+    context = {
+        'date': date,
         'mobilization': mobilization,
         'bank_deposit_transactions': bank_deposit_transactions
     }
     return render(request, 'owner/mobilization/bank_deposit_transactions.html', context)
 
-def mobilization_bank_withdrawal_transactions(request, mobilization_id):
+
+def delete_mobilization_bank_deposit(request, deposit_id):
+    deposit = bank_deposits.objects.get(id=deposit_id)
+    deposit.delete()
+    return redirect('delete_transaction_notification')
+
+
+def delete_transaction_notification(request):
+    return render(request, 'owner/message/message.html')
+ 
+
+@login_required
+def mobilization_bank_withdrawal_transactions_date(request, mobilization_id):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)
-    bank_withdrawal_transactions = bank_withdrawals.objects.filter(mobilization=mobilization)
+    dates = bank_withdrawals.objects.filter(mobilization=mobilization).values('date_withdrawn', 'mobilization').annotate(total_amount=Sum('amount'))
     context = {
+        'dates': dates
+    }
+    return render(request, 'owner/mobilization/bank_withdrawal_transaction_date.html', context)
+
+def mobilization_bank_withdrawal_transactions(request, mobilization_id, date):
+    mobilization = get_object_or_404(Mobilization, id=mobilization_id)
+    bank_withdrawal_transactions = bank_withdrawals.objects.filter(mobilization=mobilization, date_withdrawn=date).order_by('-date_withdrawn', '-time_withdrawn')
+    context = {
+        'date': date,
         'mobilization': mobilization,
         'bank_withdrawal_transactions': bank_withdrawal_transactions
     }
     return render(request, 'owner/mobilization/bank_withdrawal_transactions.html', context)
 
-def mobilization_payment_transactions(request, mobilization_id):
+def delete_mobilization_bank_withdrawal(request, withdrawal_id):
+    withdrawal = bank_withdrawals.objects.get(id=withdrawal_id)
+    withdrawal.delete()
+    return redirect('delete_transaction_notification')
+
+
+@login_required
+def mobilization_payment_transactions_date(request, mobilization_id):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)
-    payment_transactions = payment_requests.objects.filter(mobilization=mobilization)
+    dates = payment_requests.objects.filter(mobilization=mobilization).values('created_at', 'mobilization').annotate(total_amount=Sum('amount'))
     context = {
+        'dates': dates
+    }
+    return render(request, 'owner/mobilization/payment_transaction_date.html', context)
+
+def mobilization_payment_transactions(request, mobilization_id, date):
+    mobilization = get_object_or_404(Mobilization, id=mobilization_id)
+    payment_transactions = payment_requests.objects.filter(mobilization=mobilization, created_at=date).order_by('-created_at')
+    context = {
+        'date': date,
         'mobilization': mobilization,
         'payment_transactions': payment_transactions
     }
     return render(request, 'owner/mobilization/payment_transactions.html', context)
+
+def delete_mobilization_payment(request, payment_id):
+    payment = payment_requests.objects.get(id=payment_id)
+    payment.delete()
+    return redirect('delete_transaction_notification')
 
 @login_required
 def update_mobilization_payment(request, payment_id):

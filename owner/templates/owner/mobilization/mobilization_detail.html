@@ -18,13 +18,13 @@
         <a href="{% url 'mobilization_customers' mobilization.id %}" class="grid-row">
             <i class="fas fa-user"></i> Customer
         </a>
-        <a href="{% url 'mobilization_bank_deposit_transactions' mobilization.id %}" class="grid-row">
+        <a href="{% url 'mobilization_bank_deposit_transactions_date' mobilization.id %}" class="grid-row">
             <i class="fas fa-university"></i> Bank Deposit
         </a>
-        <a href="{% url 'mobilization_bank_withdrawal_transactions' mobilization.id %}" class="grid-row">
+        <a href="{% url 'mobilization_bank_withdrawal_transactions_date' mobilization.id %}" class="grid-row">
             <i class="fas fa-money-bill-wave"></i> Bank Withdrawals
         </a>
-        <a href="{% url 'mobilization_payment_transactions' mobilization.id %}" class="grid-row">
+        <a href="{% url 'mobilization_payment_transactions_date' mobilization.id %}" class="grid-row">
             <i class="fas fa-money-bill-wave"></i> Payments
         </a>
         <a href="{% url 'mobilization_report_view' mobilization.id %}" class="grid-row">

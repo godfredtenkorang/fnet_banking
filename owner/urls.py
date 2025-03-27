@@ -12,6 +12,7 @@ urlpatterns = [
     path('get_owner/add_capital_to_drawer/<int:agent_id>/', views.add_capital_to_drawer, name='add_capital_to_drawer'),
 
     path('customers/', views.customers, name='all_agent_customers'),
+    path('update_customer/<int:customer_id>/update/', views.update_customer, name='update_customer'),
     
     path('cash_requests/', views.cash_requests, name='cash_requests'),
     path('ecash_requests/', views.e_cash_requests, name='ecash_requests'),
@@ -83,17 +84,28 @@ urlpatterns = [
     # Mobilization Details
     
     path('mobilization_customers/<int:mobilization_id>/', views.mobilization_customers, name='mobilization_customers'),
+    path('delete_mobilization_customer/<int:mobilization_id>/delete/', views.delete_mobilization_customer, name='delete_mobilization_customer'),
+    
     path('mobilization_detail/<int:mobilization_id>/', views.mobilization_agent_detail, name='mobilization_agent_detail'),
-    path('mobilization_bank_deposit_transactions/<int:mobilization_id>/', views.mobilization_bank_deposit_transactions, name='mobilization_bank_deposit_transactions'),
+    path('mobilization_bank_deposit_transactions_date/<int:mobilization_id>/', views.mobilization_bank_deposit_transactions_date, name='mobilization_bank_deposit_transactions_date'),
+    path('mobilization_bank_deposit_transactions/<int:mobilization_id>/<str:date>/', views.mobilization_bank_deposit_transactions, name='mobilization_bank_deposit_transactions'),
     path('update_mobilization_bank_deposit/<int:deposit_id>/', views.update_mobilization_bank_deposit, name='update_mobilization_bank_deposit'),
+    path('delete_mobilization_bank_deposit/<int:deposit_id>/', views.delete_mobilization_bank_deposit, name='delete_mobilization_bank_deposit'),
     
-    path('mobilization_bank_withdrawal_transactions/<int:mobilization_id>/', views.mobilization_bank_withdrawal_transactions, name='mobilization_bank_withdrawal_transactions'),
+    path('mobilization_bank_withdrawal_transactions_date/<int:mobilization_id>/', views.mobilization_bank_withdrawal_transactions_date, name='mobilization_bank_withdrawal_transactions_date'),
+    path('mobilization_bank_withdrawal_transactions/<int:mobilization_id>/<str:date>/', views.mobilization_bank_withdrawal_transactions, name='mobilization_bank_withdrawal_transactions'),
+    path('delete_mobilization_bank_withdrawal/<int:withdrawal_id>/', views.delete_mobilization_bank_withdrawal, name='delete_mobilization_bank_withdrawal'),
     
-    path('mobilization_payment_transactions/<int:mobilization_id>/', views.mobilization_payment_transactions, name='mobilization_payment_transactions'),
+    path('mobilization_payment_transactions_date/<int:mobilization_id>/', views.mobilization_payment_transactions_date, name='mobilization_payment_transactions_date'),
+    path('mobilization_payment_transactions/<int:mobilization_id>/<str:date>/', views.mobilization_payment_transactions, name='mobilization_payment_transactions'),
     path('update_mobilization_payment/<int:payment_id>/', views.update_mobilization_payment, name='update_mobilization_payment'),
+    path('delete_mobilization_payment/<int:payment_id>/', views.delete_mobilization_payment, name='delete_mobilization_payment'),
 
     path('mobilization_all_transactions/', views.mobilization_all_transactions, name='mobilization_all_transactions'),
     
     path('mobilization_account_detail/<int:mobilization_id>/', views.mobilization_account_detail, name='mobilization_account_detail'),
     path('mobilization_reports/<int:mobilization_id>/', views.mobilization_report_view, name='mobilization_report_view'),
+    
+    
+    path('delete_message/', views.delete_transaction_notification, name='delete_transaction_notification'),
 ]
