@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'banking',
     'owner',
     'mobilization',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

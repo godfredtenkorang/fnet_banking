@@ -15,6 +15,55 @@ from django.db.models import Sum
 from django.core.paginator import Paginator
 from .forms import CustomerFilterForm
 
+
+from django.shortcuts import get_object_or_404
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Transaction
+from .serializers import TransactionSerializer
+import random
+import string
+
+@api_view(['GET', 'POST'])
+def transaction_list(request):
+    if request.method == 'GET':
+        transactions = Transaction.objects.all()
+        serializer = TransactionSerializer(transactions, many=True)
+        return Response(serializer.data)
+    
+    elif request.method == 'POST':
+        # Generate a random reference number
+        reference = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+        request.data['reference'] = reference
+        
+        serializer = TransactionSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def transaction_detail(request, pk):
+    transaction = get_object_or_404(Transaction, pk=pk)
+    
+    if request.method == 'GET':
+        serializer = TransactionSerializer(transaction)
+        return Response(serializer.data)
+    
+    elif request.method == 'PUT':
+        serializer = TransactionSerializer(transaction, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    elif request.method == 'DELETE':
+        transaction.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    
+
 def is_agent(user):
     return user.role == 'BRANCH'
 

@@ -76,4 +76,8 @@ urlpatterns = [
     
     path('branch_report/', views.branch_report, name='branch_report'),
     path('view_branch_report/', views.view_branch_report, name='view_branch_report'),
+    
+    
+    path('transactions/', views.transaction_list, name='transaction-list'),
+    path('transactions/<int:pk>/', views.transaction_detail, name='transaction-detail'),
 ]

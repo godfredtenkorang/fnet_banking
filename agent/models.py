@@ -9,6 +9,27 @@ from decimal  import Decimal
 
 User = settings.AUTH_USER_MODEL
 
+from django.db import models
+from django.utils import timezone
+
+class Transaction(models.Model):
+    TRANSACTION_TYPES = (
+        ('CASH_IN', 'Cash In'),
+        ('CASH_OUT', 'Cash Out'),
+        ('PAY_TO', 'Pay To'),
+    )
+    
+    transaction_type = models.CharField(max_length=10, choices=TRANSACTION_TYPES)
+    customer_phone = models.CharField(max_length=15)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    date_deposited = models.DateField(default=timezone.now)
+    time_deposited = models.TimeField(default=timezone.now)
+    reference = models.CharField(max_length=50, unique=True)
+    
+    def __str__(self):
+        return f"{self.transaction_type} - {self.customer_phone} - {self.amount}"
+
+
 MOBILE_MONEY_DEPOSIT_TYPE = (
     ("Loading", "Loading"),
     ("Direct", "Direct"),
