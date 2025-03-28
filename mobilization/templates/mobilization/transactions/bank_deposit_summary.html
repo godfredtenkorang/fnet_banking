@@ -119,7 +119,11 @@
                     <td>{{deposit.account_name}}</td>
                     <td>{{deposit.date_deposited}}</td>
                     <td>{{deposit.time_deposited}}</td>
+                    {% if deposit.receipt %}
                     <td><a href="{{deposit.receipt.url}}">receipt</a></td>
+                    {% else %}
+                    <td>N/A</td>
+                    {% endif %}
                     <td data-label="Amount">{{deposit.amount}}</td>
                     <td>{{deposit.status}}</td>
                     <td><a href="{% url 'screenshot_bank_deposit' deposit.id %}">upload</a></td>
