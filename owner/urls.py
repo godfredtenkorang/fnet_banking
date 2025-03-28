@@ -12,6 +12,7 @@ urlpatterns = [
     path('get_owner/add_capital_to_drawer/<int:agent_id>/', views.add_capital_to_drawer, name='add_capital_to_drawer'),
 
     path('customers/', views.customers, name='all_agent_customers'),
+    path('customers_account_details/<int:customer_id>/', views.customers_account_details, name='customers_account_details'),
     path('update_customer/<int:customer_id>/update/', views.update_customer, name='update_customer'),
     
     path('cash_requests/', views.cash_requests, name='cash_requests'),
@@ -85,6 +86,7 @@ urlpatterns = [
     
     path('mobilization_customers/<int:mobilization_id>/', views.mobilization_customers, name='mobilization_customers'),
     path('delete_mobilization_customer/<int:mobilization_id>/delete/', views.delete_mobilization_customer, name='delete_mobilization_customer'),
+    
     
     path('mobilization_detail/<int:mobilization_id>/', views.mobilization_agent_detail, name='mobilization_agent_detail'),
     path('mobilization_bank_deposit_transactions_date/<int:mobilization_id>/', views.mobilization_bank_deposit_transactions_date, name='mobilization_bank_deposit_transactions_date'),

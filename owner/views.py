@@ -116,6 +116,18 @@ def customers(request):
     }
     return render(request, 'owner/customers.html', context)
 
+def customers_account_details(request, customer_id):
+    customer = get_object_or_404(Customer, id=customer_id)
+    mobilization_accounts = customer.customeraccounts.all()
+    agent_accounts  = customer.accounts.all()
+    context = {
+        'customer': customer,
+        'agent_accounts': agent_accounts,
+        'mobilization_accounts': mobilization_accounts,
+        'title': 'Customer Account Details'
+    }
+    return render(request, 'owner/customers_account_detail.html', context)
+
 def update_customer(request, customer_id):
     customer = Customer.objects.get(id=customer_id)
     if request.method == 'POST':

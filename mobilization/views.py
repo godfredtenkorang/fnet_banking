@@ -9,6 +9,7 @@ from django.core.files.storage import default_storage
 from django.db.models import Sum
 from django.utils import timezone
 from .forms import CustomerFilterForm, UpdateBankDepositForm, ReportForm
+from .utils import send_mobilization_bank_deposit_sms
 
 def is_mobilization(user):
     return user.role == 'MOBILIZATION'
@@ -133,6 +134,8 @@ def bank_deposit(request):
         bank_deposit.mobilization = mobilization
         
         bank_deposit.save()
+        
+        send_mobilization_bank_deposit_sms(mobilization, phone_number)
         
         return redirect('mobilization_bank_deposit_success')
     

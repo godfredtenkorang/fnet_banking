@@ -112,6 +112,7 @@ tbody tr:nth-child(even) {
                     <th>ID Picture</th>
                     <th>Delete</th>
                     <th>Update</th>
+                    <th>Accounts</th>
 
                 </tr>
             </thead>
@@ -138,6 +139,9 @@ tbody tr:nth-child(even) {
                     </td>
                     <td>
                         <a href="{% url 'update_customer' customer.id %}">Update</a>
+                    </td>
+                    <td>
+                        <a href="{% url 'customers_account_details' customer.id %}">Details</a>
                     </td>
                 </tr>
 

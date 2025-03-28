@@ -1,14 +1,14 @@
 import requests
 from django.conf import settings
 
-def send_mobilization_bank_deposit_sms(mobilization, phone_number):
+def send_mobilization_bank_deposit_sms(phone_number, message):
     endpoint = "https://api.mnotify.com/api/sms/quick"
     apiKey = settings.MNOTIFY_API_KEY
     payload = {
         "key": apiKey,
         "sender": 'Fnet',
-        "recipient[]": '0550222888',
-        "message": f"New Bank Deposit Request from {mobilization} - {phone_number}! \n\n" "Review Now.",
+        "recipient[]": phone_number,
+        "message": message,
         "is_schedule": False,
         "schedule_date": ''
     }
