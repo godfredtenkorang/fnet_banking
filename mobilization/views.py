@@ -120,12 +120,14 @@ def bank_deposit(request):
         account_name = request.POST.get('account_name')
         # mobilization_transaction_id = request.POST.get('mobilization_transaction_id')
         amount = request.POST.get('amount')
-        receipt = request.FILES.get('receipt')
-        
-        if receipt:
-            receipt_path = default_storage.save(f'receipt_img/{receipt.name}', receipt)
+        if 'receipt' in request.FILES:
+            receipt_path = request.FILES['receipt']
+            instance = BankDeposit()
+            instance.receipt = receipt_path
+            instance.save()
         else:
             receipt_path = ''
+        
             
        
         
