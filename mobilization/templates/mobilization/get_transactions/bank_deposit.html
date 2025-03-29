@@ -118,7 +118,11 @@
                     <td>{{deposit.date_deposited}}</td>
                     <td>{{deposit.time_deposited}}</td>
                     <td data-label="Amount">{{deposit.amount}}</td>
+                    {% if receipt %}
                     <td><a href="{{ deposit.receipt.url }}">receipt</a></td>
+                    {% else %}
+                    <td>N/A</td>
+                    {% endif %}
                     <td>{{deposit.status}}</td>
                 </tr>
 

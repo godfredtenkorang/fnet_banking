@@ -29,6 +29,7 @@ def register(request):
             request.session['registration_otp'] = otp
             request.session['registration_user_id'] = user.id
             send_otp_sms(user.phone_number, otp)
+            messages.success(request, 'Registration succss.')
             return redirect('verify_registration_otp')
         else:
             messages.error(request, 'Registration failed. Please correct the errors below.')

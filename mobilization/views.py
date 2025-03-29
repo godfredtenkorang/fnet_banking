@@ -10,6 +10,7 @@ from django.db.models import Sum
 from django.utils import timezone
 from .forms import CustomerFilterForm, UpdateBankDepositForm, ReportForm
 from .utils import send_mobilization_bank_deposit_sms
+from users.models import Mobilization
 
 def is_mobilization(user):
     return user.role == 'MOBILIZATION'
@@ -114,32 +115,37 @@ def bank_deposit(request):
     
     
     if request.method == 'POST':
+        mobilization_id = request.POST.get('mobilization_id')  # Retrieve the mobilization ID
         phone_number = request.POST.get('phone_number')
         bank = request.POST.get('bank')
         account_number = request.POST.get('account_number')
         account_name = request.POST.get('account_name')
         # mobilization_transaction_id = request.POST.get('mobilization_transaction_id')
+        
+        
         amount = request.POST.get('amount')
         
+        receipt = request.FILES.get('receipt')
+
         
-        
-        
-        if 'receipt' in request.FILES:
-            receipt_path = request.FILES['receipt']
-            instance = BankDeposit()
-            instance.receipt = receipt_path
-            instance.save()
-        else:
-            receipt_path = ''
+ 
         
             
        
+        BankDeposit.objects.create(
+            mobilization=mobilization,
+            phone_number=phone_number, 
+            bank=bank, 
+            account_number=account_number, 
+            account_name=account_name, 
+            amount=amount, 
+            receipt=receipt
+        )
+        # bank_deposit = BankDeposit()
         
-        bank_deposit = BankDeposit(phone_number=phone_number, bank=bank, account_number=account_number, account_name=account_name, amount=amount, receipt=receipt_path)
+        # bank_deposit.mobilization = mobilization
         
-        bank_deposit.mobilization = mobilization
-        
-        bank_deposit.save()
+        # bank_deposit.save()
         
         send_mobilization_bank_deposit_sms(mobilization, phone_number)
         

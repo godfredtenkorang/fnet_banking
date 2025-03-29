@@ -21,6 +21,7 @@
         <form id="networkForm" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="form-grid">
+                <input type="hidden" name="mobilization_id" value="{{ mobilization.id }}">
 
                 <div class="input">
                     <label for="phone_number">Customer Number</label> <br />
