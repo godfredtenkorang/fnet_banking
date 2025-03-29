@@ -120,6 +120,10 @@ def bank_deposit(request):
         account_name = request.POST.get('account_name')
         # mobilization_transaction_id = request.POST.get('mobilization_transaction_id')
         amount = request.POST.get('amount')
+        
+        
+        
+        
         if 'receipt' in request.FILES:
             receipt_path = request.FILES['receipt']
             instance = BankDeposit()
@@ -147,8 +151,8 @@ def bank_deposit(request):
     return render(request, 'mobilization/bank_deposit.html', context)
 
 def get_bank_deposit(request):
-    
-    bank_deposits = BankDeposit.objects.all()
+    mobilization = request.user.mobilization
+    bank_deposits = BankDeposit.objects.filter(mobilization=mobilization)
     context = {
         'bank_deposits': bank_deposits,
         'title': 'Bank Deposit Transactions'
@@ -156,8 +160,8 @@ def get_bank_deposit(request):
     return render(request, 'mobilization/get_transactions/bank_deposit.html', context)
 
 def get_bank_withdrawal(request):
-    
-    bank_withdrawals = BankWithdrawal.objects.all()
+    mobilization = request.user.mobilization
+    bank_withdrawals = BankWithdrawal.objects.filter(mobilization=mobilization)
     context = {
         'bank_withdrawals': bank_withdrawals,
         'title': 'Bank Withdrawal Transactions'
@@ -166,8 +170,8 @@ def get_bank_withdrawal(request):
 
 
 def get_payments(request):
-    
-    payments = PaymentRequest.objects.all()
+    mobilization = request.user.mobilization
+    payments = PaymentRequest.objects.filter(mobilization=mobilization)
     context = {
         'payments': payments,
         'title': 'Payment Transactions'
