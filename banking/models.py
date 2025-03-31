@@ -322,7 +322,6 @@ class MobilizationAccount(models.Model):
     """Main account model that will track mobilization"""
     mobilization = models.ForeignKey(Mobilization, on_delete=models.CASCADE, null=True, blank=True)
     date = models.DateField(default=timezone.now)
-    name = models.CharField(max_length=100)
     balance_left = models.DecimalField(max_digits=15, decimal_places=2, default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

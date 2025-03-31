@@ -24,4 +24,4 @@ class AddCapitalForm(forms.Form):
 class MobilizationAccountForm(forms.ModelForm):
     class Meta:
         model = MobilizationAccount
-        fields = ['mobilization','name']
+        fields = ['mobilization']
