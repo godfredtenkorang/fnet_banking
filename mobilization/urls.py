@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path('', views.dashboard, name='mobilization_dashboard'),
+    path('add_mobilization_account/', views.open_mobilization_account, name='add_mobilization_account'),
     path('mobilization_account/', views.mobilization_account, name='mobilization_account'),
     path('mobilization_payto/', views.payto, name='mobilization_payto'),
     
@@ -23,6 +24,7 @@ urlpatterns = [
     path('mobilization_account_registration/', views.customer_account_registration, name='customer_account_registration'),
     path('mobilization_all_customers/', views.my_customers, name='mobilization_all_customers'),
     path('mobilization_all_customers/<int:customer_id>/accounts/', views.my_customer_detail, name='mobilization_customer_detail'),
+    path('mobilization_customer_detail/<int:customer_id>/', views.update_customer_details, name='update_customer_details'),
     path('mobilization_transaction_summary/', views.transaction_summary, name='mobilization_transaction_summary'),
     path('mobilization_deposit_summary_date/', views.bank_deposit_summary_date, name='mobilization_deposit_summary_date'),
     path('mobilization_deposit_summary/<str:date>/', views.bank_deposit_summary, name='mobilization_deposit_summary'),

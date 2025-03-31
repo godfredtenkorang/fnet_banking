@@ -1,5 +1,5 @@
 from django import forms
-from .models import Drawer, EFloatAccount
+from .models import Drawer, EFloatAccount, MobilizationAccount
 
 
 class DrawerDepositForm(forms.ModelForm):
@@ -19,3 +19,9 @@ class EFloatAccountForm(forms.ModelForm):
         
 class AddCapitalForm(forms.Form):
     additional_capital = forms.DecimalField(max_digits=10, decimal_places=2, min_value=0.01, label="Additional Capital Amount")
+    
+    
+class MobilizationAccountForm(forms.ModelForm):
+    class Meta:
+        model = MobilizationAccount
+        fields = ['mobilization','name']

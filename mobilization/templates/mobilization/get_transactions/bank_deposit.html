@@ -118,7 +118,7 @@
                     <td>{{deposit.date_deposited}}</td>
                     <td>{{deposit.time_deposited}}</td>
                     <td data-label="Amount">{{deposit.amount}}</td>
-                    {% if receipt %}
+                    {% if deposit.receipt %}
                     <td><a href="{{ deposit.receipt.url }}">receipt</a></td>
                     {% else %}
                     <td>N/A</td>
@@ -129,6 +129,7 @@
                 {% endfor %}
             </tbody>
         </table>
+        <br><br><br>
 
         <!-- Pop-up to show total -->
         <div class="total-pop">

@@ -4,6 +4,8 @@ from django.utils import timezone
 from django.db.models import Sum
 from users.models import MobilizationCustomer, Customer
 from PIL import Image
+from banking.models import MobilizationAccount
+from django.core.validators import MinValueValidator
 
 REQUEST_STATUS = (
     ("Pending", "Pending"),
@@ -65,16 +67,26 @@ class MobilizationPayTo(models.Model):
     
     
 class BankDeposit(models.Model):
+    account = models.ForeignKey(MobilizationAccount, on_delete=models.CASCADE, null=True, blank=True)
     mobilization = models.ForeignKey(Mobilization, on_delete=models.CASCADE, related_name='bank_deposits')
     phone_number = models.CharField(max_length=10)
     bank = models.CharField(max_length=100)
     account_number = models.CharField(max_length=50)
     account_name = models.CharField(max_length=100)
-    amount = models.DecimalField(max_digits=15, decimal_places=2)
+    amount = models.DecimalField(max_digits=15, decimal_places=2, validators=[MinValueValidator(0.01)])
     receipt = models.ImageField(upload_to='receipt_img/', null=True, blank=True)
     # mobilization_transaction_id = models.CharField(max_length=100, null=True, blank=True)
     owner_transaction_id = models.CharField(max_length=100, null=True, blank=True)
     screenshot = models.ImageField(upload_to='screenshot_img/', null=True, blank=True)
+    screenshot2 = models.ImageField(upload_to='screenshot_img2/', null=True, blank=True)
+    screenshot3 = models.ImageField(upload_to='screenshot_img3/', null=True, blank=True)
+    screenshot4 = models.ImageField(upload_to='screenshot_img4/', null=True, blank=True)
+    screenshot5 = models.ImageField(upload_to='screenshot_img5/', null=True, blank=True)
+    screenshot6 = models.ImageField(upload_to='screenshot_img6/', null=True, blank=True)
+    screenshot7 = models.ImageField(upload_to='screenshot_img7/', null=True, blank=True)
+    screenshot8 = models.ImageField(upload_to='screenshot_img8/', null=True, blank=True)
+    screenshot9 = models.ImageField(upload_to='screenshot_img9/', null=True, blank=True)
+    screenshot10 = models.ImageField(upload_to='screenshot_img10/', null=True, blank=True)
     status = models.CharField(max_length=100, choices=REQUEST_STATUS, default='Pending')
     date_deposited = models.DateField(default=timezone.now)
     time_deposited = models.TimeField(default=timezone.now)
@@ -83,8 +95,17 @@ class BankDeposit(models.Model):
     def total_bank_deposit_for_customer(cls, mobilization, date_deposited, status):
         total = cls.objects.filter(mobilization=mobilization, date_deposited=date_deposited, status=status).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
+
     
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.account.update_balance()
     
+    def delete(self, *args, **kwargs):
+        account = self.account
+        super().delete(*args, **kwargs)
+        account.update_balance()
+        
     class Meta:
         ordering = ['-date_deposited']
     
@@ -97,7 +118,7 @@ class BankWithdrawal(models.Model):
     bank = models.CharField(max_length=20)
     account_number = models.CharField(max_length=20)
     account_name = models.CharField(max_length=100)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, )
     ghana_card = models.ImageField(upload_to='ghana_card_img/', default='', null=True, blank=True)
     date_withdrawn = models.DateField(default=timezone.now)
     time_withdrawn = models.TimeField(default=timezone.now)
@@ -107,7 +128,6 @@ class BankWithdrawal(models.Model):
     def total_bank_withdrawal_for_customer(cls, mobilization, date_withdrawn):
         total = cls.objects.filter(mobilization=mobilization, date_withdrawn=date_withdrawn).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
-    
     
     
     class Meta:
@@ -195,13 +215,14 @@ class PaymentRequest(models.Model):
         ('Approved', 'Approved'),
         ('Rejected', 'Rejected'),
     ]
+    account = models.ForeignKey(MobilizationAccount, on_delete=models.CASCADE, null=True, blank=True)
     mobilization = models.ForeignKey(Mobilization, on_delete=models.CASCADE, related_name='payments_requests')
     mode_of_payment = models.CharField(max_length=10, choices=MODE_OF_PAYMENT, null=True, blank=True)
     bank = models.CharField(max_length=50, choices=BANK_CHOICES, null= True, blank=True)
     network = models.CharField(max_length=30, choices=NETWORK_CHOICES, null= True, blank=True)
     branch = models.CharField(max_length=30, choices=BRANCHES, null= True, blank=True)
     name = models.CharField(max_length=100, null=True, blank=True)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0.01)])
     mobilization_transaction_id = models.CharField(max_length=100, null=True, blank=True)
     owner_transaction_id = models.CharField(max_length=100, null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
@@ -213,12 +234,23 @@ class PaymentRequest(models.Model):
         total = cls.objects.filter(mobilization=mobilization, created_at=created_at, status=status).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
     
+   
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.account.update_balance()
+    
+    def delete(self, *args, **kwargs):
+        account = self.account
+        super().delete(*args, **kwargs)
+        account.update_balance()
+    
     class Meta:
         ordering = ['-created_at']
         
     
     def __str__(self):
         return f"Payment of ${self.amount} via {self.mode_of_payment} by {self.mobilization.mobilization} ({self.status})"
+    
     
     
 class CustomerAccount(models.Model):

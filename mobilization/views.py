@@ -8,26 +8,60 @@ from django.contrib.auth.hashers import make_password
 from django.core.files.storage import default_storage
 from django.db.models import Sum
 from django.utils import timezone
-from .forms import CustomerFilterForm, UpdateBankDepositForm, ReportForm
+from .forms import CustomerFilterForm, UpdateBankDepositForm, ReportForm, CustomerImageUpdateForm
 from .utils import send_mobilization_bank_deposit_sms
 from users.models import Mobilization
+from banking.models import MobilizationAccount
+from banking.forms import MobilizationAccountForm
+
+from datetime import datetime, timedelta, date
+from django.core.paginator import Paginator
 
 def is_mobilization(user):
     return user.role == 'MOBILIZATION'
 # Create your views here.
 
+def open_mobilization_account(request):
+    mobilization = request.user.mobilization
+    today = timezone.now().date()
+    
+    # Check if an e-float drawer already exists for today
+    account = MobilizationAccount.objects.filter(mobilization=mobilization, date=today).first()
+    
+    if request.method == 'POST':
+        form = MobilizationAccountForm(request.POST, instance=account)
+        if form.is_valid():
+            form.save()
+            return redirect('mobilization_dashboard')
+    else:
+        form = MobilizationAccountForm(instance=account)
+        
+    context = {
+        'form': form,
+        'account': account,
+        'title': 'Open Account'
+    }
+        
+    return render(request, 'mobilization/mobilization_account.html', context)
+
 def mobilization_account(request):
     mobilization = request.user.mobilization
     today = timezone.now().date()
     
-    total_deposits = BankDeposit.total_bank_deposit_for_customer(mobilization=mobilization, date_deposited=today, status='Approved')
-    total_payments = PaymentRequest.total_payment_for_customer(mobilization=mobilization, created_at=today, status='Approved')
+    account = get_object_or_404(MobilizationAccount, mobilization=mobilization, date=today)
     
-    balance_left = total_payments - total_deposits
+    deposits = account.bankdeposit_set.filter(mobilization=mobilization).order_by('-date_deposited')
+    payments = account.paymentrequest_set.filter(mobilization=mobilization).order_by('-created_at')
+    
+    # total_deposits = BankDeposit.total_bank_deposit_for_customer(mobilization=mobilization, date_deposited=today, status='Approved')
+    # total_payments = PaymentRequest.total_payment_for_customer(mobilization=mobilization, created_at=today, status='Approved')
+    
+    # balance_left = total_payments - total_deposits
     context = {
-        'total_deposits': total_deposits,
-        'total_payments': total_payments,
-        'balance_left': balance_left,
+        'account': account,
+        'deposits': deposits,
+        'payments': payments,
+
         'title': 'Account'
     }
     return render(request, 'mobilization/account.html', context)
@@ -37,7 +71,7 @@ def mobilization_account(request):
 def dashboard(request):
     mobilization = request.user.mobilization
     today = timezone.now().date()
-    customers = MobilizationCustomer.objects.filter(mobilization=mobilization)
+    customers = Customer.objects.filter(mobilization=mobilization)
     total_deposits = BankDeposit.total_bank_deposit_for_customer(mobilization=mobilization, date_deposited=today, status='Approved')
     total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(mobilization=mobilization, date_withdrawn=today)
     total_payments = PaymentRequest.total_payment_for_customer(mobilization=mobilization, created_at=today, status='Approved')
@@ -111,11 +145,12 @@ def get_customer_details(request):
 def bank_deposit(request):
     
     mobilization = request.user.mobilization
+    today = timezone.now().date()
+    account = get_object_or_404(MobilizationAccount, mobilization=mobilization, date=today)
     
     
     
     if request.method == 'POST':
-        mobilization_id = request.POST.get('mobilization_id')  # Retrieve the mobilization ID
         phone_number = request.POST.get('phone_number')
         bank = request.POST.get('bank')
         account_number = request.POST.get('account_number')
@@ -127,19 +162,23 @@ def bank_deposit(request):
         
         receipt = request.FILES.get('receipt')
 
-        
+        if receipt:
+            image_path = default_storage.save(f'receipt_img/{receipt.name}', receipt)
+        else:
+            image_path = ''
  
         
             
        
         BankDeposit.objects.create(
+            account=account,
             mobilization=mobilization,
             phone_number=phone_number, 
             bank=bank, 
             account_number=account_number, 
             account_name=account_name, 
             amount=amount, 
-            receipt=receipt
+            receipt=image_path
         )
         # bank_deposit = BankDeposit()
         
@@ -216,6 +255,8 @@ def bank_withdrawal(request):
 @user_passes_test(is_mobilization)
 def payment(request):
     mobilization = request.user.mobilization
+    today = timezone.now().date()
+    account = get_object_or_404(MobilizationAccount, mobilization=mobilization, date=today)
 
     if request.method == 'POST':
         mode_of_payment = request.POST.get('mode_of_payment')
@@ -226,7 +267,7 @@ def payment(request):
         amount = request.POST.get('amount')
         mobilization_transaction_id = request.POST.get('mobilization_transaction_id')
         
-        payments = PaymentRequest(mode_of_payment=mode_of_payment, bank=bank, network=network, branch=branch, name=name, amount=amount, mobilization_transaction_id=mobilization_transaction_id)
+        payments = PaymentRequest(account=account, mode_of_payment=mode_of_payment, bank=bank, network=network, branch=branch, name=name, amount=amount, mobilization_transaction_id=mobilization_transaction_id)
         payments.mobilization = mobilization
         
         
@@ -253,6 +294,7 @@ def customer_registration(request):
         id_number = request.POST.get('id_number')
         date_of_birth = request.POST.get('date_of_birth')
         customer_picture = request.FILES.get('customer_picture')
+        customer_image = request.FILES.get('customer_image')
         password = request.POST.get('password')
         
         # Validate required fields
@@ -285,7 +327,13 @@ def customer_registration(request):
         if customer_picture:
             picture_path = default_storage.save(f'customer_pic/{customer_picture.name}', customer_picture)
         else:
-            picture_path = ''
+            image_path = ''
+        
+        if customer_image:
+            image_path = default_storage.save(f'customer_image/{customer_image.name}', customer_image)
+        else:
+            image_path = ''
+       
             
         # agent = Agent.objects.get(user=request.user)
         
@@ -301,7 +349,8 @@ def customer_registration(request):
             id_type=id_type,
             id_number=id_number,
             date_of_birth=date_of_birth,
-            customer_picture=picture_path
+            customer_picture=picture_path,
+            customer_image=image_path,
         )
         messages.success(request, 'Customer registered successfully!')
         return redirect('mobilization_customer_registration')
@@ -313,6 +362,24 @@ def customer_registration(request):
     }
 
     return render(request, 'mobilization/customer_registration.html', context)
+
+
+def update_customer_details(request, customer_id):
+    customer = get_object_or_404(Customer, id=customer_id)
+    if request.method == 'POST':
+        form = CustomerImageUpdateForm(request.POST, request.FILES, instance=customer)
+        if form.is_valid():
+            update_customer = form.save(commit=False)
+            update_customer.save()
+            messages.success(request, 'Added Customer Image Successfully.')
+            return redirect('mobilization_all_customers')
+    else:
+        form = CustomerImageUpdateForm(request.FILES, instance=customer)
+    context = {
+        'form': form,
+        'title': 'Update Customer'
+    }
+    return render(request, 'mobilization/my_customer_details.html', context)
 
 @login_required
 @user_passes_test(is_mobilization)
@@ -391,9 +458,35 @@ def transaction_summary(request):
 @login_required
 @user_passes_test(is_mobilization)
 def bank_deposit_summary_date(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    # Set default date range (last 30 days)
+    if not start_date and not end_date:
+        end_date = date.today()
+        start_date = end_date - timedelta(days=30)
+        
+     # Convert start_date and end_date to date objects if they are strings
+    if start_date and isinstance(start_date, str):
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+    if end_date and isinstance(end_date, str):
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+    
     dates = BankDeposit.objects.values('date_deposited').annotate(total_amount=Sum('amount'))
+    
+    if start_date:
+        dates = dates.filter(date_deposited__gte=start_date)
+    if end_date:
+        dates = dates.filter(date_deposited__lte=end_date)
+        
+    paginator = Paginator(dates, 30)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     context = {
-        'dates': dates
+        'page_obj': page_obj,
+        'dates': dates,
+        'start_date': start_date,
+        'end_date': end_date,
     }
     return render(request, 'mobilization/transactions/bank_deposit_summary_date.html', context)
 
@@ -433,9 +526,35 @@ def screenshot_bank_deposit(request, deposit_id):
 @login_required
 @user_passes_test(is_mobilization)
 def bank_withdrawal_summary_date(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    # Set default date range (last 30 days)
+    if not start_date and not end_date:
+        end_date = date.today()
+        start_date = end_date - timedelta(days=30)
+        
+     # Convert start_date and end_date to date objects if they are strings
+    if start_date and isinstance(start_date, str):
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+    if end_date and isinstance(end_date, str):
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+    
     dates = BankWithdrawal.objects.values('date_withdrawn').annotate(total_amount=Sum('amount'))
+    
+    if start_date:
+        dates = dates.filter(date_withdrawn__gte=start_date)
+    if end_date:
+        dates = dates.filter(date_withdrawn__lte=end_date)
+        
+    paginator = Paginator(dates, 30)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     context = {
-        'dates': dates
+        'page_obj': page_obj,
+        'dates': dates,
+        'start_date': start_date,
+        'end_date': end_date,
     }
     return render(request, 'mobilization/transactions/bank_withdrawal_summary_date.html', context)
 
@@ -456,9 +575,36 @@ def bank_withdrawal_summary(request, date):
 @login_required
 @user_passes_test(is_mobilization)
 def payment_summary_date(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    # Set default date range (last 30 days)
+    if not start_date and not end_date:
+        end_date = date.today()
+        start_date = end_date - timedelta(days=30)
+        
+     # Convert start_date and end_date to date objects if they are strings
+    if start_date and isinstance(start_date, str):
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+    if end_date and isinstance(end_date, str):
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+    
     dates = PaymentRequest.objects.values('created_at').annotate(total_amount=Sum('amount'))
+    
+    if start_date:
+        dates = dates.filter(created_at__gte=start_date)
+    if end_date:
+        dates = dates.filter(created_at__lte=end_date)
+        
+    paginator = Paginator(dates, 30)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
     context = {
-        'dates': dates
+        'page_obj': page_obj,
+        'dates': dates,
+        'start_date': start_date,
+        'end_date': end_date,
     }
     return render(request, 'mobilization/transactions/payment_summary_date.html', context)
 

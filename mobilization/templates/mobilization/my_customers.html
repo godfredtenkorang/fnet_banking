@@ -100,6 +100,13 @@
  
 
 <div class="main">
+    <div style="background-color:#000; width:100%;">
+        {% if messages %}
+        {% for message in messages %}
+        <p style="color: #97c8b3; font-size:30px; text-align:center;">{{ message }}</p>
+        {% endfor %}
+        {% endif %}
+    </div>
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
@@ -138,8 +145,10 @@
                     <th>ID Number</th>
                     <th>DOB</th>
                     <th>ID Card</th>
+                    <th>Customer Pic</th>
                     <th>Account</th>
-                    <th>Update</th>
+                    <th>Add Customer Image</th>
+                    
                 </tr>
             </thead>
             <tbody>
@@ -155,9 +164,19 @@
                     <td>{{ customer.id_type }}</td>
                     <td>{{ customer.id_number }}</td>
                     <td>{{ customer.date_of_birth }}</td>
-                    <td><a href="{{ customer.customer_picture.url }}">Image</a></td>
-                    <td><a href="{% url 'mobilization_customer_detail' customer.id %}">Link</a></td>
-                    <td><a >Link</a></td>
+                    {% if customer.customer_picture %}
+                    <td><a href="{{ customer.customer_picture.url }}">ID Image</a></td>
+                    {% else %}
+                    <td>N/A</td>
+                    {% endif %}
+                    {% if customer.customer_image %}
+                    <td><a href="{{ customer.customer_image.url }}">Cus. Img</a></td>
+                    {% else %}
+                    <td>N/A</td>
+                    {% endif %}
+                    <td><a href="{% url 'mobilization_customer_detail' customer.id %}">View</a></td>
+                    <td><a href="{% url 'update_customer_details' customer.id %}">Add</a></td>
+                    
                 </tr>
                 {% endfor %}
             </tbody>

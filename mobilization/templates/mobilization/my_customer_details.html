@@ -1,0 +1,33 @@
+{% extends 'mobilization/base.html' %} {% load static %} {% block content %}
+
+<div class="main">
+    
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Upload Customer Image</h1>
+        </div>
+    </div>
+    <div class="form">
+
+        <form id="networkForm" class="f" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+
+
+            {{form.customer_image}}
+
+
+            <button type="submit" id="submitBtn">Upload</button>
+
+            <!-- <h3>Drawer Summary</h3>
+            <p><strong>Capital Amount:</strong> ${{ account.capital_amount }}</p>
+            <p><strong>Grand Total:</strong> ${{ account.grand_total }}</p>
+            <p><strong>Difference:</strong> ${{ account.difference }}</p> -->
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

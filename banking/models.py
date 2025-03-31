@@ -1,5 +1,5 @@
 from django.db import models
-from users.models import Customer, Agent
+from users.models import Customer, Agent, Mobilization
 from django.utils import timezone
 from decimal import Decimal
 
@@ -315,3 +315,30 @@ class CustomerPaymentAtBank(models.Model):
         
     def __str__(self):
         return f"{self.customer_name} - Total: {self.amount}"
+    
+
+    
+class MobilizationAccount(models.Model):
+    """Main account model that will track mobilization"""
+    mobilization = models.ForeignKey(Mobilization, on_delete=models.CASCADE, null=True, blank=True)
+    date = models.DateField(default=timezone.now)
+    name = models.CharField(max_length=100)
+    balance_left = models.DecimalField(max_digits=15, decimal_places=2, default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.name} ({self.mobilization})"
+    
+    @property
+    def total_deposits(self):
+        return self.bankdeposit_set.aggregate(total=models.Sum('amount'))['total'] or 0
+    
+    @property
+    def total_payments(self):
+        return self.paymentrequest_set.aggregate(total=models.Sum('amount'))['total'] or 0
+    
+    def update_balance(self):
+        """Update the balance_left (total_payments - total_deposits)"""
+        self.balance_left = self.total_payments - self.total_deposits
+        self.save(update_fields=['balance_left', 'updated_at'])

@@ -216,7 +216,11 @@
                     <td>{{ customer.id_type }}</td>
                     <td>{{ customer.id_number }}</td>
                     <td>{{ customer.date_of_birth }}</td>
+                    {% if customer.customer_picture %}
                     <td><a href="{{ customer.customer_picture.url }}">Image</a></td>
+                    {% else %}
+                    <td>N/A</td>
+                    {% endif %}
                 </tr>
                 {% endfor %}
             </tbody>
