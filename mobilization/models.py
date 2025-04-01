@@ -92,8 +92,8 @@ class BankDeposit(models.Model):
     time_deposited = models.TimeField(default=timezone.now)
     
     @classmethod
-    def total_bank_deposit_for_customer(cls, mobilization, date_deposited, status):
-        total = cls.objects.filter(mobilization=mobilization, date_deposited=date_deposited, status=status).aggregate(Sum('amount'))
+    def total_bank_deposit_for_customer(cls, mobilization, status):
+        total = cls.objects.filter(mobilization=mobilization, status=status).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
 
     
@@ -230,8 +230,8 @@ class PaymentRequest(models.Model):
     updated_at = models.DateField(auto_now=True)
     
     @classmethod
-    def total_payment_for_customer(cls, mobilization, created_at, status):
-        total = cls.objects.filter(mobilization=mobilization, created_at=created_at, status=status).aggregate(Sum('amount'))
+    def total_payment_for_customer(cls, mobilization, status):
+        total = cls.objects.filter(mobilization=mobilization, status=status).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
     
    
