@@ -48,19 +48,22 @@ def mobilization_account(request):
     mobilization = request.user.mobilization
     today = timezone.now().date()
     
-    account = get_object_or_404(MobilizationAccount, mobilization=mobilization, date=today)
+    # account = get_object_or_404(MobilizationAccount, mobilization=mobilization, date=today)
     
-    deposits = account.bankdeposit_set.filter(mobilization=mobilization).order_by('-date_deposited')
-    payments = account.paymentrequest_set.filter(mobilization=mobilization).order_by('-created_at')
+    # deposits = account.bankdeposit_set.filter(mobilization=mobilization).order_by('-date_deposited')
+    # payments = account.paymentrequest_set.filter(mobilization=mobilization).order_by('-created_at')
     
-    # total_deposits = BankDeposit.total_bank_deposit_for_customer(mobilization=mobilization, date_deposited=today, status='Approved')
-    # total_payments = PaymentRequest.total_payment_for_customer(mobilization=mobilization, created_at=today, status='Approved')
+    total_deposits = BankDeposit.total_bank_deposit_for_customer(mobilization=mobilization, status='Approved')
+    total_payments = PaymentRequest.total_payment_for_customer(mobilization=mobilization, status='Approved')
     
-    # balance_left = total_payments - total_deposits
+    balance_left = total_payments - total_deposits
     context = {
-        'account': account,
-        'deposits': deposits,
-        'payments': payments,
+        # 'account': account,
+        # 'deposits': deposits,
+        # 'payments': payments,
+        'total_deposits': total_deposits,
+        'total_payments': total_payments,
+        'balance_left': balance_left,
 
         'title': 'Account'
     }
