@@ -46,8 +46,9 @@ def open_mobilization_account(request):
 
 def mobilization_account(request):
     mobilization = request.user.mobilization
+    today = timezone.now().date()
     
-    account = get_object_or_404(MobilizationAccount, mobilization=mobilization)
+    account = get_object_or_404(MobilizationAccount, mobilization=mobilization, date=today)
     
     deposits = account.bankdeposit_set.filter(mobilization=mobilization).order_by('-date_deposited')
     payments = account.paymentrequest_set.filter(mobilization=mobilization).order_by('-created_at')
