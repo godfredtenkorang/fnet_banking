@@ -4,8 +4,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import reverse
 from users.forms import AgentRegistrationForm, MobilizationRegistrationForm, CustomerUpdateForm
 from users.models import Agent, Owner
-from banking.models import EFloatAccount
-from banking.forms import AddCapitalForm
+from banking.models import EFloatAccount, MobilizationAccount
+from banking.forms import AddCapitalForm, MobilizationAccountForm
 from agent.models import BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest, CustomerComplain, HoldCustomerAccount, CustomerFraud, CashInCommission, CashOutCommission, BranchReport
 from django.contrib import messages
 from decimal import Decimal
@@ -840,18 +840,43 @@ def mobilization_account_detail(request, mobilization_id):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)
     today = timezone.now().date()
     
-    total_deposits = bank_deposits.total_bank_deposit_for_customer(mobilization=mobilization, date_deposited=today, status='Approved')
-    total_payments = payment_requests.total_payment_for_customer(mobilization=mobilization, created_at=today, status='Approved')
+    account = get_object_or_404(MobilizationAccount, mobilization=mobilization, date=today)
     
-    balance_left = total_payments - total_deposits
+    # total_deposits = bank_deposits.total_bank_deposit_for_customer(mobilization=mobilization, date_deposited=today, status='Approved')
+    # total_payments = payment_requests.total_payment_for_customer(mobilization=mobilization, created_at=today, status='Approved')
+    
+    # balance_left = total_payments - total_deposits
     context = {
+        'account': account,
         'mobilization': mobilization,
-        'total_deposits': total_deposits,
-        'total_payments': total_payments,
-        'balance_left': balance_left,
+        # 'total_deposits': total_deposits,
+        # 'total_payments': total_payments,
+        # 'balance_left': balance_left,
         'title': 'Account'
     }
     return render(request, 'owner/mobilization/account.html', context)
+
+def add_mobilization_account(request, mobilization_id):
+    mobilization = get_object_or_404(Mobilization, id=mobilization_id)
+    today = timezone.now().date()
+    
+    # Check if an e-float drawer already exists for today
+    account = MobilizationAccount.objects.filter(mobilization=mobilization, date=today).first()
+
+    if request.method == 'POST':
+        form = MobilizationAccountForm(request.POST, instance=account)
+        if form.is_valid():
+            form.save()
+            return redirect('mobilization_account_detail', mobilization.id)
+    else:
+        form = MobilizationAccountForm(instance=account)
+        
+    context = {
+        'mobilization': mobilization,
+        'form': form,
+        'title': 'Mobilization Account'
+    }
+    return render(request, 'owner/mobilization/mobilization_account.html', context)
 
 
 @login_required
@@ -958,3 +983,4 @@ def update_mobilization_payment(request, payment_id):
 
 def all_transaction(request):
     return render(request, 'owner/agent_Detail/all_transaction.html')
+

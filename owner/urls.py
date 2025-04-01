@@ -106,8 +106,13 @@ urlpatterns = [
     path('mobilization_all_transactions/', views.mobilization_all_transactions, name='mobilization_all_transactions'),
     
     path('mobilization_account_detail/<int:mobilization_id>/', views.mobilization_account_detail, name='mobilization_account_detail'),
+    path('add_mobilization_account/<int:mobilization_id>/', views.add_mobilization_account, name='add_mobilization_account'),
+    
     path('mobilization_reports/<int:mobilization_id>/', views.mobilization_report_view, name='mobilization_report_view'),
     
     
     path('delete_message/', views.delete_transaction_notification, name='delete_transaction_notification'),
+    
+    
+    
 ]

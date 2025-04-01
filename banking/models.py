@@ -327,7 +327,7 @@ class MobilizationAccount(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return f"{self.name} ({self.mobilization})"
+        return f"{self.mobilization} ({self.balance_left})"
     
     @property
     def total_deposits(self):
