@@ -858,10 +858,10 @@ def mobilization_account_detail(request, mobilization_id):
 
 def add_mobilization_account(request, mobilization_id):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)
-    today = timezone.now().date()
+    # today = timezone.now().date()
     
     # Check if an e-float drawer already exists for today
-    account = MobilizationAccount.objects.filter(mobilization=mobilization, date=today).first()
+    account = MobilizationAccount.objects.filter(mobilization=mobilization).first()
 
     if request.method == 'POST':
         form = MobilizationAccountForm(request.POST, instance=account)
