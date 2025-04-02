@@ -838,45 +838,45 @@ def mobilization_report_view(request, mobilization_id):
 
 def mobilization_account_detail(request, mobilization_id):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)
-    today = timezone.now().date()
+    # today = timezone.now().date()
     
-    account = get_object_or_404(MobilizationAccount, mobilization=mobilization, date=today)
+    # account = get_object_or_404(MobilizationAccount, mobilization=mobilization)
     
-    # total_deposits = bank_deposits.total_bank_deposit_for_customer(mobilization=mobilization, date_deposited=today, status='Approved')
-    # total_payments = payment_requests.total_payment_for_customer(mobilization=mobilization, created_at=today, status='Approved')
+    total_deposits = bank_deposits.total_bank_deposit_for_customer(mobilization=mobilization, status='Approved')
+    total_payments = payment_requests.total_payment_for_customer(mobilization=mobilization, status='Approved')
     
-    # balance_left = total_payments - total_deposits
+    balance_left = total_payments - total_deposits
     context = {
-        'account': account,
+        # 'account': account,
         'mobilization': mobilization,
-        # 'total_deposits': total_deposits,
-        # 'total_payments': total_payments,
-        # 'balance_left': balance_left,
+        'total_deposits': total_deposits,
+        'total_payments': total_payments,
+        'balance_left': balance_left,
         'title': 'Account'
     }
     return render(request, 'owner/mobilization/account.html', context)
 
-def add_mobilization_account(request, mobilization_id):
-    mobilization = get_object_or_404(Mobilization, id=mobilization_id)
+# def add_mobilization_account(request, mobilization_id):
+#     mobilization = get_object_or_404(Mobilization, id=mobilization_id)
 
     
-    # Check if an e-float drawer already exists for today
-    account = MobilizationAccount.objects.filter(mobilization=mobilization).first()
+#     # Check if an e-float drawer already exists for today
+#     account = MobilizationAccount.objects.filter(mobilization=mobilization).first()
 
-    if request.method == 'POST':
-        form = MobilizationAccountForm(request.POST, instance=account)
-        if form.is_valid():
-            form.save()
-            return redirect('mobilization_account_detail', mobilization.id)
-    else:
-        form = MobilizationAccountForm(instance=account)
+#     if request.method == 'POST':
+#         form = MobilizationAccountForm(request.POST, instance=account)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('mobilization_account_detail', mobilization.id)
+#     else:
+#         form = MobilizationAccountForm(instance=account)
         
-    context = {
-        'mobilization': mobilization,
-        'form': form,
-        'title': 'Mobilization Account'
-    }
-    return render(request, 'owner/mobilization/mobilization_account.html', context)
+#     context = {
+#         'mobilization': mobilization,
+#         'form': form,
+#         'title': 'Mobilization Account'
+#     }
+#     return render(request, 'owner/mobilization/mobilization_account.html', context)
 
 
 @login_required

@@ -67,7 +67,6 @@ class MobilizationPayTo(models.Model):
     
     
 class BankDeposit(models.Model):
-    account = models.ForeignKey(MobilizationAccount, on_delete=models.CASCADE, null=True, blank=True)
     mobilization = models.ForeignKey(Mobilization, on_delete=models.CASCADE, related_name='bank_deposits')
     phone_number = models.CharField(max_length=10)
     bank = models.CharField(max_length=100)
@@ -95,16 +94,6 @@ class BankDeposit(models.Model):
     def total_bank_deposit_for_customer(cls, mobilization, status):
         total = cls.objects.filter(mobilization=mobilization, status=status).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
-
-    
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        self.account.update_balance()
-    
-    def delete(self, *args, **kwargs):
-        account = self.account
-        super().delete(*args, **kwargs)
-        account.update_balance()
         
     class Meta:
         ordering = ['-date_deposited']
@@ -215,7 +204,6 @@ class PaymentRequest(models.Model):
         ('Approved', 'Approved'),
         ('Rejected', 'Rejected'),
     ]
-    account = models.ForeignKey(MobilizationAccount, on_delete=models.CASCADE, null=True, blank=True)
     mobilization = models.ForeignKey(Mobilization, on_delete=models.CASCADE, related_name='payments_requests')
     mode_of_payment = models.CharField(max_length=10, choices=MODE_OF_PAYMENT, null=True, blank=True)
     bank = models.CharField(max_length=50, choices=BANK_CHOICES, null= True, blank=True)
@@ -234,15 +222,7 @@ class PaymentRequest(models.Model):
         total = cls.objects.filter(mobilization=mobilization, status=status).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
     
-   
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        self.account.update_balance()
-    
-    def delete(self, *args, **kwargs):
-        account = self.account
-        super().delete(*args, **kwargs)
-        account.update_balance()
+
     
     class Meta:
         ordering = ['-created_at']

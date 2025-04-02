@@ -3,7 +3,7 @@ from . import views
 
 urlpatterns = [
     path('', views.dashboard, name='mobilization_dashboard'),
-    path('add_mobilization_account/', views.open_mobilization_account, name='add_mobilization_account'),
+    # path('add_mobilization_account/', views.open_mobilization_account, name='add_mobilization_account'),
     path('mobilization_account/', views.mobilization_account, name='mobilization_account'),
     path('mobilization_payto/', views.payto, name='mobilization_payto'),
     

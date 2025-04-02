@@ -21,46 +21,38 @@ def is_mobilization(user):
     return user.role == 'MOBILIZATION'
 # Create your views here.
 
-def open_mobilization_account(request):
-    mobilization = request.user.mobilization
-    today = timezone.now().date()
+# def open_mobilization_account(request):
+#     mobilization = request.user.mobilization
+#     today = timezone.now().date()
     
-    # Check if an e-float drawer already exists for today
-    account = MobilizationAccount.objects.filter(mobilization=mobilization, date=today).first()
+#     # Check if an e-float drawer already exists for today
+#     account = MobilizationAccount.objects.filter(mobilization=mobilization, date=today).first()
     
-    if request.method == 'POST':
-        form = MobilizationAccountForm(request.POST, instance=account)
-        if form.is_valid():
-            form.save()
-            return redirect('mobilization_dashboard')
-    else:
-        form = MobilizationAccountForm(instance=account)
+#     if request.method == 'POST':
+#         form = MobilizationAccountForm(request.POST, instance=account)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('mobilization_dashboard')
+#     else:
+#         form = MobilizationAccountForm(instance=account)
         
-    context = {
-        'form': form,
-        'account': account,
-        'title': 'Open Account'
-    }
+#     context = {
+#         'form': form,
+#         'account': account,
+#         'title': 'Open Account'
+#     }
         
-    return render(request, 'mobilization/mobilization_account.html', context)
+#     return render(request, 'mobilization/mobilization_account.html', context)
 
 def mobilization_account(request):
     mobilization = request.user.mobilization
-    today = timezone.now().date()
-    
-    # account = get_object_or_404(MobilizationAccount, mobilization=mobilization, date=today)
-    
-    # deposits = account.bankdeposit_set.filter(mobilization=mobilization).order_by('-date_deposited')
-    # payments = account.paymentrequest_set.filter(mobilization=mobilization).order_by('-created_at')
     
     total_deposits = BankDeposit.total_bank_deposit_for_customer(mobilization=mobilization, status='Approved')
     total_payments = PaymentRequest.total_payment_for_customer(mobilization=mobilization, status='Approved')
     
     balance_left = total_payments - total_deposits
     context = {
-        # 'account': account,
-        # 'deposits': deposits,
-        # 'payments': payments,
+        
         'total_deposits': total_deposits,
         'total_payments': total_payments,
         'balance_left': balance_left,
@@ -148,8 +140,7 @@ def get_customer_details(request):
 def bank_deposit(request):
     
     mobilization = request.user.mobilization
-    today = timezone.now().date()
-    account = get_object_or_404(MobilizationAccount, mobilization=mobilization, date=today)
+    
     
     
     
@@ -174,7 +165,7 @@ def bank_deposit(request):
             
        
         BankDeposit.objects.create(
-            account=account,
+            
             mobilization=mobilization,
             phone_number=phone_number, 
             bank=bank, 
@@ -258,8 +249,7 @@ def bank_withdrawal(request):
 @user_passes_test(is_mobilization)
 def payment(request):
     mobilization = request.user.mobilization
-    today = timezone.now().date()
-    account = get_object_or_404(MobilizationAccount, mobilization=mobilization, date=today)
+    
 
     if request.method == 'POST':
         mode_of_payment = request.POST.get('mode_of_payment')
@@ -270,7 +260,7 @@ def payment(request):
         amount = request.POST.get('amount')
         mobilization_transaction_id = request.POST.get('mobilization_transaction_id')
         
-        payments = PaymentRequest(account=account, mode_of_payment=mode_of_payment, bank=bank, network=network, branch=branch, name=name, amount=amount, mobilization_transaction_id=mobilization_transaction_id)
+        payments = PaymentRequest(mode_of_payment=mode_of_payment, bank=bank, network=network, branch=branch, name=name, amount=amount, mobilization_transaction_id=mobilization_transaction_id)
         payments.mobilization = mobilization
         
         
