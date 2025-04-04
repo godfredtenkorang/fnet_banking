@@ -17,14 +17,19 @@ class Transaction(models.Model):
         ('CASH_IN', 'Cash In'),
         ('CASH_OUT', 'Cash Out'),
         ('PAY_TO', 'Pay To'),
+        ('AGENT_PAYOUT', 'Agent Payout'),
     )
-    
-    transaction_type = models.CharField(max_length=10, choices=TRANSACTION_TYPES)
-    customer_phone = models.CharField(max_length=15)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='transactions', null=True, blank=True)
+    transaction_type = models.CharField(max_length=12, choices=TRANSACTION_TYPES)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    date_deposited = models.DateField(default=timezone.now)
-    time_deposited = models.TimeField(default=timezone.now)
+    phone_number = models.CharField(max_length=15)
+    recipient_phone = models.CharField(max_length=20, blank=True, null=True)
     reference = models.CharField(max_length=50, unique=True)
+    timestamp = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    is_succussful = models.BooleanField(default=False)
+        
+    class Meta:
+        ordering = ['-timestamp']
     
     def __str__(self):
         return f"{self.transaction_type} - {self.customer_phone} - {self.amount}"

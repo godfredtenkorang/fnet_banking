@@ -11,6 +11,10 @@ from django.contrib.admin.views.decorators import staff_member_required
 from .utils import send_otp, send_otp_via_email, generate_otp, send_otp_sms
 from django.utils import timezone
 
+from rest_framework import generics, permissions, status
+from rest_framework.response import Response
+from .serializers import LoginSerializer, UserSerializer
+
 
 
 
@@ -298,3 +302,14 @@ def all_users(request):
 
 def birthdays(request):
     return render(request, 'users/admin_dashboard/birthdays.html')
+
+
+# API
+
+class LoginView(generics.GenericAPIView):
+    serializer_class = LoginSerializer
+    
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.validated_data, status=status.HTTP_200_OK)

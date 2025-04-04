@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import LoginView
 
 urlpatterns = [
     path('', views.login_user, name='login'),
@@ -25,4 +26,8 @@ urlpatterns = [
     path('balance/', views.balance, name='balance'),
     path('users/', views.all_users, name='all_users'),
     path('birthdays/', views.birthdays, name='birthdays'),
+    
+    
+    # API
+     path('login/', LoginView.as_view(), name='user_login'),
 ]
