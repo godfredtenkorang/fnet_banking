@@ -320,7 +320,7 @@ def customer_registration(request):
         if customer_picture:
             picture_path = default_storage.save(f'customer_pic/{customer_picture.name}', customer_picture)
         else:
-            image_path = ''
+            picture_path = ''
         
         if customer_image:
             image_path = default_storage.save(f'customer_image/{customer_image.name}', customer_image)

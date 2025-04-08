@@ -21,5 +21,5 @@ class CustomerImageUpdateForm(forms.ModelForm):
 
     class Meta:
         model = Customer
-        fields = ['customer_image']
+        fields = ['customer_picture' ,'customer_image']
         

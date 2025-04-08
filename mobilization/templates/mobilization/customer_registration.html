@@ -185,7 +185,7 @@
 
         // Function to check if all fields are filled
         function checkAllFieldsFilled() {
-            const requiredFields = [nameInput, phoneInput, locationInput, digitalAddressInput, idTypeInput, idNumberInput, dobInput, photoInput];
+            const requiredFields = [nameInput, phoneInput, locationInput, digitalAddressInput, idTypeInput, idNumberInput, dobInput];
             return requiredFields.every(field => {
                 if (field.type === "file") {
                     return field.files.length > 0;
