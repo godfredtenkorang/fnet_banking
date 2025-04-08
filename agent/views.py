@@ -13,7 +13,7 @@ from django.contrib.auth.hashers import make_password
 from django.core.files.storage import default_storage
 from django.db.models import Sum
 from django.core.paginator import Paginator
-from .forms import CustomerFilterForm
+from .forms import CustomerFilterForm, CustomerImageUpdateForm
 
 
 from django.shortcuts import get_object_or_404
@@ -864,6 +864,7 @@ def customerReg(request):
         id_number = request.POST.get('id_number')
         date_of_birth = request.POST.get('date_of_birth')
         customer_picture = request.FILES.get('customer_picture')
+        customer_image = request.FILES.get('customer_image')
         password = request.POST.get('password')
         
         # Validate required fields
@@ -893,6 +894,11 @@ def customerReg(request):
         branch = get_object_or_404(Branch, id=branch_id)
         
         # Save the customer picture
+        if customer_image:
+            image_path = default_storage.save(f'customer_image/{customer_image.name}', customer_image)
+        else:
+            image_path = ''
+            
         if customer_picture:
             picture_path = default_storage.save(f'customer_pic/{customer_picture.name}', customer_picture)
         else:
@@ -912,7 +918,8 @@ def customerReg(request):
             id_type=id_type,
             id_number=id_number,
             date_of_birth=date_of_birth,
-            customer_picture=picture_path
+            customer_picture=picture_path,
+            customer_image=image_path
         )
         messages.success(request, 'Customer registered successfully!')
         return redirect('customerReg')
@@ -950,6 +957,22 @@ def accountReg(request):
     }
     return render(request, 'agent/accountReg.html', context)
 
+def update_customer_details(request, customer_id):
+    customer = get_object_or_404(Customer, id=customer_id)
+    if request.method == 'POST':
+        form = CustomerImageUpdateForm(request.POST, request.FILES, instance=customer)
+        if form.is_valid():
+            update_customer = form.save(commit=False)
+            update_customer.save()
+            messages.success(request, 'Added Customer Image Successfully.')
+            return redirect('my_customers')
+    else:
+        form = CustomerImageUpdateForm(request.FILES, instance=customer)
+    context = {
+        'form': form,
+        'title': 'Update Customer'
+    }
+    return render(request, 'agent/customer_details.html', context)
 
 @login_required
 @user_passes_test(is_agent)
@@ -988,7 +1011,7 @@ def payment(request):
         
         
         payments.save()
-        account.update_balance_for_payments(payments.bank, payments.network, payments.amount, payments.status)
+        account.update_balance_for_payments(payments.bank, payments.network, payments.branch, payments.amount, payments.status)
 
         return redirect('payment_notifications')
 
@@ -1019,13 +1042,14 @@ def cashFloatRequest(request):
         float_type = request.POST.get('float_type')
         bank = request.POST.get('bank')
         network = request.POST.get('network')
+        cash = request.POST.get('cash')
         amount = request.POST.get('amount')
         
-        floats = CashAndECashRequest(float_type=float_type, bank=bank, network=network, amount=amount)
+        floats = CashAndECashRequest(float_type=float_type, bank=bank, network=network, cash=cash, amount=amount)
         
         floats.agent = agent
         floats.save()
-        account.update_balance_for_cash_and_ecash(floats.bank, floats.network, floats.amount, floats.status)
+        account.update_balance_for_cash_and_ecash(floats.bank, floats.network, floats.cash, floats.amount, floats.status)
         messages.success(request, 'Request submitted successfully. Waiting for Owner approveal.')
         
         return redirect('cash_notifications')

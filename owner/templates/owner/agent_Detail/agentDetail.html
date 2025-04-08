@@ -15,10 +15,10 @@
     </div>
 
         <div class="grid-template">
-            <a href="{% url 'agentCustomer' %}" class="grid-row">
+            <a href="{% url 'agentCustomer' agent.id %}" class="grid-row">
                 <i class="fas fa-user"></i> Customer
             </a>
-            <a href="{% url 'bankDeposit' %}" class="grid-row">
+            <a href="{% url 'bankDeposit' agent.id %}" class="grid-row">
                 <i class="fas fa-university"></i> Bank Deposit
             </a>
             <a href="{% url 'bank_withdrawal' %}" class="grid-row">

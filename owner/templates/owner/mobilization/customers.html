@@ -110,6 +110,7 @@
                     <th>ID Number</th>
                     <th>Date of Birth</th>
                     <th>ID Picture</th>
+                    <th>Customer Picture</th>
                     <!-- <th>Action</th> -->
                     
 
@@ -128,11 +129,22 @@
                     <td>{{customer.id_type}}</td>
                     <td>{{customer.id_number}}</td>
                     <td>{{customer.date_of_birth}}</td>
-
+                    {% if customer.customer_picture %}
                     <td>
 
                         <a href="{{ customer.customer_picture.url }}">image</a>
                     </td>
+                    {% else %}
+                    <td>N/A</td>
+                    {% endif %}
+                    {% if customer.customer_image %}
+                    <td>
+
+                        <a href="{{ customer.customer_image.url }}">image</a>
+                    </td>
+                    {% else %}
+                    <td>N/A</td>
+                    {% endif %}
                     <!-- <td>
                     
                         <a href="{% url 'delete_mobilization_customer' customer.id %}">Delete</a>

@@ -53,6 +53,15 @@
                             <option value="Telecel">Telecel</option>
                         </select>
                     </div>
+                    <div class="input" id="cash" style="display: none;">
+                        <label for="cash">Select Cash</label> <br />
+                        <select id="cash" name="cash">
+                            <option value="Cash" selected>Cash</option>
+                            <!-- <option value="Mtn">MTN</option>
+                            <option value="Airtel Tigo">AirtelTigo</option>
+                            <option value="Telecel">Telecel</option> -->
+                        </select>
+                    </div>
             
                     <div class="input" id="amount" style="display: none;">
                         <label for="amountInput">Amount</label> <br />
@@ -77,6 +86,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const cashFloatType = document.getElementById("cashFloatType");
     const bankSection = document.getElementById("bank");
     const telcoSection = document.getElementById("telco");
+    const cashSection = document.getElementById("cash");
     const amountField = document.getElementById("amount");
     const submitButton = document.getElementById("submitBtn");
 
@@ -87,6 +97,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Reset all fields to hidden
         bankSection.style.display = "none";
         telcoSection.style.display = "none";
+        cashSection.style.display = "none";
         amountField.style.display = "none";
         submitButton.style.display = "none";
 
@@ -101,6 +112,7 @@ document.addEventListener("DOMContentLoaded", function () {
             submitButton.style.display = "block";
         } else if (selectedValue === "Cash") {
             amountField.style.display = "block";
+            cashSection.style.display = "block";
             submitButton.style.display = "block";
         }
     });

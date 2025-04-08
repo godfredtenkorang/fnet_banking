@@ -238,7 +238,7 @@ class EFloatAccount(models.Model):
         
         self.save()
             
-    def update_balance_for_payments(self, bank, network, amount, status):
+    def update_balance_for_payments(self, bank, network, branch, amount, status):
         amount = Decimal(amount)
         if status == 'Approved':
 
@@ -258,14 +258,40 @@ class EFloatAccount(models.Model):
                 self.gtbank_balance -= amount
             elif bank == 'Access Bank':
                 self.access_bank_balance -= amount
+            elif branch == 'DVLA':
+                self.cash_at_hand -= amount
+            elif branch == 'HEAD OFFICE':
+                self.cash_at_hand -= amount
+            elif branch == 'KEJETIA':
+                self.cash_at_hand -= amount
+            elif branch == 'MELCOM SANTASI':
+                self.cash_at_hand -= amount
+            elif branch == 'MELCOM TANOSO':
+                self.cash_at_hand -= amount
+            elif branch == 'MELCOM MANHYIA':
+                self.cash_at_hand -= amount
+            elif branch == 'MELCOM TAFO':
+                self.cash_at_hand -= amount
+            elif branch == 'AHODWO MELCOM':
+                self.cash_at_hand -= amount
+            elif branch == 'ADUM MELCOM ANNEX':
+                self.cash_at_hand -= amount
+            elif branch == 'MELCOM SUAME':
+                self.cash_at_hand -= amount
+            elif branch == 'KUMASI MALL MELCOM':
+                self.cash_at_hand -= amount
+            elif branch == 'MELCOM ADUM':
+                self.cash_at_hand -= amount
+            elif branch == 'MOBILIZATION':
+                self.cash_at_hand -= amount
 
             # Add to the Cash at Hand balance
-            amount = Decimal(amount)
-            self.cash_at_hand += amount
+            # amount = Decimal(amount)
+            # self.cash_at_hand += amount
             
             self.save()
             
-    def update_balance_for_cash_and_ecash(self, bank, network, amount, status):
+    def update_balance_for_cash_and_ecash(self, bank, network, cash, amount, status):
         amount = Decimal(amount)
         if status == 'Approved':
             if network == 'Mtn':
@@ -284,10 +310,12 @@ class EFloatAccount(models.Model):
                 self.gtbank_balance += amount
             elif bank == 'Access Bank':
                 self.access_bank_balance += amount
+            elif cash == 'Cash':
+                self.cash_at_hand += amount
 
             # Add to the Cash at Hand balance
-            amount = Decimal(amount)
-            self.cash_at_hand -= amount
+            # amount = Decimal(amount)
+            # self.cash_at_hand += amount
             
             self.save()
         

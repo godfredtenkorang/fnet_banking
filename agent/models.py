@@ -250,6 +250,11 @@ class CashAndECashRequest(models.Model):
         ('AirtelTigo', 'AirtelTigo'),
     ]
     
+    CASH_CHOICES = [
+        ('Cash', 'Cash'),
+        
+    ]
+    
     STATUS_CHOICES = [
         ('Pending', 'Pending'),
         ('Approved', 'Approved'),
@@ -260,6 +265,7 @@ class CashAndECashRequest(models.Model):
     float_type = models.CharField(max_length=10, choices=FLOAT_TYPE_CHOICES)
     bank = models.CharField(max_length=20, choices=BANK_CHOICES, default='Select Bank', null=True, blank=True)
     network = models.CharField(max_length=20, choices=NETWORK_CHOICES, default='Select Network', null=True, blank=True)
+    cash = models.CharField(max_length=10, choices=CASH_CHOICES, null=True, blank=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     arrears = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # Track remaining balance
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')

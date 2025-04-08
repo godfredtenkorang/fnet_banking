@@ -43,11 +43,12 @@ urlpatterns = [
     path('owner/reject_bank_withdrawal/<int:withdrawal_id>/', views.reject_bank_withdrawal, name='reject_bank_withdrawal'),
     
     path('agentDetail/<int:agent_id>/', views.agentDetail, name='agentDetail'),
-    path('agentCustomer/', views.agentCustomer, name='agentCustomer'),
-    path('bankDeposit/', views.bankDeposit, name='bankDeposit'),
+    path('agentCustomer/<int:branch_id>/', views.agentCustomer, name='agentCustomer'),
+    path('bankDeposit/<int:branch_id>/', views.bankDeposit, name='bankDeposit'),
+    path('bankDepositDetail/<int:branch_id>/<str:date>/', views.bankDepositDetail, name='bankDepositDetail'),
+    path('delete_agent_bank_deposit/<int:deposit_id>/', views.delete_agent_bank_deposit, name='delete_branch_bank_deposit'),
     path('bank_withdrawal/', views.bank_withdrawal, name='bank_withdrawal'),
     path('bank_with_detail/', views.bank_with_detail, name='bank_with_detail'),
-    path('bankDepositDetail/', views.bankDepositDetail, name='bankDepositDetail'),
     
     path('cash_In/', views.cash_In, name='cash_In'),
     path('cash_out_agent/', views.cash_out_agent, name='cash_out_agent'),
@@ -85,7 +86,7 @@ urlpatterns = [
     # Mobilization Details
     
     path('mobilization_customers/<int:mobilization_id>/', views.mobilization_customers, name='mobilization_customers'),
-    path('delete_mobilization_customer/<int:mobilization_id>/delete/', views.delete_mobilization_customer, name='delete_mobilization_customer'),
+    path('delete_customer/<int:mobilization_id>/delete/', views.delete_mobilization_customer, name='delete_mobilization_customer'),
     
     
     path('mobilization_detail/<int:mobilization_id>/', views.mobilization_agent_detail, name='mobilization_agent_detail'),

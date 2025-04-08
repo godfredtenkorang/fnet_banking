@@ -140,6 +140,7 @@
                     <th>ID Number</th>
                     <th>DOB</th>
                     <th>ID Card</th>
+                    <th>Customer Img</th>
                     <th>Accounts</th>
                     <th>Update</th>
                 </tr>
@@ -157,9 +158,18 @@
                     <td>{{ customer.id_type }}</td>
                     <td>{{ customer.id_number }}</td>
                     <td>{{ customer.date_of_birth }}</td>
+                    {% if customer.customer_picture %}
                     <td><a href="{{ customer.customer_picture.url }}">Image</a></td>
+                    {% else %}
+                    <td>N/A</td>
+                    {% endif %}
+                    {% if customer.customer_image %}
+                    <td><a href="{{ customer.customer_image.url }}">Cus Image</a></td>
+                    {% else %}
+                    <td>N/A</td>
+                    {% endif %}
                     <td><a href="{% url 'my_customer_detail' customer.id %}">Link</a></td>
-                    <td><a>Link</a></td>
+                    <td><a href="{% url 'agent_update_customer_details' customer.id %}">Update</a></td>
                 </tr>
                 {% endfor %}
             </tbody>

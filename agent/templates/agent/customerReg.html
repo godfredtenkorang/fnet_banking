@@ -79,6 +79,10 @@
                         <input type="file" name="customer_picture" id="customerPhoto" accept="image/*" />
                     </div>
                     <div class="input">
+                        <label for="customerPhoto">Upload Customer Image</label> <br />
+                        <input type="file" name="customer_image" id="customerImage" accept="image/*" />
+                    </div>
+                    <div class="input">
                         <label for="password">Password</label> <br />
                         <input type="text" name="password" id="password" required placeholder="Default: 12345678"/>
                     </div>
@@ -162,6 +166,7 @@
     const idNumberInput = document.getElementById("idNumber");
     const dobInput = document.getElementById("dob");
     const photoInput = document.getElementById("customerPhoto");
+    const imageInput = document.getElementById("customerImage");
     const confirmCheck = document.getElementById("confirmCheck");
     const submitBtn = document.getElementById("submitBtn");
     const messageBox = document.querySelector(".confirmInfoMessage");
@@ -179,7 +184,7 @@
 
     // Function to check if all fields are filled
     function checkAllFieldsFilled() {
-        const requiredFields = [nameInput, phoneInput, locationInput, digitalAddressInput, idTypeInput, idNumberInput, dobInput, photoInput];
+        const requiredFields = [nameInput, phoneInput, locationInput, digitalAddressInput, idTypeInput, idNumberInput, dobInput];
         return requiredFields.every(field => {
             if (field.type === "file") {
                 return field.files.length > 0;

@@ -21,8 +21,6 @@ from mobilization.models import PaymentRequest as payment_requests
 from mobilization.models import Report as mobilization_reports
 from .forms import BankDepositForm, PaymentForm
 
-
-
 def unapproved_users_count(request):
     unapproved_cash_count = CashAndECashRequest.objects.filter(status='Pending').count()
     unapproved_payment_count = PaymentRequest.objects.filter(status='Pending').count()
@@ -203,7 +201,7 @@ def approve_cash_and_ecash_request(request, request_id):
                 request_obj.status = 'Approved'
                 messages.success(request, 'Request fully approved.')
             # Save the request status and arrears
-            account.update_balance_for_cash_and_ecash(request_obj.bank, request_obj.network, request_obj.amount, request_obj.status)
+            account.update_balance_for_cash_and_ecash(request_obj.bank, request_obj.network, request_obj.cash, request_obj.amount, request_obj.status)
             request_obj.save()
             return redirect('cash_requests')
         except ValueError:
@@ -330,7 +328,7 @@ def approve_payment(request, payment_id):
     
     payment.status = 'Approved'
     payment.save()
-    account.update_balance_for_payments(payment.bank, payment.network, payment.amount, payment.status)
+    account.update_balance_for_payments(payment.bank, payment.network, payment.branch, payment.amount, payment.status)
     messages.success(request, 'Payment request approved successfully.')
     return redirect('view_payment_requests')
 
@@ -463,14 +461,40 @@ def agentDetail(request, agent_id):
     }
     return render(request, 'owner/agent_Detail/agentDetail.html', context)
 
-def agentCustomer(request):
-    return render(request, 'owner/agent_Detail/agentCustomer.html')
+def agentCustomer(request, branch_id):
+    branch = get_object_or_404(Agent, id=branch_id)
+    customers = Customer.objects.filter(agent=branch)
+    context = {
+        'customers': customers,
+        'title': 'Customers'
+    }
+    return render(request, 'owner/agent_Detail/agentCustomer.html', context)
 
-def bankDeposit(request):
-    return render(request, 'owner/agent_Detail/bankDeposit.html')
 
-def bankDepositDetail(request):
-    return render(request, 'owner/agent_Detail/bankDepositDetail.html')
+def bankDeposit(request, branch_id):
+    branch = get_object_or_404(Agent, id=branch_id)
+    dates = BankDeposit.objects.filter(agent=branch).values('date_deposited', 'agent').annotate(total_amount=Sum('amount'))
+    context = {
+        'dates': dates,
+        'title': 'Bank Deposit'
+    }
+    return render(request, 'owner/agent_Detail/bankDeposit.html', context)
+
+def bankDepositDetail(request, branch_id, date):
+    branch = get_object_or_404(Agent, id=branch_id)
+    bank_deposit_transactions = BankDeposit.objects.filter(agent=branch, date_deposited=date).order_by('-date_deposited', '-time_deposited')
+    context = {
+        'date': date,
+        'agent': branch,
+        'bank_deposit_transactions': bank_deposit_transactions
+    }
+    return render(request, 'owner/agent_Detail/bankDepositDetail.html', context)
+
+
+def delete_agent_bank_deposit(request, deposit_id):
+    deposit = BankDeposit.objects.get(id=deposit_id)
+    deposit.delete()
+    return redirect('delete_transaction_notification')
 
 def bank_with_detail(request):
     return render(request, 'owner/agent_Detail/bank_with_detail.html')

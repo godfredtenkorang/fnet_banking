@@ -41,6 +41,8 @@ urlpatterns = [
     path('accountReg/', views.accountReg, name='accountReg'),
     path('my-customers/', views.my_customers, name='my_customers'),
     path('my-customer-detail/<int:customer_id>/accounts/', views.my_customer_detail, name='my_customer_detail'),
+    path('my-customer-detail/<int:customer_id>/detail/', views.update_customer_details, name='agent_update_customer_details'),
+    
     
     
     path('payment/', views.payment, name='payment'),
