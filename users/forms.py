@@ -4,6 +4,10 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.forms.widgets import PasswordInput, TextInput
 
+from django.contrib.auth import password_validation
+from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.forms import PasswordChangeForm
+
 from .models import User, Branch, Owner, Agent, Customer, Mobilization
 
 class UserRegisterForm(UserCreationForm):
@@ -90,3 +94,51 @@ class LoginForm(AuthenticationForm):
         if not re.match(r'^\+?1?\d{9,15}$', phone_number):
             raise forms.ValidationError('Invalid phone number format.')
         return phone_number
+    
+    
+class CustomPasswordChangeForm(PasswordChangeForm):
+    """
+    A form that lets a user change their password by entering their old password
+    along with OTP verification (handled in the view).
+    """
+    new_password1 = forms.CharField(
+        label=_("New password"),
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
+        strip=False,
+        help_text=password_validation.password_validators_help_text_html(),
+    )
+    new_password2 = forms.CharField(
+        label=_("New password confirmation"),
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
+        strip=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        # Remove the old password field since we're using OTP verification
+        super().__init__(*args, **kwargs)
+        self.fields.pop('old_password', None)
+
+    def clean_new_password2(self):
+        password1 = self.cleaned_data.get('new_password1')
+        password2 = self.cleaned_data.get('new_password2')
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError(
+                self.error_messages['password_mismatch'],
+                code='password_mismatch',
+            )
+        password_validation.validate_password(password2, self.user)
+        return password2
+    
+class SecurePasswordChangeForm(CustomPasswordChangeForm):
+    def clean_new_password1(self):
+        password = self.cleaned_data.get('new_password1')
+        
+        # Check if password is different from last 3 passwords
+        if self.user.check_password(password):
+            raise forms.ValidationError(
+                _("Your new password must be different from your current password."),
+                code='password_same_as_current',
+            )
+            
+        # Add any additional password policy checks here
+        return password

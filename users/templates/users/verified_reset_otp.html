@@ -9,7 +9,7 @@
     <!-- Boxicons CDN Link -->
     <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Form</title>
+    <title>Verify OTP</title>
 </head>
 
 <body>
@@ -48,23 +48,17 @@
 
         <div class="login-form">
 
-            <h3>Please login with your detail</h3>
+            <h3>Verify OTP</h3>
             <br><br>
             <div class="login">
                 <form method="POST">
                     {% csrf_token %}
 
-                    <label for="phone_number">Phone Number:</label>
-                    <input type="tel" id="phone_number" name="phone_number" required>
-                    <br>
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" name="password" required>
-                    <span id="toggle-password" style="cursor: pointer;">Show Password</span>
+                    <label for="otp">Enter OTP</label>
+                    <input type="tel" id="otp" name="otp" required>
                     <br><br>
-                    <button type="submit">Login</button>
-                    <p>Or you dont have account ? then <a href="{% url 'register'%}">Sign Up</a></p>
-                    <p>Forgot Password? <a href="{% url 'change_password' %}">Change Password</a></p>
-                    <p>If there are any difficulties, <a href="{% url 'customerSupport' %}">contact support</a></p>
+                    <button type="submit">Verify OTP</button>
+                    
 
                 </form>
             </div>
@@ -73,30 +67,29 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 </body>
+
 <script>
-    // JavaScript to toggle password visibility using an eye icon
-    document.getElementById('toggle-password').addEventListener('click', function () {
-        const passwordField = document.getElementById('password');
-        if (passwordField.type === 'password') {
-            passwordField.type = 'text';  // Show password
-            this.textContent = 'Show Password';  // Change icon to open eye
+    // Set the timer duration (5 minutes)
+    let timeLeft = 300;  // 300 seconds = 5 minutes
+
+    // Function to update the timer
+    function updateTimer() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        document.getElementById('timer').textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+        if (timeLeft > 0) {
+            timeLeft--;  // Decrement the time
+            setTimeout(updateTimer, 1000);  // Update every second
         } else {
-            passwordField.type = 'password';  // Hide password
-            this.textContent = 'Show Password';  // Change icon to closed eye
+            // Show the resend OTP link when the timer expires
+            document.getElementById('resend-link').style.display = 'block';
         }
-    });
+    }
+
+    // Start the timer when the page loads
+    updateTimer();
 </script>
 
 </html>

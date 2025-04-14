@@ -9,7 +9,7 @@
     <!-- Boxicons CDN Link -->
     <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Form</title>
+    <title>Send OTP</title>
 </head>
 
 <body>
@@ -48,7 +48,7 @@
 
         <div class="login-form">
 
-            <h3>Please login with your detail</h3>
+            <h3>Send OTP</h3>
             <br><br>
             <div class="login">
                 <form method="POST">
@@ -56,15 +56,9 @@
 
                     <label for="phone_number">Phone Number:</label>
                     <input type="tel" id="phone_number" name="phone_number" required>
-                    <br>
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" name="password" required>
-                    <span id="toggle-password" style="cursor: pointer;">Show Password</span>
                     <br><br>
-                    <button type="submit">Login</button>
-                    <p>Or you dont have account ? then <a href="{% url 'register'%}">Sign Up</a></p>
-                    <p>Forgot Password? <a href="{% url 'change_password' %}">Change Password</a></p>
-                    <p>If there are any difficulties, <a href="{% url 'customerSupport' %}">contact support</a></p>
+                    <button type="submit">Send OTP</button>
+                    
 
                 </form>
             </div>
@@ -73,30 +67,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 </body>
-<script>
-    // JavaScript to toggle password visibility using an eye icon
-    document.getElementById('toggle-password').addEventListener('click', function () {
-        const passwordField = document.getElementById('password');
-        if (passwordField.type === 'password') {
-            passwordField.type = 'text';  // Show password
-            this.textContent = 'Show Password';  // Change icon to open eye
-        } else {
-            passwordField.type = 'password';  // Hide password
-            this.textContent = 'Show Password';  // Change icon to closed eye
-        }
-    });
-</script>
 
 </html>

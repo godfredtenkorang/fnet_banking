@@ -3,17 +3,21 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import auth
 from django.contrib.auth.backends import ModelBackend
-from .forms import UserRegisterForm, OwnerRegistrationForm, AgentRegistrationForm, CustomerRegistrationForm, LoginForm, MobilizationRegistrationForm
-from .models import User, Owner, Agent, Customer, Branch, Mobilization
+from .forms import UserRegisterForm, OwnerRegistrationForm, CustomPasswordChangeForm, AgentRegistrationForm, CustomerRegistrationForm, LoginForm, MobilizationRegistrationForm
+from .models import User, Owner, Agent, Customer, Branch, Mobilization, OTPToken
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 
-from .utils import send_otp, send_otp_via_email, generate_otp, send_otp_sms
+from .utils import send_otp, send_otp_via_email, generate_otp, send_otp_sms, send_reset_password_otp_sms
 from django.utils import timezone
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+import time
 
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from .serializers import LoginSerializer, UserSerializer
+
 
 
 
@@ -161,6 +165,87 @@ def resend_otp(request):
     else:
         messages.error(request, 'Session expired. Please register again.')
     return redirect('verify_otp')
+
+
+def send_reset_otp(request):
+    if request.method == 'POST':
+        phone_number = request.POST.get('phone_number')
+        
+        try:
+            user = User.objects.get(phone_number=phone_number)
+        except User.DoesNotExist:
+            messages.error(request, 'No account found with this phone number')
+            return redirect('password_reset')
+        
+        otp_token = OTPToken.objects.create(
+            user=user,
+            phone_number=phone_number
+        )
+        
+        try:
+            send_reset_password_otp_sms(phone_number, otp_token.otp)
+            messages.success(request, 'OTP sent to your phone number')
+            request.session['otp_user_id'] = user.id
+            return redirect('verify_reset_otp')
+        except Exception as e:
+            messages.error(request, f'Failed to send OTP: {str(e)}')
+            return redirect('send_reset_otp')
+        
+    return render(request, 'users/send_reset_otp.html')
+
+
+def verify_reset_otp(request):
+    if 'otp_user_id' not in request.session:
+        return redirect('send_reset_otp')
+    
+    if request.method == 'POST':
+        otp = request.POST.get('otp')
+        user_id = request.session['otp_user_id']
+    
+        try:
+            otp_token = OTPToken.objects.get(
+                user_id=user_id,
+                otp=otp,
+                is_verified=False,
+                expires_at__gt=timezone.now()
+            )
+            otp_token.is_verified = True
+            otp_token.save()
+            request.session['otp_verified'] = True
+            messages.success(request, 'OTP verified successfully')
+            return redirect('change_password')
+        except OTPToken.DoesNotExist:
+            messages.error(request, 'Invalid or expired OTP')
+    
+    return render(request, 'users/verified_reset_otp.html')
+
+
+def change_password(request):
+    if 'otp_verified' not in request.session or not request.session['otp_verified']:
+        return redirect('send_reset_otp')
+    
+    if request.method == 'POST':
+        user_id = request.session['otp_user_id']
+        user = User.objects.get(id=user_id)
+        form = CustomPasswordChangeForm(user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            del request.session['otp_verified']
+            del request.session['otp_user_id']
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('login')
+    else:
+        user_id = request.session['otp_user_id']
+        user = User.objects.get(id=user_id)
+        form = CustomPasswordChangeForm(user)
+        
+    context = {
+        'form': form
+    }
+        
+    return render(request, 'users/change_password.html', context)
+            
 
 
 def logout(request):

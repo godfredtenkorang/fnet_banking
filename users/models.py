@@ -2,6 +2,8 @@ from datetime import timedelta
 from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager, AbstractBaseUser, PermissionsMixin
+import random
+
 
 BRANCHES = (
     ("DVLA", "DVLA"),
@@ -176,3 +178,19 @@ class OTP(models.Model):
     def is_valid(self):
         return (timezone.now() - self.created_at).seconds < 300 # Valid for 5 minutes
     
+class OTPToken(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    phone_number = models.CharField(max_length=15)
+    otp = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    is_verified = models.BooleanField(default=False)
+    
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.otp = str(random.randint(100000, 999999))
+            self.expires_at = timezone.now() + timedelta(minutes=5)
+        super().save(*args, **kwargs)
+        
+    def is_valid(self):
+        return not self.is_verified and timezone.now() < self.expires_at

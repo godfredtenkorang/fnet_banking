@@ -7,6 +7,11 @@ urlpatterns = [
     path('logout/', views.logout, name='logout'),
     path('verify_otp/', views.verify_otp, name='verify_otp'),
     path('resend-otp/', views.resend_otp, name='resend_otp'),
+    
+    path('send-otp/', views.send_reset_otp, name='send_reset_otp'),
+    path('verify-otp/', views.verify_reset_otp, name='verify_reset_otp'),
+    path('change-password/', views.change_password, name='change_password'),
+    
     path('register/', views.register, name='register'),
     path('verify_registration_otp/', views.verify_registration_otp, name='verify_registration_otp'),
     path('approve_user/<int:user_id>/', views.approve_user, name='approve_user'),
@@ -30,4 +35,6 @@ urlpatterns = [
     
     # API
      path('login/', LoginView.as_view(), name='user_login'),
+     
+    
 ]
