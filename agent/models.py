@@ -129,7 +129,7 @@ class ArchivedCustomerCashIn(models.Model):
     
 
     def __str__(self):
-        return f"CashIn of ${self.amount} on {self.network} by {self.agent}"
+        return f"CashIn of ${self.amount} on {self.network}"
     
 
 class ArchivedCashInCommission(models.Model):
@@ -138,7 +138,7 @@ class ArchivedCashInCommission(models.Model):
     date = models.DateField(auto_now_add=True)  # Date of the commission
     
     def __str__(self):
-        return f"Commission: {self.amount} for {self.customer_cash_in.agent}"
+        return f"Commission: {self.amount}"
     
 
 
@@ -273,12 +273,12 @@ class CashAndECashRequest(models.Model):
     updated_at = models.DateField(auto_now=True)
     
     @classmethod
-    def total_ecash_for_customer(cls, agent, created_at):
-        total = cls.objects.filter(agent=agent, created_at=created_at).aggregate(Sum('amount'))
+    def total_ecash_for_customer(cls, agent, created_at, status):
+        total = cls.objects.filter(agent=agent, created_at=created_at, status=status).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
 
     def __str__(self):
-        return f"{self.float_type} Request of GH¢{self.amount} by {self.agent.user}"
+        return f"{self.float_type} Request of GH¢{self.amount} by {self.agent.phone_number}"
     
 
 class PaymentRequest(models.Model):
@@ -371,12 +371,12 @@ class PaymentRequest(models.Model):
     updated_at = models.DateField(auto_now=True)
     
     @classmethod
-    def total_payment_for_customer(cls, agent, created_at):
-        total = cls.objects.filter(agent=agent, created_at=created_at).aggregate(Sum('amount'))
+    def total_payment_for_customer(cls, agent, created_at, status):
+        total = cls.objects.filter(agent=agent, created_at=created_at, status=status).aggregate(Sum('amount'))
         return total['amount__sum'] or 0
     
     def __str__(self):
-        return f"Payment of ${self.amount} via {self.mode_of_payment} by {self.agent.user} ({self.status})"
+        return f"Payment of ${self.amount} via {self.mode_of_payment} by {self.agent.phone_number} ({self.status})"
     
     
 class CustomerComplain(models.Model):
@@ -386,7 +386,7 @@ class CustomerComplain(models.Model):
     date = models.DateField(auto_now_add=True)
     
     def __str__(self):
-        return f"Complain from {self.agent.user} - {self.title}"
+        return f"Complain from {self.agent.phone_number} - {self.title}"
     
 
 class HoldCustomerAccount(models.Model):

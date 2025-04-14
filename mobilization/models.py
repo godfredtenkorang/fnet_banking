@@ -63,7 +63,7 @@ class MobilizationPayTo(models.Model):
     #     )
 
     def __str__(self):
-        return f"Pay To of GH¢{self.amount} on {self.network} by {self.mobilization}"
+        return f"Pay To of GH¢{self.amount} on {self.network} by {self.mobilization.phone_number}"
     
     
 class BankDeposit(models.Model):

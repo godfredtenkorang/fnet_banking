@@ -77,7 +77,7 @@ class Drawer(models.Model):
     
     
     def __str__(self):
-        return f"Drawer from {self.agent.user} on {self.date}"
+        return f"Drawer from {self.agent.phone_number} on {self.date}"
     
     
 class EFloatAccount(models.Model):
@@ -320,7 +320,7 @@ class EFloatAccount(models.Model):
             self.save()
         
     def __str__(self):
-        return f"E-Float Account for {self.agent.agent} on {self.date}"
+        return f"E-Float Account for {self.agent.phone_number} on {self.date}"
     
     
 class CustomerPaymentAtBank(models.Model):
@@ -355,7 +355,7 @@ class MobilizationAccount(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return f"{self.mobilization} ({self.balance_left})"
+        return f"{self.mobilization.phone_number} ({self.balance_left})"
     
     @property
     def total_deposits(self):

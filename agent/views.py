@@ -177,8 +177,8 @@ def agent_dashboard(request):
     total_cashouts = CustomerCashOut.total_cashout_for_customer(agent=agent_id, date_withdrawn=today)
     total_deposits = BankDeposit.total_bank_deposit_for_customer(agent=agent, date_deposited=today)
     total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(agent=agent, date_withdrawn=today)
-    total_ecash = CashAndECashRequest.total_ecash_for_customer(agent=agent, created_at=today)
-    total_payments = PaymentRequest.total_payment_for_customer(agent=agent, created_at=today)
+    total_ecash = CashAndECashRequest.total_ecash_for_customer(agent=agent, status='Approved', created_at=today)
+    total_payments = PaymentRequest.total_payment_for_customer(agent=agent, status='Approved', created_at=today)
     customers = Customer.objects.filter(agent=agent)
     context = {
         'total_cashins': total_cashins,
@@ -518,8 +518,8 @@ def TotalTransactionSum(request):
     total_cashouts = CustomerCashOut.total_cashout_for_customer(agent=agent_id, date_withdrawn=today)
     total_deposits = BankDeposit.total_bank_deposit_for_customer(agent=agent, date_deposited=today)
     total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(agent=agent, date_withdrawn=today)
-    total_ecash = CashAndECashRequest.total_ecash_for_customer(agent=agent, created_at=today)
-    total_payments = PaymentRequest.total_payment_for_customer(agent=agent, created_at=today)
+    total_ecash = CashAndECashRequest.total_ecash_for_customer(agent=agent, status='Approved', created_at=today)
+    total_payments = PaymentRequest.total_payment_for_customer(agent=agent, status='Approved', created_at=today)
     
     context = {
         'total_cashins': total_cashins,

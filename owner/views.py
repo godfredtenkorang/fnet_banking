@@ -21,6 +21,53 @@ from mobilization.models import PaymentRequest as payment_requests
 from mobilization.models import Report as mobilization_reports
 from .forms import BankDepositForm, PaymentForm
 
+
+def owner_account(request):
+    today = timezone.now().date()
+    ecash_mtn_total = CashAndECashRequest.objects.filter(network='Mtn', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    ecash_telecel_total = CashAndECashRequest.objects.filter(network='Telecel', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    ecash_airteltigo_total = CashAndECashRequest.objects.filter(network='Airtel Tigo', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    ecash_ecobank_total = CashAndECashRequest.objects.filter(bank='Ecobank', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    ecash_fidelity_total = CashAndECashRequest.objects.filter(bank='Fidelity', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    ecash_calbank_total = CashAndECashRequest.objects.filter(bank='Calbank', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    ecash_gtbank_total = CashAndECashRequest.objects.filter(bank='GTbank', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    ecash_accessbank_total = CashAndECashRequest.objects.filter(bank='Access bank', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    cash_total = CashAndECashRequest.objects.filter(cash='Cash', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    
+    payment_mtn_total = PaymentRequest.objects.filter(network='Mtn', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    payment_telecel_total = PaymentRequest.objects.filter(network='Telecel', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    payment_airteltigo_total = PaymentRequest.objects.filter(network='Airtel Tigo', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    payment_ecobank_total = PaymentRequest.objects.filter(bank='Ecobank', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    payment_accessbank_total = PaymentRequest.objects.filter(bank='Access_Bank', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    payment_fidelity_total = PaymentRequest.objects.filter(bank='Fidelity', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    payment_calbank_total = PaymentRequest.objects.filter(bank='Calbank', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    payment_gtbank_total = PaymentRequest.objects.filter(bank='GTbank', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    
+    mtn_total = ecash_mtn_total + payment_mtn_total
+    telecel_total = ecash_telecel_total + payment_telecel_total
+    airteltigo_total = ecash_airteltigo_total + payment_airteltigo_total
+    ecobank_total = ecash_ecobank_total + payment_ecobank_total
+    accessbank_total = ecash_accessbank_total + payment_accessbank_total
+    fidelity_total = ecash_fidelity_total + payment_fidelity_total
+    calbank_total = ecash_calbank_total + payment_calbank_total
+    gtbank_total = ecash_gtbank_total + payment_gtbank_total
+    
+    grand_total = mtn_total + telecel_total + airteltigo_total + ecobank_total + accessbank_total + fidelity_total + calbank_total + gtbank_total
+    
+    context = {
+        'mtn_total': mtn_total,
+        'telecel_total': telecel_total,
+        'airteltigo_total': airteltigo_total,
+        'ecobank_total': ecobank_total,
+        'fidelity_total': fidelity_total,
+        'calbank_total': calbank_total,
+        'gtbank_total': gtbank_total,
+        'accessbank_total': accessbank_total,
+        'cash_total': cash_total,
+        'grand_total': grand_total
+    }
+    return render(request, 'owner/account/owner_account.html', context)
+
 def unapproved_users_count(request):
     unapproved_cash_count = CashAndECashRequest.objects.filter(status='Pending').count()
     unapproved_payment_count = PaymentRequest.objects.filter(status='Pending').count()
@@ -178,40 +225,12 @@ def approve_cash_and_ecash_request(request, request_id):
         messages.error(request, 'No e-float account found for this date')
         return redirect('view_payment_requests')
     
-    if request.method == 'POST':
-        approved_amount = request.POST.get('approved_amount')
-        try:
-            approved_amount = Decimal(approved_amount)
-            if approved_amount < 0 or approved_amount > request_obj.amount:
-                messages.error(request, 'Invalid approved amount')
-                return redirect('approve_cash_and_ecash_request', request_id=request_obj.id)
-            
-            # Calculate the remaining amount (arrears)
-            remaining_amount = request_obj.amount - approved_amount
-            request_obj.arrears = remaining_amount
-            
-            # If there are arrears, keep the status as Pending
-            
-            if remaining_amount > 0:
-                request_obj.status = 'Pending'
-                messages.success(request, f'Partial approval successful. Approved Amount: GH¢{approved_amount}, Remaining Amount: GH¢{remaining_amount}')
-            
-            else:
-                # If no arrears, mark the request as Approved
-                request_obj.status = 'Approved'
-                messages.success(request, 'Request fully approved.')
-            # Save the request status and arrears
-            account.update_balance_for_cash_and_ecash(request_obj.bank, request_obj.network, request_obj.cash, request_obj.amount, request_obj.status)
-            request_obj.save()
-            return redirect('cash_requests')
-        except ValueError:
-            messages.success(request, 'Invalid input for approved amount.')
-            return redirect('cash_requests')
-    context = {
-        'request_obj': request_obj,
-        'title': 'Approve Request'
-    }
-    return render(request, 'owner/pay_to/approve_cash_and_ecash_request.html', context)
+    
+    request_obj.status = 'Approved'
+    request_obj.save()
+    account.update_balance_for_cash_and_ecash(request_obj.bank, request_obj.network, request_obj.cash, request_obj.amount, request_obj.status)
+    return redirect('cash_requests')
+        
 
 @login_required
 @user_passes_test(is_owner)
