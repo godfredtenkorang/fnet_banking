@@ -108,6 +108,7 @@
         <thead>
             <tr>
                 <th>Agent</th>
+                <th>Name</th>
                 <th>Float Type</th>
                 <th>Bank/Network</th>
                 <th>Requested Amount</th>
@@ -122,6 +123,7 @@
             {% for cash in pending_requests %}
             <tr>
                 <td data-label="Agent">{{cash.agent.phone_number}}</td>
+                <td data-label="Agent">{{cash.agent.full_name}}</td>
                 <td data-label="Amount">{{cash.float_type}}</td>
                 <td data-label="Bank/Network">
                     {% if cash.float_type == 'Bank' %}

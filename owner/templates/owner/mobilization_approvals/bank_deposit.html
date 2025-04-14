@@ -111,6 +111,7 @@
             <thead>
                 <tr>
                     <th>Mobilization</th>
+                    <th>Name</th>
                     <th>Customer Phone</th>
                     <th>Bank</th>
                     <th>Account Number</th>
@@ -128,6 +129,7 @@
                 {% for pending_deposit in pending_deposits %}
                 <tr>
                     <td data-label="Agent">{{pending_deposit.mobilization}}</td>
+                    <td data-label="Full Name">{{pending_deposit.mobilization.full_name}}</td>
                     <td data-label="Customer Number">{{pending_deposit.phone_number}}</td>
                     <td data-label="Bank">{{pending_deposit.bank}}</td>
                     <td data-label="Account Number">{{pending_deposit.account_number}}</td>

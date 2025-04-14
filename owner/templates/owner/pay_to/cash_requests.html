@@ -109,6 +109,7 @@
         <thead>
             <tr>
                 <th>Agent</th>
+                <th>Name</th>
                 <th>Float Type</th>
                 <th>Requested Amount</th>
                 <th>Approved Amount</th>
@@ -122,6 +123,7 @@
             {% for cash in pending_requests %}
             <tr>
                 <td data-label="Agent">{{cash.agent.phone_number}}</td>
+                <td data-label="Agent">{{cash.agent.full_name}}</td>
                 <td data-label="Amount">{{cash.float_type}}</td>
                 <td data-label="Amount">{{cash.amount}}</td>
                 <td data-label="Remaining">{{cash.amount|subtract:cash.arrears}}</td>
