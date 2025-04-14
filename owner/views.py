@@ -935,7 +935,7 @@ def mobilization_bank_deposit_transactions_date(request, mobilization_id):
 @login_required
 def mobilization_bank_deposit_transactions(request, mobilization_id, date):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)
-    bank_deposit_transactions = bank_deposits.objects.filter(mobilization=mobilization, date_deposited=date).order_by('-date_deposited', '-time_deposited')
+    bank_deposit_transactions = bank_deposits.objects.filter(mobilization=mobilization, status='Approved', date_deposited=date).order_by('-date_deposited', '-time_deposited')
     context = {
         'date': date,
         'mobilization': mobilization,
@@ -965,7 +965,7 @@ def mobilization_bank_withdrawal_transactions_date(request, mobilization_id):
 
 def mobilization_bank_withdrawal_transactions(request, mobilization_id, date):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)
-    bank_withdrawal_transactions = bank_withdrawals.objects.filter(mobilization=mobilization, date_withdrawn=date).order_by('-date_withdrawn', '-time_withdrawn')
+    bank_withdrawal_transactions = bank_withdrawals.objects.filter(mobilization=mobilization, status='Approved', date_withdrawn=date).order_by('-date_withdrawn', '-time_withdrawn')
     context = {
         'date': date,
         'mobilization': mobilization,
@@ -990,7 +990,7 @@ def mobilization_payment_transactions_date(request, mobilization_id):
 
 def mobilization_payment_transactions(request, mobilization_id, date):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)
-    payment_transactions = payment_requests.objects.filter(mobilization=mobilization, created_at=date).order_by('-created_at')
+    payment_transactions = payment_requests.objects.filter(mobilization=mobilization, status='Approved', created_at=date).order_by('-created_at')
     context = {
         'date': date,
         'mobilization': mobilization,
