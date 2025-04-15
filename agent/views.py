@@ -683,7 +683,7 @@ def bank_deposit_summary_date(request):
 @user_passes_test(is_agent)
 def bank_deposit_summary(request, date):
     agent = request.user.agent
-    bank_deposits = BankDeposit.objects.filter(agent=agent, date_deposited=date).order_by('-date_deposited', '-time_deposited')
+    bank_deposits = BankDeposit.objects.filter(agent=agent, date_deposited=date, status='Approved').order_by('-date_deposited', '-time_deposited')
     context = {
         'date': date,
         'bank_deposits': bank_deposits,
@@ -823,7 +823,7 @@ def payment_summary_date(request):
 @user_passes_test(is_agent)
 def payment_summary(request, date):
     agent = request.user.agent
-    payments = PaymentRequest.objects.filter(agent=agent, created_at=date).order_by('-created_at')
+    payments = PaymentRequest.objects.filter(agent=agent, status='Approved', created_at=date).order_by('-created_at')
     context = {
         'date': date,
         'payments': payments,
