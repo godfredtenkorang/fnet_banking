@@ -191,7 +191,7 @@ def bank_deposit(request):
 
 def get_bank_deposit(request):
     mobilization = request.user.mobilization
-    bank_deposits = BankDeposit.objects.filter(mobilization=mobilization)
+    bank_deposits = BankDeposit.objects.filter(mobilization=mobilization, status='Approved')
     context = {
         'bank_deposits': bank_deposits,
         'title': 'Bank Deposit Transactions'
@@ -210,7 +210,7 @@ def get_bank_withdrawal(request):
 
 def get_payments(request):
     mobilization = request.user.mobilization
-    payments = PaymentRequest.objects.filter(mobilization=mobilization)
+    payments = PaymentRequest.objects.filter(mobilization=mobilization, status='Approved')
     context = {
         'payments': payments,
         'title': 'Payment Transactions'

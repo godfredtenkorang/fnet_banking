@@ -185,7 +185,7 @@ def agent_dashboard(request):
     cashincommissions = CashInCommission.objects.filter(customer_cash_in__agent=request.user, date=today)
     cashoutcommissions = CashOutCommission.objects.filter(customer_cash_out__agent=request.user, date=today)
     
-    balance_total = total_deposits - total_payments
+    balance_total = total_ecash - total_payments
 
         
     
