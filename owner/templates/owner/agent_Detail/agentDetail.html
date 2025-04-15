@@ -41,7 +41,11 @@
                 <i class="fas fa-coins"></i> Commission
             </a>
             <a href="{% url 'get_all_agents' %}" class="grid-row">
-                <i class="fas fa-coins"></i> Accounts
+                <i class="fas fa-user-plus"></i> Accounts
+                
+            </a>
+            <a href="{% url 'branch_balance' agent.id %}" class="grid-row">
+                <i class="fas fa-balance-scale"></i> Balance
             </a>
             <a href="{% url 'branch_report_view' agent.id %}" class="grid-row">
                 <i class="fas fa-coins"></i> Report

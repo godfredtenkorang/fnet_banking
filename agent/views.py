@@ -180,6 +180,20 @@ def agent_dashboard(request):
     total_ecash = CashAndECashRequest.total_ecash_for_customer(agent=agent, status='Approved', created_at=today)
     total_payments = PaymentRequest.total_payment_for_customer(agent=agent, status='Approved', created_at=today)
     customers = Customer.objects.filter(agent=agent)
+    
+    
+    cashincommissions = CashInCommission.objects.filter(customer_cash_in__agent=request.user, date=today)
+    cashoutcommissions = CashOutCommission.objects.filter(customer_cash_out__agent=request.user, date=today)
+    
+    balance_total = total_deposits - total_payments
+
+        
+    
+    cash_in_total_commission = cashincommissions.aggregate(Sum('amount'))['amount__sum'] or 0
+    cash_out_total_commission = cashoutcommissions.aggregate(Sum('amount'))['amount__sum'] or 0
+    
+    all_total_commission = cash_in_total_commission + cash_out_total_commission
+    
     context = {
         'total_cashins': total_cashins,
         'total_cashouts': total_cashouts,
@@ -188,6 +202,8 @@ def agent_dashboard(request):
         'total_ecash': total_ecash,
         'total_payments': total_payments,
         'customers': customers,
+        'all_total_commission': all_total_commission,
+        'balance_total': balance_total,
         'title': 'Dashboard'
     }
     return render(request, 'agent/dashboard.html', context)
@@ -314,7 +330,7 @@ def cashOut(request):
         
         cash_out = CustomerCashOut(network=network, customer_phone=customer_phone, amount=amount, cash_paid=cash_paid)
         
-        cash_out.agent = agent.user
+        cash_out.agent = agent.agent
         
 
         
@@ -988,9 +1004,10 @@ def payment(request):
         network = request.POST.get('network')
         branch = request.POST.get('branch')
         name = request.POST.get('name')
+        transaction_id = request.POST.get('branch_transaction_id')
         amount = request.POST.get('amount')
         
-        payments = PaymentRequest(mode_of_payment=mode_of_payment, bank=bank, network=network, branch=branch, name=name, amount=amount)
+        payments = PaymentRequest(mode_of_payment=mode_of_payment, bank=bank, network=network, branch=branch, name=name, branch_transaction_id=transaction_id, amount=amount)
         payments.agent = agent
         
         

@@ -130,7 +130,7 @@
         <table>
             <thead>
                 <tr>
-                    <th>Username</th>
+                    <th>Full Name</th>
                     <th>Branch</th>
                     <th>Phone</th>
                     <th>Full Name</th>
@@ -149,7 +149,7 @@
                 {% for customer in customers %}
                 <tr>
 
-                    <td>{{ customer.customer.phone_number }}</td>
+                    <td>{{ customer.full_name }}</td>
                     <td>{{ customer.branch }}</td>
                     <td>{{ customer.phone_number }}</td>
                     <td>{{ customer.full_name }}</td>

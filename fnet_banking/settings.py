@@ -170,7 +170,7 @@ AUTHENTICATION_BACKENDS = [
     'users.backends.ApprovedUserBackend',     # Custom backend
     'users.backends.PhoneNumberBackend',
     'users.backend.email_backend.EmailBackend',
-    'users.backends.EmailBackend',
+
 ]
 
 

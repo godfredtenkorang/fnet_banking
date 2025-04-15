@@ -108,6 +108,7 @@
                     <th>Name</th>
                     <th>Mode of Payment</th>
                     <th>Bank/Network/Branch</th>
+                    <th>Transaction ID</th>
                     <th>Amount</th>
                     <th>Date/Time</th>
                     <th>Status</th>
@@ -118,7 +119,7 @@
                 {% for payment in payments %}
                 <tr>
                     <td data-label="Agent">{{payment.agent.phone_number}}</td>
-                    <td data-label="Agent">{{payment.agent.full_name}}</td>
+                    <td data-label="Name">{{payment.agent.full_name}}</td>
                     <td data-label="Mode of Payment">{{payment.mode_of_payment}}</td>
                     <td data-label="Bank/Network/Branch">
                         {% if payment.mode_of_payment == 'Bank' %}
@@ -129,6 +130,7 @@
                             {{payment.branch}}
                         {% endif %}
                     </td>
+                    <td data-label="Transaction ID">{{payment.branch_transaction_id}}</td>
                     <td data-label="Amount">{{payment.amount}}</td>
                     <td data-label="Date/Time">{{payment.created_at}}</td>
                     <td data-label="Status">{{payment.status}}</td>

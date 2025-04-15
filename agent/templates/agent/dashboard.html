@@ -156,28 +156,36 @@
 
     <div class="stat-chat-container">
         <a href="{% url 'cashin_summary_date' %}" class="stat">
-            <h2>Total Cash In(¢)</h2>
+            <h2 style="font-size: 20px;">Total Cash In(¢)</h2>
             <h3 class="valuesP">{{total_cashins}}</h3>
         </a>
         <a href="{% url 'cashout_summary_date' %}" class="stat">
-            <h2>Total Cash Out(¢)</h2>
+            <h2 style="font-size: 20px;">Total Cash Out(¢)</h2>
             <h3 class="valuesP">{{total_cashouts}}</h3>
         </a>
         <a href="{% url 'bank_deposit_summary_date' %}" class="stat">
-            <h2>Total Bank Deposit(¢)</h2>
+            <h2 style="font-size: 20px;">Total Bank Deposit(¢)</h2>
             <h3 class="valuesP">{{total_deposits}}</h3>
         </a>
         <a href="{% url 'bank_withdrawal_summary_date' %}" class="stat">
-            <h2>Total Bank Withdrawal(¢)</h2>
+            <h2 style="font-size: 20px;">Total Bank Withdrawal(¢)</h2>
             <h3 class="valuesP">{{total_withdrawals}}</h3>
         </a>
         <a href="{% url 'cash_summary_date' %}" class="stat">
-            <h2>Total Cash / E-Cash(¢)</h2>
+            <h2 style="font-size: 20px;">Total Cash / E-Cash(¢)</h2>
             <h3 class="valuesP">{{total_ecash}}</h3>
         </a>
         <a href="{% url 'payment_summary_date' %}" class="stat">
-            <h2>Total Payments(¢)</h2>
+            <h2 style="font-size: 20px;">Total Payments(¢)</h2>
             <h3 class="valuesP">{{total_payments}}</h3>
+        </a>
+        <a href="{% url 'agent-commission' %}" class="stat">
+            <h2 style="font-size: 20px;">Commission(¢)</h2>
+            <h3 class="valuesP">{{all_total_commission}}</h3>
+        </a>
+        <a class="stat">
+            <h2 style="font-size: 20px;">Balance(¢)</h2>
+            <h3 class="valuesP">{{balance_total}}</h3>
         </a>
     </div>
 
@@ -194,7 +202,7 @@
         <table>
             <thead>
                 <tr>
-                    <th>Username</th>
+                    <th>Full Name</th>
                     <th>Branch</th>
                     <th>Phone</th>
                     <th>Full Name</th>
@@ -210,7 +218,7 @@
                 {% for customer in customers %}
                 <tr>
 
-                    <td>{{ customer.customer.phone_number }}</td>
+                    <td>{{ customer.full_name }}</td>
                     <td>{{ customer.branch }}</td>
                     <td>{{ customer.phone_number }}</td>
                     <td>{{ customer.full_name }}</td>

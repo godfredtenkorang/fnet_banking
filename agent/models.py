@@ -365,6 +365,7 @@ class PaymentRequest(models.Model):
     network = models.CharField(max_length=30, choices=NETWORK_CHOICES, null= True, blank=True)
     branch = models.CharField(max_length=30, choices=BRANCHES, null= True, blank=True)
     name = models.CharField(max_length=100, null=True, blank=True)
+    branch_transaction_id = models.CharField(max_length=100, null=True, blank=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     created_at = models.DateField(auto_now_add=True)

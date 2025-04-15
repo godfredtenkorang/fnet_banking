@@ -333,6 +333,17 @@ def approve_payment(request, payment_id):
         messages.error(request, 'No e-float account found for this date')
         return redirect('view_payment_requests')
     
+    if request.method == 'POST':
+        owner_transaction_id = request.POST.get('owner_transaction_id')
+        if not owner_transaction_id:
+            messages.error(request, 'Transaction ID is required.')
+            return redirect('approve_payment', payment_id=payment.id)
+        if payment.branch_transaction_id != owner_transaction_id:
+            messages.error(request, 'Transaction ID does not match the Branch\'s input.')
+            return redirect('approve_payment', payment_id=payment.id)
+        payment.branch_transaction_id = owner_transaction_id
+        
+    
     # Check if the bank has sufficient balance
     # bank_balance = getattr(account, f"{payment.bank.lower()}_balance")
     # network_balance = getattr(account, f"{payment.network.lower()}_balance")
@@ -345,11 +356,18 @@ def approve_payment(request, payment_id):
     #     messages.error(request, f'Insufficient balance is {payment.network}')
     #     return redirect('view_payment_requests')
     
-    payment.status = 'Approved'
-    payment.save()
-    account.update_balance_for_payments(payment.bank, payment.network, payment.branch, payment.amount, payment.status)
-    messages.success(request, 'Payment request approved successfully.')
-    return redirect('view_payment_requests')
+        payment.status = 'Approved'
+        payment.save()
+        account.update_balance_for_payments(payment.bank, payment.network, payment.branch, payment.amount, payment.status)
+        messages.success(request, 'Payment request approved successfully.')
+        return redirect('view_payment_requests')
+    
+    context = {
+        'payment': payment, 
+        'title': 'Approve Payment'
+    }
+    
+    return render(request, 'owner/payments/approve_branch_payment.html', context)
 
 @login_required
 @user_passes_test(is_owner)
@@ -595,6 +613,27 @@ def commission(request):
         'title': 'Commission'
     }
     return render(request, 'owner/agent_Detail/commission.html', context)
+
+def branch_balance(request, branch_id):
+    branch = get_object_or_404(Agent, id=branch_id)
+    today = timezone.now().date()
+    
+    # account = get_object_or_404(MobilizationAccount, mobilization=mobilization)
+    
+    total_deposits = BankDeposit.total_bank_deposit_for_customer(agent=branch, date_deposited=today)
+    total_payments = PaymentRequest.total_payment_for_customer(agent=branch, created_at=today, status='Approved')
+    
+    balance_left = total_payments - total_deposits
+    
+    context = {
+        # 'account': account,
+        'branch': branch,
+        'total_deposits': total_deposits,
+        'total_payments': total_payments,
+        'balance_left': balance_left,
+        'title': 'Account'
+    }
+    return render(request, 'owner/agent_Detail/branch_balance.html', context)
 
 @login_required
 @user_passes_test(is_owner)

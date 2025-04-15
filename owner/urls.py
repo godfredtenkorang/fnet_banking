@@ -22,8 +22,8 @@ urlpatterns = [
     path('owner/<int:request_id>/reject_request/', views.reject_cash_and_ecash_request, name='reject_cash_and_ecash_request'),
     
     path('view_pending_payment_requests/', views.view_payment_requests, name='view_payment_requests'),
-    path('owner/approve_payment/<int:payment_id>/', views.approve_payment, name='approve_payment'),
-    path('owner/reject_payment/<int:payment_id>/', views.reject_payment, name='reject_payment'),
+    path('approve_branch_payment/<int:payment_id>/', views.approve_payment, name='approve_payment'),
+    path('reject_branch_payment/<int:payment_id>/', views.reject_payment, name='reject_payment'),
     
     path('pay_to_agent_detail/', views.pay_to_agent_detail, name='pay_to_agent_detail'),
     path('pay_to_mechant_detail/', views.pay_to_mechant_detail, name='pay_to_mechant_detail'),
@@ -58,6 +58,7 @@ urlpatterns = [
     path('pay_to/', views.pay_to, name='pay_to'),
     path('all_transaction/', views.all_transaction, name='all_transaction'),
     path('commission/', views.commission, name='commission'),
+    path('branch_balance/<int:branch_id>/', views.branch_balance, name='branch_balance'),
     path('branch_reports/<int:branch_id>/', views.branch_report_view, name='branch_report_view'),
     
     path('customer_care_view/', views.customer_care, name='my_customer_care'),

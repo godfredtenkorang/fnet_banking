@@ -80,7 +80,14 @@ def login_user(request):
     if request.method == 'POST':
         phone_number = request.POST.get('phone_number')
         password = request.POST.get('password')
-        user = authenticate(request, username=phone_number, password=password)
+        
+        try:
+            user = User.objects.get(phone_number=phone_number)
+        except User.DoesNotExist:
+            messages.error(request, 'Phone number is not registered')
+            return redirect('login')
+        
+        user = authenticate(request, phone_number=phone_number, password=password)
         
         
         if user is not None:
@@ -107,6 +114,7 @@ def login_user(request):
                 return redirect('verify_otp')
         else:
             messages.error(request, 'Invalid phone number or password.')
+            return redirect('login')
 
         
     context = {

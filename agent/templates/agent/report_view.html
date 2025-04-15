@@ -74,7 +74,7 @@
         .table-container {
             overflow-x: auto;
             /* Enables horizontal scrolling */
-            white-space: nowrap;
+            white-space: wrap;
         }
 
         table {
@@ -98,7 +98,7 @@
 
 
     <div class="table-container">
-        <table>
+        <table style="table-layout: fixed; width: 100%">
             <thead>
                 <tr>
                     <th>Report</th>

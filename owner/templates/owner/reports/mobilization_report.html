@@ -71,7 +71,7 @@
         .table-container {
             overflow-x: auto;
             /* Enables horizontal scrolling */
-            white-space: nowrap;
+            white-space: wrap;
         }
 
         table {
@@ -106,7 +106,7 @@
             <tbody>
                 {% for report in reports %}
                 <tr>
-                    <td data-label="Mobilization">{{report.mobilization}}</td>
+                    <td data-label="Mobilization">{{report.mobilization.full_name}}</td>
                     <td data-label="Report">{{report.report}}</td>
                     <td data-label="Date/Time">{{report.date_added}}</td>
 
