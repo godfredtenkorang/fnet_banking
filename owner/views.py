@@ -620,7 +620,7 @@ def branch_balance(request, branch_id):
     
     # account = get_object_or_404(MobilizationAccount, mobilization=mobilization)
     
-    total_requests = CashAndECashRequest.total_ecash_for_customer(agent=branch, date_deposited=today, status='Approved')
+    total_requests = CashAndECashRequest.total_ecash_for_customer(agent=branch, created_at=today, status='Approved')
     total_payments = PaymentRequest.total_payment_for_customer(agent=branch, created_at=today, status='Approved')
     
     balance_left = total_payments - total_requests
