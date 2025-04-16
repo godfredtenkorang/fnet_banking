@@ -104,7 +104,7 @@
         <table>
             <thead>
                 <tr>
-                    <th>Agent</th>
+                    <th>Branch No.</th>
                     <th>Name</th>
                     <th>Mode of Payment</th>
                     <th>Bank/Network/Branch</th>
@@ -118,7 +118,7 @@
             <tbody>
                 {% for payment in payments %}
                 <tr>
-                    <td data-label="Agent">{{payment.agent.phone_number}}</td>
+                    <td data-label="Branch">{{payment.agent.phone_number}}</td>
                     <td data-label="Name">{{payment.agent.full_name}}</td>
                     <td data-label="Mode of Payment">{{payment.mode_of_payment}}</td>
                     <td data-label="Bank/Network/Branch">
