@@ -28,11 +28,11 @@
      background: #007bff;
      color: white;
      font-weight: bold;
-     font-size: 13px;
+     font-size: 16px;
  }
  
  td {
-     font-size: 12px;
+     font-size: 15px;
  }
  
  /* Button Styling */
@@ -146,13 +146,13 @@
                 {% endif %}
             {% elif cash.float_type == 'Telco' %}
                 {% if 'Mtn' in cash.network|lower %}mtn-row
-                {% elif 'Airtel_Tigo' in cash.network|lower or 'tigo' in payment.network|lower %}airteltigo-row
+                {% elif 'Airtel Tigo' in cash.network|lower or 'tigo' in cash.network|lower %}airteltigo-row
                 {% elif 'Telecel' in cash.network|lower %}telecel-row
                 {% endif %}
             {% endif %}
         ">
                 <td data-label="Agent">{{cash.agent.phone_number}}</td>
-                <td data-label="Agent">{{cash.agent.full_name}}</td>
+                <td style="font-weight: 900;" data-label="Agent">{{cash.agent.full_name}}</td>
                 <td data-label="Amount">{{cash.float_type}}</td>
                 <td data-label="Bank/Network">
                     {% if cash.float_type == 'Bank' %}
@@ -200,7 +200,7 @@
         const rows = document.querySelectorAll('tbody tr');
 
         rows.forEach(row => {
-            const bankCell = row.querySelector('td[data-label="Bank/Network/Branch"]');
+            const bankCell = row.querySelector('td[data-label="Bank/Network"]');
             if (bankCell) {
                 const content = bankCell.textContent.toLowerCase();
 

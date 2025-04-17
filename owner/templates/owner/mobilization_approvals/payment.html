@@ -117,6 +117,20 @@
     <div class="table-container">
         <table>
             <thead>
+                <tr>
+                    <th>Mobilization</th>
+                    <th>Name</th>
+                    <th>Mode of Payment</th>
+                    <th>Bank/Network/Branch</th>
+                    <th>Amount</th>
+                    <th>Date/Time</th>
+                    <th>Transaction ID</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in payments %}
                 <tr class="
             {% if payment.mode_of_payment == 'Bank' %}
                 {% if 'Ecobank' in payment.bank|lower %}ecobank-row
@@ -133,20 +147,6 @@
                 {% endif %}
             {% endif %}
         ">
-                    <th>Mobilization</th>
-                    <th>Name</th>
-                    <th>Mode of Payment</th>
-                    <th>Bank/Network/Branch</th>
-                    <th>Amount</th>
-                    <th>Date/Time</th>
-                    <th>Transaction ID</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for payment in payments %}
-                <tr>
                     <td data-label="Agent">{{payment.mobilization.phone_number}}</td>
                     <td style="font-weight: 900;" data-label="Agent">{{payment.mobilization.full_name}}</td>
                     <td data-label="Mode of Payment">{{payment.mode_of_payment}}</td>

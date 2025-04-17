@@ -29,11 +29,11 @@
      background: #007bff;
      color: white;
      font-weight: bold;
-     font-size: 13px;
+     font-size: 16px;
  }
  
  td {
-     font-size: 12px;
+     font-size: 15px;
  }
  
  /* Button Styling */
@@ -142,7 +142,7 @@
             {% endif %}
         ">
                 <td data-label="Agent">{{cash.agent.phone_number}}</td>
-                <td data-label="Agent">{{cash.agent.full_name}}</td>
+                <td style="font-weight: 900;" data-label="Agent">{{cash.agent.full_name}}</td>
                 <td data-label="Amount">{{cash.float_type}}</td>
                 <td data-label="Amount">{{cash.amount}}</td>
                 <td data-label="Remaining">{{cash.amount|subtract:cash.arrears}}</td>

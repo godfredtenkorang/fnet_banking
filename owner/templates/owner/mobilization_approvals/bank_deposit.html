@@ -26,11 +26,11 @@
      background: #007bff;
      color: white;
      font-weight: bold;
-     font-size: 13px;
+     font-size: 16px;
  }
  
  td {
-     font-size: 12px;
+     font-size: 15px;
  }
  
  /* Button Styling */
@@ -130,7 +130,7 @@
             <tbody>
                 {% for pending_deposit in pending_deposits %}
                 <tr class="
-            {% if pending_deposit.bank %}
+            
                 {% if 'Ecobank' in pending_deposit.bank|lower %}ecobank-row
                 {% elif 'Calbank' in pending_deposit.bank|lower %}calbank-row
                 {% elif 'GTBank' in pending_deposit.bank|lower %}gtbank-row
@@ -138,10 +138,10 @@
                 {% elif 'Access_Bank' in pending_deposit.bank|lower %}accessbank-row
                 {% elif 'AbasaBank' in pending_deposit.bank|lower %}abasa-row
                 {% endif %}
-            {% endif %}
+            
         ">
                     <td data-label="Agent">{{pending_deposit.mobilization}}</td>
-                    <td data-label="Full Name">{{pending_deposit.mobilization.full_name}}</td>
+                    <td style="font-weight: 900;" data-label="Full Name">{{pending_deposit.mobilization.full_name}}</td>
                     <td data-label="Customer Number">{{pending_deposit.phone_number}}</td>
                     <td data-label="Bank">{{pending_deposit.bank}}</td>
                     <td data-label="Account Number">{{pending_deposit.account_number}}</td>
@@ -192,7 +192,7 @@
         const rows = document.querySelectorAll('tbody tr');
 
         rows.forEach(row => {
-            const bankCell = row.querySelector('td[data-label="Bank/Network/Branch"]');
+            const bankCell = row.querySelector('td[data-label="Bank"]');
             if (bankCell) {
                 const content = bankCell.textContent.toLowerCase();
 
