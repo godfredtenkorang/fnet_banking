@@ -6,83 +6,90 @@
 
 <style>
     /* Ensure the table remains scrollable on small screens */
- .table-container {
-     width: 100%;
-     overflow-x: auto;
- }
- 
- /* Default table styling */
- table {
-     width: 100%;
-     border-collapse: collapse;
-     min-width: 800px; /* Ensures the table is scrollable if needed */
- }
- 
- th,
- td {
-     padding: 8px;
-     border: 1px solid #ddd;
-     text-align: center;
- }
- 
- th {
-     background: #007bff;
-     color: white;
-     font-weight: bold;
-     font-size: 13px;
- }
- 
- td {
-     font-size: 12px;
- }
- 
- /* Button Styling */
- .approve-btn {
-     background: #28a745;
-     color: white;
-     border: none;
-     cursor: pointer;
-     border-radius: 5px;
-     height: 6vh !important;
- }
- 
- .decline-btn {
-     background: #dc3545;
-     color: white;
-     border: none;
-     cursor: pointer;
-     border-radius: 5px;
-     height: 6vh !important;
- }
- 
- .action-buttons {
-     display: flex;
-     gap: 5px;
- }
- 
- /* Table row background color */
- tbody tr:nth-child(odd) {
-     background-color: #f9f9f9;
- }
- 
- tbody tr:nth-child(even) {
-     background-color: #e9ecef;
- }
- 
- /* Mobile Responsive: Keep table scrollable */
- @media screen and (max-width: 968px) {
-     .table-container {
-         overflow-x: auto; /* Enables horizontal scrolling */
-         white-space: nowrap;
-     }
- 
-     table {
-         min-width: 800px; /* Ensures columns do not wrap */
-     }
- }
- 
- </style>
- 
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    /* Default table styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 800px;
+        /* Ensures the table is scrollable if needed */
+    }
+
+    th,
+    td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+
+    th {
+        background: #007bff;
+        color: white;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    td {
+        font-size: 15px;
+    }
+
+    /* Button Styling */
+    .approve-btn {
+        background: #28a745;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        height: 6vh !important;
+    }
+
+    .decline-btn {
+        background: #dc3545;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        height: 6vh !important;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+    }
+
+   
+
+    /* Mobile Responsive: Keep table scrollable */
+    @media screen and (max-width: 968px) {
+        .table-container {
+            overflow-x: auto;
+            /* Enables horizontal scrolling */
+            white-space: nowrap;
+        }
+
+        table {
+            min-width: 800px;
+            /* Ensures columns do not wrap */
+        }
+    }
+
+    /* Define your color schemes */
+    .ecobank-row { background-color: #0052CC; color: white; }
+    .calbank-row { background-color: #FFD700; }
+    .gtbank-row { background-color: #FFA500; color: black; }
+    .fidelity-row { background-color: #ffa500; color: black; }
+    .accessbank-row { background-color: #fffacd; color: black; }
+    .abasa-row { background-color: #b70b0b; color: white; }
+    .mtn-row { background-color: #FFA500; color: black; }
+    .telecel-row { background-color: #E60000; color: white; }
+    .airteltigo-row { background-color: #FF0000; color: white; }
+    /* Add more bank/network colors as needed */
+</style>
+
 
 
 
@@ -110,7 +117,22 @@
     <div class="table-container">
         <table>
             <thead>
-                <tr>
+                <tr class="
+            {% if payment.mode_of_payment == 'Bank' %}
+                {% if 'Ecobank' in payment.bank|lower %}ecobank-row
+                {% elif 'Calbank' in payment.bank|lower %}calbank-row
+                {% elif 'GTBank' in payment.bank|lower %}gtbank-row
+                {% elif 'Fidelity' in payment.bank|lower %}fidelity-row
+                {% elif 'Access_Bank' in payment.bank|lower %}accessbank-row
+                {% elif 'AbasaBank' in payment.bank|lower %}abasa-row
+                {% endif %}
+            {% elif payment.mode_of_payment == 'Telco' %}
+                {% if 'Mtn' in payment.network|lower %}mtn-row
+                {% elif 'Airtel_Tigo' in payment.network|lower or 'tigo' in payment.network|lower %}airteltigo-row
+                {% elif 'Telecel' in payment.network|lower %}telecel-row
+                {% endif %}
+            {% endif %}
+        ">
                     <th>Mobilization</th>
                     <th>Name</th>
                     <th>Mode of Payment</th>
@@ -126,7 +148,7 @@
                 {% for payment in payments %}
                 <tr>
                     <td data-label="Agent">{{payment.mobilization.phone_number}}</td>
-                    <td data-label="Agent">{{payment.mobilization.full_name}}</td>
+                    <td style="font-weight: 900;" data-label="Agent">{{payment.mobilization.full_name}}</td>
                     <td data-label="Mode of Payment">{{payment.mode_of_payment}}</td>
                     <td data-label="Bank/Network/Branch">
                         {% if payment.mode_of_payment == 'Bank' %}
@@ -144,7 +166,8 @@
                     <td data-label="Action" class="action-buttons">
                         <a href="{% url 'approve_mobilization_payment' payment.id %}"><button
                                 class="approve-btn">Approve</button></a>
-                        <a href="{% url 'reject_mobilization_payment' payment.id %}"><button class="decline-btn">Reject</button></a>
+                        <a href="{% url 'reject_mobilization_payment' payment.id %}"><button
+                                class="decline-btn">Reject</button></a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -169,7 +192,38 @@
 
 
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const rows = document.querySelectorAll('tbody tr');
 
+        rows.forEach(row => {
+            const bankCell = row.querySelector('td[data-label="Bank/Network/Branch"]');
+            if (bankCell) {
+                const content = bankCell.textContent.toLowerCase();
+
+                if (content.includes('ecobank')) {
+                    row.classList.add('ecobank-row');
+                } else if (content.includes('calbank')) {
+                    row.classList.add('calbank-row');
+                } else if (content.includes('gtbank')) {
+                    row.classList.add('gtbbank-row');
+                } else if (content.includes('fidelity')) {
+                    row.classList.add('fidelity-row');
+                } else if (content.includes('accessbank')) {
+                    row.classList.add('accessbank-row');
+                } else if (content.includes('abasa')) {
+                    row.classList.add('abasabank-row');
+                } else if (content.includes('mtn')) {
+                    row.classList.add('mtn-row');
+                } else if (content.includes('telecel')) {
+                    row.classList.add('telecel-row');
+                } else if (content.includes('airtel') || content.includes('tigo')) {
+                    row.classList.add('airteltigo-row');
+                }
+            }
+        });
+    });
+</script>
 
 
 

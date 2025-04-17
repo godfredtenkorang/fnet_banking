@@ -79,6 +79,20 @@
          min-width: 800px; /* Ensures columns do not wrap */
      }
  }
+
+
+  /* Define your color schemes */
+    .ecobank-row { background-color: #0052CC; color: white; }
+    .calbank-row { background-color: #FFD700; }
+    .gtbank-row { background-color: #FFA500; color: black; }
+    .fidelity-row { background-color: #ffa500; color: black; }
+    .accessbank-row { background-color: #fffacd; color: black; }
+    .abasa-row { background-color: #b70b0b; color: white; }
+    .mtn-row { background-color: #FFA500; color: black; }
+    .telecel-row { background-color: #E60000; color: white; }
+    .airteltigo-row { background-color: #FF0000; color: white; }
+    /* Add more bank/network colors as needed */
+ 
  
  </style>
  
@@ -121,7 +135,22 @@
         </thead>
         <tbody>
             {% for cash in pending_requests %}
-            <tr>
+            <tr class="
+            {% if cash.float_type == 'Bank' %}
+                {% if 'Ecobank' in cash.bank|lower %}ecobank-row
+                {% elif 'Calbank' in cash.bank|lower %}calbank-row
+                {% elif 'GTBank' in cash.bank|lower %}gtbank-row
+                {% elif 'Fidelity' in cash.bank|lower %}fidelity-row
+                {% elif 'Access_Bank' in cash.bank|lower %}accessbank-row
+                {% elif 'AbasaBank' in cash.bank|lower %}abasa-row
+                {% endif %}
+            {% elif cash.float_type == 'Telco' %}
+                {% if 'Mtn' in cash.network|lower %}mtn-row
+                {% elif 'Airtel_Tigo' in cash.network|lower or 'tigo' in payment.network|lower %}airteltigo-row
+                {% elif 'Telecel' in cash.network|lower %}telecel-row
+                {% endif %}
+            {% endif %}
+        ">
                 <td data-label="Agent">{{cash.agent.phone_number}}</td>
                 <td data-label="Agent">{{cash.agent.full_name}}</td>
                 <td data-label="Amount">{{cash.float_type}}</td>
@@ -166,6 +195,38 @@
 
 
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const rows = document.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+            const bankCell = row.querySelector('td[data-label="Bank/Network/Branch"]');
+            if (bankCell) {
+                const content = bankCell.textContent.toLowerCase();
+
+                if (content.includes('ecobank')) {
+                    row.classList.add('ecobank-row');
+                } else if (content.includes('calbank')) {
+                    row.classList.add('calbank-row');
+                } else if (content.includes('gtbank')) {
+                    row.classList.add('gtbbank-row');
+                } else if (content.includes('fidelity')) {
+                    row.classList.add('fidelity-row');
+                } else if (content.includes('accessbank')) {
+                    row.classList.add('accessbank-row');
+                } else if (content.includes('abasa')) {
+                    row.classList.add('abasabank-row');
+                } else if (content.includes('mtn')) {
+                    row.classList.add('mtn-row');
+                } else if (content.includes('telecel')) {
+                    row.classList.add('telecel-row');
+                } else if (content.includes('airtel') || content.includes('tigo')) {
+                    row.classList.add('airteltigo-row');
+                }
+            }
+        });
+    });
+</script>
 
 
 

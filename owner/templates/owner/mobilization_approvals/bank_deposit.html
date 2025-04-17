@@ -57,15 +57,7 @@
      gap: 5px;
  }
  
- /* Table row background color */
- tbody tr:nth-child(odd) {
-     background-color: #f9f9f9;
- }
- 
- tbody tr:nth-child(even) {
-     background-color: #e9ecef;
- }
- 
+
  /* Mobile Responsive: Keep table scrollable */
  @media screen and (max-width: 968px) {
      .table-container {
@@ -77,6 +69,16 @@
          min-width: 800px; /* Ensures columns do not wrap */
      }
  }
+
+ /* Define your color schemes */
+    .ecobank-row { background-color: #0052CC; color: white; }
+    .calbank-row { background-color: #FFD700; }
+    .gtbank-row { background-color: #FFA500; color: black; }
+    .fidelity-row { background-color: #ffa500; color: black; }
+    .accessbank-row { background-color: #fffacd; color: black; }
+    .abasa-row { background-color: #b70b0b; color: white; }
+    
+    /* Add more bank/network colors as needed */
  
  </style>
  
@@ -127,7 +129,17 @@
             </thead>
             <tbody>
                 {% for pending_deposit in pending_deposits %}
-                <tr>
+                <tr class="
+            {% if pending_deposit.bank %}
+                {% if 'Ecobank' in pending_deposit.bank|lower %}ecobank-row
+                {% elif 'Calbank' in pending_deposit.bank|lower %}calbank-row
+                {% elif 'GTBank' in pending_deposit.bank|lower %}gtbank-row
+                {% elif 'Fidelity' in pending_deposit.bank|lower %}fidelity-row
+                {% elif 'Access_Bank' in pending_deposit.bank|lower %}accessbank-row
+                {% elif 'AbasaBank' in pending_deposit.bank|lower %}abasa-row
+                {% endif %}
+            {% endif %}
+        ">
                     <td data-label="Agent">{{pending_deposit.mobilization}}</td>
                     <td data-label="Full Name">{{pending_deposit.mobilization.full_name}}</td>
                     <td data-label="Customer Number">{{pending_deposit.phone_number}}</td>
@@ -175,6 +187,32 @@
 
     </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const rows = document.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+            const bankCell = row.querySelector('td[data-label="Bank/Network/Branch"]');
+            if (bankCell) {
+                const content = bankCell.textContent.toLowerCase();
+
+                if (content.includes('ecobank')) {
+                    row.classList.add('ecobank-row');
+                } else if (content.includes('calbank')) {
+                    row.classList.add('calbank-row');
+                } else if (content.includes('gtbank')) {
+                    row.classList.add('gtbbank-row');
+                } else if (content.includes('fidelity')) {
+                    row.classList.add('fidelity-row');
+                } else if (content.includes('accessbank')) {
+                    row.classList.add('accessbank-row');
+                } else if (content.includes('abasa')) {
+                    row.classList.add('abasabank-row');
+                } 
+            }
+        });
+    });
+</script>
 
     <script>
 

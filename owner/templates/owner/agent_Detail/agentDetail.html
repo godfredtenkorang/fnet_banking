@@ -18,33 +18,33 @@
             <a href="{% url 'agentCustomer' agent.id %}" class="grid-row">
                 <i class="fas fa-user"></i> Customer
             </a>
-            <a href="{% url 'bankDeposit' agent.id %}" class="grid-row">
+            <!-- <a href="{% url 'bankDeposit' agent.id %}" class="grid-row">
                 <i class="fas fa-university"></i> Bank Deposit
             </a>
             <a href="{% url 'bank_withdrawal' agent.id %}" class="grid-row">
                 <i class="fas fa-money-bill-wave"></i> Bank Withdrawals
-            </a>
+            </a> -->
             <a href="{% url 'cash_In' agent.id %}" class="grid-row">
 
-                <i class="fas fa-wallet"></i> Cash In
+                <i class="fas fa-arrow-down"></i> Cash In
             </a>
             <a href="{% url 'cash_out_agent' agent.id %}" class="grid-row">
-                <i class="fas fa-hand-holding-usd"></i> Cash Out
+                <i class="fas fa-arrow-up"></i> Cash Out
             </a>
             <a href="{% url 'pay_to' %}" class="grid-row">
                 <i class="fas fa-money-check-alt"></i> Pay To
             </a>
             <a href="{% url 'branch_bank_deposit_date' agent.id %}" class="grid-row">
-                <i class="fas fa-money-check-alt"></i> Bank Deposit
+                <i class="fas fa-wallet"></i> Bank Deposit
             </a>
             <a href="{% url 'branch_bank_withdrawal_transactions_date' agent.id %}" class="grid-row">
-                <i class="fas fa-money-check-alt"></i> Bank Withdrawal
+                <i class="fas fa-hand-holding-usd"></i> Bank Withdrawal
             </a>
             <a href="{% url 'branch_ecash_transactions_date' agent.id %}" class="grid-row">
-                <i class="fas fa-money-check-alt"></i> Cash / E-Cash
+                <i class="fas fa-money-check"></i> Cash / E-Cash
             </a>
             <a href="{% url 'branch_payment_transactions_date' agent.id %}" class="grid-row">
-                <i class="fas fa-money-check-alt"></i> Payment
+                <i class="fas fa-credit-card"></i> Payment
             </a>
             <a href="{% url 'all_transaction' %}" class="grid-row">
                 <i class="fas fa-list"></i> All Transactions
@@ -60,7 +60,7 @@
                 <i class="fas fa-balance-scale"></i> Balance
             </a>
             <a href="{% url 'branch_report_view' agent.id %}" class="grid-row">
-                <i class="fas fa-coins"></i> Report
+                <i class="fas fa-flag"></i> Report
             </a>
         </div>
         
