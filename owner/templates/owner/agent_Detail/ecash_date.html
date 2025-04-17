@@ -9,39 +9,39 @@
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
-            <h1>   Cash Out Summary </h1>
+            <h1> Cash Out Summary </h1>
         </div>
 
     </div>
 
 
     <div class="stat-container-ten-box">
-    
-    
+
+
         {% for entry in dates %}
-    
-        <a href="{% url 'cash_out_detail' entry.agent entry.date_withdrawn %}" class="stat">
-            <h2>{{entry.date_withdrawn}}</h2>
-    
-    
-    
+
+        <a href="{% url 'branch_ecash_transactions' entry.agent entry.created_at %}" class="stat">
+            <h2>{{entry.created_at}}</h2>
+
+
+
             <!-- <p>Click to view total</p> -->
         </a>
         {% endfor %}
-    
-    
-    
-    
-    
+
+
+
+
+
     </div>
 
 
 
-    
 
 
 
- 
+
+
 </div>
 
 

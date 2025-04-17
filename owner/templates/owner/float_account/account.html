@@ -113,13 +113,13 @@
                 </tr>
             </thead>
             <tbody>
-            {% for agent in agents %}
+            
                 <tr>
                     <td data-label="Username">{{ agent.full_name }}</td>
                     <td data-label="Phone Number">{{ agent.phone_number }}</td>
-                    <td><a href="{% url 'view_agent_e_float_drawer' agent.id %}">Tap for more</a></td>
+                    <td><a href="">Tap for more</a></td>
                 </tr>
-            {% endfor %}
+           
             </tbody>
         </table>
     </div>

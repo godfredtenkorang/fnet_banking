@@ -1,6 +1,7 @@
-{% extends 'owner/base.html' %} {% load static %} {% block content %}
-
-
+{% extends 'owner/base.html' %}
+{% load custom_filters %}
+{% load static %}
+{% block content %}
 
 <style>
     /* Ensure the table remains scrollable on small screens */
@@ -86,51 +87,52 @@
 
 
 <div class="main">
-
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
-            <h1>Cash Out Transactions</h1>
+            <h1>Payment Transactions</h1>
         </div>
 
     </div>
+
 
 
     <div class="table-container">
         <table>
             <thead>
                 <tr>
-                    <th>Agent</th>
-                    <th>Network</th>
-                    <th>Customer Phone</th>
+                    <th>Branch</th>
+                    <th>Mode of Payment</th>
+                    <th>Bank/Network/Branch</th>
                     <th>Amount</th>
-                    <th>Cash Paid</th>
-                    <th>Date</th>
-                    <th>Time</th>
-
-
+                    <th>Date/Time</th>
+                    <th>Status</th>
+                    <!-- <th>Update</th> -->
                     <th>Action</th>
 
                 </tr>
             </thead>
             <tbody>
-                {% for cash_out in cash_out_transactions %}
+                {% for payment in payment_transactions %}
                 <tr>
-                    <td data-label="Agent">{{cash_out.agent}}</td>
-                    <td data-label="Customer Number">{{cash_out.network}}</td>
-                    <td data-label="Phone">{{cash_out.customer_phone}}</td>
-                    <td data-label="Amount">{{cash_out.amount}}</td>
-                    <td data-label="Cash Paid">{{cash_out.cash_paid}}</td>
-                    <td data-label="Date">{{cash_out.date_withdrawn}}</td>
-                    <td data-label="Time">{{cash_out.time_withdrawn}}</td>
-
-                    <td data-label="Delete"><a href="{% url 'delete_branch_cashout' cash_out.id %}">delete</a></td>
-
-
-
+                    <td data-label="Branch">{{payment.agent.full_name}}</td>
+                    <td data-label="Mode of Payment">{{payment.mode_of_payment}}</td>
+                    <td data-label="Bank/Network/Branch">
+                        {% if payment.mode_of_payment == 'Bank' %}
+                        {{payment.bank}}
+                        {% elif payment.mode_of_payment == 'Telco' %}
+                        {{payment.network}}
+                        {% else %}
+                        {{payment.branch}}
+                        {% endif %}
+                    </td>
+                    <td data-label="Amount">{{payment.amount}}</td>
+                    <td data-label="Date/Time">{{payment.created_at}}</td>
+                    <td data-label="Status">{{payment.status}}</td>
+                    <!-- <td data-label="Update"><a href="{% url 'update_mobilization_payment' payment.id %}">update</a></td> -->
+                    <td data-label="Action"><a href="{% url 'delete_branch_payment' payment.id %}">delete</a></td>
 
                 </tr>
-
                 {% endfor %}
             </tbody>
         </table>
@@ -150,6 +152,11 @@
         </div>
 
     </div>
+
+
+
+
+
 
 
     <script>

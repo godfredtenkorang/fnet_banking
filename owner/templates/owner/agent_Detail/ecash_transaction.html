@@ -90,7 +90,7 @@
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
-            <h1>Cash Out Transactions</h1>
+            <h1>E-Cash Transactions</h1>
         </div>
 
     </div>
@@ -100,37 +100,34 @@
         <table>
             <thead>
                 <tr>
-                    <th>Agent</th>
-                    <th>Network</th>
-                    <th>Customer Phone</th>
-                    <th>Amount</th>
-                    <th>Cash Paid</th>
-                    <th>Date</th>
-                    <th>Time</th>
-
-
-                    <th>Action</th>
-
+                    <th>Branch</th>
+                    <th>Float Type</th>
+                    <th>Bank/Network/Cash</th>
+                    <th>Amount(GH¢)</th>
+                    <th>Date/Time</th>
+                    <th>Status</th>
+                    <th>Delete</th>
                 </tr>
             </thead>
             <tbody>
-                {% for cash_out in cash_out_transactions %}
+                {% for cash in ecash_transactions %}
                 <tr>
-                    <td data-label="Agent">{{cash_out.agent}}</td>
-                    <td data-label="Customer Number">{{cash_out.network}}</td>
-                    <td data-label="Phone">{{cash_out.customer_phone}}</td>
-                    <td data-label="Amount">{{cash_out.amount}}</td>
-                    <td data-label="Cash Paid">{{cash_out.cash_paid}}</td>
-                    <td data-label="Date">{{cash_out.date_withdrawn}}</td>
-                    <td data-label="Time">{{cash_out.time_withdrawn}}</td>
-
-                    <td data-label="Delete"><a href="{% url 'delete_branch_cashout' cash_out.id %}">delete</a></td>
-
-
-
-
+                    <td>{{ cash.agent.full_name }}</td>
+                    <td>{{ cash.float_type }}</td>
+                    <td>
+                        {% if cash.float_type == 'Bank' %}
+                        {{ cash.bank }}
+                        {% elif cash.float_type == 'Telco' %}
+                        {{ cash.network }}
+                        {% elif cash.float_type == 'Cash' %}
+                        Cash
+                        {% endif %}
+                    </td>
+                    <td data-label="Amount">{{ cash.amount }}</td>
+                    <td>{{ cash.created_at }}</td>
+                    <td>{{ cash.status }}</td>
+                    <td data-label="Delete"><a href="{% url 'delete_branch_ecash' cash.id %}">delete</a></td>
                 </tr>
-
                 {% endfor %}
             </tbody>
         </table>

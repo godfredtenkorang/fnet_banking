@@ -465,7 +465,7 @@ def bank_deposit_summary_date(request):
     if end_date and isinstance(end_date, str):
         end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
     
-    dates = BankDeposit.objects.values('date_deposited').annotate(total_amount=Sum('amount'))
+    dates = BankDeposit.objects.values('date_deposited').annotate(total_amount=Sum('amount')).order_by('-date_deposited')
     
     if start_date:
         dates = dates.filter(date_deposited__gte=start_date)
@@ -533,7 +533,7 @@ def bank_withdrawal_summary_date(request):
     if end_date and isinstance(end_date, str):
         end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
     
-    dates = BankWithdrawal.objects.values('date_withdrawn').annotate(total_amount=Sum('amount'))
+    dates = BankWithdrawal.objects.values('date_withdrawn').annotate(total_amount=Sum('amount')).order_by('-date_withdrawn')
     
     if start_date:
         dates = dates.filter(date_withdrawn__gte=start_date)
@@ -582,7 +582,7 @@ def payment_summary_date(request):
     if end_date and isinstance(end_date, str):
         end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
     
-    dates = PaymentRequest.objects.values('created_at').annotate(total_amount=Sum('amount'))
+    dates = PaymentRequest.objects.values('created_at').annotate(total_amount=Sum('amount')).order_by('-created_at')
     
     if start_date:
         dates = dates.filter(created_at__gte=start_date)

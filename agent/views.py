@@ -258,7 +258,7 @@ def cashIn(request):
         if CustomerFraud.objects.filter(customer_phone=customer_phone).exists():
             if action == 'proceed':
                 cash_in = CustomerCashIn.objects.create(
-                    agent=request.user, 
+                    agent=agent, 
                     network=network, 
                     customer_phone=customer_phone, 
                     deposit_type=deposit_type, 
@@ -285,7 +285,7 @@ def cashIn(request):
                 return redirect('cashIn')
             
         cash_in = CustomerCashIn.objects.create(
-            agent=request.user, 
+            agent=agent, 
             network=network, 
             customer_phone=customer_phone, 
             deposit_type=deposit_type, 
@@ -330,16 +330,16 @@ def cashOut(request):
         
         cash_out = CustomerCashOut(network=network, customer_phone=customer_phone, amount=amount, cash_paid=cash_paid)
         
-        cash_out.agent = agent.agent
+        cash_out.agent = agent
         
 
         
         # network_balance = getattr(account, f"{cash_out.network.lower()}_balance")
-        cash_at_hand = Decimal(account.cash_at_hand)
+        cash_at_hand = Decimal(account.mtn_balance)
         get_amount = Decimal(cash_out.amount)
         if get_amount > cash_at_hand:
             messages.error(request, f"Insufficient balance in {cash_out.network}.")
-            return redirect('cashout')
+            return redirect('cashOut')
     
         cash_out.save()
         account.update_balance_for_cash_out(cash_out.network, cash_out.amount)
@@ -530,8 +530,8 @@ def TotalTransactionSum(request):
     agent_id = request.user
     today = timezone.now().date()
     
-    total_cashins = CustomerCashIn.total_cash_for_customer(agent=agent_id, date_deposited=today)
-    total_cashouts = CustomerCashOut.total_cashout_for_customer(agent=agent_id, date_withdrawn=today)
+    total_cashins = CustomerCashIn.total_cash_for_customer(agent=agent, date_deposited=today)
+    total_cashouts = CustomerCashOut.total_cashout_for_customer(agent=agent, date_withdrawn=today)
     total_deposits = BankDeposit.total_bank_deposit_for_customer(agent=agent, date_deposited=today)
     total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(agent=agent, date_withdrawn=today)
     total_ecash = CashAndECashRequest.total_ecash_for_customer(agent=agent, status='Approved', created_at=today)
@@ -588,7 +588,7 @@ def cashin_summary_date(request):
 @login_required
 @user_passes_test(is_agent)
 def cashin_summary(request, date):
-    agent = request.user
+    agent = agent = request.user.agent
     cashins = CustomerCashIn.objects.filter(agent=agent, date_deposited=date).order_by('-date_deposited', '-time_deposited')
     context = {
         'date': date,
@@ -636,7 +636,7 @@ def cashout_summary_date(request):
 @login_required
 @user_passes_test(is_agent)
 def cashout_summary(request, date):
-    agent = request.user
+    agent = agent = request.user.agent
     cashouts = CustomerCashOut.objects.filter(agent=agent, date_withdrawn=date).order_by('-date_withdrawn', '-time_withdrawn')
     context = {
         'date': date,

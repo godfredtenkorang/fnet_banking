@@ -6,7 +6,7 @@ from users.forms import AgentRegistrationForm, MobilizationRegistrationForm, Cus
 from users.models import Agent, Owner
 from banking.models import EFloatAccount, MobilizationAccount
 from banking.forms import AddCapitalForm, MobilizationAccountForm
-from agent.models import BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest, CustomerComplain, HoldCustomerAccount, CustomerFraud, CashInCommission, CashOutCommission, BranchReport
+from agent.models import BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest, CustomerComplain, HoldCustomerAccount, CustomerFraud, CashInCommission, CashOutCommission, BranchReport, CustomerCashIn, CustomerCashOut
 from django.contrib import messages
 from decimal import Decimal
 from django.utils import timezone
@@ -243,10 +243,10 @@ def reject_cash_and_ecash_request(request, request_id):
 
 @login_required
 @user_passes_test(is_owner)
-def get_all_agents(request):
-    agents = Agent.objects.all()
+def get_all_agents(request, branch_id):
+    agent = Agent.objects.get(id=branch_id)
     context = {
-        'agents': agents,
+        'agents': agent,
         'title': 'View Agents'
     }
     return render(request, 'owner/float_account/account.html', context)
@@ -480,7 +480,7 @@ def reject_bank_withdrawal(request, withdrawal_id):
     messages.success(request, 'Bank Withdrawal rejected')
     return redirect('bank_withdrawal_requests')
 
-
+# Branches
 
 @login_required
 def bank_withdrawal_requests(request):
@@ -510,7 +510,7 @@ def agentCustomer(request, branch_id):
 
 def bankDeposit(request, branch_id):
     branch = get_object_or_404(Agent, id=branch_id)
-    dates = BankDeposit.objects.filter(agent=branch).values('date_deposited', 'agent').annotate(total_amount=Sum('amount'))
+    dates = BankDeposit.objects.filter(agent=branch).values('date_deposited', 'agent').annotate(total_amount=Sum('amount')).order_by('-date_deposited')
     context = {
         'dates': dates,
         'title': 'Bank Deposit'
@@ -533,23 +533,175 @@ def delete_agent_bank_deposit(request, deposit_id):
     deposit.delete()
     return redirect('delete_transaction_notification')
 
-def bank_with_detail(request):
-    return render(request, 'owner/agent_Detail/bank_with_detail.html')
+def bank_withdrawal(request, branch_id):
+    branch = get_object_or_404(Agent, id=branch_id)
+    dates = BankWithdrawal.objects.filter(agent=branch).values('date_withdrawn', 'agent').annotate(total_amount=Sum('amount')).order_by('-date_withdrawn')
+    context = {
+        'dates': dates,
+        'title': 'Bank Withdrawal'
+    }
+    return render(request, 'owner/agent_Detail/bank_withdrawal.html', context)
 
-def bank_withdrawal(request):
-    return render(request, 'owner/agent_Detail/bank_withdrawal.html')
+def bank_with_detail(request, branch_id, date):
+    branch = get_object_or_404(Agent, id=branch_id)
+    bank_withdrawal_transactions = BankWithdrawal.objects.filter(agent=branch, date_withdrawn=date).order_by('-date_withdrawn', '-time_withdrawn')
+    context = {
+        'date': date,
+        'agent': branch,
+        'bank_withdrawal_transactions': bank_withdrawal_transactions
+    }
+    return render(request, 'owner/agent_Detail/bank_with_detail.html', context)
 
-def cash_In(request):
-    return render(request, 'owner/agent_Detail/cash_In.html')
+def delete_agent_bank_withdrawal(request, withdrawal_id):
+    withdrawal = BankWithdrawal.objects.get(id=withdrawal_id)
+    withdrawal.delete()
+    return redirect('delete_transaction_notification')
 
-def cash_in_detail(request):
-    return render(request, 'owner/agent_Detail/cash_in_detail.html')  
+def cash_In(request, branch_id):
+    branch = get_object_or_404(Agent, id=branch_id)
+    dates = CustomerCashIn.objects.filter(agent=branch).values('date_deposited', 'agent').annotate(total_amount=Sum('amount')).order_by('-date_deposited')
+    context = {
+        'dates': dates,
+        'title': 'Cash In'
+    }
+    return render(request, 'owner/agent_Detail/cash_In.html', context)
 
-def cash_out_detail(request):
-    return render(request, 'owner/agent_Detail/cash_out_detail.html')  
+def cash_in_detail(request, branch_id, date):
+    branch = get_object_or_404(Agent, id=branch_id)
+    cash_in_transactions = CustomerCashIn.objects.filter(agent=branch, date_deposited=date).order_by('-date_deposited', '-time_deposited')
+    context = {
+        'date': date,
+        'agent': branch,
+        'cash_in_transactions': cash_in_transactions
+    }
+    return render(request, 'owner/agent_Detail/cash_in_detail.html', context)  
 
-def cash_out_agent(request):
-    return render(request, 'owner/agent_Detail/cash_out_agent.html')  
+
+def delete_agent_cash_ins(request, cash_id):
+    cashin = CustomerCashIn.objects.get(id=cash_id)
+    cashin.delete()
+    return redirect('delete_transaction_notification')
+
+
+def cash_out_detail(request, branch_id, date):
+    branch = get_object_or_404(Agent, id=branch_id)
+    cash_out_transactions = CustomerCashOut.objects.filter(agent=branch, date_withdrawn=date).order_by('-date_withdrawn', '-time_withdrawn')
+    context = {
+        'date': date,
+        'agent': branch,
+        'cash_out_transactions': cash_out_transactions
+    }
+    return render(request, 'owner/agent_Detail/cash_out_detail.html', context)  
+
+def cash_out_agent(request, branch_id):
+    branch = get_object_or_404(Agent, id=branch_id)
+    dates = CustomerCashOut.objects.filter(agent=branch).values('date_withdrawn', 'agent').annotate(total_amount=Sum('amount')).order_by('-date_withdrawn')
+    context = {
+        'dates': dates,
+        'title': 'Cash In'
+    }
+    return render(request, 'owner/agent_Detail/cash_out_agent.html', context)  
+
+def delete_agent_cash_outs(request, cash_id):
+    cashout = CustomerCashOut.objects.get(id=cash_id)
+    cashout.delete()
+    return redirect('delete_transaction_notification')
+
+def branch_bank_deposit_date(request, branch_id):
+    branch = get_object_or_404(Agent, id=branch_id)
+    dates = BankDeposit.objects.filter(agent=branch).values('date_deposited', 'agent').annotate(total_amount=Sum('amount')).order_by('-date_deposited')
+    context = {
+        'dates': dates
+    }
+    return render(request, 'owner/agent_Detail/bank_deposit_date.html', context)
+
+def branch_bank_deposit_transaction(request, branch_id, date):
+    branch = get_object_or_404(Agent, id=branch_id)
+    bank_deposit_transactions = BankDeposit.objects.filter(agent=branch, date_deposited=date).order_by('-date_deposited', '-time_deposited')
+    context = {
+        'date': date,
+        'agent': branch,
+        'bank_deposit_transactions': bank_deposit_transactions
+    }
+    return render(request, 'owner/agent_Detail/bank_deposit_transaction.html', context)
+
+def delete_agent_bank_deposit(request, deposit_id):
+    deposit = BankDeposit.objects.get(id=deposit_id)
+    deposit.delete()
+    return redirect('delete_transaction_notification')
+
+@login_required
+def branch_bank_withdrawal_transactions_date(request, branch_id):
+    branch = get_object_or_404(Agent, id=branch_id)
+    dates = BankWithdrawal.objects.filter(agent=branch).values('date_withdrawn', 'agent').annotate(total_amount=Sum('amount')).order_by('-date_withdrawn')
+    context = {
+        'dates': dates
+    }
+    return render(request, 'owner/agent_Detail/bank_withdrawal_date.html', context)
+
+def branch_bank_withdrawal_transactions(request, branch_id, date):
+    branch = get_object_or_404(Agent, id=branch_id)
+    bank_withdrawal_transactions = BankWithdrawal.objects.filter(agent=branch, date_withdrawn=date).order_by('-date_withdrawn', '-time_withdrawn')
+    context = {
+        'date': date,
+        'agent': branch,
+        'bank_withdrawal_transactions': bank_withdrawal_transactions
+    }
+    return render(request, 'owner/agent_Detail/bank_withdrawal_transaction.html', context)
+
+def delete_branch_bank_withdrawal(request, withdrawal_id):
+    withdrawal = BankWithdrawal.objects.get(id=withdrawal_id)
+    withdrawal.delete()
+    return redirect('delete_transaction_notification')
+
+
+@login_required
+def branch_ecash_transactions_date(request, branch_id):
+    branch = get_object_or_404(Agent, id=branch_id)
+    dates = CashAndECashRequest.objects.filter(agent=branch).values('created_at', 'agent').annotate(total_amount=Sum('amount')).order_by('-created_at')
+    context = {
+        'dates': dates
+    }
+    return render(request, 'owner/agent_Detail/ecash_date.html', context)
+
+def branch_ecash_transactions(request, branch_id, date):
+    branch = get_object_or_404(Agent, id=branch_id)
+    ecash_transactions = CashAndECashRequest.objects.filter(agent=branch, created_at=date).order_by('-created_at')
+    context = {
+        'date': date,
+        'agent': branch,
+        'ecash_transactions': ecash_transactions
+    }
+    return render(request, 'owner/agent_Detail/ecash_transaction.html', context)
+
+def delete_branch_ecash(request, ecash_id):
+    ecash = CashAndECashRequest.objects.get(id=ecash_id)
+    ecash.delete()
+    return redirect('delete_transaction_notification')
+
+@login_required
+def branch_payment_transactions_date(request, branch_id):
+    branch = get_object_or_404(Agent, id=branch_id)
+    dates = PaymentRequest.objects.filter(agent=branch).values('created_at', 'agent').annotate(total_amount=Sum('amount')).order_by('-created_at')
+    context = {
+        'dates': dates
+    }
+    return render(request, 'owner/agent_Detail/payment_date.html', context)
+
+def branch_payment_transactions(request, branch_id, date):
+    branch = get_object_or_404(Agent, id=branch_id)
+    payment_transactions = PaymentRequest.objects.filter(agent=branch, status='Approved', created_at=date).order_by('-created_at')
+    context = {
+        'date': date,
+        'agent': branch,
+        'payment_transactions': payment_transactions
+    }
+    return render(request, 'owner/agent_Detail/payment_transaction.html', context)
+
+def delete_branch_payment(request, payment_id):
+    payment = PaymentRequest.objects.get(id=payment_id)
+    payment.delete()
+    return redirect('delete_transaction_notification')
 
 def pay_to(request):
     return render(request, 'owner/agent_Detail/pay_to.html')  
@@ -970,7 +1122,7 @@ def mobilization_bank_deposit_transactions_date(request, mobilization_id):
     }
     return render(request, 'owner/mobilization/bank_deposit_transaction_date.html', context)
 
-
+ 
 @login_required
 def mobilization_bank_deposit_transactions(request, mobilization_id, date):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)

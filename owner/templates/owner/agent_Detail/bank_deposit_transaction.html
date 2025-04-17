@@ -90,7 +90,7 @@
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
-            <h1>Cash Out Transactions</h1>
+            <h1>Bank Deposit Transactions</h1>
         </div>
 
     </div>
@@ -100,34 +100,48 @@
         <table>
             <thead>
                 <tr>
-                    <th>Agent</th>
-                    <th>Network</th>
+                    <th>Branch</th>
                     <th>Customer Phone</th>
-                    <th>Amount</th>
-                    <th>Cash Paid</th>
+                    <th>Bank</th>
+                    <th>Account Number</th>
+                    <th>Account Name</th>
                     <th>Date</th>
                     <th>Time</th>
+                    <th>Amount</th>
+                    <th>Receipt</th>
+                    <th>Screenshot</th>
 
-
+                    
                     <th>Action</th>
 
                 </tr>
             </thead>
             <tbody>
-                {% for cash_out in cash_out_transactions %}
+                {% for bank_deposit in bank_deposit_transactions %}
                 <tr>
-                    <td data-label="Agent">{{cash_out.agent}}</td>
-                    <td data-label="Customer Number">{{cash_out.network}}</td>
-                    <td data-label="Phone">{{cash_out.customer_phone}}</td>
-                    <td data-label="Amount">{{cash_out.amount}}</td>
-                    <td data-label="Cash Paid">{{cash_out.cash_paid}}</td>
-                    <td data-label="Date">{{cash_out.date_withdrawn}}</td>
-                    <td data-label="Time">{{cash_out.time_withdrawn}}</td>
+                    <td data-label="Branch">{{bank_deposit.agent.full_name}}</td>
+                    <td data-label="Customer Number">{{bank_deposit.phone_number}}</td>
+                    <td data-label="Bank">{{bank_deposit.bank}}</td>
+                    <td data-label="Account Number">{{bank_deposit.account_number}}</td>
+                    <td data-label="Account Name">{{bank_deposit.account_name}}</td>
+                    <td data-label="Date">{{bank_deposit.date_deposited}}</td>
+                    <td data-label="Time">{{bank_deposit.time_deposited}}</td>
+                    <td data-label="Amount">{{bank_deposit.amount}}</td>
+                    {% if bank_deposit.receipt %}
+                    <td data-label="Receipt"><a href="{{bank_deposit.receipt.url}}">receipt</a></td>
+                    {% else %}
+                    <td>N/A</td>
+                    {% endif %}
 
-                    <td data-label="Delete"><a href="{% url 'delete_branch_cashout' cash_out.id %}">delete</a></td>
 
+                    {% if bank_deposit.screenshot %}
+                    <td data-label="Screenshot"><a href="{{bank_deposit.screenshot.url}}">screenshot</a></td>
+                    {% else %}
+                    <td>N/A</td>
+                    {% endif %}
 
-
+                    <td data-label="Delete"><a
+                            href="{% url 'delete_agent_bank_deposit' bank_deposit.id %}">delete</a></td>
 
                 </tr>
 

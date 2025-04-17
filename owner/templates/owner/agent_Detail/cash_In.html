@@ -9,31 +9,30 @@
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
-            <h1>    Benjamin MTN Deposit Summary </h1>
+            <h1>   Cash In Summary Date</h1>
         </div>
 
     </div>
 
 
-    <div class="grid-template">
-        <a href="{% url 'cash_in_detail' %}"class="grid-row">
-            <span>Date:</span>
-            <span>2024-06-11</span>
+    <div class="stat-container-ten-box">
+    
+    
+        {% for entry in dates %}
+    
+        <a href="{% url 'cash_in_detail' entry.agent entry.date_deposited %}" class="stat">
+            <h2>{{entry.date_deposited}}</h2>
+    
+    
+    
+            <!-- <p>Click to view total</p> -->
         </a>
-
-        <a href="" class="grid-row">
-            <span>Date:</span>
-            <span>2024-06-11</span>
-        </a>
-        
-        <a href="" class="grid-row">
-            <span>Date:</span>
-            <span>2024-06-11</span>
-        </a>
-        <a href="" class="grid-row">
-            <span>Date:</span>
-            <span>2024-06-11</span>
-        </a>
+        {% endfor %}
+    
+    
+    
+    
+    
     </div>
    
 

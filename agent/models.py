@@ -32,7 +32,7 @@ class Transaction(models.Model):
         ordering = ['-timestamp']
     
     def __str__(self):
-        return f"{self.transaction_type} - {self.customer_phone} - {self.amount}"
+        return f"{self.transaction_type} - {self.phone_number} - {self.amount}"
 
 
 MOBILE_MONEY_DEPOSIT_TYPE = (
@@ -54,7 +54,7 @@ REQUEST_STATUS = (
 )
 
 class CustomerCashIn(models.Model):
-    agent = models.ForeignKey(User, on_delete=models.CASCADE, related_name="customer_cash_ins")
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name="customer_cash_ins")
     network = models.CharField(max_length=20, choices=NETWORKS, blank=True, default="Select Network")
     customer_phone = models.CharField(max_length=10, blank=True)
     # customer_name = models.CharField(max_length=30, blank=True)
@@ -143,7 +143,7 @@ class ArchivedCashInCommission(models.Model):
 
 
 class CustomerCashOut(models.Model):
-    agent = models.ForeignKey(User, on_delete=models.CASCADE, related_name="customer_cash_outs")
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name="customer_cash_outs")
     network = models.CharField(max_length=20, choices=NETWORKS, blank=True, default="Select Network")
     customer_phone = models.CharField(max_length=10, blank=True)
     # customer_name = models.CharField(max_length=30, blank=True)

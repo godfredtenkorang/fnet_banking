@@ -21,18 +21,30 @@
             <a href="{% url 'bankDeposit' agent.id %}" class="grid-row">
                 <i class="fas fa-university"></i> Bank Deposit
             </a>
-            <a href="{% url 'bank_withdrawal' %}" class="grid-row">
+            <a href="{% url 'bank_withdrawal' agent.id %}" class="grid-row">
                 <i class="fas fa-money-bill-wave"></i> Bank Withdrawals
             </a>
-            <a href="{% url 'cash_In' %}" class="grid-row">
+            <a href="{% url 'cash_In' agent.id %}" class="grid-row">
 
                 <i class="fas fa-wallet"></i> Cash In
             </a>
-            <a href="{% url 'cash_out_agent' %}" class="grid-row">
+            <a href="{% url 'cash_out_agent' agent.id %}" class="grid-row">
                 <i class="fas fa-hand-holding-usd"></i> Cash Out
             </a>
             <a href="{% url 'pay_to' %}" class="grid-row">
                 <i class="fas fa-money-check-alt"></i> Pay To
+            </a>
+            <a href="{% url 'branch_bank_deposit_date' agent.id %}" class="grid-row">
+                <i class="fas fa-money-check-alt"></i> Bank Deposit
+            </a>
+            <a href="{% url 'branch_bank_withdrawal_transactions_date' agent.id %}" class="grid-row">
+                <i class="fas fa-money-check-alt"></i> Bank Withdrawal
+            </a>
+            <a href="{% url 'branch_ecash_transactions_date' agent.id %}" class="grid-row">
+                <i class="fas fa-money-check-alt"></i> Cash / E-Cash
+            </a>
+            <a href="{% url 'branch_payment_transactions_date' agent.id %}" class="grid-row">
+                <i class="fas fa-money-check-alt"></i> Payment
             </a>
             <a href="{% url 'all_transaction' %}" class="grid-row">
                 <i class="fas fa-list"></i> All Transactions
@@ -40,7 +52,7 @@
             <a href="{% url 'commission' %}" class="grid-row">
                 <i class="fas fa-coins"></i> Commission
             </a>
-            <a href="{% url 'get_all_agents' %}" class="grid-row">
+            <a href="{% url 'view_agent_e_float_drawer' agent.id %}" class="grid-row">
                 <i class="fas fa-user-plus"></i> Accounts
                 
             </a>
