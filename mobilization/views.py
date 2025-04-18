@@ -65,7 +65,7 @@ def mobilization_account(request):
 @user_passes_test(is_mobilization)
 def dashboard(request):
     mobilization = request.user.mobilization
-    today = timezone.now().date()
+    today = timezone.now().date() - timedelta(days=30)
     customers = Customer.objects.filter(mobilization=mobilization)
     total_deposits = BankDeposit.total_bank_deposit_for_customer(mobilization=mobilization, status='Approved')
     total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(mobilization=mobilization)

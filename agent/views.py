@@ -171,10 +171,10 @@ def view_e_float_account(request):
 @user_passes_test(is_agent)
 def agent_dashboard(request):
     agent = request.user.agent
-    agent_id = request.user
-    today = timezone.now().date()
-    total_cashins = CustomerCashIn.total_cash_for_customer(agent=agent_id, date_deposited=today)
-    total_cashouts = CustomerCashOut.total_cashout_for_customer(agent=agent_id, date_withdrawn=today)
+    
+    today = timezone.now().date() - timedelta(days=30)
+    total_cashins = CustomerCashIn.total_cash_for_customer(agent=agent, date_deposited=today)
+    total_cashouts = CustomerCashOut.total_cashout_for_customer(agent=agent, date_withdrawn=today)
     total_deposits = BankDeposit.total_bank_deposit_for_customer(agent=agent, date_deposited=today)
     total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(agent=agent, date_withdrawn=today)
     total_ecash = CashAndECashRequest.total_ecash_for_customer(agent=agent, status='Approved', created_at=today)
@@ -182,8 +182,8 @@ def agent_dashboard(request):
     customers = Customer.objects.filter(agent=agent)
     
     
-    cashincommissions = CashInCommission.objects.filter(customer_cash_in__agent=request.user, date=today)
-    cashoutcommissions = CashOutCommission.objects.filter(customer_cash_out__agent=request.user, date=today)
+    cashincommissions = CashInCommission.objects.filter(customer_cash_in__agent=agent, date=today)
+    cashoutcommissions = CashOutCommission.objects.filter(customer_cash_out__agent=agent, date=today)
     
     balance_total = total_ecash - total_payments
 
@@ -1271,18 +1271,18 @@ def commission(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     
-    agent = Agent.objects.get(agent=request.user)
+    agent = request.user.agent
     
     if filter_type == 'daily':
-        cashincommissions = CashInCommission.objects.filter(customer_cash_in__agent=request.user, date=datetime.today())
-        cashoutcommissions = CashOutCommission.objects.filter(customer_cash_out__agent=request.user, date=datetime.today())
+        cashincommissions = CashInCommission.objects.filter(customer_cash_in__agent=agent, date=datetime.today())
+        cashoutcommissions = CashOutCommission.objects.filter(customer_cash_out__agent=agent, date=datetime.today())
     elif filter_type == 'monthly':
         start_of_month = datetime.today().replace(day=1)
-        cashincommissions = CashInCommission.objects.filter(customer_cash_in__agent=request.user, date__gte=start_of_month, date__lte=datetime.today())
-        cashoutcommissions = CashOutCommission.objects.filter(customer_cash_out__agent=request.user, date__gte=start_of_month, date__lte=datetime.today())
+        cashincommissions = CashInCommission.objects.filter(customer_cash_in__agent=agent, date__gte=start_of_month, date__lte=datetime.today())
+        cashoutcommissions = CashOutCommission.objects.filter(customer_cash_out__agent=agent, date__gte=start_of_month, date__lte=datetime.today())
     elif start_date and end_date:
-        cashincommissions = CashInCommission.objects.filter(customer_cash_in__agent=request.user, date__gte=start_date, date__lte=end_date)
-        cashoutcommissions = CashOutCommission.objects.filter(customer_cash_out__agent=request.user, date__gte=start_date, date__lte=end_date)
+        cashincommissions = CashInCommission.objects.filter(customer_cash_in__agent=agent, date__gte=start_date, date__lte=end_date)
+        cashoutcommissions = CashOutCommission.objects.filter(customer_cash_out__agent=agent, date__gte=start_date, date__lte=end_date)
     else:
         cashincommissions = CashInCommission.objects.none()
         cashoutcommissions = CashOutCommission.objects.none()
