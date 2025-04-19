@@ -7,7 +7,7 @@ def send_mobilization_bank_deposit_sms(mobilization, phone_number):
     payload = {
         "key": apiKey,
         "sender": 'Fnet',
-        "recipient[]": '0550222888',
+        "recipient[]": '0549429685',
         "message": f"New Bank Deposit Request from {mobilization} - {phone_number}! \n\n" "Review Now.",
         "is_schedule": False,
         "schedule_date": ''
