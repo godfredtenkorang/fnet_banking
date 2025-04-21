@@ -206,9 +206,11 @@ def cash_requests(request):
     return render(request, 'owner/pay_to/cash_requests.html', context)
 
 def e_cash_requests(request):
-    pending_requests = CashAndECashRequest.objects.filter(status='Pending').order_by('-created_at')
+    pending_requests = CashAndECashRequest.objects.filter(float_type__in=['Bank','Telco'], status='Pending').order_by('-created_at')
+    
     context = {
         'pending_requests': pending_requests,
+
         'title': 'Cash Requests'
     }
     return render(request, 'owner/pay_to/ecash_requests.html', context)
