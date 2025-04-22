@@ -208,7 +208,8 @@ def agent_dashboard(request):
     }
     return render(request, 'agent/dashboard.html', context)
 
-
+@login_required
+@user_passes_test(is_agent)
 def payto(request):
     agent = request.user
     if request.method == 'POST':
@@ -550,6 +551,7 @@ def TotalTransactionSum(request):
     return render(request, 'agent/transaction_summary/TotalTransactionSum.html', context)
 
 @login_required
+@user_passes_test(is_agent)
 def cashin_summary_date(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
@@ -599,6 +601,7 @@ def cashin_summary(request, date):
 
 
 @login_required
+@user_passes_test(is_agent)
 def cashout_summary_date(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
@@ -647,6 +650,7 @@ def cashout_summary(request, date):
 
 
 @login_required
+@user_passes_test(is_agent)
 def bank_deposit_summary_date(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
@@ -693,6 +697,7 @@ def bank_deposit_summary(request, date):
 
 
 @login_required
+@user_passes_test(is_agent)
 def bank_withdrawal_summary_date(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
@@ -739,6 +744,7 @@ def bank_withdrawal_summary(request, date):
 
 
 @login_required
+@user_passes_test(is_agent)
 def cash_summary_date(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
@@ -786,6 +792,7 @@ def cash_summary(request, date):
 
 
 @login_required
+@user_passes_test(is_agent)
 def payment_summary_date(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
@@ -855,6 +862,8 @@ def my_customers(request):
     }
     return render(request, 'agent/my_customers.html', context)
 
+@login_required
+@user_passes_test(is_agent)
 def my_customer_detail(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)
     accounts = customer.accounts.all()
@@ -973,6 +982,9 @@ def accountReg(request):
     }
     return render(request, 'agent/accountReg.html', context)
 
+
+@login_required
+@user_passes_test(is_agent)
 def update_customer_details(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)
     if request.method == 'POST':
@@ -1186,6 +1198,9 @@ def view_customer_fraud(request):
     }
     return render(request, 'agent/customer_care/fraud_views.html', context)
 
+
+@login_required
+@user_passes_test(is_agent)
 def calculate(request):
     agent = request.user.agent
     if request.method == 'POST':
@@ -1266,6 +1281,8 @@ def errorPage(request):
     return render(request, 'agent/errorPage.html')
 
 
+@login_required
+@user_passes_test(is_agent)
 def commission(request):
     filter_type = request.GET.get('filter', 'daily') # Default to daily
     start_date = request.GET.get('start_date')
@@ -1314,7 +1331,8 @@ def commission(request):
     }
     return render(request, 'agent/commission.html', context)
 
-
+@login_required
+@user_passes_test(is_agent)
 def branch_report(request):
     branch = request.user.agent
     if request.method == 'POST':
@@ -1329,7 +1347,8 @@ def branch_report(request):
     }
     return render(request, 'agent/report.html', context)
 
-
+@login_required
+@user_passes_test(is_agent)
 def view_branch_report(request):
     branch = request.user.agent
     reports = BranchReport.objects.filter(branch=branch)

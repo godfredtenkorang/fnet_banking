@@ -22,7 +22,41 @@ from mobilization.models import Report as mobilization_reports
 from .forms import BankDepositForm, PaymentForm
 
 
+def is_owner(user):
+    return user.role == 'OWNER'
+
+@login_required
+@user_passes_test(is_owner)
 def owner_account(request):
+    
+    branches = Agent.objects.all()
+    
+    branch_data = []
+    
+    for branch in branches:
+         # Calculate total cash_and_ecash requests (approved only)
+        cash_ecash_total = CashAndECashRequest.objects.filter(
+            agent=branch,
+            status='Approved'
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        # Calculate total payment requests (approved only)
+        payment_total = PaymentRequest.objects.filter(
+            agent=branch,
+            status='Approved'
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        # Calculate balance
+        balance = payment_total - cash_ecash_total
+        
+        branch_data.append({
+            'agent': branch,
+            'cash_ecash_total': cash_ecash_total,
+            'payment_total': payment_total,
+            'balance': balance,
+        })
+    
+    
     today = timezone.now().date()
     ecash_mtn_total = CashAndECashRequest.objects.filter(network='Mtn', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
     ecash_telecel_total = CashAndECashRequest.objects.filter(network='Telecel', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
@@ -64,10 +98,13 @@ def owner_account(request):
         'gtbank_total': gtbank_total,
         'accessbank_total': accessbank_total,
         'cash_total': cash_total,
-        'grand_total': grand_total
+        'grand_total': grand_total,
+        'branch_data': branch_data,
     }
     return render(request, 'owner/account/owner_account.html', context)
 
+@login_required
+@user_passes_test(is_owner)
 def unapproved_users_count(request):
     unapproved_cash_count = CashAndECashRequest.objects.filter(status='Pending').count()
     unapproved_payment_count = PaymentRequest.objects.filter(status='Pending').count()
@@ -86,8 +123,7 @@ def unapproved_users_count(request):
     return context
 
 # Check if the user is an Owner
-def is_owner(user):
-    return user.role == 'OWNER'
+
 
 @login_required
 @user_passes_test(is_owner)
@@ -106,6 +142,8 @@ def owner_dashboard(request):
     }
     return render(request, 'owner/dashboard.html', context)
 
+@login_required
+@user_passes_test(is_owner)
 def registerAgent(request):
     if request.method == 'POST':
         form = AgentRegistrationForm(request.POST)
@@ -119,6 +157,8 @@ def registerAgent(request):
     }
     return render(request, 'owner/registerAgent.html', context)
 
+@login_required
+@user_passes_test(is_owner)
 def myAgent(request):
     my_agents = Agent.objects.all()
     context = {
@@ -127,7 +167,8 @@ def myAgent(request):
     }
     return render(request, 'owner/myAgent.html', context)
 
-
+@login_required
+@user_passes_test(is_owner)
 def registerMobilization(request):
     if request.method == 'POST':
         form = MobilizationRegistrationForm(request.POST)
@@ -141,6 +182,8 @@ def registerMobilization(request):
     }
     return render(request, 'owner/mobilization/register_mobilization.html', context)
 
+@login_required
+@user_passes_test(is_owner)
 def myMobilization(request):
     mobilizations = Mobilization.objects.all()
     context = {
@@ -153,6 +196,8 @@ def myMobilization(request):
 #     users = Owner.objects.filter(user=request.user)
 #     return {'users': users}
 
+@login_required
+@user_passes_test(is_owner)
 def customers(request):
     customers = Customer.objects.all()
     context = {
@@ -161,6 +206,9 @@ def customers(request):
     }
     return render(request, 'owner/customers.html', context)
 
+
+@login_required
+@user_passes_test(is_owner)
 def customers_account_details(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)
     mobilization_accounts = customer.customeraccounts.all()
@@ -173,6 +221,9 @@ def customers_account_details(request, customer_id):
     }
     return render(request, 'owner/customers_account_detail.html', context)
 
+
+@login_required
+@user_passes_test(is_owner)
 def update_customer(request, customer_id):
     customer = Customer.objects.get(id=customer_id)
     if request.method == 'POST':
@@ -205,6 +256,9 @@ def cash_requests(request):
     }
     return render(request, 'owner/pay_to/cash_requests.html', context)
 
+
+@login_required
+@user_passes_test(is_owner)
 def e_cash_requests(request):
     pending_requests = CashAndECashRequest.objects.filter(float_type__in=['Bank','Telco'], status='Pending').order_by('-created_at')
     
@@ -307,6 +361,7 @@ def view_payment_requests(request):
 
 
 @login_required
+@user_passes_test(is_owner)
 def approve_bank_deposit(request, deposit_id):
     deposit = get_object_or_404(BankDeposit, id=deposit_id)
     account = deposit.agent.e_float_drawers.filter(date=deposit.date_deposited).first()
@@ -410,6 +465,7 @@ def customer_care(request):
 
 
 @login_required
+@user_passes_test(is_owner)
 def approve_bank_deposit(request, deposit_id):
     deposit = get_object_or_404(BankDeposit, id=deposit_id)
     account = deposit.agent.e_float_drawers.filter(date=deposit.date_deposited).first()
@@ -432,6 +488,7 @@ def approve_bank_deposit(request, deposit_id):
     return redirect('bank_deposit_requests')
 
 @login_required
+@user_passes_test(is_owner)
 def reject_bank_deposit(request, deposit_id):
     deposit = get_object_or_404(BankDeposit, id=deposit_id)
     deposit.status = 'Rejected'
@@ -441,8 +498,8 @@ def reject_bank_deposit(request, deposit_id):
 
 
 
-
 @login_required
+@user_passes_test(is_owner)
 def bank_deposit_requests(request):
     pending_deposits = BankDeposit.objects.filter(status='Pending').order_by('-date_deposited', '-time_deposited')
     context = {
@@ -453,6 +510,7 @@ def bank_deposit_requests(request):
 
 
 @login_required
+@user_passes_test(is_owner)
 def approve_bank_withdrawal(request, withdrawal_id):
     withdrawal = get_object_or_404(BankWithdrawal, id=withdrawal_id)
     account = withdrawal.agent.e_float_drawers.filter(date=withdrawal.date_withdrawn).first()
@@ -475,6 +533,7 @@ def approve_bank_withdrawal(request, withdrawal_id):
     return redirect('bank_withdrawal_requests')
 
 @login_required
+@user_passes_test(is_owner)
 def reject_bank_withdrawal(request, withdrawal_id):
     withdrawal = get_object_or_404(BankWithdrawal, id=withdrawal_id)
     withdrawal.status = 'Rejected'
@@ -485,6 +544,7 @@ def reject_bank_withdrawal(request, withdrawal_id):
 # Branches
 
 @login_required
+@user_passes_test(is_owner)
 def bank_withdrawal_requests(request):
     pending_withdrawals = BankWithdrawal.objects.filter(status='Pending').order_by('-date_withdrawn', '-time_withdrawn')
     context = {
@@ -493,6 +553,9 @@ def bank_withdrawal_requests(request):
     }
     return render(request, 'owner/financial_services/bank_withdrawal.html', context)
 
+
+@login_required
+@user_passes_test(is_owner)
 def agentDetail(request, agent_id):
     agent = get_object_or_404(Agent, id=agent_id)
     context = {
@@ -500,6 +563,9 @@ def agentDetail(request, agent_id):
     }
     return render(request, 'owner/agent_Detail/agentDetail.html', context)
 
+
+@login_required
+@user_passes_test(is_owner)
 def agentCustomer(request, branch_id):
     branch = get_object_or_404(Agent, id=branch_id)
     customers = Customer.objects.filter(agent=branch)
@@ -510,6 +576,8 @@ def agentCustomer(request, branch_id):
     return render(request, 'owner/agent_Detail/agentCustomer.html', context)
 
 
+@login_required
+@user_passes_test(is_owner)
 def bankDeposit(request, branch_id):
     branch = get_object_or_404(Agent, id=branch_id)
     dates = BankDeposit.objects.filter(agent=branch).values('date_deposited', 'agent').annotate(total_amount=Sum('amount')).order_by('-date_deposited')
@@ -519,6 +587,9 @@ def bankDeposit(request, branch_id):
     }
     return render(request, 'owner/agent_Detail/bankDeposit.html', context)
 
+
+@login_required
+@user_passes_test(is_owner)
 def bankDepositDetail(request, branch_id, date):
     branch = get_object_or_404(Agent, id=branch_id)
     bank_deposit_transactions = BankDeposit.objects.filter(agent=branch, date_deposited=date).order_by('-date_deposited', '-time_deposited')
@@ -529,12 +600,16 @@ def bankDepositDetail(request, branch_id, date):
     }
     return render(request, 'owner/agent_Detail/bankDepositDetail.html', context)
 
-
+@login_required
+@user_passes_test(is_owner)
 def delete_agent_bank_deposit(request, deposit_id):
     deposit = BankDeposit.objects.get(id=deposit_id)
     deposit.delete()
     return redirect('delete_transaction_notification')
 
+
+@login_required
+@user_passes_test(is_owner)
 def bank_withdrawal(request, branch_id):
     branch = get_object_or_404(Agent, id=branch_id)
     dates = BankWithdrawal.objects.filter(agent=branch).values('date_withdrawn', 'agent').annotate(total_amount=Sum('amount')).order_by('-date_withdrawn')
@@ -544,6 +619,9 @@ def bank_withdrawal(request, branch_id):
     }
     return render(request, 'owner/agent_Detail/bank_withdrawal.html', context)
 
+
+@login_required
+@user_passes_test(is_owner)
 def bank_with_detail(request, branch_id, date):
     branch = get_object_or_404(Agent, id=branch_id)
     bank_withdrawal_transactions = BankWithdrawal.objects.filter(agent=branch, date_withdrawn=date).order_by('-date_withdrawn', '-time_withdrawn')
@@ -554,11 +632,17 @@ def bank_with_detail(request, branch_id, date):
     }
     return render(request, 'owner/agent_Detail/bank_with_detail.html', context)
 
+
+@login_required
+@user_passes_test(is_owner)
 def delete_agent_bank_withdrawal(request, withdrawal_id):
     withdrawal = BankWithdrawal.objects.get(id=withdrawal_id)
     withdrawal.delete()
     return redirect('delete_transaction_notification')
 
+
+@login_required
+@user_passes_test(is_owner)
 def cash_In(request, branch_id):
     branch = get_object_or_404(Agent, id=branch_id)
     dates = CustomerCashIn.objects.filter(agent=branch).values('date_deposited', 'agent').annotate(total_amount=Sum('amount')).order_by('-date_deposited')
@@ -568,6 +652,9 @@ def cash_In(request, branch_id):
     }
     return render(request, 'owner/agent_Detail/cash_In.html', context)
 
+
+@login_required
+@user_passes_test(is_owner)
 def cash_in_detail(request, branch_id, date):
     branch = get_object_or_404(Agent, id=branch_id)
     cash_in_transactions = CustomerCashIn.objects.filter(agent=branch, date_deposited=date).order_by('-date_deposited', '-time_deposited')
@@ -579,12 +666,16 @@ def cash_in_detail(request, branch_id, date):
     return render(request, 'owner/agent_Detail/cash_in_detail.html', context)  
 
 
+@login_required
+@user_passes_test(is_owner)
 def delete_agent_cash_ins(request, cash_id):
     cashin = CustomerCashIn.objects.get(id=cash_id)
     cashin.delete()
     return redirect('delete_transaction_notification')
 
 
+@login_required
+@user_passes_test(is_owner)
 def cash_out_detail(request, branch_id, date):
     branch = get_object_or_404(Agent, id=branch_id)
     cash_out_transactions = CustomerCashOut.objects.filter(agent=branch, date_withdrawn=date).order_by('-date_withdrawn', '-time_withdrawn')
@@ -595,6 +686,9 @@ def cash_out_detail(request, branch_id, date):
     }
     return render(request, 'owner/agent_Detail/cash_out_detail.html', context)  
 
+
+@login_required
+@user_passes_test(is_owner)
 def cash_out_agent(request, branch_id):
     branch = get_object_or_404(Agent, id=branch_id)
     dates = CustomerCashOut.objects.filter(agent=branch).values('date_withdrawn', 'agent').annotate(total_amount=Sum('amount')).order_by('-date_withdrawn')
@@ -604,11 +698,17 @@ def cash_out_agent(request, branch_id):
     }
     return render(request, 'owner/agent_Detail/cash_out_agent.html', context)  
 
+
+@login_required
+@user_passes_test(is_owner)
 def delete_agent_cash_outs(request, cash_id):
     cashout = CustomerCashOut.objects.get(id=cash_id)
     cashout.delete()
     return redirect('delete_transaction_notification')
 
+
+@login_required
+@user_passes_test(is_owner)
 def branch_bank_deposit_date(request, branch_id):
     branch = get_object_or_404(Agent, id=branch_id)
     dates = BankDeposit.objects.filter(agent=branch).values('date_deposited', 'agent').annotate(total_amount=Sum('amount')).order_by('-date_deposited')
@@ -617,6 +717,9 @@ def branch_bank_deposit_date(request, branch_id):
     }
     return render(request, 'owner/agent_Detail/bank_deposit_date.html', context)
 
+
+@login_required
+@user_passes_test(is_owner)
 def branch_bank_deposit_transaction(request, branch_id, date):
     branch = get_object_or_404(Agent, id=branch_id)
     bank_deposit_transactions = BankDeposit.objects.filter(agent=branch, date_deposited=date).order_by('-date_deposited', '-time_deposited')
@@ -627,12 +730,16 @@ def branch_bank_deposit_transaction(request, branch_id, date):
     }
     return render(request, 'owner/agent_Detail/bank_deposit_transaction.html', context)
 
+
+@login_required
+@user_passes_test(is_owner)
 def delete_agent_bank_deposit(request, deposit_id):
     deposit = BankDeposit.objects.get(id=deposit_id)
     deposit.delete()
     return redirect('delete_transaction_notification')
 
 @login_required
+@user_passes_test(is_owner)
 def branch_bank_withdrawal_transactions_date(request, branch_id):
     branch = get_object_or_404(Agent, id=branch_id)
     dates = BankWithdrawal.objects.filter(agent=branch).values('date_withdrawn', 'agent').annotate(total_amount=Sum('amount')).order_by('-date_withdrawn')
@@ -641,6 +748,9 @@ def branch_bank_withdrawal_transactions_date(request, branch_id):
     }
     return render(request, 'owner/agent_Detail/bank_withdrawal_date.html', context)
 
+
+@login_required
+@user_passes_test(is_owner)
 def branch_bank_withdrawal_transactions(request, branch_id, date):
     branch = get_object_or_404(Agent, id=branch_id)
     bank_withdrawal_transactions = BankWithdrawal.objects.filter(agent=branch, date_withdrawn=date).order_by('-date_withdrawn', '-time_withdrawn')
@@ -651,6 +761,9 @@ def branch_bank_withdrawal_transactions(request, branch_id, date):
     }
     return render(request, 'owner/agent_Detail/bank_withdrawal_transaction.html', context)
 
+
+@login_required
+@user_passes_test(is_owner)
 def delete_branch_bank_withdrawal(request, withdrawal_id):
     withdrawal = BankWithdrawal.objects.get(id=withdrawal_id)
     withdrawal.delete()
@@ -658,6 +771,7 @@ def delete_branch_bank_withdrawal(request, withdrawal_id):
 
 
 @login_required
+@user_passes_test(is_owner)
 def branch_ecash_transactions_date(request, branch_id):
     branch = get_object_or_404(Agent, id=branch_id)
     dates = CashAndECashRequest.objects.filter(agent=branch).values('created_at', 'agent').annotate(total_amount=Sum('amount')).order_by('-created_at')
@@ -666,6 +780,9 @@ def branch_ecash_transactions_date(request, branch_id):
     }
     return render(request, 'owner/agent_Detail/ecash_date.html', context)
 
+
+@login_required
+@user_passes_test(is_owner)
 def branch_ecash_transactions(request, branch_id, date):
     branch = get_object_or_404(Agent, id=branch_id)
     ecash_transactions = CashAndECashRequest.objects.filter(agent=branch, created_at=date).order_by('-created_at')
@@ -676,12 +793,16 @@ def branch_ecash_transactions(request, branch_id, date):
     }
     return render(request, 'owner/agent_Detail/ecash_transaction.html', context)
 
+
+@login_required
+@user_passes_test(is_owner)
 def delete_branch_ecash(request, ecash_id):
     ecash = CashAndECashRequest.objects.get(id=ecash_id)
     ecash.delete()
     return redirect('delete_transaction_notification')
 
 @login_required
+@user_passes_test(is_owner)
 def branch_payment_transactions_date(request, branch_id):
     branch = get_object_or_404(Agent, id=branch_id)
     dates = PaymentRequest.objects.filter(agent=branch).values('created_at', 'agent').annotate(total_amount=Sum('amount')).order_by('-created_at')
@@ -690,6 +811,9 @@ def branch_payment_transactions_date(request, branch_id):
     }
     return render(request, 'owner/agent_Detail/payment_date.html', context)
 
+
+@login_required
+@user_passes_test(is_owner)
 def branch_payment_transactions(request, branch_id, date):
     branch = get_object_or_404(Agent, id=branch_id)
     payment_transactions = PaymentRequest.objects.filter(agent=branch, status='Approved', created_at=date).order_by('-created_at')
@@ -700,6 +824,9 @@ def branch_payment_transactions(request, branch_id, date):
     }
     return render(request, 'owner/agent_Detail/payment_transaction.html', context)
 
+
+@login_required
+@user_passes_test(is_owner)
 def delete_branch_payment(request, payment_id):
     payment = PaymentRequest.objects.get(id=payment_id)
     payment.delete()
@@ -722,6 +849,9 @@ def branch_report_view(request, branch_id):
     }
     return render(request, 'owner/reports/branch_report.html', context) 
 
+
+@login_required
+@user_passes_test(is_owner)
 def commission(request):
     filter_type = request.GET.get('filter', 'daily') # Default to daily
     start_date = request.GET.get('start_date')
@@ -768,6 +898,9 @@ def commission(request):
     }
     return render(request, 'owner/agent_Detail/commission.html', context)
 
+
+@login_required
+@user_passes_test(is_owner)
 def branch_balance(request, branch_id):
     branch = get_object_or_404(Agent, id=branch_id)
     today = timezone.now().date()
@@ -888,6 +1021,7 @@ def hold_account(request):
 #     return render(request, 'owner/mobilization/register_mobilization.html', context)
 
 @login_required
+@user_passes_test(is_owner)
 def mobilization_bank_deposit_requests(request):
     pending_deposits = bank_deposits.objects.filter(status='Pending').order_by('-date_deposited', '-time_deposited')
     context = {
@@ -897,6 +1031,7 @@ def mobilization_bank_deposit_requests(request):
     return render(request, 'owner/mobilization_approvals/bank_deposit.html', context)
 
 @login_required
+@user_passes_test(is_owner)
 def approve_mobilization_bank_deposit(request, deposit_id):
     deposit = get_object_or_404(bank_deposits, id=deposit_id)
     if request.method == 'POST':
@@ -915,6 +1050,7 @@ def approve_mobilization_bank_deposit(request, deposit_id):
     return render(request, 'owner/mobilization_approvals/bank_deposit_approval.html', context)
 
 @login_required
+@user_passes_test(is_owner)
 def reject_mobilization_bank_deposit(request, deposit_id):
     deposit = get_object_or_404(bank_deposits, id=deposit_id)
     deposit.status = 'Rejected'
@@ -923,6 +1059,7 @@ def reject_mobilization_bank_deposit(request, deposit_id):
     return redirect('mobilization_bank_deposit_requests')
 
 @login_required
+@user_passes_test(is_owner)
 def update_mobilization_bank_deposit(request, deposit_id):
     deposit = get_object_or_404(bank_deposits, id=deposit_id)
     
@@ -944,6 +1081,7 @@ def update_mobilization_bank_deposit(request, deposit_id):
         
 
 @login_required
+@user_passes_test(is_owner)
 def mobilization_bank_withdrawal_requests(request):
     pending_withdrawals = bank_withdrawals.objects.filter(status='Pending').order_by('-date_withdrawn', '-time_withdrawn')
     context = {
@@ -953,6 +1091,7 @@ def mobilization_bank_withdrawal_requests(request):
     return render(request, 'owner/mobilization_approvals/bank_withdrawal.html', context)
 
 @login_required
+@user_passes_test(is_owner)
 def approve_mobilization_withdrawal(request, withdrawal_id):
     withdrawal = get_object_or_404(bank_withdrawals, id=withdrawal_id)
     withdrawal.status = 'Approved'
@@ -961,6 +1100,7 @@ def approve_mobilization_withdrawal(request, withdrawal_id):
     return redirect('mobilization_bank_withdrawal_requests')
 
 @login_required
+@user_passes_test(is_owner)
 def reject_mobilization_withdrawal(request, withdrawal_id):
     withdrawal = get_object_or_404(bank_withdrawals, id=withdrawal_id)
     withdrawal.status = 'Rejected'
@@ -969,6 +1109,7 @@ def reject_mobilization_withdrawal(request, withdrawal_id):
     return redirect('mobilization_bank_withdrawal_requests')
 
 @login_required
+@user_passes_test(is_owner)
 def mobilization_payment_requests(request):
     payments = payment_requests.objects.filter(status='Pending').order_by('-created_at')
     
@@ -980,6 +1121,7 @@ def mobilization_payment_requests(request):
 
 
 @login_required
+@user_passes_test(is_owner)
 def approve_mobilization_payment(request, payment_id):
     payment = get_object_or_404(payment_requests, id=payment_id)
     if request.method == 'POST':
@@ -1001,6 +1143,7 @@ def approve_mobilization_payment(request, payment_id):
     return render(request, 'owner/mobilization_approvals/payment_approval.html', context)
 
 @login_required
+@user_passes_test(is_owner)
 def reject_mobilization_payment(request, payment_id):
     payment = get_object_or_404(payment_requests, id=payment_id)
     payment.status = 'Rejected'
@@ -1011,7 +1154,8 @@ def reject_mobilization_payment(request, payment_id):
 
 
 
-
+@login_required
+@user_passes_test(is_owner)
 def mobilization_agent_detail(request, mobilization_id):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)
     context = {
@@ -1019,6 +1163,8 @@ def mobilization_agent_detail(request, mobilization_id):
     }
     return render(request, 'owner/mobilization/mobilization_detail.html', context)
 
+@login_required
+@user_passes_test(is_owner)
 def mobilization_customers(request, mobilization_id):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)
     customers = Customer.objects.filter(mobilization=mobilization)
@@ -1028,7 +1174,8 @@ def mobilization_customers(request, mobilization_id):
     }
     return render(request, 'owner/mobilization/customers.html', context)
 
-
+@login_required
+@user_passes_test(is_owner)
 def delete_mobilization_customer(request, mobilization_id):
     
     customer = Customer.objects.get(id=mobilization_id)
@@ -1054,7 +1201,8 @@ def delete_mobilization_customer(request, mobilization_id):
 #     }
         
 #     return render(request, 'owner/mobilization/customer_update.html', context)
-
+@login_required
+@user_passes_test(is_owner)
 def mobilization_all_transactions(requests):
     context = {
         'title': 'All Transactions'
@@ -1072,6 +1220,9 @@ def mobilization_report_view(request, mobilization_id):
     }
     return render(request, 'owner/reports/mobilization_report.html', context) 
 
+
+@login_required
+@user_passes_test(is_owner)
 def mobilization_account_detail(request, mobilization_id):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)
     # today = timezone.now().date()
@@ -1116,6 +1267,7 @@ def mobilization_account_detail(request, mobilization_id):
 
 
 @login_required
+@user_passes_test(is_owner)
 def mobilization_bank_deposit_transactions_date(request, mobilization_id):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)
     dates = bank_deposits.objects.filter(mobilization=mobilization).values('date_deposited', 'mobilization').annotate(total_amount=Sum('amount'))
@@ -1126,6 +1278,7 @@ def mobilization_bank_deposit_transactions_date(request, mobilization_id):
 
  
 @login_required
+@user_passes_test(is_owner)
 def mobilization_bank_deposit_transactions(request, mobilization_id, date):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)
     bank_deposit_transactions = bank_deposits.objects.filter(mobilization=mobilization, status='Approved', date_deposited=date).order_by('-date_deposited', '-time_deposited')
@@ -1136,7 +1289,8 @@ def mobilization_bank_deposit_transactions(request, mobilization_id, date):
     }
     return render(request, 'owner/mobilization/bank_deposit_transactions.html', context)
 
-
+@login_required
+@user_passes_test(is_owner)
 def delete_mobilization_bank_deposit(request, deposit_id):
     deposit = bank_deposits.objects.get(id=deposit_id)
     deposit.delete()
@@ -1148,6 +1302,7 @@ def delete_transaction_notification(request):
  
 
 @login_required
+@user_passes_test(is_owner)
 def mobilization_bank_withdrawal_transactions_date(request, mobilization_id):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)
     dates = bank_withdrawals.objects.filter(mobilization=mobilization).values('date_withdrawn', 'mobilization').annotate(total_amount=Sum('amount'))
@@ -1156,6 +1311,9 @@ def mobilization_bank_withdrawal_transactions_date(request, mobilization_id):
     }
     return render(request, 'owner/mobilization/bank_withdrawal_transaction_date.html', context)
 
+
+@login_required
+@user_passes_test(is_owner)
 def mobilization_bank_withdrawal_transactions(request, mobilization_id, date):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)
     bank_withdrawal_transactions = bank_withdrawals.objects.filter(mobilization=mobilization, status='Approved', date_withdrawn=date).order_by('-date_withdrawn', '-time_withdrawn')
@@ -1166,6 +1324,8 @@ def mobilization_bank_withdrawal_transactions(request, mobilization_id, date):
     }
     return render(request, 'owner/mobilization/bank_withdrawal_transactions.html', context)
 
+@login_required
+@user_passes_test(is_owner)
 def delete_mobilization_bank_withdrawal(request, withdrawal_id):
     withdrawal = bank_withdrawals.objects.get(id=withdrawal_id)
     withdrawal.delete()
@@ -1173,6 +1333,7 @@ def delete_mobilization_bank_withdrawal(request, withdrawal_id):
 
 
 @login_required
+@user_passes_test(is_owner)
 def mobilization_payment_transactions_date(request, mobilization_id):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)
     dates = payment_requests.objects.filter(mobilization=mobilization).values('created_at', 'mobilization').annotate(total_amount=Sum('amount'))
@@ -1181,6 +1342,9 @@ def mobilization_payment_transactions_date(request, mobilization_id):
     }
     return render(request, 'owner/mobilization/payment_transaction_date.html', context)
 
+
+@login_required
+@user_passes_test(is_owner)
 def mobilization_payment_transactions(request, mobilization_id, date):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)
     payment_transactions = payment_requests.objects.filter(mobilization=mobilization, status='Approved', created_at=date).order_by('-created_at')
@@ -1191,12 +1355,16 @@ def mobilization_payment_transactions(request, mobilization_id, date):
     }
     return render(request, 'owner/mobilization/payment_transactions.html', context)
 
+
+@login_required
+@user_passes_test(is_owner)
 def delete_mobilization_payment(request, payment_id):
     payment = payment_requests.objects.get(id=payment_id)
     payment.delete()
     return redirect('delete_transaction_notification')
 
 @login_required
+@user_passes_test(is_owner)
 def update_mobilization_payment(request, payment_id):
     payment = get_object_or_404(payment_requests, id=payment_id)
     

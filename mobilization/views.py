@@ -43,7 +43,8 @@ def is_mobilization(user):
 #     }
         
 #     return render(request, 'mobilization/mobilization_account.html', context)
-
+@login_required
+@user_passes_test(is_mobilization)
 def mobilization_account(request):
     mobilization = request.user.mobilization
     
@@ -189,6 +190,9 @@ def bank_deposit(request):
     }
     return render(request, 'mobilization/bank_deposit.html', context)
 
+
+@login_required
+@user_passes_test(is_mobilization)
 def get_bank_deposit(request):
     mobilization = request.user.mobilization
     bank_deposits = BankDeposit.objects.filter(mobilization=mobilization, status='Approved')
@@ -198,6 +202,9 @@ def get_bank_deposit(request):
     }
     return render(request, 'mobilization/get_transactions/bank_deposit.html', context)
 
+
+@login_required
+@user_passes_test(is_mobilization)
 def get_bank_withdrawal(request):
     mobilization = request.user.mobilization
     bank_withdrawals = BankWithdrawal.objects.filter(mobilization=mobilization)
@@ -208,6 +215,8 @@ def get_bank_withdrawal(request):
     return render(request, 'mobilization/get_transactions/bank_withdrawal.html', context)
 
 
+@login_required
+@user_passes_test(is_mobilization)
 def get_payments(request):
     mobilization = request.user.mobilization
     payments = PaymentRequest.objects.filter(mobilization=mobilization, status='Approved')
@@ -356,7 +365,8 @@ def customer_registration(request):
 
     return render(request, 'mobilization/customer_registration.html', context)
 
-
+@login_required
+@user_passes_test(is_mobilization)
 def update_customer_details(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)
     if request.method == 'POST':
@@ -677,7 +687,8 @@ def payment_notifications(request):
 def payto_notifications(request):
     return render(request, 'mobilization/notifications/payto_notifications.html')
 
-
+@login_required
+@user_passes_test(is_mobilization)
 def report(request):
     mobilization = request.user.mobilization
     if request.method == 'POST':
@@ -692,7 +703,8 @@ def report(request):
     }
     return render(request, 'mobilization/report.html', context)
 
-
+@login_required
+@user_passes_test(is_mobilization)
 def view_report(request):
     mobilization = request.user.mobilization
     reports = Report.objects.filter(mobilization=mobilization)

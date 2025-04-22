@@ -96,7 +96,7 @@
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
-            <h1>Total Money Approved</h1>
+            <h1>Total Balances</h1>
 
             <!-- <div class="container">
                 <span class="text">Capital: GH¢{{account.capital_amount|intcomma}}</span>
@@ -110,63 +110,28 @@
         <table>
             <thead>
                 <tr>
-                    <th>Acount</th>
-                    <th>Balance</th>
-
+                    
+                    <th>Full Name</th>
+                    
+                    <th>Balance (₵)</th>
                 </tr>
             </thead>
             <tbody>
 
+                {% for data in branch_data %}
                 <tr>
-                    <td data-label="Agent">MTN</td>
-                    <td data-label="Amount">GH¢{{mtn_total|intcomma}}</td>
-
+                    
+                    <td>{{ data.agent.full_name }}</td>
+                    
+                    <td class="{% if data.balance < 0 %}text-danger{% else %}text-success{% endif %}">
+                        {{ data.balance|floatformat:2 }}
+                    </td>
                 </tr>
+                {% empty %}
                 <tr>
-                    <td data-label="Agent">Telecel</td>
-                    <td data-label="Amount">GH¢{{telecel_total|intcomma}}</td>
-
+                    <td colspan="6">No agents found</td>
                 </tr>
-                <tr>
-                    <td data-label="Agent">Airtel Tigo</td>
-                    <td data-label="Amount">GH¢{{airteltigo_total|intcomma}}</td>
-
-                </tr>
-                <tr>
-                    <td data-label="Agent">Ecobank</td>
-                    <td data-label="Amount">GH¢{{ecobank_total|intcomma}}</td>
-
-                </tr>
-                <tr>
-                    <td data-label="Agent">Fidelity</td>
-                    <td data-label="Amount">GH¢{{fidelity_total|intcomma}}</td>
-
-                </tr>
-                <tr>
-                    <td data-label="Agent">Calbank</td>
-                    <td data-label="Amount">GH¢{{calbank_total|intcomma}}</td>
-
-                </tr>
-                <tr>
-                    <td data-label="Agent">GTBank</td>
-                    <td data-label="Amount">GH¢{{gtbank_total|intcomma}}</td>
-
-                </tr>
-                <tr>
-                    <td data-label="Agent">Access Bank</td>
-                    <td data-label="Amount">GH¢{{accessbank_total|intcomma}}</td>
-
-                </tr>
-                <tr>
-                    <td data-label="Agent">Cash at Hand</td>
-                    <td data-label="Amount">GH¢{{cash_total|intcomma}}</td>
-
-                </tr>
-                <tr>
-                    <td data-label="Agent">Grand Total</td>
-                    <td data-label="Amount">GH¢{{grand_total|intcomma}}</td>
-
-                </tr>
+                {% endfor %}
                 
                 
             </tbody>
