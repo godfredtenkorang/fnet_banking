@@ -1,4 +1,5 @@
 {% extends 'owner/base.html' %}
+{% load humanize %}
 {% load static %}
 {% block content %}
 
@@ -95,8 +96,12 @@
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
-            <h1>Total Balances</h1>
+            <h1>Total Money Approved</h1>
 
+            <!-- <div class="container">
+                <span class="text">Capital: GH¢{{account.capital_amount|intcomma}}</span>
+                <span class="text">Grand Total: GH¢{{account.grand_total|intcomma}}</span>
+            </div> -->
         </div>
     </div>
 
@@ -119,7 +124,7 @@
                     <td>{{ data.agent.full_name }}</td>
                     
                     <td class="{% if data.balance < 0 %}text-danger{% else %}text-success{% endif %}">
-                        {{ data.balance }}
+                        {{ data.balance|floatformat:2 }}
                     </td>
                 </tr>
                 {% empty %}
@@ -127,14 +132,73 @@
                     <td colspan="6">No agents found</td>
                 </tr>
                 {% endfor %}
-                
-                
             </tbody>
         </table>
+        <br>
+        <!-- Pop-up to show total -->
+        <div class="total-pop">
+            <div class="total-background">
+                <p>Total</p>
+                <p class="total-amount">$0</p>
+                <button class="closeTotal">Close</button>
+            </div>
+        </div>
 
-
+        <!-- Button to Calculate Total -->
+        <!-- <div class="total-btn">
+            <button class="calculate-total"><i class="fas fa-coins"></i> Total</button>
+        </div> -->
 
     </div>
 
 
+
+
+
+
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const totalBtn = document.querySelector(".calculate-total");
+            const totalPop = document.querySelector(".total-pop");
+            const totalAmount = document.querySelector(".total-amount");
+            const closeTotalBtn = document.querySelector(".closeTotal");
+
+            // Function to Calculate Total
+            function calculateTotal() {
+                let total = 0;
+                document.querySelectorAll("td[data-label='Amount']").forEach(td => {
+                    let amount = parseFloat(td.textContent.replace("$", "")) || 0;
+                    total += amount;
+                });
+
+                // Update Total Amount in Popup
+                totalAmount.textContent = `$${total}`;
+
+                // Show Popup
+                totalPop.style.display = "flex";
+                setTimeout(() => {
+                    totalPop.classList.add("active");
+                }, 50);
+            }
+
+            // Function to Close the Popup
+            function closePopup() {
+                totalPop.classList.remove("active");
+                setTimeout(() => {
+                    totalPop.style.display = "none";
+                }, 300);
+            }
+
+            // Event Listeners
+            totalBtn.addEventListener("click", calculateTotal);
+            closeTotalBtn.addEventListener("click", closePopup);
+        });
+
+
+    </script>
+
     {% endblock %}
+
+    
