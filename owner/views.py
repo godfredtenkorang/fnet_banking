@@ -25,8 +25,7 @@ from .forms import BankDepositForm, PaymentForm
 def is_owner(user):
     return user.role == 'OWNER'
 
-@login_required
-@user_passes_test(is_owner)
+
 def owner_account(request):
     
     branches = Agent.objects.all()
