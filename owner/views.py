@@ -28,7 +28,7 @@ def is_owner(user):
     return user.role == 'OWNER'
 
 @login_required
-@user_passes_test(is_owner)
+
 def owner_account(request):
     
     owner = request.user.owner
@@ -143,7 +143,7 @@ def owner_account(request):
     return render(request, 'owner/account/owner_account.html', context)
 
 @login_required
-@user_passes_test(is_owner)
+
 def update_owner_balances(request):
     owner = request.user.owner
     owner_balance = OwnerBalance.objects.filter(user=owner).first()
