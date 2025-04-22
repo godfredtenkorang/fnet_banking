@@ -19,11 +19,23 @@ from mobilization.models import BankDeposit as bank_deposits
 from mobilization.models import BankWithdrawal as bank_withdrawals
 from mobilization.models import PaymentRequest as payment_requests
 from mobilization.models import Report as mobilization_reports
-from .forms import BankDepositForm, PaymentForm
+from .forms import BankDepositForm, PaymentForm, OwnerBalanceForm
+from .models import OwnerBalance
 
 
+# Check if the user is an Owner
+def is_owner(user):
+    return user.role == 'OWNER'
 
+@login_required
+@user_passes_test(is_owner)
 def owner_account(request):
+    
+    owner = request.user.owner
+
+    owner_balance = get_object_or_404(OwnerBalance, user=owner)
+    
+    
     
     branches = Agent.objects.all()
     
@@ -51,7 +63,36 @@ def owner_account(request):
             'payment_total': payment_total,
             'balance': balance,
         })
+        
+    mobilizations = Mobilization.objects.all()
     
+    mobilization_data = []
+    
+    for mobilization in mobilizations:
+         # Calculate total cash_and_ecash requests (approved only)
+        bank_deposits_total = bank_deposits.objects.filter(
+            mobilization=mobilization,
+            status='Approved'
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        # Calculate total payment requests (approved only)
+        payment_requests_total = payment_requests.objects.filter(
+            mobilization=mobilization,
+            status='Approved'
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        # Calculate balance
+        balance = payment_requests_total - bank_deposits_total
+        
+        mobilization_data.append({
+            'mobilization': mobilization,
+            'bank_deposits_total': bank_deposits_total,
+            'payment_requests_total': payment_requests_total,
+            'balance': balance,
+        })
+        
+    
+
     
     # today = timezone.now().date()
     # ecash_mtn_total = CashAndECashRequest.objects.filter(network='Mtn', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
@@ -96,8 +137,26 @@ def owner_account(request):
         # 'cash_total': cash_total,
         # 'grand_total': grand_total,
         'branch_data': branch_data,
+        'mobilization_data': mobilization_data,
+        'owner_balance': owner_balance
     }
     return render(request, 'owner/account/owner_account.html', context)
+
+@login_required
+@user_passes_test(is_owner)
+def update_owner_balances(request):
+    owner = request.user.owner
+    owner_balance = OwnerBalance.objects.filter(user=owner).first()
+    
+    
+    if request.method == 'POST':
+        form = OwnerBalanceForm(request.POST, instance=owner_balance)
+        if form.is_valid():
+            form.save()
+            return redirect('owner-account')
+    else:
+        form = OwnerBalanceForm(instance=owner_balance)
+    return render(request, 'owner/account/update_balances.html', {'form': form})
 
 def unapproved_users_count(request):
     unapproved_cash_count = CashAndECashRequest.objects.filter(status='Pending').count()

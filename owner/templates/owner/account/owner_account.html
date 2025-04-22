@@ -96,7 +96,7 @@
     <div class="banner-container">
         <img src="{% static 'banking/img/banner.png' %}" alt="image" />
         <div class="banner-text">
-            <h1>Total Money Approved</h1>
+            <h1>Total Balances</h1>
 
             <!-- <div class="container">
                 <span class="text">Capital: GH¢{{account.capital_amount|intcomma}}</span>
@@ -107,6 +107,7 @@
 
 
     <div class="table-container">
+        <h2 style="text-align: center; font-weight:800;">Branches</h2>
         <table>
             <thead>
                 <tr>
@@ -135,6 +136,91 @@
             </tbody>
         </table>
         <br>
+        <h2 style="text-align: center; font-weight:800;">Mobilization</h2>
+        <table>
+            <thead>
+                <tr>
+        
+                    <th>Full Name</th>
+        
+                    <th>Balance (₵)</th>
+                </tr>
+            </thead>
+            <tbody>
+        
+                {% for data in mobilization_data %}
+                <tr>
+        
+                    <td>{{ data.mobilization.full_name }}</td>
+        
+                    <td class="{% if data.balance < 0 %}text-danger{% else %}text-success{% endif %}">
+                        {{ data.balance|floatformat:2 }}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">No agents found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+<br>
+        <h2 style="text-align: center; font-weight:800;">Owner's Float</h2>
+        <table>
+            <thead>
+                <tr>
+        
+                    <th>Bank/Network</th>
+        
+                    <th>Balance (₵)</th>
+                </tr>
+            </thead>
+            <tbody>
+        
+                
+                <tr>
+        
+                    <td>MTN</td>
+        
+                    <td>{{ owner_balance.mtn_balance|floatformat:2 }}</td>
+                </tr>
+                <tr>
+        
+                    <td>Telecel</td>
+        
+                    <td>{{ owner_balance.telecel_balance|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td>AirtelTigo</td>
+                    <td>{{ owner_balance.airteltigo_balance|floatformat:2 }}</td>
+                <tr>
+                    <td >Ecobank</td>
+                    <td >{{ owner_balance.ecobank_balance|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td>GTBank</td>
+                    <td>{{ owner_balance.gtbank_balance|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td>Fidelity</td>
+                    <td>{{ owner_balance.fidelity_balance|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td>Calbank</td>
+                    <td>{{ owner_balance.calbank_balance|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td>Access Bank</td>
+                    <td>{{ owner_balance.access_bank_balance|floatformat:2 }}</td>
+                </tr>
+
+                
+            </tbody>
+            <div >
+                <a href="{% url 'update-account' %}" class="">Update Balances</a>
+            </div>
+        </table>
+        <br><br>
         <!-- Pop-up to show total -->
         <div class="total-pop">
             <div class="total-background">
