@@ -29,7 +29,79 @@ def is_owner(user):
 @user_passes_test(is_owner)
 def owner_account(request):
     
-    return render(request, 'owner/account/owner_account.html')
+    branches = Agent.objects.all()
+    
+    branch_data = []
+    
+    for branch in branches:
+         # Calculate total cash_and_ecash requests (approved only)
+        cash_ecash_total = CashAndECashRequest.objects.filter(
+            agent=branch,
+            status='Approved'
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        # Calculate total payment requests (approved only)
+        payment_total = PaymentRequest.objects.filter(
+            agent=branch,
+            status='Approved'
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        # Calculate balance
+        balance = payment_total - cash_ecash_total
+        
+        branch_data.append({
+            'agent': branch,
+            'cash_ecash_total': cash_ecash_total,
+            'payment_total': payment_total,
+            'balance': balance,
+        })
+    
+    
+    # today = timezone.now().date()
+    # ecash_mtn_total = CashAndECashRequest.objects.filter(network='Mtn', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    # ecash_telecel_total = CashAndECashRequest.objects.filter(network='Telecel', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    # ecash_airteltigo_total = CashAndECashRequest.objects.filter(network='Airtel Tigo', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    # ecash_ecobank_total = CashAndECashRequest.objects.filter(bank='Ecobank', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    # ecash_fidelity_total = CashAndECashRequest.objects.filter(bank='Fidelity', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    # ecash_calbank_total = CashAndECashRequest.objects.filter(bank='Calbank', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    # ecash_gtbank_total = CashAndECashRequest.objects.filter(bank='GTbank', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    # ecash_accessbank_total = CashAndECashRequest.objects.filter(bank='Access bank', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    # cash_total = CashAndECashRequest.objects.filter(cash='Cash', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    
+    # payment_mtn_total = PaymentRequest.objects.filter(network='Mtn', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    # payment_telecel_total = PaymentRequest.objects.filter(network='Telecel', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    # payment_airteltigo_total = PaymentRequest.objects.filter(network='Airtel Tigo', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    # payment_ecobank_total = PaymentRequest.objects.filter(bank='Ecobank', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    # payment_accessbank_total = PaymentRequest.objects.filter(bank='Access_Bank', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    # payment_fidelity_total = PaymentRequest.objects.filter(bank='Fidelity', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    # payment_calbank_total = PaymentRequest.objects.filter(bank='Calbank', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    # payment_gtbank_total = PaymentRequest.objects.filter(bank='GTbank', status='Approved', created_at=today).aggregate(Sum('amount'))['amount__sum'] or 0
+    
+    # mtn_total = ecash_mtn_total + payment_mtn_total
+    # telecel_total = ecash_telecel_total + payment_telecel_total
+    # airteltigo_total = ecash_airteltigo_total + payment_airteltigo_total
+    # ecobank_total = ecash_ecobank_total + payment_ecobank_total
+    # accessbank_total = ecash_accessbank_total + payment_accessbank_total
+    # fidelity_total = ecash_fidelity_total + payment_fidelity_total
+    # calbank_total = ecash_calbank_total + payment_calbank_total
+    # gtbank_total = ecash_gtbank_total + payment_gtbank_total
+    
+    # grand_total = mtn_total + telecel_total + airteltigo_total + ecobank_total + accessbank_total + fidelity_total + calbank_total + gtbank_total
+    
+    context = {
+        # 'mtn_total': mtn_total,
+        # 'telecel_total': telecel_total,
+        # 'airteltigo_total': airteltigo_total,
+        # 'ecobank_total': ecobank_total,
+        # 'fidelity_total': fidelity_total,
+        # 'calbank_total': calbank_total,
+        # 'gtbank_total': gtbank_total,
+        # 'accessbank_total': accessbank_total,
+        # 'cash_total': cash_total,
+        # 'grand_total': grand_total,
+        'branch_data': branch_data,
+    }
+    return render(request, 'owner/account/owner_account.html', context)
 
 @login_required
 @user_passes_test(is_owner)
