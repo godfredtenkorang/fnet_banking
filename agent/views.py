@@ -68,7 +68,6 @@ def is_agent(user):
     return user.role == 'BRANCH'
 
 @login_required
-@user_passes_test(is_agent)
 def open_e_float_account(request):
     agent = request.user.agent
     today = timezone.now().date()
@@ -98,7 +97,6 @@ def open_e_float_account(request):
     return render(request, 'agent/efloat_account.html', context)
 
 @login_required
-@user_passes_test(is_agent)
 def view_e_float_account(request):
     agent = request.user.agent
     today = timezone.now().date()
@@ -168,7 +166,6 @@ def view_e_float_account(request):
     
 #     return render(request, 'agent/close_drawer.html', context)
 @login_required
-@user_passes_test(is_agent)
 def agent_dashboard(request):
     agent = request.user.agent
     
@@ -209,7 +206,6 @@ def agent_dashboard(request):
     return render(request, 'agent/dashboard.html', context)
 
 @login_required
-@user_passes_test(is_agent)
 def payto(request):
     agent = request.user
     if request.method == 'POST':
@@ -235,7 +231,6 @@ def payto(request):
     return render(request, 'agent/payto/payto.html', context)
 
 @login_required
-@user_passes_test(is_agent)
 def cashIn(request):
     agent = request.user.agent
     today = timezone.now().date()
@@ -312,7 +307,6 @@ def cashIn(request):
 
 
 @login_required
-@user_passes_test(is_agent)
 def cashOut(request):
     agent = request.user.agent
     today = timezone.now().date()
@@ -377,7 +371,6 @@ def get_customer_details(request):
 
 
 @login_required
-@user_passes_test(is_agent)
 def agencyBank(request):
     agent = request.user.agent
     today = timezone.now().date()
@@ -423,7 +416,6 @@ def agencyBank(request):
 
 
 @login_required
-@user_passes_test(is_agent)
 def record_bank_deposit(request):
     agent = request.user.agent
     today = timezone.now().date()
@@ -462,7 +454,6 @@ def record_bank_deposit(request):
     return render(request, 'agent/bank_deposit_without_customer.html', context)
 
 @login_required
-@user_passes_test(is_agent)
 def view_bank_deposits(request):
     agent = request.user.agent
     bank_deposits = BankDeposit.objects.filter(agent=agent).order_by('-date_deposited', '-time_deposited')
@@ -473,7 +464,6 @@ def view_bank_deposits(request):
     return render(request, 'agent/financial_services/view_bank_deposits.html', context)
 
 @login_required
-@user_passes_test(is_agent)
 def withdrawal(request):
     agent = request.user.agent
     today = timezone.now().date()
@@ -792,7 +782,6 @@ def cash_summary(request, date):
 
 
 @login_required
-@user_passes_test(is_agent)
 def payment_summary_date(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
@@ -827,7 +816,6 @@ def payment_summary_date(request):
 
 
 @login_required
-@user_passes_test(is_agent)
 def payment_summary(request, date):
     agent = request.user.agent
     payments = PaymentRequest.objects.filter(agent=agent, created_at=date).order_by('-created_at')
@@ -1003,7 +991,6 @@ def update_customer_details(request, customer_id):
     return render(request, 'agent/customer_details.html', context)
 
 @login_required
-@user_passes_test(is_agent)
 def payment(request):
     agent = request.user.agent
     today = timezone.now().date()
@@ -1050,7 +1037,6 @@ def payment(request):
     return render(request, 'agent/payment.html', context)
 
 @login_required
-@user_passes_test(is_agent)
 def view_payments(request):
     agent = request.user.agent
     payments = PaymentRequest.objects.filter(agent=agent).order_by('-created_at')
