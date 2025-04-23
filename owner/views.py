@@ -161,6 +161,7 @@ def update_owner_balances(request):
 def unapproved_users_count(request):
     unapproved_cash_count = CashAndECashRequest.objects.filter(status='Pending').count()
     unapproved_payment_count = PaymentRequest.objects.filter(status='Pending').count()
+    unapproved_bank_requests_count = BankDeposit.objects.filter(status='Pending').count()
     
     pending_deposits_count = bank_deposits.objects.filter(status='Pending').count()
     # pending_withdrawals_count = bank_withdrawals.objects.filter(status='Pending').count()
@@ -171,7 +172,8 @@ def unapproved_users_count(request):
     context = {
         'unapproved_cash_count': unapproved_cash_count,
         'unapproved_payment_count': unapproved_payment_count,
-        'mobilization_count': mobilization_count
+        'mobilization_count': mobilization_count,
+        'unapproved_bank_requests_count': unapproved_bank_requests_count
     }
     return context
 
@@ -396,20 +398,20 @@ def view_payment_requests(request):
     return render(request, 'owner/payments/pending_payments.html', context)
 
 
-@login_required
-def approve_bank_deposit(request, deposit_id):
-    deposit = get_object_or_404(BankDeposit, id=deposit_id)
-    account = deposit.agent.e_float_drawers.filter(date=deposit.date_deposited).first()
+# @login_required
+# def approve_bank_deposit(request, deposit_id):
+#     deposit = get_object_or_404(BankDeposit, id=deposit_id)
+#     account = deposit.agent.e_float_drawers.filter(date=deposit.date_deposited).first()
     
-    if not account:
-        messages.error(request, 'No e-float account found for this date')
-        return redirect('bank_deposit_requests')
+#     if not account:
+#         messages.error(request, 'No e-float account found for this date')
+#         return redirect('bank_deposit_requests')
     
-    # Check if the bank has sufficient balance
-    bank_balance = getattr(account, f"{deposit.bank.lower()}_balance")
-    if deposit.amount > bank_balance:
-        messages.error(request, f'Insufficient balance is {deposit.bank}')
-        return redirect('bank_deposit_requests')
+#     # Check if the bank has sufficient balance
+#     bank_balance = getattr(account, f"{deposit.bank.lower()}_balance")
+#     if deposit.amount > bank_balance:
+#         messages.error(request, f'Insufficient balance is {deposit.bank}')
+#         return redirect('bank_deposit_requests')
     
     
 

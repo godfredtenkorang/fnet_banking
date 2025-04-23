@@ -173,11 +173,17 @@
                         </div>
                     </a>
                     
-                    <!-- <a href="{% url 'bank_deposit_requests' %}">
+                    <a href="{% url 'bank_deposit_requests' %}">
                         <div class="nav-option option1 button">
-                            <h3><i class="fa-solid fa-book"></i> Financial Requests</h3>
+                            <h3><i class="fa-solid fa-book"></i> Branch Bank Requests</h3>
+                            <div class="notification">
+                              <i class="fa-solid fa-bell"></i>
+                              <p>{{ unapproved_bank_requests_count }}</p>
+                            
+                            
+                            </div>
                         </div>
-                    </a> -->
+                    </a>
                     <a href="{% url 'view_payment_requests' %}">
                         <div class="nav-option option1 button">
                             <h3><i class="fa-solid fa-book"></i> Branch Payment Requests </h3>

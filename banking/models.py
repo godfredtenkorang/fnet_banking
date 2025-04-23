@@ -186,31 +186,32 @@ class EFloatAccount(models.Model):
         
         self.save()
         
-    def update_balance_for_bank_deposit(self, bank, amount):
+    def update_balance_for_bank_deposit(self, bank, amount, status):
         amount = Decimal(amount)
+        if status == 'Approved':
         
-        if bank == 'Mtn':
-            self.mtn_balance -= amount
-        elif bank == 'Telecel':
-            self.telecel_balance -= amount
-        elif bank == 'AirtelTigo':
-            self.airtel_tigo_balance -= amount
-        elif bank == 'Ecobank':
-            self.ecobank_balance -= amount
-        elif bank == 'Fidelity':
-            self.fidelity_balance -= amount
-        elif bank == 'Calbank':
-            self.calbank_balance -= amount
-        elif bank == 'GTBank':
-            self.gtbank_balance -= amount
-        elif bank == 'Access Bank':
-            self.access_bank_balance -= amount
+            if bank == 'Mtn':
+                self.mtn_balance -= amount
+            elif bank == 'Telecel':
+                self.telecel_balance -= amount
+            elif bank == 'AirtelTigo':
+                self.airtel_tigo_balance -= amount
+            elif bank == 'Ecobank':
+                self.ecobank_balance -= amount
+            elif bank == 'Fidelity':
+                self.fidelity_balance -= amount
+            elif bank == 'Calbank':
+                self.calbank_balance -= amount
+            elif bank == 'GTBank':
+                self.gtbank_balance -= amount
+            elif bank == 'Access Bank':
+                self.access_bank_balance -= amount
 
-        # Add to the Cash at Hand balance
-        amount = Decimal(amount)
-        self.cash_at_hand += amount
-        
-        self.save()
+            # Add to the Cash at Hand balance
+            amount = Decimal(amount)
+            self.cash_at_hand += amount
+            
+            self.save()
             
     def update_balance_for_bank_withdrawal(self, bank, amount):
         amount = Decimal(amount)
@@ -233,8 +234,8 @@ class EFloatAccount(models.Model):
             self.access_bank_balance += amount
 
         # Add to the Cash at Hand balance
-        amount = Decimal(amount)
-        self.cash_at_hand -= amount
+        # amount = Decimal(amount)
+        # self.cash_at_hand -= amount
         
         self.save()
             

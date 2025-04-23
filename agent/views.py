@@ -404,7 +404,7 @@ def agencyBank(request):
             return redirect('agencyBank')
         
         bank_deposit.save()
-        account.update_balance_for_bank_deposit(bank_deposit.bank, bank_deposit.amount)
+        account.update_balance_for_bank_deposit(bank_deposit.bank, bank_deposit.amount, bank_deposit.status)
         messages.success(request, 'Bank Deposit recorded succussfully.')
         return redirect('bank_deposit_notifications')
     
