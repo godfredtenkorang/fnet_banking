@@ -68,6 +68,7 @@ def is_agent(user):
     return user.role == 'BRANCH'
 
 @login_required
+@user_passes_test(is_agent)
 def open_e_float_account(request):
     agent = request.user.agent
     today = timezone.now().date()
@@ -97,6 +98,7 @@ def open_e_float_account(request):
     return render(request, 'agent/efloat_account.html', context)
 
 @login_required
+@user_passes_test(is_agent)
 def view_e_float_account(request):
     agent = request.user.agent
     today = timezone.now().date()
@@ -166,6 +168,7 @@ def view_e_float_account(request):
     
 #     return render(request, 'agent/close_drawer.html', context)
 @login_required
+@user_passes_test(is_agent)
 def agent_dashboard(request):
     agent = request.user.agent
     
@@ -206,6 +209,7 @@ def agent_dashboard(request):
     return render(request, 'agent/dashboard.html', context)
 
 @login_required
+
 def payto(request):
     agent = request.user
     if request.method == 'POST':
@@ -404,7 +408,7 @@ def agencyBank(request):
             return redirect('agencyBank')
         
         bank_deposit.save()
-        account.update_balance_for_bank_deposit(bank_deposit.bank, bank_deposit.amount, bank_deposit.status)
+        account.update_balance_for_bank_deposit(bank_deposit.bank, bank_deposit.amount)
         messages.success(request, 'Bank Deposit recorded succussfully.')
         return redirect('bank_deposit_notifications')
     

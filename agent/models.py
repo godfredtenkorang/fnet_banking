@@ -191,7 +191,7 @@ class BankDeposit(models.Model):
     account_name = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=15, decimal_places=2)
     receipt = models.ImageField(upload_to='branch_receipt_img/', default='', null=True, blank=True)
-    status = models.CharField(max_length=100, choices=REQUEST_STATUS, default='Pending')
+    # status = models.CharField(max_length=100, choices=REQUEST_STATUS, default='Pending')
     date_deposited = models.DateField(default=timezone.now)
     time_deposited = models.TimeField(default=timezone.now)
     

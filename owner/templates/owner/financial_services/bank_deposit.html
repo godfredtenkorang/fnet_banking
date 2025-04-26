@@ -1,137 +1,214 @@
-{% extends 'owner/base.html' %} {% load static %} {% block content %}
-
-
-
+{% extends 'owner/base.html' %}
+{% load custom_filters %}
+{% load static %}
+{% block content %}
 
 <style>
     /* Ensure the table remains scrollable on small screens */
- .table-container {
-     width: 100%;
-     overflow-x: auto;
- }
- 
- /* Default table styling */
- table {
-     width: 100%;
-     border-collapse: collapse;
-     min-width: 800px; /* Ensures the table is scrollable if needed */
- }
- 
- th,
- td {
-     padding: 8px;
-     border: 1px solid #ddd;
-     text-align: center;
- }
- 
- th {
-     background: #007bff;
-     color: white;
-     font-weight: bold;
-     font-size: 13px;
- }
- 
- td {
-     font-size: 12px;
- }
- 
- /* Button Styling */
- .approve-btn {
-     background: #28a745;
-     color: white;
-     border: none;
-     cursor: pointer;
-     border-radius: 5px;
-     height: 6vh !important;
- }
- 
- .decline-btn {
-     background: #dc3545;
-     color: white;
-     border: none;
-     cursor: pointer;
-     border-radius: 5px;
-     height: 6vh !important;
- }
- 
- .action-buttons {
-     display: flex;
-     gap: 5px;
- }
- 
- /* Table row background color */
- tbody tr:nth-child(odd) {
-     background-color: #f9f9f9;
- }
- 
- tbody tr:nth-child(even) {
-     background-color: #e9ecef;
- }
- 
- /* Mobile Responsive: Keep table scrollable */
- @media screen and (max-width: 968px) {
-     .table-container {
-         overflow-x: auto; /* Enables horizontal scrolling */
-         white-space: nowrap;
-     }
- 
-     table {
-         min-width: 800px; /* Ensures columns do not wrap */
-     }
- }
- 
- </style>
- 
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    /* Default table styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 800px;
+        /* Ensures the table is scrollable if needed */
+    }
+
+    th,
+    td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+
+    th {
+        background: #007bff;
+        color: white;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    td {
+        font-size: 15px;
+    }
+
+    /* Button Styling */
+    .approve-btn {
+        background: #28a745;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        height: 6vh !important;
+    }
+
+    .decline-btn {
+        background: #dc3545;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        height: 6vh !important;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+    }
+
+    /* Table row background color */
+    tbody tr:nth-child(odd) {
+        background-color: #f9f9f9;
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #e9ecef;
+    }
+
+    /* Mobile Responsive: Keep table scrollable */
+    @media screen and (max-width: 968px) {
+        .table-container {
+            overflow-x: auto;
+            /* Enables horizontal scrolling */
+            white-space: nowrap;
+        }
+
+        table {
+            min-width: 800px;
+            /* Ensures columns do not wrap */
+        }
+    }
+
+
+    /* Define your color schemes */
+    .ecobank-row {
+        background-color: #0052CC;
+        color: 000;
+    }
+
+    .calbank-row {
+        background-color: #FFD700;
+    }
+
+    .gtbank-row {
+        background-color: #FFA500;
+        color: black;
+    }
+
+    .fidelity-row {
+        background-color: #ffa500;
+        color: black;
+    }
+
+    .accessbank-row {
+        background-color: #fffacd;
+        color: black;
+    }
+
+    .abasa-row {
+        background-color: #b70b0b;
+        color: white;
+    }
+
+    .mtn-row {
+        background-color: #FFA500;
+        color: black;
+    }
+
+    .telecel-row {
+        background-color: #E60000;
+        color: white;
+    }
+
+    .airteltigo-row {
+        background-color: #FF0000;
+        color: white;
+    }
+
+    /* Add more bank/network colors as needed */
+</style>
+
+
 
 
 <div class="main">
 
-    <div class="pay-to-link">
-        <a href="{% url 'bank_deposit_requests' %}" class="activeBtn">
-            <button><i class="fas fa-user-tie"></i> Bank Deposit Requests</button>
-        </a>
-        <!-- <a href="{% url 'bank_withdrawal_requests' %}">
-            <button><i class="fas fa-store"></i> Bank Withdrawal Requests</button>
-        </a> -->
+    <div style="background-color:#000; width:100%;">
+        {% if messages %}
+        {% for message in messages %}
+        <p style="color: #97c8b3; font-size:30px; text-align:center;">{{ message }}</p>
+        {% endfor %}
+        {% endif %}
     </div>
-
+    <div class="pay-to-link">
+        <a href="{% url 'branch_bank_requests' %}">
+            <button><i class="fas fa-user-tie"></i> Bank Requests</button>
+        </a>
+        
+    </div>
 
     <div class="table-container">
         <table>
             <thead>
                 <tr>
-                    <th>Agent</th>
-                    <th>Customer Phone</th>
-                    <th>Bank</th>
-                    <th>Account Number</th>
-                    <th>Account Name</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Amount</th>
-                    <th>Actions</th>
-
+                    <th>Branch</th>
+                    <th>Name</th>
+                    <th>Float Type</th>
+                    <th>Bank/Network</th>
+                    <th>Requested Amount</th>
+                    <th>Approved Amount</th>
+                    <th>Remaining Amount</th>
+                    <th>Date/Time</th>
+                    <th>Status</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
-                {% for pending_deposit in pending_deposits %}
-                <tr>
-                    <td data-label="Agent">{{pending_deposit.agent}}</td>
-                    <td data-label="Customer Number">{{pending_deposit.phone_number}}</td>
-                    <td data-label="Bank">{{pending_deposit.bank}}</td>
-                    <td data-label="Account Number">{{pending_deposit.account_number}}</td>
-                    <td data-label="Account Name">{{pending_deposit.account_name}}</td>
-                    <td data-label="Date">{{pending_deposit.date_deposited}}</td>
-                    <td data-label="Time">{{pending_deposit.time_deposited}}</td>
-                    <td data-label="Amount">{{pending_deposit.amount}}</td>
-
+                {% for cash in pending_requests %}
+                <tr class="
+            {% if cash.float_type == 'Bank' %}
+                {% if 'Ecobank' in cash.bank|lower %}ecobank-row
+                {% elif 'Calbank' in cash.bank|lower %}calbank-row
+                {% elif 'GTBank' in cash.bank|lower %}gtbank-row
+                {% elif 'Fidelity' in cash.bank|lower %}fidelity-row
+                {% elif 'Access_Bank' in cash.bank|lower %}accessbank-row
+                {% elif 'AbasaBank' in cash.bank|lower %}abasa-row
+                {% endif %}
+            {% elif cash.float_type == 'Telco' %}
+                {% if 'Mtn' in cash.network|lower %}mtn-row
+                {% elif 'Airtel Tigo' in cash.network|lower or 'tigo' in cash.network|lower %}airteltigo-row
+                {% elif 'Telecel' in cash.network|lower %}telecel-row
+                {% endif %}
+            {% endif %}
+        ">
+                    <td data-label="Agent">{{cash.agent.phone_number}}</td>
+                    <td style="font-weight: 900;" data-label="Agent">{{cash.agent.full_name}}</td>
+                    <td data-label="Amount">{{cash.float_type}}</td>
+                    <td data-label="Bank/Network">
+                        {% if cash.float_type == 'Bank' %}
+                        {{cash.bank}}
+                        {% elif cash.float_type == 'Telco' %}
+                        {{cash.network}}
+                        {% else %}
+                        N/A
+                        {% endif %}
+                    </td>
+                    <td data-label="Amount">{{cash.amount}}</td>
+                    <td data-label="Remaining">{{cash.amount|subtract:cash.arrears}}</td>
+                    <td data-label="Arrears">{{cash.arrears}}</td>
+                    <td data-label="Date/Time">{{cash.created_at}}</td>
+                    <td data-label="Status">{{cash.status}}</td>
                     <td data-label="Action" class="action-buttons">
-                        <a href="{% url 'approve_bank_deposit' pending_deposit.id %}"><button
+                        <a href="{% url 'approve_cash_and_ecash_request' cash.id %}"><button
                                 class="approve-btn">Approve</button></a>
-                        <a href="{% url 'reject_bank_deposit' pending_deposit.id %}"><button
+                        <a href="{% url 'reject_cash_and_ecash_request' cash.id %}"><button
                                 class="decline-btn">Reject</button></a>
                     </td>
                 </tr>
-
                 {% endfor %}
             </tbody>
         </table>
@@ -153,48 +230,84 @@
     </div>
 
 
-<script>
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const totalBtn = document.querySelector(".calculate-total");
-        const totalPop = document.querySelector(".total-pop");
-        const totalAmount = document.querySelector(".total-amount");
-        const closeTotalBtn = document.querySelector(".closeTotal");
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const rows = document.querySelectorAll('tbody tr');
 
-        // Function to Calculate Total
-        function calculateTotal() {
-            let total = 0;
-            document.querySelectorAll("td[data-label='Amount']").forEach(td => {
-                let amount = parseFloat(td.textContent.replace("GH¢", "")) || 0;
-                total += amount;
+            rows.forEach(row => {
+                const bankCell = row.querySelector('td[data-label="Bank/Network"]');
+                if (bankCell) {
+                    const content = bankCell.textContent.toLowerCase();
+
+                    if (content.includes('ecobank')) {
+                        row.classList.add('ecobank-row');
+                    } else if (content.includes('calbank')) {
+                        row.classList.add('calbank-row');
+                    } else if (content.includes('gtbank')) {
+                        row.classList.add('gtbbank-row');
+                    } else if (content.includes('fidelity')) {
+                        row.classList.add('fidelity-row');
+                    } else if (content.includes('accessbank')) {
+                        row.classList.add('accessbank-row');
+                    } else if (content.includes('abasa')) {
+                        row.classList.add('abasabank-row');
+                    } else if (content.includes('mtn')) {
+                        row.classList.add('mtn-row');
+                    } else if (content.includes('telecel')) {
+                        row.classList.add('telecel-row');
+                    } else if (content.includes('airtel') || content.includes('tigo')) {
+                        row.classList.add('airteltigo-row');
+                    }
+                }
             });
-
-            // Update Total Amount in Popup
-            totalAmount.textContent = `GH¢${total}`;
-
-            // Show Popup
-            totalPop.style.display = "flex";
-            setTimeout(() => {
-                totalPop.classList.add("active");
-            }, 50);
-        }
-
-        // Function to Close the Popup
-        function closePopup() {
-            totalPop.classList.remove("active");
-            setTimeout(() => {
-                totalPop.style.display = "none";
-            }, 300);
-        }
-
-        // Event Listeners
-        totalBtn.addEventListener("click", calculateTotal);
-        closeTotalBtn.addEventListener("click", closePopup);
-    });
+        });
+    </script>
 
 
-</script>
 
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const totalBtn = document.querySelector(".calculate-total");
+            const totalPop = document.querySelector(".total-pop");
+            const totalAmount = document.querySelector(".total-amount");
+            const closeTotalBtn = document.querySelector(".closeTotal");
+
+            // Function to Calculate Total
+            function calculateTotal() {
+                let total = 0;
+                document.querySelectorAll("td[data-label='Amount']").forEach(td => {
+                    let amount = parseFloat(td.textContent.replace("GH¢", "")) || 0;
+                    total += amount;
+                });
+
+                // Update Total Amount in Popup
+                totalAmount.textContent = `GH¢${total}`;
+
+                // Show Popup
+                totalPop.style.display = "flex";
+                setTimeout(() => {
+                    totalPop.classList.add("active");
+                }, 50);
+            }
+
+            // Function to Close the Popup
+            function closePopup() {
+                totalPop.classList.remove("active");
+                setTimeout(() => {
+                    totalPop.style.display = "none";
+                }, 300);
+            }
+
+            // Event Listeners
+            totalBtn.addEventListener("click", calculateTotal);
+            closeTotalBtn.addEventListener("click", closePopup);
+        });
+
+
+    </script>
 
 
 

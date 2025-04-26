@@ -159,9 +159,9 @@ def update_owner_balances(request):
     return render(request, 'owner/account/update_balances.html', {'form': form})
 
 def unapproved_users_count(request):
-    unapproved_cash_count = CashAndECashRequest.objects.filter(status='Pending').count()
+    unapproved_cash_count = CashAndECashRequest.objects.filter(status='Pending', float_type__in=['Cash','Telco'],).count()
     unapproved_payment_count = PaymentRequest.objects.filter(status='Pending').count()
-    unapproved_bank_requests_count = BankDeposit.objects.filter(status='Pending').count()
+    unapproved_bank_requests_count = CashAndECashRequest.objects.filter(status='Pending', float_type='Bank').count()
     
     pending_deposits_count = bank_deposits.objects.filter(status='Pending').count()
     # pending_withdrawals_count = bank_withdrawals.objects.filter(status='Pending').count()
@@ -184,7 +184,8 @@ def is_owner(user):
 @login_required
 @user_passes_test(is_owner)
 def owner_dashboard(request):
-    pending_requests = CashAndECashRequest.objects.filter(status='Pending').order_by('-created_at')
+    pending_requests = CashAndECashRequest.objects.filter(status='Pending', float_type__in=['Cash','Telco']).order_by('-created_at')
+    pending_bank_requests = CashAndECashRequest.objects.filter(status='Pending', float_type__in=['Bank']).order_by('-created_at')
     payments = PaymentRequest.objects.filter(status='Pending').order_by('-created_at')
     
     pending_deposits = bank_deposits.objects.filter(status='Pending').order_by('-date_deposited', '-time_deposited')
@@ -192,6 +193,7 @@ def owner_dashboard(request):
     
     context = {
         'pending_requests': pending_requests,
+        'pending_bank_requests': pending_bank_requests,
         'payments': payments,
         'pending_deposits': pending_deposits,
         'mobilization_payments': mobilization_payments
@@ -298,7 +300,7 @@ def cash_requests(request):
     return render(request, 'owner/pay_to/cash_requests.html', context)
 
 def e_cash_requests(request):
-    pending_requests = CashAndECashRequest.objects.filter(float_type__in=['Bank','Telco'], status='Pending').order_by('-created_at')
+    pending_requests = CashAndECashRequest.objects.filter(float_type__in=['Telco'], status='Pending').order_by('-created_at')
     
     context = {
         'pending_requests': pending_requests,
@@ -306,6 +308,16 @@ def e_cash_requests(request):
         'title': 'Cash Requests'
     }
     return render(request, 'owner/pay_to/ecash_requests.html', context)
+
+def branch_bank_requests(request):
+    pending_requests = CashAndECashRequest.objects.filter(float_type__in=['Bank'], status='Pending').order_by('-created_at')
+    
+    context = {
+        'pending_requests': pending_requests,
+
+        'title': 'Bank Requests'
+    }
+    return render(request, 'owner/financial_services/bank_deposit.html', context)
 
 
 @login_required
@@ -517,9 +529,9 @@ def approve_bank_deposit(request, deposit_id):
         return redirect('bank_deposit_requests')
     
     # Update the status and drawer balance
-    deposit.status = 'Approved'
+    # deposit.status = 'Approved'
     deposit.save()
-    account.update_balance_for_bank_deposit(deposit.bank, deposit.amount, deposit.status)
+    account.update_balance_for_bank_deposit(deposit.bank, deposit.amount)
     messages.success(request, 'Bank Deposit approved succussfully')
     return redirect('bank_deposit_requests')
 

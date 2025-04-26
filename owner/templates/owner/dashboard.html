@@ -142,7 +142,7 @@
     <table>
         <thead>
             <tr>
-                <th>Agent</th>
+                <th>Branch</th>
                 <th>Float Type</th>
                 <th>Bank/Network</th>
                 <th>Requested Amount</th>
@@ -183,13 +183,63 @@
 
         </tbody>
     </table>
+
+    <br><br>
+    <h2 class="user-title">Bank Requests</h2>
+    <br>
+    <table>
+        <thead>
+            <tr>
+                <th>Branch</th>
+                <th>Float Type</th>
+                <th>Bank</th>
+                <th>Requested Amount</th>
+                <th>Approved Amount</th>
+                <th>Remaining Amount</th>
+                <th>Date/Time</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cash in pending_bank_requests %}
+            <tr>
+                <td data-label="Agent">{{cash.agent.phone_number}}</td>
+                <td data-label="Amount">{{cash.float_type}}</td>
+                <td data-label="Bank/Network">
+                    {% if cash.float_type == 'Bank' %}
+                    {{cash.bank}}
+                    {% elif cash.float_type == 'Telco' %}
+                    {{cash.network}}
+                    {% elif cash.float_type == 'Cash' %}
+                    {{cash.cash}}
+                    {% else %}
+                    N/A
+                    {% endif %}
+                </td>
+                <td data-label="Amount">{{cash.amount}}</td>
+                <td data-label="Remaining">{{cash.amount|subtract:cash.arrears}}</td>
+                <td data-label="Arrears">{{cash.arrears}}</td>
+                <td data-label="Date/Time">{{cash.created_at}}</td>
+                <td data-label="Status">{{cash.status}}</td>
+                <td data-label="Action" class="action-buttons">
+                    <a href="{% url 'approve_cash_and_ecash_request' cash.id %}"><button
+                            class="approve-btn">Approve</button></a>
+                    <a href="{% url 'reject_cash_and_ecash_request' cash.id %}"><button
+                            class="decline-btn">Reject</button></a>
+                </td>
+            </tr>
+            {% endfor %}
+    
+        </tbody>
+    </table>
     <br><br>
     <h2 class="user-title">Branches Payment Requests</h2>
     <br>
     <table>
         <thead>
             <tr>
-                <th>Agent</th>
+                <th>Branch</th>
                 <th>Mode of Payment</th>
                 <th>Bank/Network/Branch</th>
                 <th>Amount</th>
