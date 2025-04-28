@@ -13,7 +13,7 @@ class MileageRecordForm(forms.ModelForm):
 class FuelRecordForm(forms.ModelForm):
     class Meta:
         model = FuelRecord
-        fields = ['vehicle', 'date', 'liters', 'amount', 'station_name', 'receipt_number']
+        fields = ['vehicle', 'date', 'liters', 'amount', 'station_name', 'receipt']
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
         }

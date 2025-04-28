@@ -8,7 +8,7 @@ class MileageRecord(models.Model):
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
     date = models.DateField(default=timezone.now)
     start_mileage = models.PositiveIntegerField()
-    end_mileage = models.PositiveIntegerField()
+    end_mileage = models.PositiveIntegerField(null=True, blank=True)
 
     
     @property
@@ -28,7 +28,7 @@ class FuelRecord(models.Model):
     liters = models.DecimalField(max_digits=10, decimal_places=2)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     station_name = models.CharField(max_length=100, null=True, blank=True)
-    receipt_number = models.CharField(max_length=50, null=True, blank=True)
+    receipt = models.FileField(upload_to='fuel_receipts/', blank=True, null=True)
     
     class Meta:
         ordering = ['-date']

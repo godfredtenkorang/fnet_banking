@@ -1,4 +1,4 @@
-{% extends 'owner/base.html' %} {% load static %} {% block content %}
+{% extends 'users/admin_dashboard/base.html' %} {% load static %} {% block content %}
 
 
 
@@ -141,7 +141,8 @@
                     <th>amount</th>
                     <th>Vehicle</th>
                     <th>Station Name</th>
-                    <th>Receipt Number</th>
+                     
+                    <th>Receipt</th>
         
         
                 </tr>
@@ -154,7 +155,11 @@
                     <td>{{record.amount}}</td>
                     <td>{{record.vehicle}}</td>
                     <td>{{record.station_name}}</td>
-                    <td>{{record.receipt_number}}</td>
+                    {% if record.receipt %}
+                    <td>{{record.receipt}}</td>
+                    {% else %}
+                    <td>N/A</td>
+                    {% endif %}
                     
                 </tr>
         

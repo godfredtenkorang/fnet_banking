@@ -33,6 +33,11 @@ urlpatterns = [
     path('birthdays/', views.birthdays, name='birthdays'),
     
     
+    path('register-driver/', views.register_driver, name='register-driver'),
+    path('my-drivers/', views.my_drivers, name='my_drivers'),
+    path('my-driver/<int:driver_id>/', views.driver_detail, name='driver_detail'),
+    
+    
     # API
      path('login/', LoginView.as_view(), name='user_login'),
      

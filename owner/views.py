@@ -258,26 +258,7 @@ def myAgent(request):
     return render(request, 'owner/myAgent.html', context)
 
 
-def register_driver(request):
-    if request.method == 'POST':
-        form = DriverRegistrationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('register-driver')
-    else:
-        form = DriverRegistrationForm()
-    context = {
-        'form': form
-    }
-    return render(request, 'owner/driver/register_driver.html', context)
 
-def my_drivers(request):
-    my_drivers = Driver.objects.all()
-    context = {
-        'my_drivers': my_drivers,
-        'title': 'My Drivers',
-    }
-    return render(request, 'owner/driver/my_drivers.html', context)
 
 
 def registerMobilization(request):
@@ -1384,50 +1365,3 @@ def all_transaction(request):
 
 
 
-# Driver
-
-def driver_detail(request, driver_id):
-    current_month = timezone.now().month
-    current_year = timezone.now().year
-    
-    driver = get_object_or_404(Driver, id=driver_id)
-    
-     # Get driver's mileage with calculated mileage
-    mileage_records = MileageRecord.objects.filter(
-        driver=driver,
-        date__month=current_month,
-        date__year=current_year
-    ).annotate(
-        calculated_mileage=F('end_mileage') - F('start_mileage')
-    )
-    total_mileage = mileage_records.aggregate(
-        total=Sum('calculated_mileage')
-    )['total'] or 0
-    
-    # Get driver's fuel records for the current month
-    fuel_records = FuelRecord.objects.filter(
-        driver=driver,
-        date__month=current_month,
-        date__year=current_year
-    )
-    total_fuel = fuel_records.aggregate(total=Sum('amount'))['total'] or 0
-    
-    # Get driver's expenses for the current month
-    expenses = Expense.objects.filter(
-        driver=driver,
-        date__month=current_month,
-        date__year=current_year
-    )
-    total_expenses = expenses.aggregate(total=Sum('amount'))['total'] or 0
-    
-    context = {
-        'driver': driver,
-        'mileage_records': mileage_records,
-        'total_mileage': total_mileage,
-        'fuel_records': fuel_records,
-        'total_fuel': total_fuel,
-        'expenses': expenses,
-        'total_expenses': total_expenses,
-    }
-    
-    return render(request, 'owner/driver/details/driver_detail.html', context)

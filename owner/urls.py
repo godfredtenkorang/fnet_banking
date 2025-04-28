@@ -9,9 +9,7 @@ urlpatterns = [
     path('registerAgent/', views.registerAgent, name='registerAgent'),
     path('myAgent/', views.myAgent, name='myAgent'),
     
-    path('register-driver/', views.register_driver, name='register-driver'),
-    path('my-drivers/', views.my_drivers, name='my_drivers'),
-    path('my-driver/<int:driver_id>/', views.driver_detail, name='driver_detail'),
+    
     
     path('account/<int:branch_id>/', views.get_all_agents, name='get_all_agents'),
     path('get_owner/view_agent_e_float_drawer/<int:agent_id>/', views.view_agent_e_float_drawer, name='view_agent_e_float_drawer'),
