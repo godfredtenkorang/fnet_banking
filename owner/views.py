@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import reverse
-from users.forms import AgentRegistrationForm, MobilizationRegistrationForm, CustomerUpdateForm
-from users.models import Agent, Owner
+from users.forms import AgentRegistrationForm, MobilizationRegistrationForm, CustomerUpdateForm, DriverRegistrationForm
+from users.models import Agent, Owner, Driver
 from banking.models import EFloatAccount, MobilizationAccount
 from banking.forms import AddCapitalForm, MobilizationAccountForm
 from agent.models import BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest, CustomerComplain, HoldCustomerAccount, CustomerFraud, CashInCommission, CashOutCommission, BranchReport, CustomerCashIn, CustomerCashOut
@@ -21,6 +21,8 @@ from mobilization.models import PaymentRequest as payment_requests
 from mobilization.models import Report as mobilization_reports
 from .forms import BankDepositForm, PaymentForm, OwnerBalanceForm
 from .models import OwnerBalance
+from driver.models import MileageRecord, FuelRecord, Expense
+from django.db.models import F
 
 
 # Check if the user is an Owner
@@ -191,12 +193,46 @@ def owner_dashboard(request):
     pending_deposits = bank_deposits.objects.filter(status='Pending').order_by('-date_deposited', '-time_deposited')
     mobilization_payments = payment_requests.objects.filter(status='Pending').order_by('-created_at')
     
+    current_month = timezone.now().month
+    current_year = timezone.now().year
+   
+    
+     # Get driver's mileage with calculated mileage
+    mileage_records = MileageRecord.objects.filter(
+        date__month=current_month,
+        date__year=current_year
+    ).annotate(
+        calculated_mileage=F('end_mileage') - F('start_mileage')
+    )
+    monthly_mileage = mileage_records.aggregate(
+        total=Sum('calculated_mileage')
+    )['total'] or 0
+    
+    # Get driver's fuel records for the current month
+    fuel_records = FuelRecord.objects.filter(
+        date__month=current_month,
+        date__year=current_year
+    )
+    monthly_fuel = fuel_records.aggregate(total=Sum('amount'))['total'] or 0
+    
+    # Get driver's expenses for the current month
+    expenses = Expense.objects.filter(
+        date__month=current_month,
+        date__year=current_year
+    )
+    monthly_expenses = expenses.aggregate(total=Sum('amount'))['total'] or 0
+    
+    
     context = {
         'pending_requests': pending_requests,
         'pending_bank_requests': pending_bank_requests,
         'payments': payments,
         'pending_deposits': pending_deposits,
-        'mobilization_payments': mobilization_payments
+        'mobilization_payments': mobilization_payments,
+        
+        'fuel_records': fuel_records,
+        'monthly_fuel': monthly_fuel,
+        'monthly_expenses': monthly_expenses,
     }
     return render(request, 'owner/dashboard.html', context)
 
@@ -220,6 +256,28 @@ def myAgent(request):
         'title': 'My Agents',
     }
     return render(request, 'owner/myAgent.html', context)
+
+
+def register_driver(request):
+    if request.method == 'POST':
+        form = DriverRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('register-driver')
+    else:
+        form = DriverRegistrationForm()
+    context = {
+        'form': form
+    }
+    return render(request, 'owner/driver/register_driver.html', context)
+
+def my_drivers(request):
+    my_drivers = Driver.objects.all()
+    context = {
+        'my_drivers': my_drivers,
+        'title': 'My Drivers',
+    }
+    return render(request, 'owner/driver/my_drivers.html', context)
 
 
 def registerMobilization(request):
@@ -1324,3 +1382,52 @@ def update_mobilization_payment(request, payment_id):
 def all_transaction(request):
     return render(request, 'owner/agent_Detail/all_transaction.html')
 
+
+
+# Driver
+
+def driver_detail(request, driver_id):
+    current_month = timezone.now().month
+    current_year = timezone.now().year
+    
+    driver = get_object_or_404(Driver, id=driver_id)
+    
+     # Get driver's mileage with calculated mileage
+    mileage_records = MileageRecord.objects.filter(
+        driver=driver,
+        date__month=current_month,
+        date__year=current_year
+    ).annotate(
+        calculated_mileage=F('end_mileage') - F('start_mileage')
+    )
+    total_mileage = mileage_records.aggregate(
+        total=Sum('calculated_mileage')
+    )['total'] or 0
+    
+    # Get driver's fuel records for the current month
+    fuel_records = FuelRecord.objects.filter(
+        driver=driver,
+        date__month=current_month,
+        date__year=current_year
+    )
+    total_fuel = fuel_records.aggregate(total=Sum('amount'))['total'] or 0
+    
+    # Get driver's expenses for the current month
+    expenses = Expense.objects.filter(
+        driver=driver,
+        date__month=current_month,
+        date__year=current_year
+    )
+    total_expenses = expenses.aggregate(total=Sum('amount'))['total'] or 0
+    
+    context = {
+        'driver': driver,
+        'mileage_records': mileage_records,
+        'total_mileage': total_mileage,
+        'fuel_records': fuel_records,
+        'total_fuel': total_fuel,
+        'expenses': expenses,
+        'total_expenses': total_expenses,
+    }
+    
+    return render(request, 'owner/driver/details/driver_detail.html', context)

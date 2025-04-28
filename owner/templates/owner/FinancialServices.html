@@ -114,7 +114,7 @@
             <tbody>
                 {% for pending_deposit in pending_deposits %}
                 <tr>
-                    <td>{{pending_deposit.agent}}</td>
+                    <td>{{pending_deposit.agent.full_name}}</td>
                     <td>{{pending_deposit.phone_number}}</td>
                     <td>{{pending_deposit.account_number}}</td>
                     <td>{{pending_deposit.account_name}}</td>

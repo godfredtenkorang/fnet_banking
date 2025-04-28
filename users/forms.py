@@ -8,12 +8,12 @@ from django.contrib.auth import password_validation
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.forms import PasswordChangeForm
 
-from .models import User, Branch, Owner, Agent, Customer, Mobilization
+from .models import User, Branch, Owner, Agent, Customer, Mobilization, Driver
 
 class UserRegisterForm(UserCreationForm):
     email = forms.EmailField(required=False)  # Optional email field
     role = forms.ChoiceField(
-        choices=[('OWNER', 'Owner'),('BRANCH', 'Branch'), ('MOBILIZATION', 'Mobilization')],  # Removed "Admin"
+        choices=[('OWNER', 'Owner'),('BRANCH', 'Branch'), ('MOBILIZATION', 'Mobilization'), ('DRIVER', 'Driver')],  # Removed "Admin"
         widget=forms.Select(attrs={'class': 'form-control'})
     )
     class Meta:
@@ -57,6 +57,12 @@ class OwnerRegistrationForm(forms.ModelForm):
     class Meta:
         model = Owner
         fields = ['owner', 'branch', 'email', 'full_name', 'phone_number', 'company_name', 'company_number', 'digital_address', 'agent_code']
+        
+class DriverRegistrationForm(forms.ModelForm):
+    driver = forms.ModelChoiceField(queryset=User.objects.filter(role='DRIVER'), required=True)
+    class Meta:
+        model = Driver
+        fields = ['driver', 'email', 'full_name', 'phone_number', 'company_name', 'company_number', 'digital_address', 'driver_code']
 
 class AgentRegistrationForm(forms.ModelForm):
     agent = forms.ModelChoiceField(queryset=User.objects.filter(role='BRANCH'), required=True)

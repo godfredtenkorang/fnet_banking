@@ -41,7 +41,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         ('OWNER', 'Owner'),
         ('BRANCH', 'Branch'),
         ('CUSTOMER', 'Customer'),
-        ('MOBILIZATION', 'Mobilization')
+        ('MOBILIZATION', 'Mobilization'),
+        ('DRIVER', 'Driver')
     ]
     role = models.CharField(max_length=12, choices=ROLE_CHOICES)
     phone_number = models.CharField(max_length=15, unique=True)
@@ -131,6 +132,19 @@ class Mobilization(models.Model):
 
     def __str__(self):
         return self.full_name
+    
+class Driver(models.Model):
+    driver = models.OneToOneField(User, on_delete=models.CASCADE, related_name='driver')
+    email = models.EmailField(null=True, blank=True)
+    full_name = models.CharField(max_length=100, null=True, blank=True)
+    phone_number = models.CharField(max_length=10, null=True, blank=True)
+    company_name = models.CharField(max_length=100, null=True, blank=True)
+    company_number = models.CharField(max_length=10, null=True, blank=True)
+    digital_address = models.CharField(max_length=50, null=True, blank=True)
+    driver_code = models.CharField(max_length=20, null=True, blank=True)
+
+    def __str__(self):
+        return self.driver.phone_number
 
 class Customer(models.Model):
     customer = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')
@@ -169,6 +183,15 @@ class MobilizationCustomer(models.Model):
 
     def __str__(self):
         return self.full_name
+    
+class Vehicle(models.Model):
+    registration_number = models.CharField(max_length=20, unique=True)
+    model = models.CharField(max_length=50)
+    year = models.PositiveIntegerField()
+    owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return f"{self.model} ({self.registration_number}) - {self.year}"
     
     
 class OTP(models.Model):

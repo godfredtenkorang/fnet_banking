@@ -29,6 +29,7 @@ urlpatterns = [
     path('customer/', include('customer.urls')),
     path('agent/', include('agent.urls')),
     path('mobilization/', include('mobilization.urls')),
+    path('driver/', include('driver.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 handler404 = 'banking.views.custom_404_view'

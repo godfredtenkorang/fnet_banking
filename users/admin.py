@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Branch, Owner, Agent, Customer, Mobilization, MobilizationCustomer
+from .models import User, Branch, Owner, Agent, Customer, Mobilization, Vehicle, Driver, MobilizationCustomer
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
@@ -22,6 +22,10 @@ class BranchAdmin(admin.ModelAdmin):
 @admin.register(Owner)
 class OwnerAdmin(admin.ModelAdmin):
     list_display = ('owner', 'branch')
+    
+@admin.register(Driver)
+class DriverAdmin(admin.ModelAdmin):
+    list_display = ('driver', 'email', 'full_name')
 
 @admin.register(Agent)
 class AgentAdmin(admin.ModelAdmin):
@@ -38,3 +42,7 @@ class MobilizationAdmin(admin.ModelAdmin):
 @admin.register(MobilizationCustomer)
 class MobilizationCustomerAdmin(admin.ModelAdmin):
     list_display = ('user', 'mobilization', 'branch')
+    
+@admin.register(Vehicle)
+class VehicleAdmin(admin.ModelAdmin):
+    list_display = ('registration_number', 'model', 'year')

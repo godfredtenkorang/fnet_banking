@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'banking',
     'owner',
     'mobilization',
+    'driver',
     'rest_framework',
     'rest_framework_simplejwt',
 ]

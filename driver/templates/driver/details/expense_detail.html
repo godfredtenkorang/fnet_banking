@@ -1,0 +1,133 @@
+{% extends 'driver/base.html' %} {% load static %} {% block content %}
+
+
+
+<style>
+    /* Ensure the table remains scrollable on small screens */
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    /* Default table styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 800px;
+        /* Ensures the table is scrollable if needed */
+    }
+
+    th,
+    td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+
+    th {
+        background: #007bff;
+        color: white;
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+    td {
+        font-size: 12px;
+    }
+
+    /* Button Styling */
+    .approve-btn {
+        background: #28a745;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        height: 6vh !important;
+    }
+
+    .decline-btn {
+        background: #dc3545;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        height: 6vh !important;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+    }
+
+    /* Table row background color */
+    tbody tr:nth-child(odd) {
+        background-color: #f9f9f9;
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #e9ecef;
+    }
+
+    /* Mobile Responsive: Keep table scrollable */
+    @media screen and (max-width: 968px) {
+        .table-container {
+            overflow-x: auto;
+            /* Enables horizontal scrolling */
+            white-space: nowrap;
+        }
+
+        table {
+            min-width: 800px;
+            /* Ensures columns do not wrap */
+        }
+    }
+</style>
+
+
+<div class="main">
+    <div class="banner-container">
+        <img src="{% static 'banking/img/ml-bg.jpg' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Expense Records</h1>
+        </div>
+    </div>
+
+
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                    <th>Receipt</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                <tr>
+                    <td>{{ record.date }}</td>
+                    <td>{{ record.type }}</td>
+                    <td>{{ record.amount }}</td>
+                    <td>{{ record.description }}</td>
+                    {% if record.receipt %}
+                    <td><a href="{{ record.receipt }}">receipt</a></td>
+                    {% else %}
+                    <td>N/A</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+
+
+    </div>
+
+
+
+
+
+    {% endblock %}

@@ -102,6 +102,8 @@ def login_user(request):
                         return redirect("agent-dashboard")
                     elif user.role == "MOBILIZATION":
                         return redirect("mobilization_dashboard")
+                    elif user.role == "DRIVER":
+                        return redirect("driver_dashboard")
                 elif user.is_blocked:
                     messages.error(request, "Your account has been blocked. Please contact the admin.")
                 else:
@@ -145,6 +147,8 @@ def verify_otp(request):
                         return redirect("agent-dashboard")
                     elif user.role == "MOBILIZATION":
                         return redirect("mobilization_dashboard")
+                    elif user.role == "DRIVER":
+                        return redirect("driver_dashboard")
                 elif user.is_blocked:
                     messages.error(request, "Your account has been blocked. Please contact the admin.")
                 else:
@@ -275,6 +279,9 @@ def is_agent(user):
 def is_mobilization(user):
     return user.role == 'MOBILIZATION'
 
+def is_driver(user):
+    return user.role == 'DRIVER'
+
 # Admin Dashboard
 def admin_dashboard(request):
     # Fetch all users, owners, agents, and customers
@@ -380,6 +387,7 @@ def all_users(request):
     agents = User.objects.filter(role="BRANCH")
     owners = User.objects.filter(role="OWNER")
     mobilizations = User.objects.filter(role="MOBILIZATION")
+    drivers = User.objects.filter(role="DRIVER")
     customers = User.objects.filter(role="CUSTOMER")
     
     context = {
@@ -387,6 +395,7 @@ def all_users(request):
         'owners': owners,
         'agents': agents,
         'mobilizations': mobilizations,
+        'drivers': drivers,
         'customers': customers,
         'title': 'Users'
 

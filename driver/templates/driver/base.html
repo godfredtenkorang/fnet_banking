@@ -1,0 +1,286 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static 'banking/dashboard.css' %}" />
+    <!-- Boxicons CDN Link -->
+    <link href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    {% if title %}
+    <title>Fnet - {{ title }}</title>
+    {% else %}
+    <title>Fnet</title>
+    {% endif %}
+</head>
+
+<body>
+    <div class="logout-pop">
+        <div class="logo-p">
+            <P>Are you sure you want to logout ??</P>
+            <div class="log-btns">
+                <button id="cancelLogout">Cancel</button>
+
+
+                <a href="{% url 'logout' %}">
+
+                    <button>Yes, logout</button>
+            </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- for header part -->
+    <header>
+        <div class="logosec">
+            <div class="logo">
+
+            </div>
+            <img src="https://media.geeksforgeeks.org/wp-content/uploads/20221210182541/Untitled-design-(30).png"
+                class="icn menuicn" id="menuicn" alt="menu-icon" />
+        </div>
+
+
+        <div class="header-ul">
+
+
+            <div class="user-role">
+
+                <div class="user-name">
+                    <p><i class="fa-solid fa-user"></i> {{user.phone_number}}</p>
+                </div>
+
+                <div class="role">
+                    <p><i class="fa-solid fa-id-badge"></i> {{user.role}}</p>
+                </div>
+            </div>
+
+
+            <div class="dashDrop">
+                <button class="drop">Drop down <i class="fa-solid fa-caret-down"></i> </button>
+                <div class="dashboard-header-detail">
+
+                    <div class="cashes">
+                        <!-- <div class="c-cash">
+              <p><i class="fa-solid fa-cash-register"></i> Cash</p>
+            </div> -->
+                        <!-- <div class="c-cash">
+              <p><i class="fa-solid fa-cash-register"></i> Payment</p>
+            </div> -->
+                    </div>
+                    <!-- <div class="button-btn">
+            <a href="">
+                <p title="calculator"><i class="fa-solid fa-calculator"> </i> </p>
+            </a>
+         </div> -->
+
+
+
+                    <div class="current-date">
+                        <p id="date"></p>
+                    </div>
+
+                    <div class="day">
+                        <p id="day"></p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <div class="main-container">
+        <div class="navcontainer sidebar">
+            <nav class="nav">
+                <div class="nav-upper-options">
+
+                    <a href="{% url 'driver_dashboard' %}">
+
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-book"></i> Dashboard</h3>
+                        </div>
+                    </a>
+                    <a href="{% url 'mileage_record' %}">
+
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-book"></i> Add Mileage</h3>
+                        </div>
+                    </a>
+                    <a href="{% url 'fuel_record' %}">
+
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-book"></i> Add Fuel</h3>
+                        </div>
+                    </a>
+                    <a href="{% url 'add_expense' %}">
+
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-book"></i> Add Expense</h3>
+                        </div>
+                    </a>
+                    
+
+                    
+                    <div class="nav-option logout button">
+                        <h3><i class="fa-solid fa-people-group"></i> Logout</h3>
+                    </div>
+
+
+
+
+
+
+                </div>
+            </nav>
+        </div>
+        <div id="loader">
+            <div class="spinner"></div> <br>
+            <p>Processing</p>
+        </div>
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>
+        window.onload = function () {
+            setTimeout(() => {
+                document.getElementById("loader").style.display = "none"; // Hide Loader
+                document.querySelector(".main").style.display = "block"; // Show Main Content
+            }, 2000);
+        };
+    </script>
+
+    <script>
+        // Menu toggle
+        let menuIcons = document.querySelectorAll(".menuicn");
+        let nav = document.querySelector(".navcontainer");
+
+        menuIcons.forEach((menuicn) => {
+            menuicn.addEventListener("click", () => {
+                nav.classList.toggle("navclose");
+            });
+        });
+    </script>
+
+    <script>
+        const options = document.querySelector(".options");
+        const transanctiondrop = document.querySelector(".transanction-drop");
+        options.addEventListener("click", () => {
+            transanctiondrop.classList.toggle("showDropDown");
+        });
+    </script>
+
+    <script>
+        function updateDateTime() {
+            let now = new Date();
+
+            // Get full day name (e.g., Monday)
+            let dayName = now.toLocaleDateString('en-US', { weekday: 'long' });
+
+            // Format date (e.g., Feb 22, 2025)
+            let dateOptions = { year: 'numeric', month: 'short', day: 'numeric' };
+            let formattedDate = now.toLocaleDateString('en-US', dateOptions);
+
+            // Format time (e.g., 10:30:45 AM)
+            let formattedTime = now.toLocaleTimeString('en-US');
+
+            document.getElementById('day').textContent = dayName;
+            document.getElementById('date').textContent = formattedDate;
+            document.getElementById('time').textContent = formattedTime;
+        }
+
+        // Update every second
+        setInterval(updateDateTime, 1000);
+        updateDateTime(); // Run once on page load
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+    <script>
+        const logoutBtn = document.querySelector(".logout");
+        const logOutModal = document.querySelector(".logout-pop");
+        const confirmLogout = document.getElementById("confirmLogout");
+        const cancelLogout = document.getElementById("cancelLogout");
+
+        logoutBtn.addEventListener("click", () => {
+            logOutModal.style.display = "flex";
+            setTimeout(() => {
+                logOutModal.classList.add("active");
+            }, 50);
+        });
+
+        cancelLogout.addEventListener("click", () => {
+            logOutModal.classList.remove("active");
+            setTimeout(() => {
+                logOutModal.style.display = "none";
+            }, 300);
+        });
+
+        // If you want to log the user out when they confirm
+        confirmLogout.addEventListener("click", () => {
+            alert("Logging out..."); // Replace this with actual logout logic
+            logOutModal.classList.remove("active");
+            setTimeout(() => {
+                logOutModal.style.display = "none";
+            }, 300);
+        });
+
+        // Click outside to close
+        logOutModal.addEventListener("click", (e) => {
+            if (e.target === logOutModal) {
+                logOutModal.classList.remove("active");
+                setTimeout(() => {
+                    logOutModal.style.display = "none";
+                }, 300);
+            }
+        });
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <script>
+        const dashboard_header_detail = document.querySelector(".dashboard-header-detail")
+        const drop = document.querySelector(".drop")
+
+
+        drop.addEventListener("click", () => {
+            dashboard_header_detail.classList.toggle("show-drop")
+        })
+
+
+
+
+
+
+
+
+    </script>
+</body>
+
+</html>

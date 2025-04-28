@@ -1,0 +1,49 @@
+{% extends 'owner/base.html' %} {% load static %} {% block content %}
+
+
+
+
+
+
+<div class="main">
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Drivers</h1>
+        </div>
+    </div>
+
+
+    <div class="myagent-grid">
+        {% for driver in my_drivers %}
+        <div class="agent">
+            <i class="fa-solid fa-user"></i>
+            <p><strong>Name:</strong> <span>{{ driver.full_name }}</span></p>
+            <!-- <p><strong>Username:</strong> <span>{{ agent.user.username }}</span></p> -->
+            <p><strong>Phone:</strong> <span>{{ driver.phone_number }}</span></p>
+            <p><strong>Email:</strong> <span>{{ driver.email }}</span></p>
+            <a href="{% url 'driver_detail' driver.id %}">Tap for more</a>
+        </div>
+        {% endfor %}
+
+    </div>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}
