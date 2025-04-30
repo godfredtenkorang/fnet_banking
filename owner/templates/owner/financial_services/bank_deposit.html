@@ -158,11 +158,11 @@
                     <th>Branch</th>
                     <th>Name</th>
                     <th>Float Type</th>
-                    <th>Bank/Network</th>
+                    <th>Bank</th>
                     <th>Transaction ID</th>
                     <th>Requested Amount</th>
-                    <th>Approved Amount</th>
-                    <th>Remaining Amount</th>
+                    <!-- <th>Approved Amount</th>
+                    <th>Remaining Amount</th> -->
                     <th>Date/Time</th>
                     <th>Status</th>
                     <th>Action</th>
@@ -189,19 +189,11 @@
                     <td data-label="Agent">{{cash.agent.phone_number}}</td>
                     <td style="font-weight: 900;" data-label="Agent">{{cash.agent.full_name}}</td>
                     <td data-label="Amount">{{cash.float_type}}</td>
-                    <td data-label="Bank/Network">
-                        {% if cash.float_type == 'Bank' %}
-                        {{cash.bank}}
-                        {% elif cash.float_type == 'Telco' %}
-                        {{cash.network}}
-                        {% else %}
-                        N/A
-                        {% endif %}
-                    </td>
+                    <td data-label="Bank">{{cash.bank}}</td>
                     <td data-label="Amount">{{cash.transaction_id}}</td>
                     <td data-label="Amount">{{cash.amount}}</td>
-                    <td data-label="Remaining">{{cash.amount|subtract:cash.arrears}}</td>
-                    <td data-label="Arrears">{{cash.arrears}}</td>
+                    <!-- <td data-label="Remaining">{{cash.amount|subtract:cash.arrears}}</td>
+                    <td data-label="Arrears">{{cash.arrears}}</td> -->
                     <td data-label="Date/Time">{{cash.created_at}}</td>
                     <td data-label="Status">{{cash.status}}</td>
                     <td data-label="Action" class="action-buttons">
