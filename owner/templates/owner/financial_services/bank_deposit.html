@@ -159,6 +159,7 @@
                     <th>Name</th>
                     <th>Float Type</th>
                     <th>Bank/Network</th>
+                    <th>Transaction ID</th>
                     <th>Requested Amount</th>
                     <th>Approved Amount</th>
                     <th>Remaining Amount</th>
@@ -197,13 +198,14 @@
                         N/A
                         {% endif %}
                     </td>
+                    <td data-label="Amount">{{cash.transaction_id}}</td>
                     <td data-label="Amount">{{cash.amount}}</td>
                     <td data-label="Remaining">{{cash.amount|subtract:cash.arrears}}</td>
                     <td data-label="Arrears">{{cash.arrears}}</td>
                     <td data-label="Date/Time">{{cash.created_at}}</td>
                     <td data-label="Status">{{cash.status}}</td>
                     <td data-label="Action" class="action-buttons">
-                        <a href="{% url 'approve_cash_and_ecash_request' cash.id %}"><button
+                        <a href="{% url 'approve_branch_bank_request' cash.id %}"><button
                                 class="approve-btn">Approve</button></a>
                         <a href="{% url 'reject_cash_and_ecash_request' cash.id %}"><button
                                 class="decline-btn">Reject</button></a>

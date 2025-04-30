@@ -42,6 +42,7 @@
                             <option value="GTbank">GTbank</option>
                             <option value="Access bank">Access bank</option>
                             <option value="UBA">UBA</option>
+                            <option value="Abasa Bank">Abasa Bank</option>
                             <option value="Adansi rural bank">Adansi rural bank</option>
                             <option value="Kwumawuman Bank">Kwumawuman Bank</option>
                             <option value="Pan Africa">Pan Africa</option>
@@ -74,6 +75,11 @@
                             <option value="Universal Merchant Bank">Universal Merchant Bank</option>
                             <option value="Zenith Bank">Zenith Bank</option>
                         </select>
+                    </div>
+
+                    <div class="input" id="transactionID" style="display: none;">
+                        <label for="transactionIDInput">Transaction ID</label> <br />
+                        <input type="text" id="transactionIDInput" name="transaction_id" placeholder="Enter Transaction ID" />
                     </div>
             
                     <div class="input" id="telco" style="display: none;">
@@ -127,6 +133,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     const cashFloatType = document.getElementById("cashFloatType");
     const bankSection = document.getElementById("bank");
+    const transactionIDSection = document.getElementById("transactionID");
     const telcoSection = document.getElementById("telco");
     const cashSection = document.getElementById("cash");
     const nameSection = document.getElementById("name");
@@ -140,6 +147,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Reset all fields to hidden
         bankSection.style.display = "none";
+        transactionIDSection.style.display = "none";
         telcoSection.style.display = "none";
         cashSection.style.display = "none";
         nameSection.style.display = "none";
@@ -150,6 +158,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Show the appropriate fields based on selection
         if (selectedValue === "Bank") {
             bankSection.style.display = "block";
+            transactionIDSection.style.display = "block";
             amountField.style.display = "block";
             submitButton.style.display = "block";
         } else if (selectedValue === "Telco") {

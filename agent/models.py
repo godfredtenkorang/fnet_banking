@@ -264,6 +264,7 @@ class CashAndECashRequest(models.Model):
     agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name='cash_and_ecash_requests')
     float_type = models.CharField(max_length=10, choices=FLOAT_TYPE_CHOICES)
     bank = models.CharField(max_length=50, choices=BANK_CHOICES, default='Select Bank', null=True, blank=True)
+    transaction_id = models.CharField(max_length=20, null=True, blank=True)
     network = models.CharField(max_length=20, choices=NETWORK_CHOICES, default='Select Network', null=True, blank=True)
     cash = models.CharField(max_length=10, choices=CASH_CHOICES, null=True, blank=True)
     name = models.CharField(max_length=100, null=True, blank=True)

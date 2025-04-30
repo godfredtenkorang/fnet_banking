@@ -375,6 +375,38 @@ def approve_cash_and_ecash_request(request, request_id):
     request_obj.save()
     account.update_balance_for_cash_and_ecash(request_obj.bank, request_obj.network, request_obj.cash, request_obj.amount, request_obj.status)
     return redirect('cash_requests')
+
+@login_required
+@user_passes_test(is_owner)
+def approve_bank_requests(request, request_id):
+    request_obj = get_object_or_404(CashAndECashRequest, id=request_id)
+    
+    account = request_obj.agent.e_float_drawers.filter(date=request_obj.created_at).first()
+    
+    if not account:
+        messages.error(request, 'No e-float account found for this date')
+        return redirect('view_payment_requests')
+    
+    if request.method == 'POST':
+        owner_transaction_id = request.POST.get('owner_transaction_id')
+        if not owner_transaction_id:
+            messages.error(request, 'Transaction ID is required.')
+            return redirect('approve_branch_bank_request', request_id=request_obj.id)
+        if request_obj.transaction_id != owner_transaction_id:
+            messages.error(request, 'Transaction ID does not match the Branch\'s input.')
+            return redirect('approve_branch_bank_request', request_id=request_obj.id)
+        request_obj.transaction_id = owner_transaction_id
+        request_obj.status = 'Approved'
+        request_obj.save()
+        account.update_balance_for_cash_and_ecash(request_obj.bank, request_obj.network, request_obj.cash, request_obj.amount, request_obj.status)
+        messages.success(request, 'Bank request approved succussfully')
+        return redirect('branch_bank_requests')
+    context = {
+        'request_obj': request_obj
+    }
+    return render(request, 'owner/financial_services/approve_bank.html', context)
+    
+    
         
 
 @login_required

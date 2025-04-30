@@ -23,6 +23,7 @@ urlpatterns = [
     path('ecash_requests/', views.e_cash_requests, name='ecash_requests'),
     path('branch_bank_requests/', views.branch_bank_requests, name='branch_bank_requests'),
     path('owner/<int:request_id>/approve_request/', views.approve_cash_and_ecash_request, name='approve_cash_and_ecash_request'),
+    path('owner/approve_bank_request/<int:request_id>/', views.approve_bank_requests, name='approve_branch_bank_request'),
     path('owner/<int:request_id>/reject_request/', views.reject_cash_and_ecash_request, name='reject_cash_and_ecash_request'),
     
     path('view_pending_payment_requests/', views.view_payment_requests, name='view_payment_requests'),
