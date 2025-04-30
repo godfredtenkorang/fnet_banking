@@ -1060,14 +1060,14 @@ def cashFloatRequest(request):
     if request.method == 'POST':
         float_type = request.POST.get('float_type')
         bank = request.POST.get('bank')
-        transaction_id = request.POST.get('transaction_id')
+        # transaction_id = request.POST.get('transaction_id')
         network = request.POST.get('network')
         cash = request.POST.get('cash')
         name = request.POST.get('name')
         phone_number = request.POST.get('phone_number')
         amount = request.POST.get('amount')
         
-        floats = CashAndECashRequest(float_type=float_type, bank=bank, transaction_id=transaction_id, network=network, cash=cash, name=name, phone_number=phone_number, amount=amount)
+        floats = CashAndECashRequest(float_type=float_type, bank=bank, network=network, cash=cash, name=name, phone_number=phone_number, amount=amount)
         
         floats.agent = agent
         floats.save()

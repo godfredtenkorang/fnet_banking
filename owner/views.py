@@ -392,9 +392,9 @@ def approve_bank_requests(request, request_id):
         if not owner_transaction_id:
             messages.error(request, 'Transaction ID is required.')
             return redirect('approve_branch_bank_request', request_id=request_obj.id)
-        if request_obj.transaction_id != owner_transaction_id:
-            messages.error(request, 'Transaction ID does not match the Branch\'s input.')
-            return redirect('approve_branch_bank_request', request_id=request_obj.id)
+        # if request_obj.transaction_id != owner_transaction_id:
+        #     messages.error(request, 'Transaction ID does not match the Branch\'s input.')
+        #     return redirect('approve_branch_bank_request', request_id=request_obj.id)
         request_obj.transaction_id = owner_transaction_id
         request_obj.status = 'Approved'
         request_obj.save()
