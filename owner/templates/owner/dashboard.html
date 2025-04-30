@@ -223,7 +223,7 @@
                 <td data-label="Date/Time">{{cash.created_at}}</td>
                 <td data-label="Status">{{cash.status}}</td>
                 <td data-label="Action" class="action-buttons">
-                    <a href="{% url 'approve_cash_and_ecash_request' cash.id %}"><button
+                    <a href="{% url 'approve_branch_bank_request' cash.id %}"><button
                             class="approve-btn">Approve</button></a>
                     <a href="{% url 'reject_cash_and_ecash_request' cash.id %}"><button
                             class="decline-btn">Reject</button></a>
