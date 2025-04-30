@@ -266,6 +266,8 @@ class CashAndECashRequest(models.Model):
     bank = models.CharField(max_length=20, choices=BANK_CHOICES, default='Select Bank', null=True, blank=True)
     network = models.CharField(max_length=20, choices=NETWORK_CHOICES, default='Select Network', null=True, blank=True)
     cash = models.CharField(max_length=10, choices=CASH_CHOICES, null=True, blank=True)
+    name = models.CharField(max_length=100, null=True, blank=True)
+    phone_number = models.CharField(max_length=15, null=True, blank=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     arrears = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # Track remaining balance
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')

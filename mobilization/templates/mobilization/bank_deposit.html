@@ -22,60 +22,44 @@
             {% csrf_token %}
             <div class="form-grid">
                 <input type="hidden" name="mobilization_id" value="{{ mobilization.id }}">
-
+            
                 <div class="input">
                     <label for="phone_number">Customer Number</label> <br />
-                    <input type="tel" id="phone_number" name="phone_number" required placeholder="Customer Number"
-                        maxlength="10" />
+                    <input type="tel" id="phone_number" name="phone_number" required placeholder="Customer Number" maxlength="10" />
                     <p id="Bankmessage" class="message"></p> <br> <!-- Message for number validation -->
                 </div>
-
+            
                 <div class="input">
                     <label for="bank">Select Bank</label> <br />
-                    <select id="bank" name="bank" disabled>
+                    <select id="bank" name="bank" disabled required>
                         <option value="">Select Bank</option>
                     </select>
                     <p id="BankSelectMessage" class="message"></p> <br>
                 </div>
-
-
+            
+            
                 <div class="input">
                     <label for="account_number">Account Number</label> <br />
                     <select id="account_number" name="account_number" disabled>
                         <option value="">Select Account</option>
                     </select>
                 </div>
-
+            
                 <div class="input">
                     <label for="account_name">Account name</label> <br />
                     <input type="text" name="account_name" id="account_name" readonly>
                 </div>
-                <!-- <div class="input setHide">
-                    <label>Account name</label> <br />
-                    <input type="text" name="" id="" readonly required>
-                  </div> -->
-                <!-- <div class="input setHide">
-                    <label>Id Type</label> <br />
-                    <input type="text" name="" id="" required>
-                  </div> -->
-                <!-- <div class="input setHide">
-                    <label>Id Number</label> <br />
-                    <input type="text" name="" id="" required>
-                  </div> -->
-                <!-- <div class="input" id="transaction_id">
-                    <label for="transaction_id">Transaction ID</label> <br />
-                    <input type="text" id="transaction_id" name="mobilization_transaction_id" placeholder="Enter Transaction ID" />
-                </div> -->
+               
                 <div class="input">
                     <label for="amount">Amount</label> <br />
-
+            
                     <input type="tel" id="amount" name="amount" required />
                 </div>
                 <div class="input">
                     <label for="receipt">Upload Receipt</label> <br />
-                    <input type="file" name="receipt" id="receipt" accept="image/*"/>
+                    <input type="file" name="receipt" id="receipt" accept="image/*" />
                 </div>
-
+            
             </div>
             <button type="submit" id="submitBtn">Submit</button>
             <div style="display: flex; text-align:center; justify-content:center;">

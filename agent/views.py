@@ -561,7 +561,7 @@ def cashin_summary_date(request):
     if end_date and isinstance(end_date, str):
         end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
     
-    dates = CustomerCashIn.objects.values('date_deposited').annotate(total_amount=Sum('amount'))
+    dates = CustomerCashIn.objects.values('date_deposited').annotate(total_amount=Sum('amount')).order_by('-date_deposited')
     
     if start_date:
         dates = dates.filter(date_deposited__gte=start_date)
@@ -611,7 +611,7 @@ def cashout_summary_date(request):
     if end_date and isinstance(end_date, str):
         end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
         
-    dates = CustomerCashOut.objects.values('date_withdrawn').annotate(total_amount=Sum('amount'))
+    dates = CustomerCashOut.objects.values('date_withdrawn').annotate(total_amount=Sum('amount')).order_by('-date_withdrawn')
     
     if start_date:
         dates = dates.filter(date_withdrawn__gte=start_date)
@@ -659,7 +659,7 @@ def bank_deposit_summary_date(request):
         start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
     if end_date and isinstance(end_date, str):
         end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
-    dates = BankDeposit.objects.values('date_deposited').annotate(total_amount=Sum('amount'))
+    dates = BankDeposit.objects.values('date_deposited').annotate(total_amount=Sum('amount')).order_by('-date_deposited')
     if start_date:
         dates = dates.filter(date_deposited__gte=start_date)
     if end_date:
@@ -706,7 +706,7 @@ def bank_withdrawal_summary_date(request):
         start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
     if end_date and isinstance(end_date, str):
         end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
-    dates = BankWithdrawal.objects.values('date_withdrawn').annotate(total_amount=Sum('amount'))
+    dates = BankWithdrawal.objects.values('date_withdrawn').annotate(total_amount=Sum('amount')).order_by('-date_withdrawn')
     if start_date:
         dates = dates.filter(date_withdrawn__gte=start_date)
     if end_date:
@@ -753,7 +753,7 @@ def cash_summary_date(request):
         start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
     if end_date and isinstance(end_date, str):
         end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
-    dates = CashAndECashRequest.objects.values('created_at').annotate(total_amount=Sum('amount'))
+    dates = CashAndECashRequest.objects.values('created_at').annotate(total_amount=Sum('amount')).order_by('-created_at')
     if start_date:
         dates = dates.filter(created_at__gte=start_date)
     if end_date:
@@ -800,7 +800,7 @@ def payment_summary_date(request):
         start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
     if end_date and isinstance(end_date, str):
         end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
-    dates = PaymentRequest.objects.values('created_at').annotate(total_amount=Sum('amount'))
+    dates = PaymentRequest.objects.values('created_at').annotate(total_amount=Sum('amount')).order_by('-created_at')
     if start_date:
         dates = dates.filter(created_at__gte=start_date)
     if end_date:
@@ -1062,9 +1062,11 @@ def cashFloatRequest(request):
         bank = request.POST.get('bank')
         network = request.POST.get('network')
         cash = request.POST.get('cash')
+        name = request.POST.get('name')
+        phone_number = request.POST.get('phone_number')
         amount = request.POST.get('amount')
         
-        floats = CashAndECashRequest(float_type=float_type, bank=bank, network=network, cash=cash, amount=amount)
+        floats = CashAndECashRequest(float_type=float_type, bank=bank, network=network, cash=cash, name=name, phone_number=phone_number, amount=amount)
         
         floats.agent = agent
         floats.save()

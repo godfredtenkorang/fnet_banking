@@ -62,6 +62,16 @@
                             <option value="Telecel">Telecel</option> -->
                         </select>
                     </div>
+
+                    <div class="input" id="name" style="display: none;">
+                        <label for="nameInput">Name</label> <br />
+                        <input type="text" id="nameInput" name="name" required placeholder="Enter Name" />
+                    </div>
+
+                    <div class="input" id="phone_number" style="display: none;">
+                        <label for="phoneInput">Phone Number</label> <br />
+                        <input type="tel" id="phoneInput" name="phone_number" required placeholder="Enter Phone Number" min="0" />
+                    </div>
             
                     <div class="input" id="amount" style="display: none;">
                         <label for="amountInput">Amount</label> <br />
@@ -87,6 +97,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const bankSection = document.getElementById("bank");
     const telcoSection = document.getElementById("telco");
     const cashSection = document.getElementById("cash");
+    const nameSection = document.getElementById("name");
+    const phoneSection = document.getElementById("phone_number");
     const amountField = document.getElementById("amount");
     const submitButton = document.getElementById("submitBtn");
 
@@ -98,6 +110,8 @@ document.addEventListener("DOMContentLoaded", function () {
         bankSection.style.display = "none";
         telcoSection.style.display = "none";
         cashSection.style.display = "none";
+        nameSection.style.display = "none";
+        phoneSection.style.display = "none";
         amountField.style.display = "none";
         submitButton.style.display = "none";
 
@@ -113,6 +127,8 @@ document.addEventListener("DOMContentLoaded", function () {
         } else if (selectedValue === "Cash") {
             amountField.style.display = "block";
             cashSection.style.display = "block";
+            nameSection.style.display = "block";
+            phoneSection.style.display = "block";
             submitButton.style.display = "block";
         }
     });

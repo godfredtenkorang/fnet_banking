@@ -112,12 +112,14 @@
     <table>
         <thead>
             <tr>
-                <th>Agent</th>
+                <th>Branch</th>
                 <th>Name</th>
                 <th>Float Type</th>
                 <th>Requested Amount</th>
-                <th>Approved Amount</th>
-                <th>Remaining Amount</th>
+                <th>Name</th>
+                <th>Phone Number</th>
+                <!-- <th>Approved Amount</th>
+                <th>Remaining Amount</th> -->
                 <th>Date/Time</th>
                 <th>Status</th>
                 <th>Action</th>
@@ -145,8 +147,10 @@
                 <td style="font-weight: 900;" data-label="Agent">{{cash.agent.full_name}}</td>
                 <td data-label="Amount">{{cash.float_type}}</td>
                 <td data-label="Amount">{{cash.amount}}</td>
-                <td data-label="Remaining">{{cash.amount|subtract:cash.arrears}}</td>
-                <td data-label="Arrears">{{cash.arrears}}</td>
+                <td data-label="Name">{{cash.name}}</td>
+                <td data-label="Phone">{{cash.phone_number}}</td>
+                <!-- <td data-label="Remaining">{{cash.amount|subtract:cash.arrears}}</td>
+                <td data-label="Arrears">{{cash.arrears}}</td> -->
                 <td data-label="Date/Time">{{cash.created_at}}</td>
                 <td data-label="Status">{{cash.status}}</td>
                 <td data-label="Action" class="action-buttons">

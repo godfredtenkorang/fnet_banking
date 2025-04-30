@@ -10,9 +10,10 @@ urlpatterns = [
     path('bank_deposit/', views.agencyBank, name='agencyBank'),
     path('bank_deposit_without_customer/', views.record_bank_deposit, name='bank_deposit_without_customer'),
     path('view_bank_deposits/', views.view_bank_deposits, name='view_bank_deposits'),
-    path('get-banks/', views.get_banks, name='branch_get_banks'),
-    path('get-accounts/', views.get_accounts, name='brance_get_accounts'),
-    path('get-customer-details/', views.get_customer_details, name='branch_get_customer_details'),
+    
+    path('branch_get-banks/', views.get_banks, name='branch_get_banks'),
+    path('branch_get-accounts/', views.get_accounts, name='branch_get_accounts'),
+    path('branch_get-customer-details/', views.get_customer_details, name='branch_get_customer_details'),
     
     path('withdrawal/', views.withdrawal, name='withdrawal'),
     path('view_bank_withdrawals/', views.view_bank_withdrawals, name='view_bank_withdrawals'),

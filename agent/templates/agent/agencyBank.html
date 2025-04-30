@@ -113,7 +113,7 @@
       let phoneNumber = $('#phone_number').val();
       let bank = $(this).val();
       $.ajax({
-        url: "{% url 'brance_get_accounts' %}",
+        url: "{% url 'branch_get_accounts' %}",
         data: { 'phone_number': phoneNumber, 'bank': bank },
         success: function (data) {
           $('#account_number').empty().append('<option value="">Select Account</option>');
