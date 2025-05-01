@@ -47,9 +47,9 @@ def is_mobilization(user):
 @user_passes_test(is_mobilization)
 def mobilization_account(request):
     mobilization = request.user.mobilization
-    
-    total_deposits = BankDeposit.total_bank_deposit_for_customer(mobilization=mobilization, status='Approved')
-    total_payments = PaymentRequest.total_payment_for_customer(mobilization=mobilization, status='Approved')
+    today = timezone.now().date() - timedelta(days=30)
+    total_deposits = BankDeposit.total_bank_deposit_for_customer(mobilization=mobilization, date_deposited=today, status='Approved')
+    total_payments = PaymentRequest.total_payment_for_customer(mobilization=mobilization, created_at=today, status='Approved')
     
     balance_left = total_payments - total_deposits
     context = {
@@ -68,9 +68,9 @@ def dashboard(request):
     mobilization = request.user.mobilization
     today = timezone.now().date() - timedelta(days=30)
     customers = Customer.objects.filter(mobilization=mobilization)
-    total_deposits = BankDeposit.total_bank_deposit_for_customer(mobilization=mobilization, status='Approved')
-    total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(mobilization=mobilization)
-    total_payments = PaymentRequest.total_payment_for_customer(mobilization=mobilization, status='Approved')
+    total_deposits = BankDeposit.total_bank_deposit_for_customer(mobilization=mobilization, date_deposited=today, status='Approved')
+    total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(mobilization=mobilization, date_withdrawn=today,)
+    total_payments = PaymentRequest.total_payment_for_customer(mobilization=mobilization, created_at=today, status='Approved')
     
     balance_left = total_payments - total_deposits
     context = {
@@ -444,10 +444,10 @@ def my_customer_detail(request, customer_id):
 def transaction_summary(request):
     
     mobilization = request.user.mobilization
-    today = timezone.now().date()
-    total_deposits = BankDeposit.total_bank_deposit_for_customer(mobilization=mobilization, status='Approved')
-    total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(mobilization=mobilization)
-    total_payments = PaymentRequest.total_payment_for_customer(mobilization=mobilization, status='Approved')
+    today = timezone.now().date() - timedelta(days=30)
+    total_deposits = BankDeposit.total_bank_deposit_for_customer(mobilization=mobilization, date_deposited=today, status='Approved')
+    total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(mobilization=mobilization, date_withdrawn=today)
+    total_payments = PaymentRequest.total_payment_for_customer(mobilization=mobilization, created_at=today, status='Approved')
     
     context = {
         'total_deposits': total_deposits,

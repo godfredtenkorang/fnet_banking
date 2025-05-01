@@ -10,7 +10,7 @@ from agent.models import BankDeposit, BankWithdrawal, CashAndECashRequest, Payme
 from django.contrib import messages
 from decimal import Decimal
 from django.utils import timezone
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.db.models import Sum
 from users.models import User, Branch, Mobilization, Customer
 from django.contrib.auth.hashers import make_password
@@ -945,12 +945,12 @@ def commission(request):
 
 def branch_balance(request, branch_id):
     branch = get_object_or_404(Agent, id=branch_id)
-    today = timezone.now().date()
+    today = timezone.now().date() - timedelta(days=30)
     
     # account = get_object_or_404(MobilizationAccount, mobilization=mobilization)
     
-    total_requests = CashAndECashRequest.total_ecash_for_customer(agent=branch, status='Approved')
-    total_payments = PaymentRequest.total_payment_for_customer(agent=branch, status='Approved')
+    total_requests = CashAndECashRequest.total_ecash_for_customer(agent=branch, created_at=today, status='Approved')
+    total_payments = PaymentRequest.total_payment_for_customer(agent=branch, created_at=today, status='Approved')
     
     balance_left = total_payments - total_requests
     
@@ -1250,11 +1250,12 @@ def mobilization_report_view(request, mobilization_id):
 def mobilization_account_detail(request, mobilization_id):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)
     # today = timezone.now().date()
+    today = timezone.now().date() - timedelta(days=30)
     
     # account = get_object_or_404(MobilizationAccount, mobilization=mobilization)
     
-    total_deposits = bank_deposits.total_bank_deposit_for_customer(mobilization=mobilization, status='Approved')
-    total_payments = payment_requests.total_payment_for_customer(mobilization=mobilization, status='Approved')
+    total_deposits = bank_deposits.total_bank_deposit_for_customer(mobilization=mobilization, date_deposited=today, status='Approved')
+    total_payments = payment_requests.total_payment_for_customer(mobilization=mobilization, created_at=today, status='Approved')
     
     balance_left = total_payments - total_deposits
     context = {
