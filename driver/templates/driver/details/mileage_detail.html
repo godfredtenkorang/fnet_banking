@@ -103,18 +103,21 @@
                     <th>Start Mileage</th>
                     <th>End Mileage</th>
                     <th>Mileage Used</th>
+                    <th>Update</th>
                 </tr>
             </thead>
             <tbody>
                 {% for record in records %}
-                <tr>
+                    <tr>
 
-                    <td>{{ record.vehicle }}</td>
-                    <td>{{ record.date }}</td>
-                    <td>{{ record.start_mileage }}</td>
-                    <td>{{ record.end_mileage }}</td>
-                    <td>{{ record.mileage_used }}</td>
-                </tr>
+                        <td>{{ record.vehicle }}</td>
+                        <td>{{ record.date }}</td>
+                        <td>{{ record.start_mileage }}</td>
+                        <td>{{ record.end_mileage }}</td>
+                        <td>{{ record.mileage_used }}</td>
+                        <td><a href="{% url 'update_mileage_record' record.id %}">update</a></td>
+                        
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>

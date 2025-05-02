@@ -10,6 +10,12 @@ class MileageRecordForm(forms.ModelForm):
             'date': forms.DateInput(attrs={'type': 'date'}),
         }
         
+class UpdateMileageRecordForm(forms.ModelForm):
+    class Meta:
+        model = MileageRecord
+        fields = ['end_mileage']
+        
+        
 class FuelRecordForm(forms.ModelForm):
     class Meta:
         model = FuelRecord
@@ -17,6 +23,7 @@ class FuelRecordForm(forms.ModelForm):
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
         }
+        
         
 class ExpenseForm(forms.ModelForm):
     class Meta:

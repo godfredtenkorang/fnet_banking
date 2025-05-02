@@ -35,6 +35,14 @@ class Transaction(models.Model):
         return f"{self.transaction_type} - {self.phone_number} - {self.amount}"
 
 
+class UserWallet(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    
+    def __str__(self):
+        return f"{self.user.phone_number}'s Wallet"
+
+
 MOBILE_MONEY_DEPOSIT_TYPE = (
     ("Loading", "Loading"),
     ("Direct", "Direct"),

@@ -13,6 +13,8 @@ class MileageRecord(models.Model):
     
     @property
     def mileage_used(self):
+        if self.end_mileage is None:
+            return None
         return self.end_mileage - self.start_mileage
     
     class Meta:

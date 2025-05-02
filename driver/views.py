@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .forms import MileageRecordForm, FuelRecordForm, ExpenseForm
+from .forms import MileageRecordForm, FuelRecordForm, ExpenseForm, UpdateMileageRecordForm
 from .models import MileageRecord, FuelRecord, Expense
 from django.db.models import Sum
 from django.utils import timezone
 from django.db.models import F
+from django.contrib import messages
 
 
 def driver_dashboard(request):
@@ -75,6 +76,29 @@ def view_mileage(request):
     }
     
     return render(request, 'driver/details/mileage_detail.html', context)
+
+def update_mileage(request, mileage_id):
+    
+    mileage = get_object_or_404(MileageRecord, id=mileage_id)
+    
+    if request.method == 'POST':
+        form = UpdateMileageRecordForm(request.POST, instance=mileage)
+        if form.is_valid():
+            update_mileage = form.save(commit=False)
+            update_mileage.save()
+            messages.success(request, 'Mileage Updated Successfully!')
+            return redirect('view_mileage_record')
+        
+    else:
+        form = UpdateMileageRecordForm(instance=mileage)
+    
+    context = {
+        'mileage': mileage,
+        'form': form,
+        'title': 'Update Mileage'
+    }
+    
+    return render(request, 'driver/details/update_mileage.html', context)
     
 @login_required
 def add_fuel(request):
