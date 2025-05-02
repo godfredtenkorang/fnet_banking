@@ -945,47 +945,19 @@ def commission(request):
 
 def branch_balance(request, branch_id):
     branch = get_object_or_404(Agent, id=branch_id)
-    today = timezone.now().date()
-    start_date = today - timedelta(days=30)
     
-    daily_balances = []
+    total_requests = CashAndECashRequest.total_ecash_for_customer(agent=branch, status='Approved')
+    total_payments = PaymentRequest.total_payment_for_customer(agent=branch, status='Approved')
     
-    # Calculate balances for each day in the 30-day period
-    current_date = start_date
-    
-    while current_date <= today:
-        
-    
-    # account = get_object_or_404(MobilizationAccount, mobilization=mobilization)
-    
-        total_requests = CashAndECashRequest.total_ecash_for_customer(agent=branch, created_at=current_date, status='Approved')
-        total_payments = PaymentRequest.total_payment_for_customer(agent=branch, created_at=current_date, status='Approved')
-    
-        balance_left = total_payments - total_requests
-        
-        daily_balances.append({
-            'date': current_date,
-            'total_requests': total_requests,
-            'total_payments': total_payments,
-            'balance_left': balance_left,
-        })
-        
-        current_date += timedelta(days=1)
-        
-    # Calculate cumulative totals
-    cumulative_requests = sum(item['total_requests'] for item in daily_balances)
-    cumulative_payments = sum(item['total_payments'] for item in daily_balances)
-    cumulative_balance = cumulative_payments - cumulative_requests
+    balance_left = total_payments - total_requests
     
     context = {
         'branch': branch,
-        'daily_balances': daily_balances,
-        'cumulative_requests': cumulative_requests,
-        'cumulative_payments': cumulative_payments,
-        'cumulative_balance': cumulative_balance,
-        'start_date': start_date,
-        'end_date': today,
-        'title': '30-Day Account Balance'
+        'cumulative_requests': total_requests,
+        'cumulative_payments': total_payments,
+        'cumulative_balance': balance_left,
+
+        'title': 'Account Balance'
     }
     return render(request, 'owner/agent_Detail/branch_balance.html', context)
 
@@ -1279,8 +1251,8 @@ def mobilization_account_detail(request, mobilization_id):
     
     # account = get_object_or_404(MobilizationAccount, mobilization=mobilization)
     
-    total_deposits = bank_deposits.total_bank_deposit_for_customer(mobilization=mobilization, date_deposited=today, status='Approved')
-    total_payments = payment_requests.total_payment_for_customer(mobilization=mobilization, created_at=today, status='Approved')
+    total_deposits = bank_deposits.total_bank_deposit_for_customer(mobilization=mobilization, status='Approved')
+    total_payments = payment_requests.total_payment_for_customer(mobilization=mobilization, status='Approved')
     
     balance_left = total_payments - total_deposits
     context = {
@@ -1319,7 +1291,7 @@ def mobilization_account_detail(request, mobilization_id):
 @login_required
 def mobilization_bank_deposit_transactions_date(request, mobilization_id):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)
-    dates = bank_deposits.objects.filter(mobilization=mobilization).values('date_deposited', 'mobilization').annotate(total_amount=Sum('amount'))
+    dates = bank_deposits.objects.filter(mobilization=mobilization).values('date_deposited', 'mobilization').annotate(total_amount=Sum('amount')).order_by('-date_deposited')
     context = {
         'dates': dates
     }
@@ -1351,7 +1323,7 @@ def delete_transaction_notification(request):
 @login_required
 def mobilization_bank_withdrawal_transactions_date(request, mobilization_id):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)
-    dates = bank_withdrawals.objects.filter(mobilization=mobilization).values('date_withdrawn', 'mobilization').annotate(total_amount=Sum('amount'))
+    dates = bank_withdrawals.objects.filter(mobilization=mobilization).values('date_withdrawn', 'mobilization').annotate(total_amount=Sum('amount')).order_by('-date_withdrawn')
     context = {
         'dates': dates
     }
@@ -1376,7 +1348,7 @@ def delete_mobilization_bank_withdrawal(request, withdrawal_id):
 @login_required
 def mobilization_payment_transactions_date(request, mobilization_id):
     mobilization = get_object_or_404(Mobilization, id=mobilization_id)
-    dates = payment_requests.objects.filter(mobilization=mobilization).values('created_at', 'mobilization').annotate(total_amount=Sum('amount'))
+    dates = payment_requests.objects.filter(mobilization=mobilization).values('created_at', 'mobilization').annotate(total_amount=Sum('amount')).order_by('-created_at')
     context = {
         'dates': dates
     }
