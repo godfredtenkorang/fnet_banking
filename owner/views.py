@@ -945,22 +945,47 @@ def commission(request):
 
 def branch_balance(request, branch_id):
     branch = get_object_or_404(Agent, id=branch_id)
-    today = timezone.now().date() - timedelta(days=30)
+    today = timezone.now().date()
+    start_date = today - timedelta(days=30)
+    
+    daily_balances = []
+    
+    # Calculate balances for each day in the 30-day period
+    current_date = start_date
+    
+    while current_date <= today:
+        
     
     # account = get_object_or_404(MobilizationAccount, mobilization=mobilization)
     
-    total_requests = CashAndECashRequest.total_ecash_for_customer(agent=branch, created_at=today, status='Approved')
-    total_payments = PaymentRequest.total_payment_for_customer(agent=branch, created_at=today, status='Approved')
+        total_requests = CashAndECashRequest.total_ecash_for_customer(agent=branch, created_at=current_date, status='Approved')
+        total_payments = PaymentRequest.total_payment_for_customer(agent=branch, created_at=current_date, status='Approved')
     
-    balance_left = total_payments - total_requests
+        balance_left = total_payments - total_requests
+        
+        daily_balances.append({
+            'date': current_date,
+            'total_requests': total_requests,
+            'total_payments': total_payments,
+            'balance_left': balance_left,
+        })
+        
+        current_date += timedelta(days=1)
+        
+    # Calculate cumulative totals
+    cumulative_requests = sum(item['total_requests'] for item in daily_balances)
+    cumulative_payments = sum(item['total_payments'] for item in daily_balances)
+    cumulative_balance = cumulative_payments - cumulative_requests
     
     context = {
-        # 'account': account,
         'branch': branch,
-        'total_requests': total_requests,
-        'total_payments': total_payments,
-        'balance_left': balance_left,
-        'title': 'Account'
+        'daily_balances': daily_balances,
+        'cumulative_requests': cumulative_requests,
+        'cumulative_payments': cumulative_payments,
+        'cumulative_balance': cumulative_balance,
+        'start_date': start_date,
+        'end_date': today,
+        'title': '30-Day Account Balance'
     }
     return render(request, 'owner/agent_Detail/branch_balance.html', context)
 

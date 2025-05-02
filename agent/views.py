@@ -171,23 +171,60 @@ def view_e_float_account(request):
 @user_passes_test(is_agent)
 def agent_dashboard(request):
     agent = request.user.agent
+
+    today = timezone.now().date()
+    start_date = today - timedelta(days=30)
     
-    today = timezone.now().date() - timedelta(days=30)
-    total_cashins = CustomerCashIn.total_cash_for_customer(agent=agent, date_deposited=today)
-    total_cashouts = CustomerCashOut.total_cashout_for_customer(agent=agent, date_withdrawn=today)
-    total_deposits = BankDeposit.total_bank_deposit_for_customer(agent=agent, date_deposited=today)
-    total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(agent=agent, date_withdrawn=today)
-    total_ecash = CashAndECashRequest.total_ecash_for_customer(agent=agent, created_at=today, status='Approved')
-    total_payments = PaymentRequest.total_payment_for_customer(agent=agent, created_at=today, status='Approved')
+    daily_balances = []
+    
+    # Calculate balances for each day in the 30-day period
+    current_date = start_date
+    
+    while current_date <= today:
+        
+    
+    # account = get_object_or_404(MobilizationAccount, mobilization=mobilization)
+        total_cashins = CustomerCashIn.total_cash_for_customer(agent=agent, date_deposited=current_date)
+        total_cashouts = CustomerCashOut.total_cashout_for_customer(agent=agent, date_withdrawn=current_date)
+        total_deposits = BankDeposit.total_bank_deposit_for_customer(agent=agent, date_deposited=current_date)
+        total_withdrawals = BankWithdrawal.total_bank_withdrawal_for_customer(agent=agent, date_withdrawn=current_date)
+        total_requests = CashAndECashRequest.total_ecash_for_customer(agent=agent, created_at=current_date, status='Approved')
+        total_payments = PaymentRequest.total_payment_for_customer(agent=agent, created_at=current_date, status='Approved')
+    
+        balance_left = total_payments - total_requests
+        
+        daily_balances.append({
+            'date': current_date,
+            'total_cashins': total_cashins,
+            'total_cashouts': total_cashouts,
+            'total_deposits': total_deposits,
+            'total_withdrawals': total_withdrawals,
+            'total_requests': total_requests,
+            'total_payments': total_payments,
+            'balance_left': balance_left,
+        })
+        
+        current_date += timedelta(days=1)
+        
+    # Calculate cumulative totals
+    cumulative_cashins = sum(item['total_cashins'] for item in daily_balances)
+    cumulative_cashouts = sum(item['total_cashouts'] for item in daily_balances)
+    cumulative_deposits = sum(item['total_deposits'] for item in daily_balances)
+    cumulative_withdrawals = sum(item['total_withdrawals'] for item in daily_balances)
+    cumulative_requests = sum(item['total_requests'] for item in daily_balances)
+    cumulative_payments = sum(item['total_payments'] for item in daily_balances)
+    cumulative_balance = cumulative_payments - cumulative_requests
+    
+    
+    
+    
     customers = Customer.objects.filter(agent=agent)
     
     
     cashincommissions = CashInCommission.objects.filter(customer_cash_in__agent=agent)
     cashoutcommissions = CashOutCommission.objects.filter(customer_cash_out__agent=agent)
     
-    balance_total = total_ecash - total_payments
 
-        
     
     cash_in_total_commission = cashincommissions.aggregate(Sum('amount'))['amount__sum'] or 0
     cash_out_total_commission = cashoutcommissions.aggregate(Sum('amount'))['amount__sum'] or 0
@@ -195,16 +232,20 @@ def agent_dashboard(request):
     all_total_commission = cash_in_total_commission + cash_out_total_commission
     
     context = {
-        'total_cashins': total_cashins,
-        'total_cashouts': total_cashouts,
-        'total_deposits': total_deposits,
-        'total_withdrawals': total_withdrawals,
-        'total_ecash': total_ecash,
-        'total_payments': total_payments,
-        'customers': customers,
+        'agent': agent,
+        'daily_balances': daily_balances,
+        'cumulative_cashins': cumulative_cashins,
+        'cumulative_cashouts': cumulative_cashouts,
+        'cumulative_deposits': cumulative_deposits,
+        'cumulative_withdrawals': cumulative_withdrawals,
+        'cumulative_requests': cumulative_requests,
+        'cumulative_payments': cumulative_payments,
+        'cumulative_balance': cumulative_balance,
         'all_total_commission': all_total_commission,
-        'balance_total': balance_total,
-        'title': 'Dashboard'
+        'start_date': start_date,
+        'end_date': today,
+        'customers': customers,
+        'title': '30-Day Account Balance'
     }
     return render(request, 'agent/dashboard.html', context)
 
