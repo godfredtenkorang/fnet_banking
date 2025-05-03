@@ -1,7 +1,9 @@
 from datetime import timedelta
+from django.forms import ValidationError
 from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager, AbstractBaseUser, PermissionsMixin
+
 import random
 
 
@@ -189,6 +191,55 @@ class Vehicle(models.Model):
     model = models.CharField(max_length=50)
     year = models.PositiveIntegerField()
     owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
+    oil_change_default = models.PositiveBigIntegerField(default=5000, help_text="Default mileage between oil changes (km)")
+    last_oil_change_mileage = models.PositiveBigIntegerField(default=0, help_text="Mileage at last oil change (km)")
+    last_oil_change_date = models.DateField(null=True, blank=True)
+    
+    def clean(self):
+        if self.last_oil_change_mileage is not None and self.current_mileage is not None:
+            if self.last_oil_change_mileage > self.current_mileage:
+                raise ValidationError("Last oil change mileage cannot be greater than current mileage")
+            
+    def reset_oil_change_tracking(self, current_tracking):
+        self.last_oil_change_mileage = current_tracking
+        self.last_oil_change_date = timezone.now().date()
+        self.save()
+        
+        
+    
+    @property
+    def mileage_until_oil_change(self):
+        # Ensure we have valid values for calculation
+        if self.last_oil_change_mileage is None:
+            return self.oil_change_default  # If never changed, use full interval
+            
+        current_mileage = self.current_mileage
+        if current_mileage is None:
+            return 0  # Can't calculate without current mileage
+            
+        miles_since_change = current_mileage - self.last_oil_change_mileage
+        remaining = self.oil_change_default - miles_since_change
+        return max(remaining, 0)  # Don't return negative numbers
+    
+    @property
+    def current_mileage(self):
+        """Get the current mileage from the latest record"""
+        latest_record = self.mileagerecord_set.order_by('-date').first()
+        return latest_record.end_mileage if latest_record else None
+    
+    @property
+    def miles_since_last_oil_change(self):
+        """How many miles driven since last oil change"""
+        if self.last_oil_change_mileage is None or self.current_mileage is None:
+            return 0
+        return self.current_mileage - self.last_oil_change_mileage
+    
+    @property
+    def needs_oil_change(self):
+        if self.mileage_until_oil_change == 0:
+            return True
+        return False
+    
     
     def __str__(self):
         return f"{self.model} ({self.registration_number}) - {self.year}"

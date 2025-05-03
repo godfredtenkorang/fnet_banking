@@ -43,6 +43,9 @@ class MobilizationAdmin(admin.ModelAdmin):
 class MobilizationCustomerAdmin(admin.ModelAdmin):
     list_display = ('user', 'mobilization', 'branch')
     
-@admin.register(Vehicle)
 class VehicleAdmin(admin.ModelAdmin):
-    list_display = ('registration_number', 'model', 'year')
+    list_display = ('model', 'registration_number', 'oil_change_default', 'mileage_until_oil_change', 'needs_oil_change')
+
+    readonly_fields = ('mileage_until_oil_change', 'needs_oil_change')
+    
+admin.site.register(Vehicle, VehicleAdmin)

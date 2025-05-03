@@ -1,5 +1,5 @@
 from django import forms
-from .models import MileageRecord, FuelRecord, Expense
+from .models import MileageRecord, FuelRecord, Expense, OilChange, Notification
 
 
 class MileageRecordForm(forms.ModelForm):
@@ -33,3 +33,17 @@ class ExpenseForm(forms.ModelForm):
             'date': forms.DateInput(attrs={'type': 'date'}),
             'description': forms.Textarea(attrs={'rows': 5, 'cols': 60}),
         }
+        
+class OilChangeForm(forms.ModelForm):
+    class Meta:
+        model = OilChange
+        fields = ['vehicle', 'date', 'mileage', 'cost']
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}),
+        }
+        
+class NotificationForm(forms.ModelForm):
+    class Meta:
+        model = Notification
+        fields = ['message', 'notification_type']
+        

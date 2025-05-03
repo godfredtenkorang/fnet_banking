@@ -107,6 +107,12 @@
                             <h3><i class="fa-solid fa-book"></i> Dashboard</h3>
                         </div>
                     </a>
+                    <a href="{% url 'mileage' %}">
+
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-book"></i> Mileage</h3>
+                        </div>
+                    </a>
                     <a href="{% url 'mileage_record' %}">
 
                         <div class="nav-option option1 button">
@@ -123,6 +129,18 @@
 
                         <div class="nav-option option1 button">
                             <h3><i class="fa-solid fa-book"></i> Add Expense</h3>
+                        </div>
+                    </a>
+                    <a href="{% url 'notifications' %}">
+
+                        <div class="nav-option option1 button">
+                            <h3><i class="fa-solid fa-book"></i> Notifications</h3>
+                            <div class="notification">
+                                <i class="fa-solid fa-bell"></i>
+                                <p>{{ notification_count }}</p>
+                            
+                            
+                            </div>
                         </div>
                     </a>
                     
@@ -280,6 +298,30 @@
 
 
 
+    </script>
+
+
+    <script>
+        // Check for oil change notifications periodically
+            function checkForNotifications() {
+                fetch('/driver/notifications/')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.unread_count > 0) {
+                            showAlert(`You have ${data.unread_count} unread notifications`);
+                        }
+                    });
+            }
+
+            // Check every 5 minutes
+            setInterval(checkForNotifications, 5 * 60 * 1000);
+            // Initial check
+            checkForNotifications();
+
+            function showAlert(message) {
+                // Implement your alert UI here (could be a toast notification)
+                alert(message); // Simple version - replace with something better
+            }
     </script>
 </body>
 

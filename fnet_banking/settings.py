@@ -91,6 +91,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'users.views.unapproved_users_count',
                 'owner.views.unapproved_users_count',
+                'driver.views.notifications_counts',
                 # 'users.views.get_users',
                 # 'owner.views.get_owner',
             ],

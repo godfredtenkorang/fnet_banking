@@ -1,12 +1,23 @@
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .forms import MileageRecordForm, FuelRecordForm, ExpenseForm, UpdateMileageRecordForm
-from .models import MileageRecord, FuelRecord, Expense
-from django.db.models import Sum
+from .forms import MileageRecordForm, FuelRecordForm, ExpenseForm, UpdateMileageRecordForm, OilChangeForm, NotificationForm
+from .models import MileageRecord, FuelRecord, Expense, OilChange, Notification
+from django.db.models import Sum, Max
 from django.utils import timezone
 from django.db.models import F
 from django.contrib import messages
+from users.models import Vehicle
 
+
+def notifications_counts(request):
+    notification_count = Notification.objects.filter(is_read=False,).count()
+    
+    
+    context = {
+        'notification_count': notification_count
+    }
+    return context
 
 def driver_dashboard(request):
     driver = request.user.driver
@@ -44,6 +55,94 @@ def driver_dashboard(request):
     }
    
     return render(request, 'driver/dashboard.html', context)
+
+
+def mileage(request):
+    driver = request.user.driver
+    vehicles = Vehicle.objects.filter(
+        mileagerecord__driver=driver
+    ).distinct().annotate(
+        latest_mileage=Max('mileagerecord__end_mileage')
+    )
+    
+    for vehicle in vehicles:
+        # Calculate remaining mileage safely
+        if vehicle.last_oil_change_mileage is None:
+            vehicle.remaining_mileage = vehicle.oil_change_default
+        else:
+            vehicle.remaining_mileage = max(
+                (vehicle.last_oil_change_mileage + vehicle.oil_change_default) - 
+                (vehicle.latest_mileage or 0),
+                0
+            )
+    context = {
+        'vehicles': vehicles,
+        'title': 'Vehicles'
+    }
+    return render(request, 'driver/mileage.html', context)
+
+
+def vehicle_maintenance(request, vehicle_id):
+    vehicle = get_object_or_404(Vehicle, id=vehicle_id)
+    
+    oil_changes = OilChange.objects.filter(vehicle=vehicle).order_by('-date')
+    
+    latest_mileage = vehicle.mileagerecord_set.order_by('-date').first()
+    
+    context = {
+        'vehicle': vehicle,
+        'oil_changes': oil_changes,
+        'latest_mileage': latest_mileage,
+        'needs_oil_change': vehicle.needs_oil_change
+    }
+    
+    return render(request, 'driver/maintenance/vehicle_maintenance.html', context)
+
+def record_oil_change(request, vehicle_id):
+    
+    vehicle = get_object_or_404(Vehicle, id=vehicle_id)
+    
+    if request.method == 'POST':
+        form = OilChangeForm(request.POST)
+        if form.is_valid():
+            oil_change = form.save(commit=False)
+            oil_change.vehicle = vehicle
+            oil_change.save()
+            # Reset the oil change tracking
+            vehicle.reset_oil_change_tracking(oil_change.mileage)
+            # Reset the oil change tracking
+            vehicle.reset_oil_change_tracking(oil_change.mileage)
+            return redirect('vehicle_maintenance', vehicle_id=vehicle.id)
+    else:
+        latest_mileage = vehicle.mileagerecord_set.order_by('-date').first()
+        
+        initial = {
+            'mileage': latest_mileage.end_mileage if latest_mileage else 0,
+            'date': timezone.now().date(),
+        }
+        
+        form = OilChangeForm(initial=initial)
+        
+    context = {
+        'form': form,
+        'vehicle': vehicle,
+    }
+    
+    return render(request, 'driver/maintenance/record_oil_change.html', context)
+
+def notifications(request):
+    driver = request.user.driver
+    notifications = Notification.objects.filter(driver=driver, is_read=False).order_by('-created_at')
+    
+    return render(request, 'driver/maintenance/notification.html', {'notifications': notifications})
+
+
+def mark_notification_read(request, notification_id):
+    driver = request.user.driver
+    notification = get_object_or_404(Notification, id=notification_id, driver=driver)
+    notification.is_read = True
+    notification.save()
+    return JsonResponse({'status': 'ok'})
 
 
 @login_required

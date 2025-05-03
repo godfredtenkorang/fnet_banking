@@ -1,0 +1,357 @@
+{% extends 'driver/base.html' %}
+{% load humanize %}
+{% load static %}
+{% block content %}
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<style>
+    .dash-h2 {
+        padding: 3% 0;
+    }
+
+    .dash-h2 h2 {
+        padding: 2%;
+    }
+
+    /* Default table styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+
+    th {
+        background: #007bff;
+        color: white;
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+    td {
+        font-size: 12px;
+    }
+
+    /* Button Styling */
+    .approve-btn {
+        background: #28a745;
+        color: white;
+
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+
+        height: 6vh !important;
+    }
+
+    .decline-btn {
+        background: #dc3545;
+        color: white;
+
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+
+        height: 6vh !important;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+    }
+
+    /* Table row background color using child selectors */
+    tbody tr:nth-child(odd) {
+        background-color: #f9f9f9;
+        /* Light gray for odd rows */
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #e9ecef;
+        /* Slightly darker gray for even rows */
+    }
+
+    /* Mobile Responsive Table */
+    @media screen and (max-width: 968px) {
+
+        table,
+        thead,
+        tbody,
+        th,
+        td,
+        tr {
+            display: block;
+            width: 100%;
+        }
+
+        thead {
+            display: none;
+        }
+
+        tr {
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            padding: 8px;
+            background: #f9f9f9;
+        }
+
+        td {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border: none;
+            text-align: left;
+        }
+
+        td::before {
+            content: attr(data-label);
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        /* Stack buttons at the bottom */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .action-buttons button {
+            width: 100% !important;
+        }
+    }
+
+    .alert {
+        position: relative;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1rem;
+        border: 1px solid transparent;
+        border-radius: 0.25rem;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    .alert-danger {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+
+    /* Optional close button */
+    .alert-danger .close {
+        color: #721c24;
+        opacity: 0.7;
+    }
+
+    /* Hover effect for close button */
+    .alert-danger .close:hover {
+        opacity: 1;
+    }
+
+    .alert-info {
+        color: #0c5460;
+        background-color: #d1ecf1;
+        border-color: #bee5eb;
+    }
+
+    .alert-info .close {
+        color: #0c5460;
+        opacity: 0.7;
+    }
+
+    .alert-info .close:hover {
+        opacity: 1;
+    }
+
+    .btn {
+  display: inline-block;
+  font-weight: 400;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  user-select: none;
+  border: 1px solid transparent;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: 0.25rem;
+  transition: color 0.15s ease-in-out, 
+              background-color 0.15s ease-in-out,
+              border-color 0.15s ease-in-out,
+              box-shadow 0.15s ease-in-out;
+  cursor: pointer;
+}
+
+/* Button states */
+.btn:hover {
+  text-decoration: none;
+}
+
+.btn:focus {
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+
+.btn-primary {
+  color: #fff;
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-primary:hover {
+  background-color: #0069d9;
+  border-color: #0062cc;
+}
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="main">
+
+    <div class="banner-container">
+        <img src="{% static 'banking/img/ml-bg.jpg' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Maintenance for {{ vehicle }}</h1>
+        </div>
+    </div>
+
+    <h1></h1>
+
+    <div class="alert {% if needs_oil_change %}alert-danger{% else %}alert-info{% endif %}">
+        <br>
+        <h3>Oil Change Status</h3>
+        <p>
+            {% if needs_oil_change %}
+            <strong>Oil change overdue!</strong>
+            {% else %}
+            <strong>{{ vehicle.mileage_until_oil_change }} km</strong> until next oil change
+            {% endif %}
+        </p>
+        <p>Default interval: {{ vehicle.oil_change_default }} km</p>
+        <p>Last oil change:
+            {% if vehicle.last_oil_change_date %}
+            {{ vehicle.last_oil_change_date }} at {{ vehicle.last_oil_change_mileage }} km
+            {% else %}
+            No oil change recorded
+            {% endif %}
+        </p>
+        <br>
+        <a href="{% url 'record_oil_change' vehicle.id %}" class="btn btn-primary">
+            Record Oil Change
+        </a>
+    </div>
+    <br>
+    <h3>Oil Change History</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Mileage</th>
+                <th>Cost</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            {% for change in oil_changes %}
+            <tr>
+                <td>{{ change.date }}</td>
+                <td>{{ change.mileage }} km</td>
+                <td>{% if change.cost %}GH¢{{ change.cost }}{% else %}-{% endif %}</td>
+
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No oil changes recorded</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <h3>Current Mileage</h3>
+    {% if latest_mileage %}
+    <p>Latest recorded mileage: {{ latest_mileage.end_mileage }} km (on {{ latest_mileage.date }})</p>
+    {% else %}
+    <p>No mileage records found for this vehicle</p>
+    {% endif %}
+
+
+
+
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Extract values from the stats container
+        const labels = [];
+        const dataValues = [];
+        const backgroundColors = ["#337ab7", "#ee335e", "#22c03c", "#ee335e", "#f39c12", "#9b59b6"];
+        const borderColors = backgroundColors.map(color => color);
+
+        document.querySelectorAll('.stat').forEach(stat => {
+            const label = stat.querySelector('h2').textContent;
+            let value = stat.querySelector('.valuesP').textContent;
+            value = parseFloat(value.replace(' Gh', '')) || 0;
+
+            labels.push(label);
+            dataValues.push(value);
+        });
+
+        // Create the bar chart
+        const ctx = document.getElementById('barChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Financial Summary',
+                    data: dataValues,
+                    backgroundColor: backgroundColors,
+                    borderColor: borderColors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+
+
+
+</script>
+
+
+{% endblock %}
