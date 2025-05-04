@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import auth
 from django.contrib.auth.backends import ModelBackend
+
+from agent.serializers import TransactionSerializer
 from .forms import UserRegisterForm, OwnerRegistrationForm, DriverRegistrationForm, CustomPasswordChangeForm, AgentRegistrationForm, CustomerRegistrationForm, LoginForm, MobilizationRegistrationForm
 from .models import User, Owner, Agent, Customer, Branch, Mobilization, OTPToken, Driver
 from django.contrib import messages
@@ -23,6 +25,9 @@ from django.db.models import F
 from driver.forms import MileageRecordForm, FuelRecordForm, ExpenseForm
 from django.db.models import Sum
 
+
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.views import APIView
 
 
 
@@ -483,12 +488,20 @@ def driver_detail(request, driver_id):
 
 # API
 
-class LoginView(generics.GenericAPIView):
-    serializer_class = LoginSerializer
-    
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        return Response(serializer.validated_data, status=status.HTTP_200_OK)
+class LoginView(APIView):
+    def post(self, request):
+        phone_number = request.data.get('phone_number')
+        password = request.data.get('password')
+        
+        user = authenticate(phone_number=phone_number, password=password)
+        
+        if user:
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+                'user': UserSerializer(user).data
+            }, status=status.HTTP_200_OK)
+        return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
     
     
