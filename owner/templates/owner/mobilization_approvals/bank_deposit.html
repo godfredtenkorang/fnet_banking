@@ -1,4 +1,4 @@
-{% extends 'owner/base.html' %} {% load static %} {% block content %}
+{% extends 'owner/base.html' %} {% load custom_filters %} {% load static %} {% block content %}
 
 
 <style>
@@ -113,7 +113,7 @@
             <thead>
                 <tr>
                     <th>Mobilization</th>
-                    <th>Name</th>
+                    <th>Customer's Name</th>
                     <th>Customer Phone</th>
                     <th>Bank</th>
                     <th>Account Number</th>
@@ -141,7 +141,15 @@
             
         ">
                     <td data-label="Agent">{{pending_deposit.mobilization}}</td>
-                    <td style="font-weight: 900;" data-label="Full Name">{{pending_deposit.mobilization.full_name}}</td>
+                    <td style="font-weight: 900;" data-label="Full Name">
+                        {% with customer=customer_map|get_item:pending_deposit.phone_number %}
+                            {% if customer %}
+                                {{ customer.full_name }}
+                            {% else %}
+                                Not registered
+                            {% endif %}
+                        {% endwith %}
+                    </td>
                     <td data-label="Customer Number">{{pending_deposit.phone_number}}</td>
                     <td data-label="Bank">{{pending_deposit.bank}}</td>
                     <td data-label="Account Number">{{pending_deposit.account_number}}</td>

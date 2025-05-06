@@ -1061,9 +1061,12 @@ def hold_account(request):
 
 @login_required
 def mobilization_bank_deposit_requests(request):
+    phone_numbers = bank_deposits.objects.filter(status='Pending').values_list('phone_number', flat=True).distinct()
+    customers = {c.phone_number: c for c in Customer.objects.filter(phone_number__in=phone_numbers)}
     pending_deposits = bank_deposits.objects.filter(status='Pending').order_by('-date_deposited', '-time_deposited')
     context = {
         'pending_deposits': pending_deposits,
+        'customer_map': customers,
         'title': 'Bank Deposit Requests'
     }
     return render(request, 'owner/mobilization_approvals/bank_deposit.html', context)
