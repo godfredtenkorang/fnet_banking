@@ -120,7 +120,8 @@
                 <th>Phone Number</th>
                 <!-- <th>Approved Amount</th>
                 <th>Remaining Amount</th> -->
-                <th>Date/Time</th>
+                <th>Date</th>
+                <th>Time</th>
                 <th>Status</th>
                 <th>Action</th>
             </tr>
@@ -152,6 +153,7 @@
                 <!-- <td data-label="Remaining">{{cash.amount|subtract:cash.arrears}}</td>
                 <td data-label="Arrears">{{cash.arrears}}</td> -->
                 <td data-label="Date/Time">{{cash.created_at}}</td>
+                <td data-label="Date/Time">{{cash.time_created}}</td>
                 <td data-label="Status">{{cash.status}}</td>
                 <td data-label="Action" class="action-buttons">
                     <a href="{% url 'approve_cash_and_ecash_request' cash.id %}"><button class="approve-btn">Approve</button></a>

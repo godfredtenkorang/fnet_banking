@@ -281,6 +281,7 @@ class CashAndECashRequest(models.Model):
     arrears = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # Track remaining balance
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     created_at = models.DateField(auto_now_add=True)
+    time_created = models.TimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateField(auto_now=True)
     
     @classmethod
@@ -380,6 +381,7 @@ class PaymentRequest(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     created_at = models.DateField(auto_now_add=True)
+    time_created = models.TimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateField(auto_now=True)
     
     @classmethod

@@ -113,7 +113,8 @@
                     <th>Bank/Network/Branch</th>
                     <th>Transaction ID</th>
                     <th>Amount</th>
-                    <th>Date/Time</th>
+                    <th>Date</th>
+                    <th>Time</th>
                     <th>Status</th>
                     <th>Action</th>
                 </tr>
@@ -151,6 +152,7 @@
                     <td data-label="Transaction ID">{{payment.branch_transaction_id}}</td>
                     <td data-label="Amount">{{payment.amount}}</td>
                     <td data-label="Date/Time">{{payment.created_at}}</td>
+                    <td data-label="Date/Time">{{payment.time_created}}</td>
                     <td data-label="Status">{{payment.status}}</td>
                     <td data-label="Action" class="action-buttons">
                         <a href="{% url 'approve_payment' payment.id %}"><button
