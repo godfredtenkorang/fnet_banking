@@ -138,6 +138,7 @@
                     <th>Account Name</th>
                     <th>Bank</th>
                     <th>Phone</th>
+                    <th>Delete</th>
 
                 </tr>
             </thead>
@@ -149,6 +150,7 @@
                     <td>{{ account.account_name }}</td>
                     <td>{{ account.bank }}</td>
                     <td>{{ account.phone_number }}</td>
+                    <td><a href="{% url 'delete-customer-account' account.id %}">delete</a></td>
                 </tr>
                 {% endfor %}
             </tbody>

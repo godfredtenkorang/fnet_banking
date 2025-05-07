@@ -42,6 +42,7 @@ urlpatterns = [
     path('get_customer/<int:customer_id>/detail', views.my_customer_detail, name='get_customer_detail'),
     
     path('add-customer-accounts/', views.customer_accounts, name='all-customer-accounts'),
+    path('delete-customer-account/<int:account_id>/', views.delete_account, name='delete-customer-account'),
     
     
     # API

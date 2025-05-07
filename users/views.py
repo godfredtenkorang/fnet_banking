@@ -527,7 +527,10 @@ def my_customer_detail(request, customer_id):
 
     return render(request, 'users/admin_dashboard/customer_detail.html', context)
 
-
+def delete_account(request, account_id):
+    account = CustomerAccount.objects.get(id=account_id)
+    account.delete()
+    return redirect("all-customer-accounts")
 
 # API
 
