@@ -211,7 +211,7 @@ class PaymentRequest(models.Model):
     branch = models.CharField(max_length=30, choices=BRANCHES, null= True, blank=True)
     name = models.CharField(max_length=100, null=True, blank=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0.01)])
-    mobilization_transaction_id = models.CharField(max_length=100, null=True, blank=True)
+    # mobilization_transaction_id = models.CharField(max_length=100, null=True, blank=True)
     owner_transaction_id = models.CharField(max_length=100, null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     created_at = models.DateField(auto_now_add=True)
