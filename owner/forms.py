@@ -13,7 +13,7 @@ class BankDepositForm(forms.ModelForm):
 class PaymentForm(forms.ModelForm):
     class Meta:
         model = PaymentRequest
-        fields = ['mobilization', 'mode_of_payment', 'bank', 'network', 'branch', 'name', 'amount', 'owner_transaction_id', 'status']
+        fields = ['mobilization', 'mode_of_payment', 'bank', 'network', 'branch', 'name', 'amount', 'mobilization_transaction_id', 'owner_transaction_id', 'status']
         
 class OwnerBalanceForm(forms.ModelForm):
     
