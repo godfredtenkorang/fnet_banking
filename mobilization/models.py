@@ -243,7 +243,7 @@ class CustomerAccount(models.Model):
     
     
     def __str__(self):
-        return self.phone_number
+        return f"{self.phone_number} - {self.account_name} - {self.bank}"
     
     
 class TellerCalculator(models.Model):

@@ -66,7 +66,7 @@ class CustomerAccount(models.Model):
         return self.bank.name
     
     def __str__(self):
-        return self.phone_number
+        return f"{self.phone_number} - {self.account_name} - {self.bank}"
     
 class Drawer(models.Model):
     agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name='drawers')
