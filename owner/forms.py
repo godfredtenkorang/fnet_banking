@@ -28,7 +28,17 @@ class OwnerBalanceForm(forms.ModelForm):
             'gtbank_balance',
             'fidelity_balance',
             'calbank_balance',
-            'access_bank_balance'
+            'absa_balance',
+            'debtor_name1',
+            'debtor_1_balance',
+            'debtor_name2',
+            'debtor_2_balance',
+            'debtor_name3',
+            'debtor_3_balance',
+            'debtor_name4',
+            'debtor_4_balance',
+            'debtor_name5',
+            'debtor_5_balance',
         ]
         widgets = {
             'cash_balance': forms.NumberInput(attrs={'class': 'form-control'}),

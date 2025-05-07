@@ -18,7 +18,22 @@ class OwnerBalance(models.Model):
     gtbank_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     fidelity_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     calbank_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    access_bank_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    absa_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    
+    debtor_name1 = models.CharField(max_length=100, null=True, blank=True, default='')
+    debtor_1_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    
+    debtor_name2 = models.CharField(max_length=100, null=True, blank=True, default='')
+    debtor_2_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    
+    debtor_name3 = models.CharField(max_length=100, null=True, blank=True, default='')
+    debtor_3_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    
+    debtor_name4 = models.CharField(max_length=100, null=True, blank=True, default='')
+    debtor_4_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    
+    debtor_name5 = models.CharField(max_length=100, null=True, blank=True, default='')
+    debtor_5_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     
     # Other fields
     updated_at = models.DateTimeField(auto_now=True)
