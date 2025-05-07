@@ -87,6 +87,9 @@ class CustomerUpdateForm(forms.ModelForm):
 class CustomerFilterForm(forms.Form):
     phone_number = forms.CharField(required=False, label='Phone Number')
     
+class AccountFilterForm(forms.Form):
+    phone_number = forms.CharField(required=False, label='Phone Number')
+    
 class MobilizationRegistrationForm(forms.ModelForm):
     mobilization = forms.ModelChoiceField(queryset=User.objects.filter(role='MOBILIZATION'), required=True)
     class Meta:

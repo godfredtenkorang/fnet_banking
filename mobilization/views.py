@@ -431,7 +431,7 @@ def my_customers(request):
 @user_passes_test(is_mobilization)
 def my_customer_detail(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)
-    accounts = customer.customeraccounts.all()
+    accounts = customer.accounts.all()
     context = {
         'customer': customer,
         'accounts': accounts,

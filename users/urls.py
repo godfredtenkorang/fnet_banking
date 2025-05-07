@@ -41,6 +41,8 @@ urlpatterns = [
     path('all_customers/', views.customers, name='all-customers'),
     path('get_customer/<int:customer_id>/detail', views.my_customer_detail, name='get_customer_detail'),
     
+    path('add-customer-accounts/', views.customer_accounts, name='all-customer-accounts'),
+    
     
     # API
      path('login/', LoginView.as_view(), name='user_login'),

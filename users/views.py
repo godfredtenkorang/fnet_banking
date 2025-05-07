@@ -5,7 +5,7 @@ from django.contrib.auth.models import auth
 from django.contrib.auth.backends import ModelBackend
 
 from agent.serializers import TransactionSerializer
-from .forms import UserRegisterForm, OwnerRegistrationForm, DriverRegistrationForm, CustomPasswordChangeForm, CustomerFilterForm, AgentRegistrationForm, CustomerRegistrationForm, LoginForm, MobilizationRegistrationForm
+from .forms import UserRegisterForm, OwnerRegistrationForm, DriverRegistrationForm, CustomPasswordChangeForm, CustomerFilterForm, AccountFilterForm, AgentRegistrationForm, CustomerRegistrationForm, LoginForm, MobilizationRegistrationForm
 from .models import User, Owner, Agent, Customer, Branch, Mobilization, OTPToken, Driver
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -29,6 +29,7 @@ from django.db.models import Sum
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 
+from banking.models import CustomerAccount
 
 
 def all_requests(request):
@@ -499,13 +500,28 @@ def customers(request):
     }
     return render(request, 'users/admin_dashboard/customers.html', context)
 
+def customer_accounts(request):
+    accounts = CustomerAccount.objects.all()
+    form = AccountFilterForm(request.GET or None)
+    if form.is_valid():
+        if form.cleaned_data['phone_number']:
+            accounts = accounts.filter(phone_number__icontains=form.cleaned_data['phone_number'])
+        
+    context = {
+        'accounts': accounts,
+        'form': form,
+        'title': 'My Customers'
+    }
+    return render(request, 'users/admin_dashboard/customer_accounts.html', context)
+
 def my_customer_detail(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)
-    accounts = customer.customeraccounts.all()
+    accounts = customer.accounts.all()
     context = {
         'customer': customer,
         'accounts': accounts,
-        'title': 'Customer Detail'
+        'title': 'Customer Detail',
+        'creator': customer.agent if customer.agent else customer.mobilization
     }
 
     return render(request, 'users/admin_dashboard/customer_detail.html', context)

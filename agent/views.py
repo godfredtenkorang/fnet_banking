@@ -956,6 +956,7 @@ def customerReg(request):
 @login_required
 @user_passes_test(is_agent)
 def accountReg(request):
+    agent = request.user.agent
     if request.method == 'POST':
         phone_number = request.POST['phone_number']
         account_number = request.POST['account_number']
