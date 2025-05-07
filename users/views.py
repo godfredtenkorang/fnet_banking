@@ -29,7 +29,8 @@ from django.db.models import Sum
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
 
-from banking.models import CustomerAccount
+
+from mobilization.models import CustomerAccount
 
 
 def all_requests(request):
@@ -516,7 +517,7 @@ def customer_accounts(request):
 
 def my_customer_detail(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)
-    accounts = customer.accounts.all()
+    accounts = customer.customeraccounts.all()
     context = {
         'customer': customer,
         'accounts': accounts,

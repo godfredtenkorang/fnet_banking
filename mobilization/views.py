@@ -11,8 +11,10 @@ from django.utils import timezone
 from .forms import CustomerFilterForm, UpdateBankDepositForm, ReportForm, CustomerImageUpdateForm
 from .utils import send_mobilization_bank_deposit_sms
 from users.models import Mobilization
-from banking.models import MobilizationAccount, CustomerAccount
+from banking.models import MobilizationAccount
 from banking.forms import MobilizationAccountForm
+
+from mobilization.models import CustomerAccount
 
 from datetime import datetime, timedelta, date
 from django.core.paginator import Paginator
@@ -431,7 +433,7 @@ def my_customers(request):
 @user_passes_test(is_mobilization)
 def my_customer_detail(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)
-    accounts = customer.accounts.all()
+    accounts = customer.customeraccounts.all()
     context = {
         'customer': customer,
         'accounts': accounts,

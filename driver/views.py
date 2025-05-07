@@ -10,6 +10,7 @@ from django.contrib import messages
 from users.models import Vehicle
 
 
+
 def notifications_counts(request):
     notification_count = Notification.objects.filter(is_read=False,).count()
     

@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from users.models import User, Branch, Customer, Agent
 from banking.forms import DrawerDepositForm, EFloatAccountForm
-from banking.models import Bank, CustomerAccount, Drawer, EFloatAccount, CustomerPaymentAtBank
+from banking.models import Bank, Drawer, EFloatAccount, CustomerPaymentAtBank
 from django.utils import timezone
 from django.contrib import messages
 from .models import CustomerCashIn, CustomerCashOut, BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest, CustomerComplain, HoldCustomerAccount, CustomerFraud, CustomerPayTo, CashInCommission, CashOutCommission, BranchReport
@@ -24,6 +24,8 @@ from .models import Transaction
 from .serializers import TransactionSerializer
 import random
 import string
+
+from mobilization.models import CustomerAccount
 
 @api_view(['GET', 'POST'])
 def transaction_list(request):
@@ -863,7 +865,7 @@ def my_customers(request):
 @user_passes_test(is_agent)
 def my_customer_detail(request, customer_id):
     customer = get_object_or_404(Customer, id=customer_id)
-    accounts = customer.accounts.all()
+    accounts = customer.customeraccounts.all()
     context = {
         'customer': customer,
         'accounts': accounts,
