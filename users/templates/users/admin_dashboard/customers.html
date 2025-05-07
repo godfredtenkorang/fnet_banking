@@ -158,7 +158,7 @@
                 {% for customer in customers %}
                 <tr>
 
-                    <td>{% if customer.agent %}{{ customer.agent.full_name }}{% else %}{{ customer.mobilization.full_name }}{% endif %}</td>
+                    <td>{% if customer.agent %}{{ customer.agent.full_name }} - (Branch){% else %}{{ customer.mobilization.full_name }} - (Mobilization){% endif %}</td>
                     <td>{{ customer.branch }}</td>
                     <td>{{ customer.phone_number }}</td>
                     <td>{{ customer.full_name }}</td>
