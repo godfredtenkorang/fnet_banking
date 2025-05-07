@@ -84,6 +84,8 @@ class CustomerUpdateForm(forms.ModelForm):
         model = Customer
         fields = ['customer', 'branch', 'phone_number', 'full_name', 'customer_location', 'digital_address', 'id_type', 'id_number', 'date_of_birth', 'customer_picture', 'customer_image']
         
+class CustomerFilterForm(forms.Form):
+    phone_number = forms.CharField(required=False, label='Phone Number')
     
 class MobilizationRegistrationForm(forms.ModelForm):
     mobilization = forms.ModelChoiceField(queryset=User.objects.filter(role='MOBILIZATION'), required=True)

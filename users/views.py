@@ -5,7 +5,7 @@ from django.contrib.auth.models import auth
 from django.contrib.auth.backends import ModelBackend
 
 from agent.serializers import TransactionSerializer
-from .forms import UserRegisterForm, OwnerRegistrationForm, DriverRegistrationForm, CustomPasswordChangeForm, AgentRegistrationForm, CustomerRegistrationForm, LoginForm, MobilizationRegistrationForm
+from .forms import UserRegisterForm, OwnerRegistrationForm, DriverRegistrationForm, CustomPasswordChangeForm, CustomerFilterForm, AgentRegistrationForm, CustomerRegistrationForm, LoginForm, MobilizationRegistrationForm
 from .models import User, Owner, Agent, Customer, Branch, Mobilization, OTPToken, Driver
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -484,6 +484,32 @@ def driver_detail(request, driver_id):
     }
     
     return render(request, 'users/admin_dashboard/driver/details/driver_detail.html', context)
+
+def customers(request):
+    customers = Customer.objects.all()
+    form = CustomerFilterForm(request.GET or None)
+    if form.is_valid():
+        if form.cleaned_data['phone_number']:
+            customers = customers.filter(phone_number__icontains=form.cleaned_data['phone_number'])
+        
+    context = {
+        'customers': customers,
+        'form': form,
+        'title': 'My Customers'
+    }
+    return render(request, 'users/admin_dashboard/customers.html', context)
+
+def my_customer_detail(request, customer_id):
+    customer = get_object_or_404(Customer, id=customer_id)
+    accounts = customer.customeraccounts.all()
+    context = {
+        'customer': customer,
+        'accounts': accounts,
+        'title': 'Customer Detail'
+    }
+
+    return render(request, 'users/admin_dashboard/customer_detail.html', context)
+
 
 
 # API

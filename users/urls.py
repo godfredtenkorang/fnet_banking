@@ -38,6 +38,9 @@ urlpatterns = [
     path('my-drivers/', views.my_drivers, name='my_drivers'),
     path('my-driver/<int:driver_id>/', views.driver_detail, name='driver_detail'),
     
+    path('all_customers/', views.customers, name='all-customers'),
+    path('get_customer/<int:customer_id>/detail', views.my_customer_detail, name='get_customer_detail'),
+    
     
     # API
      path('login/', LoginView.as_view(), name='user_login'),
