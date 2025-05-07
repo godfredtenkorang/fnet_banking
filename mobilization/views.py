@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import MobilizationPayTo, BankDeposit, BankWithdrawal, PaymentRequest, CustomerAccount, TellerCalculator, Report
+from .models import MobilizationPayTo, BankDeposit, BankWithdrawal, PaymentRequest, TellerCalculator, Report
 from django.contrib import messages
 from users.models import MobilizationCustomer, User, Branch, Customer
 from django.contrib.auth.hashers import make_password
@@ -11,7 +11,7 @@ from django.utils import timezone
 from .forms import CustomerFilterForm, UpdateBankDepositForm, ReportForm, CustomerImageUpdateForm
 from .utils import send_mobilization_bank_deposit_sms
 from users.models import Mobilization
-from banking.models import MobilizationAccount
+from banking.models import MobilizationAccount, CustomerAccount
 from banking.forms import MobilizationAccountForm
 
 from datetime import datetime, timedelta, date
