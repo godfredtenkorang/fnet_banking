@@ -35,6 +35,20 @@ class OwnerBalance(models.Model):
     debtor_name5 = models.CharField(max_length=100, null=True, blank=True, default='')
     debtor_5_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     
+    debtor_name6 = models.CharField(max_length=100, null=True, blank=True, default='')
+    debtor_6_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    
+    debtor_name7 = models.CharField(max_length=100, null=True, blank=True, default='')
+    debtor_7_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    
+    debtor_name8 = models.CharField(max_length=100, null=True, blank=True, default='')
+    debtor_8_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    
+    debtor_name9 = models.CharField(max_length=100, null=True, blank=True, default='')
+    debtor_9_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    debtor_name10 = models.CharField(max_length=100, null=True, blank=True, default='')
+    debtor_10_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    
     # Other fields
     updated_at = models.DateTimeField(auto_now=True)
 

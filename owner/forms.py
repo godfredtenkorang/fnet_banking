@@ -39,6 +39,16 @@ class OwnerBalanceForm(forms.ModelForm):
             'debtor_4_balance',
             'debtor_name5',
             'debtor_5_balance',
+            'debtor_name6',
+            'debtor_6_balance',
+            'debtor_name7',
+            'debtor_7_balance',
+            'debtor_name8',
+            'debtor_8_balance',
+            'debtor_name9',
+            'debtor_9_balance',
+            'debtor_name10',
+            'debtor_10_balance',
         ]
         widgets = {
             'cash_balance': forms.NumberInput(attrs={'class': 'form-control'}),
