@@ -414,7 +414,26 @@ def all_users(request):
     return render(request, 'users/admin_dashboard/users.html', context)
 
 def birthdays(request):
-    return render(request, 'users/admin_dashboard/birthdays.html')
+    upcoming_customers = Customer.upcoming_birthdays(days=5)
+    
+    # Annotate each customer with days until birthday
+    customers_with_days = [
+        {
+            'customer': customer,
+            'days_until': customer.days_until_birthday,
+            'birthday_date': customer.date_of_birth.strftime('%b %d')  # Format as "Jun 15"
+        }
+        for customer in upcoming_customers
+    ]
+    
+    # Sort by days until birthday (soonest first)
+    customers_with_days.sort(key=lambda x: x['days_until'])
+    
+    context = {
+        'upcoming_birthdays': customers_with_days,
+        'days_ahead': 5
+    }
+    return render(request, 'users/admin_dashboard/birthdays.html', context)
 
 
 def register_driver(request):

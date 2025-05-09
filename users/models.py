@@ -6,6 +6,8 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager, AbstractBa
 
 import random
 
+from users.utils import convert_km_to_miles, convert_miles_to_km
+
 
 BRANCHES = (
     ("DVLA", "DVLA"),
@@ -163,6 +165,45 @@ class Customer(models.Model):
     customer_picture = models.ImageField(upload_to='customer_pic/', default='', null=True, blank=True)
     customer_image = models.ImageField(upload_to='customer_image/', default='', null=True, blank=True)
     date_created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    
+    @classmethod
+    def upcoming_birthdays(cls, days=5):
+        """Get customers with birthdays in the next X days"""
+        today = timezone.now().date()
+        target_date = today + timedelta(days=days)
+        
+        # Handle year wrap-around (for December/January birthdays)
+        if today.month == target_date.month:
+            return cls.objects.filter(
+                date_of_birth__month=today.month,
+                date_of_birth__day__range=(today.day, target_date.day),
+                phone_number__isnull=False
+            ).exclude(phone_number='')
+        else:
+            return cls.objects.filter(
+                models.Q(
+                    date_of_birth__month=today.month,
+                    date_of_birth__day__gte=today.day
+                ) | models.Q(
+                    date_of_birth__month=target_date.month,
+                    date_of_birth__day__lte=target_date.day
+                ),
+                phone_number__isnull=False
+            ).exclude(phone_number='')
+    
+    @property
+    def days_until_birthday(self):
+        """Calculate days until next birthday"""
+        if not self.date_of_birth:
+            return None
+            
+        today = timezone.now().date()
+        next_birthday = self.date_of_birth.replace(year=today.year)
+        
+        if next_birthday < today:
+            next_birthday = next_birthday.replace(year=today.year + 1)
+            
+        return (next_birthday - today).days
 
     def __str__(self):
         return self.customer.phone_number
@@ -187,13 +228,58 @@ class MobilizationCustomer(models.Model):
         return self.full_name
     
 class Vehicle(models.Model):
+    UNIT_CHOICES = [
+        ('km', 'Kilometers'),
+        ('mi', 'Miles'),
+    ]
     registration_number = models.CharField(max_length=20, unique=True)
     model = models.CharField(max_length=50)
     year = models.PositiveIntegerField()
-    owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
+    distance_unit = models.CharField(
+        max_length=2,
+        choices=UNIT_CHOICES,
+        default='km',
+        help_text="Unit of measurement for this vehicle's odometer"
+    )
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role': 'OWNER'}, null=True, blank=True)
     oil_change_default = models.PositiveBigIntegerField(default=5000, help_text="Default mileage between oil changes (km)")
     last_oil_change_mileage = models.PositiveBigIntegerField(default=0, help_text="Mileage at last oil change (km)")
     last_oil_change_date = models.DateField(null=True, blank=True)
+    
+    def save(self, *args, **kwargs):
+        # First save without owner to get PK
+        if self.pk is None:
+            current_owner = self.owner
+            self.owner = None
+            super().save(*args, **kwargs)
+            self.owner = current_owner
+        
+        # Validate owner role
+        if self.owner and self.owner.role != 'OWNER':
+            raise ValueError("Vehicle owner must have the OWNER role")
+        
+        super().save(*args, **kwargs)
+    
+    @property
+    def display_unit(self):
+        return "km" if self.distance_unit == 'km' else "miles"
+    
+    @property
+    def oil_change_default_display(self):
+        return f"{self.oil_change_default} {self.display_unit}"
+    
+    def convert_to_display_unit(self, value):
+        """Convert a value in km to the vehicle's display unit"""
+        if self.distance_unit == 'mi':
+            return convert_km_to_miles(value)
+        return value
+    
+    def convert_from_display_unit(self, value):
+        """Convert a value in the vehicle's display unit to km"""
+        if self.distance_unit == 'mi':
+            return convert_miles_to_km(value)
+        return value
+    
     
     def clean(self):
         if self.last_oil_change_mileage is not None and self.current_mileage is not None:
@@ -270,3 +356,6 @@ class OTPToken(models.Model):
         
     def is_valid(self):
         return not self.is_verified and timezone.now() < self.expires_at
+    
+    def __str__(self):
+        return f"{self.user} - {self.otp}"

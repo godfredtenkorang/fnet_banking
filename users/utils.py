@@ -3,7 +3,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.conf import settings
 import random
-from .models import OTP
+
 
 
 def send_otp(phone_number, otp):
@@ -140,3 +140,19 @@ def send_reset_password_otp_sms(phone_number, otp):
     except requests.exceptions.RequestException as e:
         print(f"Error sending SMS: {e}")
         return None
+    
+
+def convert_km_to_miles(km):
+    return km * 0.621371
+
+def convert_miles_to_km(miles):
+    return miles * 1.60934
+
+def convert_to_common_unit(value, from_unit, to_unit='km'):
+    if from_unit == to_unit:
+        return value
+    if from_unit == 'km' and to_unit == 'mi':
+        return convert_km_to_miles(value)
+    if from_unit == 'mi' and to_unit == 'km':
+        return convert_miles_to_km(value)
+    return value

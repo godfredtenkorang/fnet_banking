@@ -10,10 +10,55 @@
             <h1>Birthdays</h1>
         </div>
     </div>
+    {% if upcoming_birthdays %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Phone</th>
+                    <th>Birthday</th>
+                    <th>Days Until</th>
+                    <th>Brance</th>
+                    <th>Actions</th>
+    
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in upcoming_birthdays %}
+                <tr>
+    
+                    <td>{{ item.customer.full_name}}</td>
+                    <td>{{ item.customer.phone_number }}</td>
+                    <td>{{ item.birthday_date }}</td>
+                    <td>{{ account.phone_number }}</td>
+                    <td>
+                        <span class="badge {% if item.days_until == 0 %}bg-success{% else %}bg-info{% endif %}">
+                            {{ item.days_until }}
+                        </span>
+                    </td>
+                    <td>{{ item.customer.branch.name }}</td>
+                    <td>
+                        <a href="{% url 'send_birthday_sms' item.customer.id %}" class="btn btn-sm btn-success" title="Send Birthday SMS">
+                            <i class="fas fa-sms"></i>
+                        </a>
+                        <a href="{% url 'customer_detail' item.customer.id %}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    
+    </div>
 
 
-  
-
+    {% else %}
+    <div class="alert alert-info">
+        No upcoming birthdays in the next {{ days_ahead }} days.
+    </div>
+    {% endif %}
 
 
 

@@ -3,6 +3,8 @@ from django.forms import ValidationError
 from users.models import Driver, Vehicle
 from django.utils import timezone
 
+from users.utils import convert_km_to_miles, convert_miles_to_km
+
 
 class MileageRecord(models.Model):
     driver = models.ForeignKey(Driver, on_delete=models.CASCADE)
@@ -10,6 +12,19 @@ class MileageRecord(models.Model):
     date = models.DateField(default=timezone.now)
     start_mileage = models.PositiveIntegerField()
     end_mileage = models.PositiveIntegerField(null=True, blank=True)
+    
+    def save(self, *args, **kwargs):
+        # Convert to vehicle's unit if needed
+        if hasattr(self, 'input_unit') and self.input_unit != self.vehicle.distance_unit:
+            if self.input_unit == 'km' and self.vehicle.distance_unit == 'mi':
+                self.start_mileage = convert_km_to_miles(self.start_mileage)
+                self.end_mileage = convert_km_to_miles(self.end_mileage)
+            elif self.input_unit == 'mi' and self.vehicle.distance_unit == 'km':
+                self.start_mileage = convert_miles_to_km(self.start_mileage)
+                self.end_mileage = convert_miles_to_km(self.end_mileage)
+        
+        super().save(*args, **kwargs)
+        self.check_oil_change()
     
     def clean(self):
         if self.end_mileage is not None and self.start_mileage is not None:
@@ -88,6 +103,16 @@ class OilChange(models.Model):
     date = models.DateField(default=timezone.now)
     mileage = models.PositiveIntegerField()
     cost = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    
+    def save(self, *args, **kwargs):
+        # Convert to vehicle's unit if needed
+        if hasattr(self, 'input_unit') and self.input_unit != self.vehicle.distance_unit:
+            if self.input_unit == 'km' and self.vehicle.distance_unit == 'mi':
+                self.mileage = convert_km_to_miles(self.mileage)
+            elif self.input_unit == 'mi' and self.vehicle.distance_unit == 'km':
+                self.mileage = convert_miles_to_km(self.mileage)
+        
+        super().save(*args, **kwargs)
     
     def save(self, *args, **kwargs):
         

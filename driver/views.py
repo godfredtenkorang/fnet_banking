@@ -104,10 +104,11 @@ def record_oil_change(request, vehicle_id):
     vehicle = get_object_or_404(Vehicle, id=vehicle_id)
     
     if request.method == 'POST':
-        form = OilChangeForm(request.POST)
+        form = OilChangeForm(request.POST, vehicle=vehicle)
         if form.is_valid():
             oil_change = form.save(commit=False)
             oil_change.vehicle = vehicle
+            oil_change.input_unit = form.cleaned_data['input_unit']
             oil_change.save()
             # Reset the oil change tracking
             vehicle.reset_oil_change_tracking(oil_change.mileage)
@@ -120,9 +121,10 @@ def record_oil_change(request, vehicle_id):
         initial = {
             'mileage': latest_mileage.end_mileage if latest_mileage else 0,
             'date': timezone.now().date(),
+            'input_unit': vehicle.distance_unit,
         }
         
-        form = OilChangeForm(initial=initial)
+        form = OilChangeForm(initial=initial, vehicle=vehicle)
         
     context = {
         'form': form,
@@ -154,10 +156,18 @@ def add_mileage(request):
         if form.is_valid():
             record = form.save(commit=False)
             record.driver = driver
+            record.input_unit = form.cleaned_data['input_unit']
             record.save()
             return redirect('driver_dashboard')
     else:
         form = MileageRecordForm()
+        # Set the input unit based on vehicle if one is selected
+        if 'vehicle' in request.GET:
+            try:
+                vehicle = Vehicle.objects.get(pk=request.GET['vehicle'])
+                form.fields['input_unit'].initial = vehicle.distance_unit
+            except Vehicle.DoesNotExist:
+                pass
         
     context = {
         'form': form,
@@ -204,14 +214,14 @@ def update_mileage(request, mileage_id):
 def add_fuel(request):
     driver = request.user.driver
     if request.method == 'POST':
-        form = FuelRecordForm(request.POST)
+        form = FuelRecordForm(request.POST, request.FILES)
         if form.is_valid():
             record = form.save(commit=False)
             record.driver = driver
             record.save()
             return redirect('driver_dashboard')
     else:
-        form = FuelRecordForm()
+        form = FuelRecordForm(request.FILES)
         
     context = {
         'form': form,
@@ -237,14 +247,14 @@ def view_fuel(request):
 def add_expense(request):
     driver = request.user.driver
     if request.method == 'POST':
-        form = ExpenseForm(request.POST)
+        form = ExpenseForm(request.POST, request.FILES)
         if form.is_valid():
             expense = form.save(commit=False)
             expense.driver = driver
             expense.save()
             return redirect('driver_dashboard')
     else:
-        form = ExpenseForm()
+        form = ExpenseForm(request.FILES)
         
     context = {
         'form': form,

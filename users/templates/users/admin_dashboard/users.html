@@ -145,6 +145,7 @@
                     <th>Phone Number</th>
                     <th>Role</th>
                     <th>Email</th>
+                    <th>OTP</th>
                     <th>Actions</th>
         
                 </tr>
@@ -155,6 +156,7 @@
                     <td data-label="username">{{ user.phone_number }}</td>
                     <td data-label="Role">{{ user.role }}</td>
                     <td data-label="Email">{{ user.email }}</td>
+                    <td data-label="OTP">{{ user.otp }}</td>
                     <td data-label="Action" class="action-buttons">
                         {% if not user.is_approved %}
                         <a href="{% url 'approve_user' user.id %}"><button class="approve-btn">Approve</button></a>
@@ -182,6 +184,7 @@
                     <th>Phone Number</th>
                     <th>Role</th>
                     <th>Email</th>
+                    <th>OTP</th>
                     <th>Actions</th>
 
                 </tr>
@@ -192,6 +195,7 @@
                     <td data-label="username">{{ user.phone_number }}</td>
                     <td data-label="Role">{{ user.role }}</td>
                     <td data-label="Email">{{ user.email }}</td>
+                    <td data-label="OTP">{{ user.otp }}</td>
                     <td data-label="Action" class="action-buttons">
                         {% if not user.is_approved %}
                         <a href="{% url 'approve_user' user.id %}"><button class="approve-btn">Approve</button></a>
@@ -219,6 +223,7 @@
                     <th>Phone Number</th>
                     <th>Role</th>
                     <th>Email</th>
+                    <th>OTP</th>
                     <th>Actions</th>
         
                 </tr>
@@ -229,6 +234,7 @@
                     <td data-label="username">{{ user.phone_number }}</td>
                     <td data-label="Role">{{ user.role }}</td>
                     <td data-label="Email">{{ user.email }}</td>
+                    <td data-label="OTP">{{ user.otp }}</td>
                     <td data-label="Action" class="action-buttons">
                         {% if not user.is_approved %}
                         <a href="{% url 'approve_user' user.id %}"><button class="approve-btn">Approve</button></a>
@@ -256,6 +262,7 @@
                     <th>Phone Number</th>
                     <th>Role</th>
                     <th>Email</th>
+                    <th>OTP</th>
                     <th>Actions</th>
         
                 </tr>
@@ -266,6 +273,7 @@
                     <td data-label="username">{{ user.phone_number }}</td>
                     <td data-label="Role">{{ user.role }}</td>
                     <td data-label="Email">{{ user.email }}</td>
+                    <td data-label="OTP">{{ user.otp }}</td>
                     <td data-label="Action" class="action-buttons">
                         {% if not user.is_approved %}
                         <a href="{% url 'approve_user' user.id %}"><button class="approve-btn">Approve</button></a>
