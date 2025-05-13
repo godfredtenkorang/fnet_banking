@@ -59,12 +59,18 @@ class MileageRecord(models.Model):
         return f"{self.date}: {self.vehicle} - {self.mileage_used} km"
     
 class FuelRecord(models.Model):
+    STATION_NAME = [
+        ('Shell', 'Shell'),
+        ('Goil', 'Goil'),
+        ('Total', 'Total'),
+        ('ZEN', 'ZEN'),
+    ]
     driver = models.ForeignKey(Driver, on_delete=models.CASCADE)
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
     date = models.DateField(default=timezone.now)
     liters = models.DecimalField(max_digits=10, decimal_places=2)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    station_name = models.CharField(max_length=100, null=True, blank=True)
+    station_name = models.CharField(max_length=100, choices=STATION_NAME, null=True, blank=True)
     receipt = models.FileField(upload_to='fuel_receipts/', blank=True, null=True)
     
     class Meta:
