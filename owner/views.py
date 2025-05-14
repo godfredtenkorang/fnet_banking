@@ -1107,7 +1107,7 @@ def update_mobilization_bank_deposit(request, deposit_id):
             updated_deposit = form.save(commit=False)
             updated_deposit.save()
             messages.success(request, 'Bank Deposit Updated Successfully.')
-            return redirect('mobilization_bank_deposit_transactions')
+            return redirect('update_mobilization_bank_deposit', deposit=deposit.id)
     else:
         form = BankDepositForm(instance=deposit)
     context = {
