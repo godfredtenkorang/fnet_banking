@@ -137,7 +137,7 @@ class ArchivedCustomerCashIn(models.Model):
     
 
     def __str__(self):
-        return f"CashIn of ${self.amount} on {self.network}"
+        return f"CashIn of GH¢{self.amount} on {self.network}"
     
 
 class ArchivedCashInCommission(models.Model):
@@ -179,7 +179,7 @@ class CustomerCashOut(models.Model):
         )
 
     def __str__(self):
-        return f"CashOut of ${self.amount} on {self.network} by {self.customer_phone}"
+        return f"CashOut of GH¢{self.amount} on {self.network} by {self.customer_phone}"
     
 
 class CashOutCommission(models.Model):
@@ -390,7 +390,7 @@ class PaymentRequest(models.Model):
         return total['amount__sum'] or 0
     
     def __str__(self):
-        return f"Payment of ${self.amount} via {self.mode_of_payment} by {self.agent.phone_number} ({self.status})"
+        return f"Payment of GH¢{self.amount} via {self.mode_of_payment} by {self.agent.phone_number} ({self.status})"
     
     
 class CustomerComplain(models.Model):

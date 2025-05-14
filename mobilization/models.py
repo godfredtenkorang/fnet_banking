@@ -229,7 +229,7 @@ class PaymentRequest(models.Model):
         
     
     def __str__(self):
-        return f"Payment of ${self.amount} via {self.mode_of_payment} by {self.mobilization.mobilization} ({self.status})"
+        return f"Payment of GH¢{self.amount} via {self.mode_of_payment} by {self.mobilization.mobilization} ({self.status})"
     
     
     

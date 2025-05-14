@@ -83,6 +83,7 @@ class FuelRecord(models.Model):
 class Expense(models.Model):
     EXPENSE_TYPES = [
         ('maintenance', 'Maintenance'),
+        ('oil', 'Oil'),
         ('repair', 'Repair'),
         ('toll', 'Toll Fee'),
         ('parking', 'Parking Fee'),
