@@ -114,7 +114,7 @@
 
                 <div class="input" id="transaction_id" style="display: none;">
                     <label for="transaction_id">Transaction ID</label> <br />
-                    <input type="text" id="transaction_id" name="mobilization_transaction_id" placeholder="Enter Transaction ID" />
+                    <input type="text" id="transaction_id" name="mobilization_transaction_id"  placeholder="Enter Transaction ID (no spaces allowed)" onkeydown="return event.key !== ' '" onblur="this.value = this.value.replace(/\s/g, '')"/>
                 </div>
 
                 <div class="input" id="amount" style="display: none;">
