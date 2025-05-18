@@ -20,13 +20,13 @@ class Transaction(models.Model):
         ('AGENT_PAYOUT', 'Agent Payout'),
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='transactions', null=True, blank=True)
-    transaction_type = models.CharField(max_length=12, choices=TRANSACTION_TYPES)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    transaction_type = models.CharField(max_length=20, choices=TRANSACTION_TYPES)
     phone_number = models.CharField(max_length=15)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
     recipient_phone = models.CharField(max_length=20, blank=True, null=True)
     reference = models.CharField(max_length=50, unique=True)
     timestamp = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    is_succussful = models.BooleanField(default=False)
+    status = models.CharField(max_length=20, default='PENDING')
         
     class Meta:
         ordering = ['-timestamp']
