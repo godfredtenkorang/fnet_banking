@@ -140,6 +140,8 @@ class PaymentRequest(models.Model):
         ("Cal Bank", "Cal Bank"),
         ("Fidelity Bank", "Fidelity Bank"),
         ("GT Bank", "GT Bank"),
+        ("UBA", "UBA"),
+        ("Prudential Bank", "Prudential Bank"),
         ("Adansi rural bank", "Adansi rural bank"),
         ("Kwumawuman Bank", "Kwumawuman Bank"),
         ("Pan Africa", "Pan Africa"),

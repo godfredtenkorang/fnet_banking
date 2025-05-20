@@ -1018,6 +1018,14 @@ def payment(request):
         transaction_id = request.POST.get('branch_transaction_id')
         amount = request.POST.get('amount')
         
+        # Check if a payment with this transaction ID already exists
+        if PaymentRequest.objects.filter(branch_transaction_id=transaction_id).exists():
+            # Return error message to template
+            messages.error(request, 'A payment with this transaction ID already exists.')
+            
+            return render(request, 'agent/payment.html')
+        
+        
         payments = PaymentRequest(mode_of_payment=mode_of_payment, bank=bank, network=network, branch=branch, name=name, branch_transaction_id=transaction_id, amount=amount)
         payments.agent = agent
         

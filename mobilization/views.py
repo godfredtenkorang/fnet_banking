@@ -271,6 +271,13 @@ def payment(request):
         amount = request.POST.get('amount')
         mobilization_transaction_id = request.POST.get('mobilization_transaction_id')
         
+        # Check if a payment with this transaction ID already exists
+        if PaymentRequest.objects.filter(mobilization_transaction_id=mobilization_transaction_id).exists():
+            # Return error message to template
+            messages.error(request, 'A payment with this transaction ID already exists.')
+            
+            return render(request, 'mobilization/payment.html')
+        
         payments = PaymentRequest(mode_of_payment=mode_of_payment, bank=bank, network=network, branch=branch, name=name, amount=amount, mobilization_transaction_id=mobilization_transaction_id)
         payments.mobilization = mobilization
         
