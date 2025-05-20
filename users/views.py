@@ -126,7 +126,7 @@ def login_user(request):
                 send_otp_via_email(user.email, user.otp)
                 return redirect('verify_otp')
         else:
-            messages.error(request, 'Invalid phone number or password.')
+            messages.error(request, 'Invalid password.')
             return redirect('login')
 
         
