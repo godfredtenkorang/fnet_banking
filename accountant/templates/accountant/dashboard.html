@@ -1,0 +1,275 @@
+{% extends 'accountant/base.html' %}
+{% load humanize %}
+{% load static %}
+{% block content %}
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<style>
+    .dash-h2 {
+        padding: 3% 0;
+    }
+
+    .dash-h2 h2 {
+        padding: 2%;
+    }
+
+    /* Default table styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+
+    th {
+        background: #007bff;
+        color: white;
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+    td {
+        font-size: 12px;
+    }
+
+    /* Button Styling */
+    .approve-btn {
+        background: #28a745;
+        color: white;
+
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+
+        height: 6vh !important;
+    }
+
+    .decline-btn {
+        background: #dc3545;
+        color: white;
+
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+
+        height: 6vh !important;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+    }
+
+    /* Table row background color using child selectors */
+    tbody tr:nth-child(odd) {
+        background-color: #f9f9f9;
+        /* Light gray for odd rows */
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #e9ecef;
+        /* Slightly darker gray for even rows */
+    }
+
+    /* Mobile Responsive Table */
+    @media screen and (max-width: 968px) {
+
+        table,
+        thead,
+        tbody,
+        th,
+        td,
+        tr {
+            display: block;
+            width: 100%;
+        }
+
+        thead {
+            display: none;
+        }
+
+        tr {
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            padding: 8px;
+            background: #f9f9f9;
+        }
+
+        td {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border: none;
+            text-align: left;
+        }
+
+        td::before {
+            content: attr(data-label);
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        /* Stack buttons at the bottom */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .action-buttons button {
+            width: 100% !important;
+        }
+    }
+</style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="main">
+
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Welcome, {{user}}!</h1>
+        </div>
+    </div>
+
+    <!-- <div class="stat-chart">
+
+
+        <div class="stat-chat-container">
+            <a href="" class="stat">
+                <h2>Total Income(¢)</h2>
+                <h3 class="valuesP">{{total_deposits}}</h3>
+            </a>
+            <a href="" class="stat">
+                <h2>Total Expenses(¢)</h2>
+                <h3 class="valuesP">{{total_withdrawals}}</h3>
+            </a>
+
+            <a href="" class="stat">
+                <h2>Balance Left(¢)</h2>
+                <h3 class="valuesP">{{balance_left}}</h3>
+            </a>
+        </div>
+
+
+        <div class="canva-pie-chart">
+            <canvas id="barChart"></canvas>
+        </div>
+
+    </div> -->
+    <br><br>
+        <div class="form">
+       
+            <h2>Add New Transaction</h2>
+            <br>
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="input">
+
+                    {{ form.as_p }}
+                </div>
+                <button type="submit" class="btn btn-primary">Save Transaction</button>
+            </form>
+        </div>
+        <br><br>
+        <div class="col-md-6">
+            <h2 style="text-align: center;">Your Recent Transactions</h2>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Transaction ID</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                    <tr>
+                        <td>{{ transaction.transaction_id }}</td>
+                        <td>{{ transaction.get_transaction_type_display }}</td>
+                        <td>GHS{{ transaction.amount|floatformat:2 }}</td>
+                        <td>{{ transaction.date }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <br><br>
+        </div>
+    
+
+
+
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Extract values from the stats container
+        const labels = [];
+        const dataValues = [];
+        const backgroundColors = ["#337ab7", "#ee335e", "#22c03c", "#ee335e", "#f39c12", "#9b59b6"];
+        const borderColors = backgroundColors.map(color => color);
+
+        document.querySelectorAll('.stat').forEach(stat => {
+            const label = stat.querySelector('h2').textContent;
+            let value = stat.querySelector('.valuesP').textContent;
+            value = parseFloat(value.replace(' Gh', '')) || 0;
+
+            labels.push(label);
+            dataValues.push(value);
+        });
+
+        // Create the bar chart
+        const ctx = document.getElementById('barChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Financial Summary',
+                    data: dataValues,
+                    backgroundColor: backgroundColors,
+                    borderColor: borderColors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+
+
+
+</script>
+
+
+{% endblock %}

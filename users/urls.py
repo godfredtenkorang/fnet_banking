@@ -44,6 +44,10 @@ urlpatterns = [
     path('add-customer-accounts/', views.customer_accounts, name='all-customer-accounts'),
     path('delete-customer-account/<int:account_id>/', views.delete_account, name='delete-customer-account'),
     
+    # Accountant
+    path('register_accountant/', views.register_accountant, name='register-accountant'),
+    path('my_accountants/', views.my_accountants, name='my-accountants'),
+    
     
     # API
      path('login/', LoginView.as_view(), name='user_login'),

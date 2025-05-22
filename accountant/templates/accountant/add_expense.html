@@ -1,0 +1,144 @@
+{% extends 'accountant/base.html' %} {% load static %} {% block content %}
+
+
+
+<div class="main">
+    <div style="background-color:#000; width:100%;">
+        {% if messages %}
+        {% for message in messages %}
+        <p style="color: #97c8b3; font-size:30px; text-align:center;">{{ message }}</p>
+        {% endfor %}
+        {% endif %}
+    </div>
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Bank Withdrawal</h1>
+        </div>
+    </div>
+    <div class="form">
+
+        <form id="networkForm" method="POST">
+            {% csrf_token %}
+            <div class="form-grid">
+
+                {{ form.as_p }}
+            <button type="submit" id="submitBtn">Submit</button>
+            
+        </form>
+    </div>
+
+</div>
+
+</div>
+
+<!-- <script>
+  $(document).ready(function () {
+    // Fetch banks when phone number is entered
+    $('#phone_number').on('input', function () {
+      let phoneNumber = $(this).val();
+      if (phoneNumber.length >= 10) { // Assuming phone number is at least 10 digits
+        $.ajax({
+          url: "{% url 'get_banks' %}",
+          data: { 'phone_number': phoneNumber },
+          success: function (data) {
+            $('#bank').empty().append('<option value="">Select Bank</option>');
+            data.forEach(function (bank) {
+              $('#bank').append(`<option value="${bank}">${bank}</option>`);
+            });
+            $('#bank').prop('disabled', false);
+          }
+        });
+      }
+    });
+    // Fetch accounts when bank is selected
+    $('#bank').change(function () {
+      let phoneNumber = $('#phone_number').val();
+      let bank = $(this).val();
+      $.ajax({
+        url: "{% url 'get_accounts' %}",
+        data: { 'phone_number': phoneNumber, 'bank': bank },
+        success: function (data) {
+          $('#account_number').empty().append('<option value="">Select Account</option>');
+          data.forEach(function (account) {
+            $('#account_number').append(`<option value="${account}">${account}</option>`);
+          });
+          $('#account_number').prop('disabled', false);
+        }
+      });
+    });
+
+    // Fetch customer details when account is selected
+    $('#account_number').change(function () {
+      let accountNumber = $(this).val();
+      $.ajax({
+        url: "{% url 'get_customer_details' %}",
+        data: { 'account_number': accountNumber },
+        success: function (data) {
+          $('#account_name').val(data.account_name);
+        }
+      });
+    });
+  });
+
+
+
+</script> -->
+
+<!-- <script>
+    document.getElementById("customerNumberBank").addEventListener("input", function (event) {
+      let inputField = event.target;
+      let message = document.getElementById("Bankmessage");
+  
+      // Ensure only numbers are entered
+      inputField.value = inputField.value.replace(/\D/g, '');
+  
+      if (inputField.value.length < 10) {
+        message.textContent = "The number must be at least 10 digits.";
+        message.style.color = "red";
+        message.style.display = "block"; // Ensure visibility
+      } else {
+        message.textContent = "";
+        message.style.display = "none";
+      }
+    });
+  
+    document.getElementById("networkForm").addEventListener("submit", function (event) {
+      let inputField = document.getElementById("customerNumberBank");
+      let message = document.getElementById("Bankmessage");
+      let bankSelect = document.getElementById("bank");
+      let bankMessage = document.getElementById("BankSelectMessage"); // Message for bank selection
+  
+      let isValid = true; // Flag to check if form should be submitted
+  
+      // Validation for customer number
+      if (inputField.value.length < 10) {
+        message.textContent = "The number must be at least 10 digits.";
+        message.style.color = "red";
+        message.style.display = "block";
+        isValid = false;
+      } else {
+        message.textContent = "";
+        message.style.display = "none";
+      }
+  
+      // Validation for bank selection
+      if (bankSelect.value === "") {
+        bankMessage.textContent = "Please select a bank.";
+        bankMessage.style.color = "red";
+        bankMessage.style.display = "block";
+        isValid = false;
+      } else {
+        bankMessage.textContent = "";
+        bankMessage.style.display = "none";
+      }
+  
+      if (!isValid) {
+        event.preventDefault(); // Prevent form submission if validation fails
+      }
+    });
+  </script> -->
+
+
+
+{% endblock %}

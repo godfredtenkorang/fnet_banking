@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Branch, Owner, Agent, Customer, Mobilization, Vehicle, Driver, MobilizationCustomer, OTPToken
+from .models import User, Branch, Owner, Agent, Customer, Mobilization, Vehicle, Driver, MobilizationCustomer, Accountant, OTPToken
 from django import forms
 
 
@@ -28,6 +28,10 @@ class OwnerAdmin(admin.ModelAdmin):
 @admin.register(Driver)
 class DriverAdmin(admin.ModelAdmin):
     list_display = ('driver', 'email', 'full_name')
+    
+@admin.register(Accountant)
+class AccountantAdmin(admin.ModelAdmin):
+    list_display = ('accountant', 'email', 'full_name')
 
 @admin.register(Agent)
 class AgentAdmin(admin.ModelAdmin):

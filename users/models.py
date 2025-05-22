@@ -46,7 +46,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         ('BRANCH', 'Branch'),
         ('CUSTOMER', 'Customer'),
         ('MOBILIZATION', 'Mobilization'),
-        ('DRIVER', 'Driver')
+        ('DRIVER', 'Driver'),
+        ('ACCOUNTANT', 'Accountant'),
     ]
     role = models.CharField(max_length=12, choices=ROLE_CHOICES)
     phone_number = models.CharField(max_length=15, unique=True)
@@ -149,6 +150,19 @@ class Driver(models.Model):
 
     def __str__(self):
         return self.driver.phone_number
+    
+class Accountant(models.Model):
+    accountant = models.OneToOneField(User, on_delete=models.CASCADE, related_name='accountant')
+    email = models.EmailField(null=True, blank=True)
+    full_name = models.CharField(max_length=100, null=True, blank=True)
+    phone_number = models.CharField(max_length=10, null=True, blank=True)
+    company_name = models.CharField(max_length=100, null=True, blank=True)
+    company_number = models.CharField(max_length=10, null=True, blank=True)
+    digital_address = models.CharField(max_length=50, null=True, blank=True)
+    accountant_code = models.CharField(max_length=20, null=True, blank=True)
+
+    def __str__(self):
+        return self.accountant.phone_number
 
 class Customer(models.Model):
     customer = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')

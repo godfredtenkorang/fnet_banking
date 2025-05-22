@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'owner',
     'mobilization',
     'driver',
+    'accountant',
     'rest_framework',
     'rest_framework_simplejwt',
 ]

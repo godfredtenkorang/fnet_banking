@@ -5,8 +5,8 @@ from django.contrib.auth.models import auth
 from django.contrib.auth.backends import ModelBackend
 
 from agent.serializers import TransactionSerializer
-from .forms import UserRegisterForm, OwnerRegistrationForm, DriverRegistrationForm, CustomPasswordChangeForm, CustomerFilterForm, AccountFilterForm, AgentRegistrationForm, CustomerRegistrationForm, LoginForm, MobilizationRegistrationForm
-from .models import User, Owner, Agent, Customer, Branch, Mobilization, OTPToken, Driver
+from .forms import UserRegisterForm, OwnerRegistrationForm, DriverRegistrationForm, CustomPasswordChangeForm, CustomerFilterForm, AccountFilterForm, AccountantRegistrationForm, AgentRegistrationForm, CustomerRegistrationForm, LoginForm, MobilizationRegistrationForm
+from .models import User, Owner, Agent, Customer, Branch, Mobilization, OTPToken, Driver, Accountant
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 
@@ -115,6 +115,8 @@ def login_user(request):
                         return redirect("mobilization_dashboard")
                     elif user.role == "DRIVER":
                         return redirect("driver_dashboard")
+                    elif user.role == "ACCOUNTANT":
+                        return redirect("accountant_dashboard")
                 elif user.is_blocked:
                     messages.error(request, "Your account has been blocked. Please contact the admin.")
                 else:
@@ -158,8 +160,8 @@ def verify_otp(request):
                         return redirect("agent-dashboard")
                     elif user.role == "MOBILIZATION":
                         return redirect("mobilization_dashboard")
-                    elif user.role == "DRIVER":
-                        return redirect("driver_dashboard")
+                    elif user.role == "ACCOUNTANT":
+                        return redirect("accountant_dashboard")
                 elif user.is_blocked:
                     messages.error(request, "Your account has been blocked. Please contact the admin.")
                 else:
@@ -293,6 +295,9 @@ def is_mobilization(user):
 def is_driver(user):
     return user.role == 'DRIVER'
 
+def is_accountant(user):
+    return user.role == 'ACCOUNTANT'
+
 # Admin Dashboard
 def admin_dashboard(request):
     # Fetch all users, owners, agents, and customers
@@ -400,6 +405,7 @@ def all_users(request):
     mobilizations = User.objects.filter(role="MOBILIZATION")
     drivers = User.objects.filter(role="DRIVER")
     customers = User.objects.filter(role="CUSTOMER")
+    accountants = User.objects.filter(role="ACCOUNTANT")
     
     context = {
         'admins': admins,
@@ -408,6 +414,7 @@ def all_users(request):
         'mobilizations': mobilizations,
         'drivers': drivers,
         'customers': customers,
+        'accountants': accountants,
         'title': 'Users'
 
     }
@@ -550,6 +557,29 @@ def delete_account(request, account_id):
     account = CustomerAccount.objects.get(id=account_id)
     account.delete()
     return redirect("all-customer-accounts")
+
+@login_required
+@user_passes_test(is_admin)
+def register_accountant(request):
+    if request.method == 'POST':
+        form = AccountantRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('admin_dashboard')
+    else:
+        form = AccountantRegistrationForm()
+    context = {
+        'form': form
+    }
+    return render(request, 'users/admin_dashboard/accountant/register_accountant.html', context)
+
+def my_accountants(request):
+    accountants = Accountant.objects.all()
+    context = {
+        'accountants': accountants,
+        'title': 'My Accountants'
+    }
+    return render(request, 'users/admin_dashboard/accountant/my_accountants.html', context)
 
 # API
 
