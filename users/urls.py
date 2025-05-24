@@ -46,7 +46,8 @@ urlpatterns = [
     
     # Accountant
     path('register_accountant/', views.register_accountant, name='register-accountant'),
-    path('my_accountants/', views.my_accountants, name='my-accountants'),
+    path('my_accountant/', views.my_accountants, name='my-accountant'),
+    path('accountant/<int:accountant_id>/', views.accountant_detail, name='accountant_detail'),
     
     
     # API

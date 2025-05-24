@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import auth
 from django.contrib.auth.backends import ModelBackend
 
+from accountant.models import Transaction
 from agent.serializers import TransactionSerializer
 from .forms import UserRegisterForm, OwnerRegistrationForm, DriverRegistrationForm, CustomPasswordChangeForm, CustomerFilterForm, AccountFilterForm, AccountantRegistrationForm, AgentRegistrationForm, CustomerRegistrationForm, LoginForm, MobilizationRegistrationForm
 from .models import User, Owner, Agent, Customer, Branch, Mobilization, OTPToken, Driver, Accountant
@@ -574,12 +575,45 @@ def register_accountant(request):
     return render(request, 'users/admin_dashboard/accountant/register_accountant.html', context)
 
 def my_accountants(request):
-    accountants = Accountant.objects.all()
+    current_month = timezone.now().month
+    current_year = timezone.now().year
+    
+    # Monthly totals
+    monthly_income = Transaction.objects.filter(
+        transaction_type='income',
+        date__month=current_month,
+        date__year=current_year
+    ).aggregate(total=Sum('amount'))['total'] or 0
+    
+    monthly_expense = Transaction.objects.filter(
+        transaction_type='expense',
+        date__month=current_month,
+        date__year=current_year
+    ).aggregate(total=Sum('amount'))['total'] or 0
+    
+    monthly_balance = monthly_income - monthly_expense
+    
+    # All transactions for the month
+    transactions = Transaction.objects.filter(
+        date__month=current_month,
+        date__year=current_year
+    ).order_by('-date')
+    
     context = {
-        'accountants': accountants,
-        'title': 'My Accountants'
+        'monthly_income': monthly_income,
+        'monthly_expense': monthly_expense,
+        'monthly_balance': monthly_balance,
+        'transactions': transactions,
     }
-    return render(request, 'users/admin_dashboard/accountant/my_accountants.html', context)
+    return render(request, 'users/admin_dashboard/accountant/my_accountant.html', context)
+
+
+def accountant_detail(request, accountant_id):
+    accountant = get_object_or_404(Accountant, id=accountant_id)
+    context = {
+        'accountant': accountant
+    }
+    return render(request, 'users/admin_dashboard/accountant/accountant_detail.html', context)
 
 # API
 
