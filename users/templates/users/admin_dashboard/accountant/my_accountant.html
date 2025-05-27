@@ -264,21 +264,48 @@
     <br><br>
     
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Monthly Financial Report - {{ month_name }} {{ year }}</h1>
-        <div class="btn-group">
-            <a href="{% url 'monthly_report_detail' year=prev_year month=prev_month %}" class="btn btn-outline-primary">← Previous
-                Month</a>
-            <a href="{% url 'monthly_report' %}" class="btn btn-outline-secondary">Current Month</a>
-            <a href="{% url 'monthly_report_detail' year=next_year month=next_month %}" class="btn btn-outline-primary">Next Month
-                →</a>
+    <div class="card mb-4">
+        <div class="card-header" style="text-align: center;">
+            <h3>Filter Report</h3>
+        </div>
+        <div class="customer-form">
+        <div class="customerlogin">
+            <form method="get" class="form-inline">
+                <div class="form-group mr-3">
+                    <label for="year" class="mr-2">Year:</label>
+                    <select name="year" id="year" class="form-control">
+                        {% for year in available_years %}
+                        <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+    
+                <div class="form-group mr-3">
+                    <label for="month" class="mr-2">Month:</label>
+                    <select name="month" id="month" class="form-control">
+                        {% for month_num, month_name in months %}
+                        <option value="{{ month_num }}" {% if month_num == selected_month %}selected{% endif %}>
+                            {{ month_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+    
+                <button type="submit" class="btn btn-primary">Apply Filter</button>
+                <a href="?year={{ current_year }}&month={{ current_month }}" class="btn btn-secondary ml-2" style="text-align: center; justify-content:center;">
+                    Current Month
+                </a>
+            </form>
         </div>
     </div>
+    </div>
+
     <br>
     <hr>
 
 
     <div class="table-container dash-h2">
+        
         <h2>Branch Summary</h2>
         <table class="table table-striped">
             <thead>

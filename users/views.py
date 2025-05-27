@@ -577,47 +577,45 @@ def register_accountant(request):
     }
     return render(request, 'users/admin_dashboard/accountant/register_accountant.html', context)
 
-def my_accountants(request, year=None, month=None):
-    # Get current month if none specified
-    if not year or not month:
-        today = timezone.now().date()
-        year, month = today.year, today.month
+def my_accountants(request):
+    # Get all available years with transactions
+    available_years = Transaction.objects.dates('date', 'year').order_by('-date')
     
-    year, month = int(year), int(month)
+    # Get selected year/month from request
+    selected_year = request.GET.get('year')
+    selected_month = request.GET.get('month')
     
-    # Calculate previous and next month for navigation
-    if month == 1:
-        prev_year, prev_month = year - 1, 12
-    else:
-        prev_year, prev_month = year, month - 1
+    # Set defaults if not provided
+    if not selected_year:
+        selected_year = timezone.now().year
+    if not selected_month:
+        selected_month = timezone.now().month
     
-    if month == 12:
-        next_year, next_month = year + 1, 1
-    else:
-        next_year, next_month = year, month + 1
+    selected_year = int(selected_year)
+    selected_month = int(selected_month)
         
      # Get all branches with their totals
     branches = branch.objects.annotate(
         total_income=Sum('transactions__amount',
                         filter=Q(transactions__transaction_type='income') &
-                               Q(transactions__date__year=year) &
-                               Q(transactions__date__month=month)),
+                               Q(transactions__date__year=selected_year) &
+                               Q(transactions__date__month=selected_month)),
         total_expense=Sum('transactions__amount',
                          filter=Q(transactions__transaction_type='expense') &
-                                Q(transactions__date__year=year) &
-                                Q(transactions__date__month=month))
+                                Q(transactions__date__year=selected_year) &
+                                Q(transactions__date__month=selected_month))
     )
     
      # Get all vehicles with their totals
     vehicles = Vehicle.objects.annotate(
         vehicle_income=Sum('transactions__amount',
                           filter=Q(transactions__transaction_type='income') &
-                                 Q(transactions__date__year=year) &
-                                 Q(transactions__date__month=month)),
+                                 Q(transactions__date__year=selected_year) &
+                                 Q(transactions__date__month=selected_month)),
         vehicle_expense=Sum('transactions__amount',
                            filter=Q(transactions__transaction_type='expense') &
-                                  Q(transactions__date__year=year) &
-                                  Q(transactions__date__month=month))
+                                  Q(transactions__date__year=selected_year) &
+                                  Q(transactions__date__month=selected_month))
     )
     
      # Calculate grand totals
@@ -625,13 +623,22 @@ def my_accountants(request, year=None, month=None):
     grand_total_expense = sum(b.total_expense or 0 for b in branches)
     grand_total_balance = grand_total_income - grand_total_expense
     
+    months = [
+        (1, 'January'), (2, 'February'), (3, 'March'), (4, 'April'),
+        (5, 'May'), (6, 'June'), (7, 'July'), (8, 'August'),
+        (9, 'September'), (10, 'October'), (11, 'November'), (12, 'December')
+    ]
+    
     
 
     
     context = {
-        'year': year,
-        'month': month,
-        'month_name': datetime(year, month, 1).strftime('%B'),
+        
+        'months': months,
+        'available_years': [d.year for d in available_years],
+        'selected_year': selected_year,
+        'selected_month': selected_month,
+        
         'branches': branches,
         'vehicles': vehicles,
         'grand_total_income': grand_total_income,
@@ -639,10 +646,7 @@ def my_accountants(request, year=None, month=None):
         'grand_total_balance': grand_total_balance,
         
         
-        'prev_year': prev_year,
-        'prev_month': prev_month,
-        'next_year': next_year,
-        'next_month': next_month,
+        
     }
     
     return render(request, 'users/admin_dashboard/accountant/my_accountant.html', context)

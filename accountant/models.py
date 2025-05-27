@@ -28,11 +28,12 @@ class Branch(models.Model):
         return self.name
 
 class Vehicle(models.Model):
+    registration_number =models.CharField(max_length=100, null=True, blank=True)
     name = models.CharField(max_length=50)
     year = models.PositiveIntegerField()
     
     def __str__(self):
-        return f"{self.year} {self.name}"
+        return f"{self.year} {self.name} - ({self.registration_number})"
 
 
 class TransactionCategory(models.Model):
