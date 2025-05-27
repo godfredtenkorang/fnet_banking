@@ -14,10 +14,9 @@ class Branch(models.Model):
         ('SUA', 'Suame Melcom'),
         ('SAN', 'Santasi Melcom'),
         ('AHO', 'Ahodwo Melcom'),
-        ('TAC', 'Taco Melcom'),
         ('KUM', 'Kumasi Mall'),
         ('MAN', 'Manhyia Melcom'),
-        ('TOF', 'Tofo Melcom'),
+        ('TAF', 'Tafo Melcom'),
         ('MOB', 'Mobilization Team'),
     ]
     
@@ -29,13 +28,11 @@ class Branch(models.Model):
         return self.name
 
 class Vehicle(models.Model):
-    license_plate = models.CharField(max_length=20, unique=True)
-    make = models.CharField(max_length=50)
-    model = models.CharField(max_length=50)
+    name = models.CharField(max_length=50)
     year = models.PositiveIntegerField()
     
     def __str__(self):
-        return f"{self.year} {self.make} {self.model} ({self.license_plate})"
+        return f"{self.year} {self.name}"
 
 
 class TransactionCategory(models.Model):

@@ -17,8 +17,8 @@ class TransactionCategoryAdmin(admin.ModelAdmin):
     
 @admin.register(Vehicle)
 class VehicleAdmin(admin.ModelAdmin):
-    list_display = ('license_plate', 'make')
-    list_filter = ('make',)
+    list_display = ('year', 'name')
+    list_filter = ('name',)
     
 @admin.register(Branch)
 class BranchAdmin(admin.ModelAdmin):
