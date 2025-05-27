@@ -17,7 +17,7 @@ class TransactionCategoryAdmin(admin.ModelAdmin):
     
 @admin.register(Vehicle)
 class VehicleAdmin(admin.ModelAdmin):
-    list_display = ('year', 'name')
+    list_display = ('year', 'name', 'registration_number')
     list_filter = ('name',)
     
 @admin.register(Branch)
