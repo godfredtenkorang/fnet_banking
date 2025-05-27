@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Transaction, TransactionCategory
+from .models import Transaction, TransactionCategory, Vehicle, Branch
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
@@ -14,3 +14,13 @@ class TransactionAdmin(admin.ModelAdmin):
 class TransactionCategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'is_income')
     list_filter = ('is_income',)
+    
+@admin.register(Vehicle)
+class VehicleAdmin(admin.ModelAdmin):
+    list_display = ('license_plate', 'make')
+    list_filter = ('make',)
+    
+@admin.register(Branch)
+class BranchAdmin(admin.ModelAdmin):
+    list_display = ('name', 'address')
+    search_fields = ('name',)

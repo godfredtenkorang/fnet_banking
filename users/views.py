@@ -1,10 +1,12 @@
+from datetime import datetime
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import auth
 from django.contrib.auth.backends import ModelBackend
 
-from accountant.models import Transaction
+from accountant.models import Transaction, Vehicle
+from accountant.models import Branch as branch
 from agent.serializers import TransactionSerializer
 from .forms import UserRegisterForm, OwnerRegistrationForm, DriverRegistrationForm, CustomPasswordChangeForm, CustomerFilterForm, AccountFilterForm, AccountantRegistrationForm, AgentRegistrationForm, CustomerRegistrationForm, LoginForm, MobilizationRegistrationForm
 from .models import User, Owner, Agent, Customer, Branch, Mobilization, OTPToken, Driver, Accountant
@@ -24,7 +26,8 @@ from .serializers import LoginSerializer, UserSerializer
 from driver.models import MileageRecord, FuelRecord, Expense
 from django.db.models import F
 from driver.forms import MileageRecordForm, FuelRecordForm, ExpenseForm
-from django.db.models import Sum
+from django.db.models import Sum, Q
+from django.db.models.functions import Coalesce
 
 
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -574,37 +577,74 @@ def register_accountant(request):
     }
     return render(request, 'users/admin_dashboard/accountant/register_accountant.html', context)
 
-def my_accountants(request):
-    current_month = timezone.now().month
-    current_year = timezone.now().year
+def my_accountants(request, year=None, month=None):
+    # Get current month if none specified
+    if not year or not month:
+        today = timezone.now().date()
+        year, month = today.year, today.month
     
-    # Monthly totals
-    monthly_income = Transaction.objects.filter(
-        transaction_type='income',
-        date__month=current_month,
-        date__year=current_year
-    ).aggregate(total=Sum('amount'))['total'] or 0
+    year, month = int(year), int(month)
     
-    monthly_expense = Transaction.objects.filter(
-        transaction_type='expense',
-        date__month=current_month,
-        date__year=current_year
-    ).aggregate(total=Sum('amount'))['total'] or 0
+    # Calculate previous and next month for navigation
+    if month == 1:
+        prev_year, prev_month = year - 1, 12
+    else:
+        prev_year, prev_month = year, month - 1
     
-    monthly_balance = monthly_income - monthly_expense
+    if month == 12:
+        next_year, next_month = year + 1, 1
+    else:
+        next_year, next_month = year, month + 1
+        
+     # Get all branches with their totals
+    branches = branch.objects.annotate(
+        total_income=Sum('transactions__amount',
+                        filter=Q(transactions__transaction_type='income') &
+                               Q(transactions__date__year=year) &
+                               Q(transactions__date__month=month)),
+        total_expense=Sum('transactions__amount',
+                         filter=Q(transactions__transaction_type='expense') &
+                                Q(transactions__date__year=year) &
+                                Q(transactions__date__month=month))
+    )
     
-    # All transactions for the month
-    transactions = Transaction.objects.filter(
-        date__month=current_month,
-        date__year=current_year
-    ).order_by('-date')
+     # Get all vehicles with their totals
+    vehicles = Vehicle.objects.annotate(
+        vehicle_income=Sum('transactions__amount',
+                          filter=Q(transactions__transaction_type='income') &
+                                 Q(transactions__date__year=year) &
+                                 Q(transactions__date__month=month)),
+        vehicle_expense=Sum('transactions__amount',
+                           filter=Q(transactions__transaction_type='expense') &
+                                  Q(transactions__date__year=year) &
+                                  Q(transactions__date__month=month))
+    )
+    
+     # Calculate grand totals
+    grand_total_income = sum(b.total_income or 0 for b in branches)
+    grand_total_expense = sum(b.total_expense or 0 for b in branches)
+    grand_total_balance = grand_total_income - grand_total_expense
+    
+    
+
     
     context = {
-        'monthly_income': monthly_income,
-        'monthly_expense': monthly_expense,
-        'monthly_balance': monthly_balance,
-        'transactions': transactions,
+        'year': year,
+        'month': month,
+        'month_name': datetime(year, month, 1).strftime('%B'),
+        'branches': branches,
+        'vehicles': vehicles,
+        'grand_total_income': grand_total_income,
+        'grand_total_expense': grand_total_expense,
+        'grand_total_balance': grand_total_balance,
+        
+        
+        'prev_year': prev_year,
+        'prev_month': prev_month,
+        'next_year': next_year,
+        'next_month': next_month,
     }
+    
     return render(request, 'users/admin_dashboard/accountant/my_accountant.html', context)
 
 
