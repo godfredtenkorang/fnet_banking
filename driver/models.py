@@ -6,6 +6,8 @@ from django.utils import timezone
 from users.utils import convert_km_to_miles, convert_miles_to_km
 
 
+
+
 class MileageRecord(models.Model):
     driver = models.ForeignKey(Driver, on_delete=models.CASCADE)
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, null=True, blank=True)
