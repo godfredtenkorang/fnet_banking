@@ -255,24 +255,12 @@ class Vehicle(models.Model):
         default='km',
         help_text="Unit of measurement for this vehicle's odometer"
     )
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role': 'OWNER'}, null=True, blank=True)
+    # owner = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role': 'OWNER'}, null=True, blank=True)
     oil_change_default = models.PositiveBigIntegerField(default=5000, help_text="Default mileage between oil changes (km)")
     last_oil_change_mileage = models.PositiveBigIntegerField(default=0, help_text="Mileage at last oil change (km)")
     last_oil_change_date = models.DateField(null=True, blank=True)
     
-    def save(self, *args, **kwargs):
-        # First save without owner to get PK
-        if self.pk is None:
-            current_owner = self.owner
-            self.owner = None
-            super().save(*args, **kwargs)
-            self.owner = current_owner
-        
-        # Validate owner role
-        if self.owner and self.owner.role != 'OWNER':
-            raise ValueError("Vehicle owner must have the OWNER role")
-        
-        super().save(*args, **kwargs)
+    
     
     @property
     def display_unit(self):
