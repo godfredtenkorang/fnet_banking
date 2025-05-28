@@ -8,7 +8,7 @@ from users.utils import convert_km_to_miles, convert_miles_to_km
 
 class MileageRecord(models.Model):
     driver = models.ForeignKey(Driver, on_delete=models.CASCADE)
-    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, null=True, blank=True)
     date = models.DateField(default=timezone.now)
     start_mileage = models.PositiveIntegerField()
     end_mileage = models.PositiveIntegerField(null=True, blank=True)
@@ -66,7 +66,7 @@ class FuelRecord(models.Model):
         ('ZEN', 'ZEN'),
     ]
     driver = models.ForeignKey(Driver, on_delete=models.CASCADE)
-    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, null=True, blank=True)
     date = models.DateField(default=timezone.now)
     liters = models.DecimalField(max_digits=10, decimal_places=2)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
@@ -106,12 +106,13 @@ class Expense(models.Model):
     
 class OilChange(models.Model):
     driver = models.ForeignKey(Driver, on_delete=models.CASCADE, null=True, blank=True)
-    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, null=True, blank=True)
     date = models.DateField(default=timezone.now)
     mileage = models.PositiveIntegerField()
     cost = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     
     def save(self, *args, **kwargs):
+        is_new = self.pk is None
         # Convert to vehicle's unit if needed
         if hasattr(self, 'input_unit') and self.input_unit != self.vehicle.distance_unit:
             if self.input_unit == 'km' and self.vehicle.distance_unit == 'mi':
@@ -121,12 +122,6 @@ class OilChange(models.Model):
         
         super().save(*args, **kwargs)
     
-    def save(self, *args, **kwargs):
-        
-        is_new = self.pk is None
-        
-        super().save(*args, **kwargs)
-        
         if is_new:
             # Update the vehicle's last oil change info when saving
             self.vehicle.last_oil_change_mileage = self.mileage
@@ -134,11 +129,12 @@ class OilChange(models.Model):
             self.vehicle.save()
             
             # Clear any oil change notifications for this vehicle
-            Notification.objects.filter(
-                driver=self.driver,
-                notification_type="maintenance",
-                message__contains=str(self.vehicle)
-            ).update(is_read=True)
+            if self.driver:  # Check if driver exists
+                Notification.objects.filter(
+                    driver=self.driver,
+                    notification_type="maintenance",
+                    message__contains=str(self.vehicle)
+                ).update(is_read=True)
     
     class Meta:
         ordering = ['-date']
