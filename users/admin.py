@@ -7,6 +7,7 @@ from django import forms
 class UserAdmin(admin.ModelAdmin):
     list_display = ('phone_number', 'email', 'role', 'is_approved', 'is_blocked')
     list_editable = ('is_approved', 'is_blocked')  # Allow editing approval status directly from the list view
+    list_filter = ('role', 'is_approved')
     actions = ['block_users', 'unblock_users']
 
     def block_users(self, request, queryset):
@@ -20,10 +21,12 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(Branch)
 class BranchAdmin(admin.ModelAdmin):
     list_display = ('name', 'location')
+    list_filter = ('name',)
 
 @admin.register(Owner)
 class OwnerAdmin(admin.ModelAdmin):
     list_display = ('owner', 'branch')
+    list_filter = ('owner',)
     
 @admin.register(Driver)
 class DriverAdmin(admin.ModelAdmin):
