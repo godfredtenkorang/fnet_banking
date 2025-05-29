@@ -5,19 +5,20 @@ from users.models import User
 
 class Branch(models.Model):
     BRANCH_CHOICES = [
-        ('HO', 'Head Office'),
-        ('KEJ', 'Kejetia Branch'),
-        ('DVL', 'DVLA Branch'),
-        ('ADM', 'Adum Melcom'),
-        ('ADX', 'Adum Annex Melcom'),
-        ('TAN', 'Tanoso Melcom'),
-        ('SUA', 'Suame Melcom'),
-        ('SAN', 'Santasi Melcom'),
-        ('AHO', 'Ahodwo Melcom'),
-        ('KUM', 'Kumasi Mall'),
-        ('MAN', 'Manhyia Melcom'),
-        ('TAF', 'Tafo Melcom'),
-        ('MOB', 'Mobilization Team'),
+        ('Head Office', 'Head Office'),
+        ('Kejetia Branch', 'Kejetia Branch'),
+        ('DVLA Branch', 'DVLA Branch'),
+        ('Adum Melcom', 'Adum Melcom'),
+        ('Adum Annex Melcom', 'Adum Annex Melcom'),
+        ('Tanoso Melcom', 'Tanoso Melcom'),
+        ('Suame Melcom', 'Suame Melcom'),
+        ('Santasi Melcom', 'Santasi Melcom'),
+        ('Ahodwo Melcom', 'Ahodwo Melcom'),
+        ('Kumasi Mall', 'Kumasi Mall'),
+        ('Manhyia Melcom', 'Manhyia Melcom'),
+        ('Tafo Melcom', 'Tafo Melcom'),
+        ('Mobilization Team', 'Mobilization Team'),
+        ('TLGhana', 'TLGhana'),
     ]
     
     
