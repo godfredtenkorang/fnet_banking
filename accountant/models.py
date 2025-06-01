@@ -50,6 +50,7 @@ class Transaction(models.Model):
         ('expense', 'Expense'),
     )
     ACCOUNT = (
+        ('Cash', 'Cash'),
         ('MTN', 'MTN'),
         ('Ecobank', 'Ecobank'),
     )
