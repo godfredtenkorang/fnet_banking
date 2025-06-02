@@ -277,6 +277,7 @@
                     <th class="text-end">Total Income</th>
                     <th class="text-end">Total Expense</th>
                     <th class="text-end">Balance</th>
+                    <!-- <th class="text-end">Update</th> -->
                 </tr>
             </thead>
             <tbody>
@@ -291,6 +292,7 @@
                         {{ balance|floatformat:2 }}
                         {% endwith %}
                     </td>
+                    <!-- <td class="text-end"><a href="{% url 'accountant_detail' branch.id %}">update</a></td> -->
                 </tr>
                 {% endfor %}
             </tbody>
@@ -315,6 +317,7 @@
                     <th class="text-end">Income</th>
                     <th class="text-end">Expense</th>
                     <th class="text-end">Balance</th>
+                    <!-- <th class="text-end">Update</th> -->
                 </tr>
             </thead>
             <tbody>
@@ -329,6 +332,7 @@
                         {{ balance|floatformat:2 }}
                         {% endwith %}
                     </td>
+                    <!-- <td class="text-end"><a href="{% url 'accountant_detail' vehicle.id %}">update</a></td> -->
                 </tr>
                 {% empty %}
                 <tr>

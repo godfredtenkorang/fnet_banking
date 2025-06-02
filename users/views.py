@@ -7,6 +7,7 @@ from django.contrib.auth.backends import ModelBackend
 
 from accountant.models import Transaction, Vehicle
 from accountant.models import Branch as branch
+from accountant.forms import TransactionUpdateForm, MonthYearFilterForm
 from agent.serializers import TransactionSerializer
 from .forms import UserRegisterForm, OwnerRegistrationForm, DriverRegistrationForm, CustomPasswordChangeForm, CustomerFilterForm, AccountFilterForm, AccountantRegistrationForm, AgentRegistrationForm, CustomerRegistrationForm, LoginForm, MobilizationRegistrationForm
 from .models import User, Owner, Agent, Customer, Branch, Mobilization, OTPToken, Driver, Accountant
@@ -658,10 +659,59 @@ def my_accountants(request):
     
     return render(request, 'users/admin_dashboard/accountant/my_accountant.html', context)
 
+from django.db.models.functions import TruncMonth
+from django.db.models import Sum
+from collections import defaultdict
+
+def all_transactions(request):
+    form = MonthYearFilterForm(request.GET or None)
+    transactions = Transaction.objects.all().order_by('-created_at')
+    
+    # Apply filters if form is valid
+    if form.is_valid():
+        month = form.cleaned_data.get('month')
+        year = form.cleaned_data.get('year')
+        
+        if month:
+            transactions = transactions.filter(date__month=month)
+        if year:
+            transactions = transactions.filter(date__year=year)
+    
+    # Monthly summary (unfiltered to show all months)
+    monthly_summary = Transaction.objects.annotate(
+        month=TruncMonth('date')
+    ).values('month').annotate(
+        total_income=Sum('amount', filter=Q(transaction_type='income')),
+        total_expense=Sum('amount', filter=Q(transaction_type='expense')),
+    ).order_by('-month')
+    
+    # Group transactions by month for display
+    monthly_transactions = defaultdict(list)
+    for transaction in transactions:
+        month_year = transaction.date.strftime("%B %Y")
+        monthly_transactions[month_year].append(transaction)
+    
+    context = {
+        'form': form,
+        'transactions': transactions,
+        'monthly_summary': monthly_summary,
+        'monthly_transactions': dict(monthly_transactions),
+    }
+    
+    return render(request, 'users/admin_dashboard/accountant/all_transactions.html', context)
 
 def accountant_detail(request, accountant_id):
-    accountant = get_object_or_404(Accountant, id=accountant_id)
+    accountant = get_object_or_404(Transaction, id=accountant_id)
+    if request.method == 'POST':
+        form = TransactionUpdateForm(request.POST, instance=accountant)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Transaction updated successfully!')
+            return redirect('all_transactions')
+    else:
+        form = TransactionUpdateForm(instance=accountant)
     context = {
+        'form':form,
         'accountant': accountant
     }
     return render(request, 'users/admin_dashboard/accountant/accountant_detail.html', context)

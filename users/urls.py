@@ -47,8 +47,9 @@ urlpatterns = [
     # Accountant
     path('register_accountant/', views.register_accountant, name='register-accountant'),
     path('reports/monthly/', views.my_accountants, name='monthly_report'),
+    path('all_transactions/', views.all_transactions, name='all_transactions'),
     
-    path('accountant/<int:accountant_id>/', views.accountant_detail, name='accountant_detail'),
+    path('transaction/<int:accountant_id>/', views.accountant_detail, name='accountant_detail'),
     
     
     # API
