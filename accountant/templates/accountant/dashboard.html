@@ -199,8 +199,11 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
+                        <th>Network/Bank/Cash</th>
                         <th>Transaction ID</th>
                         <th>Type</th>
+                        <th>Vehicle</th>
+                        <th>Branch</th>
                         <th>Amount</th>
                         <th>Date</th>
                     </tr>
@@ -208,8 +211,21 @@
                 <tbody>
                     {% for transaction in transactions %}
                     <tr>
+                        <td>{{ transaction.network_or_bank }}</td>
                         <td>{{ transaction.transaction_id }}</td>
                         <td>{{ transaction.get_transaction_type_display }}</td>
+                        <td>{% if transaction.vehicle %}
+                            {{ transaction.vehicle }}
+                            {% else %}
+                            N/A
+                            {% endif %}
+                        </td>
+                        <td>{% if transaction.branch %}
+                            {{ transaction.branch }}
+                            {% else %}
+                            N/A
+                            {% endif %}
+                        </td>
                         <td>GHS{{ transaction.amount|floatformat:2 }}</td>
                         <td>{{ transaction.date }}</td>
                     </tr>

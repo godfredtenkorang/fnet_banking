@@ -9,37 +9,7 @@
 
 
 <style>
-    .dash-h2 {
-        padding: 3% 0;
-    }
-
-    .dash-h2 h2 {
-        padding: 2%;
-    }
-
-    /* Default table styling */
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    th,
-    td {
-        padding: 8px;
-        border: 1px solid #ddd;
-        text-align: center;
-    }
-
-    th {
-        background: #007bff;
-        color: white;
-        font-weight: bold;
-        font-size: 13px;
-    }
-
-    td {
-        font-size: 12px;
-    }
+    
 
     /* Button Styling */
     .approve-btn {
@@ -68,70 +38,6 @@
         display: flex;
         gap: 5px;
     }
-
-    /* Table row background color using child selectors */
-    tbody tr:nth-child(odd) {
-        background-color: #f9f9f9;
-        /* Light gray for odd rows */
-    }
-
-    tbody tr:nth-child(even) {
-        background-color: #e9ecef;
-        /* Slightly darker gray for even rows */
-    }
-
-    /* Mobile Responsive Table */
-    @media screen and (max-width: 968px) {
-
-        table,
-        thead,
-        tbody,
-        th,
-        td,
-        tr {
-            display: block;
-            width: 100%;
-        }
-
-        thead {
-            display: none;
-        }
-
-        tr {
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            padding: 8px;
-            background: #f9f9f9;
-        }
-
-        td {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px;
-            border: none;
-            text-align: left;
-        }
-
-        td::before {
-            content: attr(data-label);
-            font-weight: bold;
-            color: #007bff;
-        }
-
-        /* Stack buttons at the bottom */
-        .action-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        .action-buttons button {
-            width: 100% !important;
-        }
-    }
-
 
     /* Base button styles */
 .btn {
@@ -213,7 +119,64 @@
 </style>
 
 
+<style>
+    /* Ensure the table remains scrollable on small screens */
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+    }
 
+    /* Default table styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 800px;
+        /* Ensures the table is scrollable if needed */
+    }
+
+    th,
+    td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+
+    th {
+        background: #007bff;
+        color: white;
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+    td {
+        font-size: 12px;
+    }
+
+   
+
+    /* Table row background color */
+    tbody tr:nth-child(odd) {
+        background-color: #f9f9f9;
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #e9ecef;
+    }
+
+    /* Mobile Responsive: Keep table scrollable */
+    @media screen and (max-width: 968px) {
+        .table-container {
+            overflow-x: auto;
+            /* Enables horizontal scrolling */
+            white-space: nowrap;
+        }
+
+        table {
+            min-width: 800px;
+            /* Ensures columns do not wrap */
+        }
+    }
+</style>
 
 
 
@@ -304,10 +267,10 @@
     <hr>
 
 
-    <div class="table-container dash-h2">
+    <div class="table-container">
         
         <h2>Branch Summary</h2>
-        <table class="table table-striped">
+        <table>
             <thead>
                 <tr>
                     <th>Branch</th>
@@ -323,7 +286,10 @@
                     <td class="text-end">{{ branch.total_income|default:0|floatformat:2 }}</td>
                     <td class="text-end">{{ branch.total_expense|default:0|floatformat:2 }}</td>
                     <td class="text-end fw-bold">
-                        {{ branch.balance|default:0|floatformat:2 }}
+        
+                        {% with balance=branch.total_income|default:0|add:0|subtract:branch.total_expense|default:0 %}
+                        {{ balance|floatformat:2 }}
+                        {% endwith %}
                     </td>
                 </tr>
                 {% endfor %}
@@ -337,8 +303,10 @@
                 </tr>
             </tfoot>
         </table>
+    </div>
         <br><br>
         <h2>Vehicle Breakdown</h2>
+        <div class="table-container">
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -368,8 +336,16 @@
                 </tr>
                 {% endfor %}
             </tbody>
-            
+            <tfoot class="fw-bold">
+                <tr>
+                    <td>Grand Total</td>
+                    <td class="text-end">{{ grand_vehicle_total_income|floatformat:2 }}</td>
+                    <td class="text-end">{{ grand_vehicle_total_expense|floatformat:2 }}</td>
+                    <td class="text-end">{{ grand_vehicle_total_balance|floatformat:2 }}</td>
+                </tr>
+            </tfoot>
         </table>
+        <br><br>
 
 
 

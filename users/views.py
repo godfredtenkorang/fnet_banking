@@ -623,6 +623,10 @@ def my_accountants(request):
     grand_total_expense = sum(b.total_expense or 0 for b in branches)
     grand_total_balance = grand_total_income - grand_total_expense
     
+    grand_vehicle_total_income = sum(b.vehicle_income or 0 for b in vehicles)
+    grand_vehicle_total_expense = sum(b.vehicle_expense or 0 for b in vehicles)
+    grand_vehicle_total_balance = grand_vehicle_total_income - grand_vehicle_total_expense
+    
     months = [
         (1, 'January'), (2, 'February'), (3, 'March'), (4, 'April'),
         (5, 'May'), (6, 'June'), (7, 'July'), (8, 'August'),
@@ -645,6 +649,9 @@ def my_accountants(request):
         'grand_total_expense': grand_total_expense,
         'grand_total_balance': grand_total_balance,
         
+        'grand_vehicle_total_income': grand_vehicle_total_income,
+        'grand_vehicle_total_expense': grand_vehicle_total_expense,
+        'grand_vehicle_total_balance': grand_vehicle_total_balance,
         
         
     }
