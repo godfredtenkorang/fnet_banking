@@ -174,6 +174,17 @@
             /* Ensures columns do not wrap */
         }
     }
+    .card {
+        margin-bottom: 20px;
+        border-radius: 5px;
+    }
+    .card-body {
+        padding: 15px;
+    }
+    .card-title {
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
 </style>
 
 
@@ -194,22 +205,24 @@
         </div>
     </div>
 
+    
 
-    <!-- <div class="stat-chart">
+
+    <div class="stat-chart">
 
 
         <div class="stat-chat-container">
             <a  class="stat">
                 <h2 style="font-size: 20px;">Income(¢)</h2>
-                <h3 class="valuesP"></h3>
+                <h3 class="valuesP">{{ total_income|floatformat:2 }}</h3>
             </a>
             <a  class="stat">
                 <h2 style="font-size: 20px;">Expenses(¢)</h2>
-                <h3 class="valuesP"></h3>
+                <h3 class="valuesP">{{ total_expense|floatformat:2}}</h3>
             </a>
             <a  class="stat">
                 <h2 style="font-size: 20px;">Balance(¢)</h2>
-                <h3 class="valuesP"></h3>
+                <h3 class="valuesP">{{ net_balance|floatformat:2 }}</h3>
             </a>
             
         </div>
@@ -219,7 +232,7 @@
             <canvas id="barChart"></canvas>
         </div>
 
-    </div> -->
+    </div>
     <br><br>
     <hr>
     <br><br>
@@ -241,17 +254,27 @@
                             {{ form.year.label_tag }}
                             {{ form.year }}
                         </div>
+                        <div class="col-md-3">
+                            {{ form.vehicle.label_tag }}
+                            {{ form.vehicle }}
+                        </div>
+                        <div class="col-md-3">
+                            {{ form.branch.label_tag }}
+                            {{ form.branch }}
+                        </div>
                         <div class="col-md-3 align-self-end">
                             <button type="submit" class="btn btn-primary">Filter</button>
                             <a href="{% url 'all_transactions' %}" class="btn btn-secondary">Reset</a>
                         </div>
-                    </div>         </form>
+                    </div>         
+                </form>
             </div>
         </div>
     </div>
 
     <br>
     <hr>
+
 
 
     <div class="table-container">

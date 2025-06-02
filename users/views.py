@@ -671,11 +671,17 @@ def all_transactions(request):
     if form.is_valid():
         month = form.cleaned_data.get('month')
         year = form.cleaned_data.get('year')
+        vehicle = form.cleaned_data.get('vehicle')
+        branch = form.cleaned_data.get('branch')
         
         if month:
             transactions = transactions.filter(date__month=month)
         if year:
             transactions = transactions.filter(date__year=year)
+        if vehicle:
+            transactions = transactions.filter(vehicle=vehicle)
+        if branch:
+            transactions = transactions.filter(branch=branch)
     
     # Monthly summary (unfiltered to show all months)
     monthly_summary = Transaction.objects.annotate(
@@ -690,12 +696,22 @@ def all_transactions(request):
     for transaction in transactions:
         month_year = transaction.date.strftime("%B %Y")
         monthly_transactions[month_year].append(transaction)
+        
+     # Calculate totals for the filtered results
+    total_income = transactions.filter(transaction_type='income').aggregate(
+        Sum('amount'))['amount__sum'] or 0
+    total_expense = transactions.filter(transaction_type='expense').aggregate(
+        Sum('amount'))['amount__sum'] or 0
+    net_balance = total_income - total_expense
     
     context = {
         'form': form,
         'transactions': transactions,
         'monthly_summary': monthly_summary,
         'monthly_transactions': dict(monthly_transactions),
+        'total_income': total_income,
+        'total_expense': total_expense,
+        'net_balance': net_balance,
     }
     
     return render(request, 'users/admin_dashboard/accountant/all_transactions.html', context)

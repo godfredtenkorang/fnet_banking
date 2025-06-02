@@ -1,6 +1,6 @@
 # forms.py
 from django import forms
-from .models import Transaction, TransactionCategory, Vehicle
+from .models import Branch, Transaction, TransactionCategory, Vehicle
 
 class TransactionForm(forms.ModelForm):
     class Meta:
@@ -27,27 +27,26 @@ class TransactionUpdateForm(forms.ModelForm):
 class MonthYearFilterForm(forms.Form):
     MONTH_CHOICES = [
         ('', 'All Months'),
-        ('1', 'January'),
-        ('2', 'February'),
-        ('3', 'March'),
-        ('4', 'April'),
-        ('5', 'May'),
-        ('6', 'June'),
-        ('7', 'July'),
-        ('8', 'August'),
-        ('9', 'September'),
-        ('10', 'October'),
-        ('11', 'November'),
-        ('12', 'December'),
+        ('1', 'January'), ('2', 'February'), ('3', 'March'),
+        ('4', 'April'), ('5', 'May'), ('6', 'June'),
+        ('7', 'July'), ('8', 'August'), ('9', 'September'),
+        ('10', 'October'), ('11', 'November'), ('12', 'December'),
     ]
     
     YEAR_CHOICES = [
         ('', 'All Years'),
-        ('2023', '2023'),
-        ('2024', '2024'),
-        ('2025', '2025'),
-        # Add more years as needed
+        ('2023', '2023'), ('2024', '2024'), ('2025', '2025'),
     ]
     
     month = forms.ChoiceField(choices=MONTH_CHOICES, required=False)
     year = forms.ChoiceField(choices=YEAR_CHOICES, required=False)
+    vehicle = forms.ModelChoiceField(
+        queryset=Vehicle.objects.all(),
+        required=False,
+        empty_label="All Vehicles"
+    )
+    branch = forms.ModelChoiceField(
+        queryset=Branch.objects.all(),
+        required=False,
+        empty_label="All Branches"
+    )
