@@ -288,9 +288,7 @@
                     <td class="text-end">{{ branch.total_expense|default:0|floatformat:2 }}</td>
                     <td class="text-end fw-bold">
         
-                        {% with balance=branch.total_income|default:0|add:0|subtract:branch.total_expense|default:0 %}
-                        {{ balance|floatformat:2 }}
-                        {% endwith %}
+                        {{ branch.total_income|calculate_balance:branch.total_expense|floatformat:2 }}
                     </td>
                     <!-- <td class="text-end"><a href="{% url 'accountant_detail' branch.id %}">update</a></td> -->
                 </tr>
@@ -328,9 +326,7 @@
                     <td class="text-end">{{ vehicle.vehicle_income|default:0|floatformat:2 }}</td>
                     <td class="text-end">{{ vehicle.vehicle_expense|default:0|floatformat:2 }}</td>
                     <td class="text-end">
-                        {% with balance=vehicle.vehicle_income|default:0|add:0|subtract:vehicle.vehicle_expense|default:0 %}
-                        {{ balance|floatformat:2 }}
-                        {% endwith %}
+                        {{ vehicle.vehicle_income|calculate_balance:vehicle.vehicle_expense|floatformat:2 }}
                     </td>
                     <!-- <td class="text-end"><a href="{% url 'accountant_detail' vehicle.id %}">update</a></td> -->
                 </tr>

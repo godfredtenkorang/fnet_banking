@@ -9,3 +9,9 @@ def subtract(value, arg):
         return float(value) - float(arg)
     except (ValueError, TypeError):
         return 0
+    
+@register.filter
+def calculate_balance(income, expense):
+    income = income or 0
+    expense = expense or 0
+    return income - expense
