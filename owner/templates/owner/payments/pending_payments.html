@@ -1,5 +1,6 @@
 {% extends 'owner/base.html' %}
 {% load custom_filters %}
+{% load humanize %}
 {% load static %}
 {% block content %}
 
@@ -226,7 +227,7 @@
                         {% endif %}
                     </td>
                     <td data-label="Transaction ID">{{payment.branch_transaction_id}}</td>
-                    <td data-label="Amount">{{payment.amount}}</td>
+                    <td data-label="Amount">{{payment.amount|intcomma}}</td>
                     <td data-label="Date/Time">{{payment.created_at}}</td>
                     <td data-label="Date/Time">{{payment.time_created}}</td>
                     <td data-label="Status">{{payment.status}}</td>
