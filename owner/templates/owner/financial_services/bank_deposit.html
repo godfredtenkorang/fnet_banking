@@ -1,5 +1,6 @@
 {% extends 'owner/base.html' %}
 {% load custom_filters %}
+{% load humanize %}
 {% load static %}
 {% block content %}
 
@@ -267,7 +268,7 @@
                     <td data-label="Float Type">{{cash.float_type}}</td>
                     <td data-label="Bank">{{cash.bank}}</td>
                     <!-- <td data-label="Transaction ID">{{cash.transaction_id}}</td> -->
-                    <td data-label="Amount">{{cash.amount}}</td>
+                    <td data-label="Amount">{{cash.amount|intcomma}}</td>
                     <!-- <td data-label="Remaining">{{cash.amount|subtract:cash.arrears}}</td>
                     <td data-label="Arrears">{{cash.arrears}}</td> -->
                     <td data-label="Date/Time">{{cash.created_at}}</td>

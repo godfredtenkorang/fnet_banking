@@ -1,5 +1,6 @@
 {% extends 'owner/base.html' %} 
 {% load custom_filters %}
+{% load humanize %}
 {% load static %} 
 {% block content %}
 
@@ -220,7 +221,7 @@
                 <td data-label="Agent">{{cash.agent.phone_number}}</td>
                 <td style="font-weight: 900;" data-label="Agent">{{cash.agent.full_name}}</td>
                 <td data-label="Amount">{{cash.float_type}}</td>
-                <td data-label="Amount">{{cash.amount}}</td>
+                <td data-label="Amount">{{cash.amount|intcomma}}</td>
                 <td data-label="Name">{{cash.name}}</td>
                 <td data-label="Phone">{{cash.phone_number}}</td>
                 <!-- <td data-label="Remaining">{{cash.amount|subtract:cash.arrears}}</td>

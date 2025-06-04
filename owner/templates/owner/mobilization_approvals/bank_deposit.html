@@ -1,4 +1,8 @@
-{% extends 'owner/base.html' %} {% load custom_filters %} {% load static %} {% block content %}
+{% extends 'owner/base.html' %} 
+{% load custom_filters %} 
+{% load humanize %}
+{% load static %} 
+{% block content %}
 
 
 <style>
@@ -229,7 +233,7 @@
                     <td data-label="Account Name">{{pending_deposit.account_name}}</td>
                     <td data-label="Date">{{pending_deposit.date_deposited}}</td>
                     <td data-label="Time">{{pending_deposit.time_deposited}}</td>
-                    <td data-label="Amount">{{pending_deposit.amount}}</td>
+                    <td data-label="Amount">{{pending_deposit.amount|intcomma}}</td>
                     {% if pending_deposit.receipt %}
                     <td data-label="Receipt"><a href="{{pending_deposit.receipt.url}}">receipt</a></td>
                     {% else %}
