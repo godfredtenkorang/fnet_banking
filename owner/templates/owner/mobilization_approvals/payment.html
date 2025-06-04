@@ -1,5 +1,6 @@
 {% extends 'owner/base.html' %}
 {% load custom_filters %}
+{% load humanize %}
 {% load static %}
 {% block content %}
 
@@ -235,7 +236,7 @@
                         {{payment.branch}}
                         {% endif %}
                     </td>
-                    <td data-label="Amount">{{payment.amount}}</td>
+                    <td data-label="Amount">{{payment.amount|intcomma}}</td>
                     <td data-label="Date/Time">{{payment.created_at}}</td>
                     <td data-label="Transaction ID">{{ payment.mobilization_transaction_id }}</td>
                     <td data-label="Status">{{payment.status}}</td>
