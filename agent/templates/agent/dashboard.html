@@ -155,6 +155,10 @@
 
 
     <div class="stat-chat-container">
+        <a href="{% url 'payto_summary_date' %}" class="stat">
+            <h2 style="font-size: 20px;">Total PayTo(¢)</h2>
+            <h3 class="valuesP">{{cumulative_paytos}}</h3>
+        </a>
         <a href="{% url 'cashin_summary_date' %}" class="stat">
             <h2 style="font-size: 20px;">Total Cash In(¢)</h2>
             <h3 class="valuesP">{{cumulative_cashins}}</h3>
