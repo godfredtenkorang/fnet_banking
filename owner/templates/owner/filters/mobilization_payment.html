@@ -154,7 +154,7 @@
                 {% for transaction in transactions %}
                 <tr>
                     <td>{{ transaction.mobilization }}</td>
-                    <td>{% if transaction.bank == '' %} {% else %} {{ transaction.bank }} {% endif %}</td>
+                    <td>{% if transaction.bank %} {{ transaction.bank }} {% else %} {% endif %}</td>
                     <td>{{ transaction.mobilization_transaction_id }}</td>
                     <td>GH¢{{ transaction.amount }}</td>
                     <td>{{ transaction.created_at }}</td>
