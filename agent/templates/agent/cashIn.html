@@ -5,6 +5,35 @@
     font-weight: bold;
     color: red;
   }
+
+  .fraud-alert {
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+  }
+  .fraud-buttons {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+  }
+  .fraud-buttons button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .proceed-btn {
+    background-color: #ffc107;
+    color: #000;
+  }
+  .cancel-btn {
+    background-color: #dc3545;
+    color: #fff;
+  }
+
 </style>
 <div class="main">
   <div style="background-color:#000; width:100%;">
@@ -21,12 +50,13 @@
     </div>
   </div>
   {% if is_fraudster %}
-    <div class="alert alert-warning">
-      <strong>Warning!</strong> The customer with phone number <strong>{{ customer_phone }}</strong> is flagged as a
-      fraudster.
-    </div>
-
-    <form method="POST">
+  <div class="fraud-alert">
+    <h3><i class="fas fa-exclamation-triangle"></i> Fraud Alert!</h3>
+    <p>The customer with phone number <strong>{{ customer_phone }}</strong> has been flagged in our system as potentially
+      fraudulent.</p>
+    <p><strong>Please verify the customer's identity carefully before proceeding.</strong></p>
+  
+    <form method="POST" class="fraud-buttons">
       {% csrf_token %}
       <input type="hidden" name="network" value="{{ network }}">
       <input type="hidden" name="customer_phone" value="{{ customer_phone }}">
@@ -35,11 +65,18 @@
       <input type="hidden" name="depositor_number" value="{{ depositor_number }}">
       <input type="hidden" name="amount" value="{{ amount }}">
       <input type="hidden" name="cash_received" value="{{ cash_received }}">
-      <button type="submit" name="action" value="proceed">Proceed Anyway</button>
-      <button type="submit" name="action" value="cancel">Cancel</button>
-    </form>
-  {% else %}
   
+      <button type="submit" name="action" value="proceed" class="proceed-btn">
+        <i class="fas fa-check-circle"></i> Proceed Anyway
+      </button>
+      <button type="submit" name="action" value="cancel" class="cancel-btn">
+        <i class="fas fa-times-circle"></i> Cancel Transaction
+      </button>
+    </form>
+  </div>
+  {% endif %}
+  
+
   <div class="form">
 
     <form id="networkForm" method="POST">
@@ -112,7 +149,7 @@
       <button type="submit" id="">Submit</button>
     </form>
   </div>
-{% endif %}
+
 
 </div>
 <script>

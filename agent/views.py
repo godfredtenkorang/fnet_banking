@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.contrib import messages
 from .models import CustomerCashIn, CustomerCashOut, BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest, CustomerComplain, HoldCustomerAccount, CustomerFraud, CustomerPayTo, CashInCommission, CashOutCommission, BranchReport
 from datetime import datetime, timedelta, date
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from django.http import JsonResponse
 from django.contrib.auth.hashers import make_password
 from django.core.files.storage import default_storage
@@ -318,18 +318,24 @@ def cashIn(request):
     
     if request.method == 'POST':
         network = request.POST.get('network')
-        customer_phone = request.POST.get('customer_phone')
-        deposit_type = request.POST.get('deposit_type')
-        depositor_name = request.POST.get('depositor_name')
-        depositor_number = request.POST.get('depositor_number')
-        amount = request.POST.get('amount')
-        cash_received = request.POST.get('cash_received')
+        customer_phone = request.POST.get('customer_phone', '').strip()
+        deposit_type = request.POST.get('deposit_type', '').strip()
+        depositor_name = request.POST.get('depositor_name', '').strip()
+        depositor_number = request.POST.get('depositor_number', '').strip()
+        amount = request.POST.get('amount', '0').strip()
+        cash_received = request.POST.get('cash_received', '0').strip()
         action = request.POST.get('action')  # 'proceed' or 'cancel'
         
-        amount = Decimal(amount)
-        cash_received = Decimal(cash_received)
+         # Convert amounts to Decimal
+        try:
+            amount = Decimal(amount)
+            cash_received = Decimal(cash_received)
+        except (InvalidOperation, TypeError):
+            messages.error(request, 'Invalid amount entered')
+            return redirect('cashIn')
 
-        if CustomerFraud.objects.filter(customer_phone=customer_phone).exists():
+        is_fraudster = CustomerFraud.objects.filter(customer_phone=customer_phone).exists()
+        if is_fraudster:
             if action == 'proceed':
                 cash_in = CustomerCashIn.objects.create(
                     agent=agent, 
@@ -342,22 +348,35 @@ def cashIn(request):
                     cash_received=cash_received,
                     is_fraudster=True,
                 )
-        
+                
+                # Check balance before processing
+                network_balance = getattr(account, f"{network.lower()}_balance", 0)
+                if amount > Decimal(network_balance):
+                    cash_in.delete()  # Rollback the transaction
+                    messages.error(request, f"Insufficient balance in {network}. Kindly make a request.")
+                    return redirect('cashIn')
+                
+                account.update_balance_for_cash_in(network, amount)
                 messages.warning(request, 'Transaction completed with a flagged fraudster!')
-                return render(request, 'agent/cashIn.html', {
-                    'is_fraudster': True,
-                    'network':network, 
-                    'customer_phone':customer_phone, 
-                    'deposit_type':deposit_type, 
-                    'depositor_name':depositor_name, 
-                    'depositor_number':depositor_number, 
-                    'amount':amount, 
-                    'cash_received':cash_received
-                })
+                return redirect('cashin_notifications')
+        
+                
             elif action == 'cancel':
                 messages.info(request, 'Transaction canceled due to fraudster alert.')
                 return redirect('cashIn')
             
+            messages.warning(request, 'Transaction completed with a flagged fraudster!')
+            return render(request, 'agent/cashIn.html', {
+                'is_fraudster': True,
+                'network':network, 
+                'customer_phone':customer_phone, 
+                'deposit_type':deposit_type, 
+                'depositor_name':depositor_name, 
+                'depositor_number':depositor_number, 
+                'amount':amount, 
+                'cash_received':cash_received
+            })
+        
         cash_in = CustomerCashIn.objects.create(
             agent=agent, 
             network=network, 
