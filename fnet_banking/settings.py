@@ -169,10 +169,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 LOGIN_URL = 'login'
 
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',  # Default backend
+    
     'users.backends.ApprovedUserBackend',     # Custom backend
     'users.backends.PhoneNumberBackend',
-    'users.backend.email_backend.EmailBackend',
+    
+    
 
 ]
 

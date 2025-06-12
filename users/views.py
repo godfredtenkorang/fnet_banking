@@ -124,8 +124,10 @@ def login_user(request):
                         return redirect("accountant_dashboard")
                 elif user.is_blocked:
                     messages.error(request, "Your account has been blocked. Please contact the admin.")
+                    return redirect('login')
                 else:
                     messages.error(request, "Your account is not yet approved by the admin.")
+                    return redirect('login')
             else:
                 user.generate_otp()
                 send_otp(user.phone_number, user.otp)
