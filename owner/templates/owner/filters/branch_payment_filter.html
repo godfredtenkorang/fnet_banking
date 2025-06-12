@@ -144,8 +144,7 @@
                 <tr>
                     <th>Phone Number</th>
                     <th>Bank</th>
-                    <th>Account Number</th>
-                    <th>Account Name</th>
+                    <th>Transaction ID</th>
                     <th>Amount</th>
                     <th>Date</th>
                     <th>Time</th>
@@ -154,13 +153,12 @@
             <tbody>
                 {% for transaction in transactions %}
                 <tr>
-                    <td>{{ transaction.phone_number }}</td>
+                    <td>{{ transaction.agent }}</td>
                     <td>{{ transaction.bank }}</td>
-                    <td>{{ transaction.account_number }}</td>
-                    <td>{{ transaction.account_name }}</td>
+                    <td>{{ transaction.branch_transaction_id }}</td>
                     <td>GH¢{{ transaction.amount }}</td>
-                    <td>{{ transaction.date_deposited }}</td>
-                    <td>{{ transaction.time_deposited }}</td>
+                    <td>{{ transaction.created_at }}</td>
+                    <td>{{ transaction.time_created }}</td>
                 </tr>
                 {% empty %}
                 <tr>
