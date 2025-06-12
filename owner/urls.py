@@ -147,5 +147,10 @@ urlpatterns = [
     path('delete_message/', views.delete_transaction_notification, name='delete_transaction_notification'),
     
     
-    
+    path('filters/', views.all_filters, name='all-filters'),
+    path('filter/branch-bank-deposit/', views.filter_bank_by_branch_bank_deposit, name='filter_bank_by_branch_bank_deposit'),
+    path('filter/cash_and_ecash/', views.filter_bank_by_ecash, name='filter_bank_by_ecash'),
+    path('filter/branch-payment/', views.filter_bank_by_branch_payment, name='filter_bank_by_branch_payment'),
+    path('filter/mobilization-bank-deposit/', views.filter_bank_by_mobilization_bank_deposit, name='filter_bank_by_mobilization_bank_deposit'),
+    path('filter/mobilization-payment/', views.filter_bank_by_mobilization_payment, name='filter_bank_by_mobilization_payment'),
 ]

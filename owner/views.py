@@ -1397,4 +1397,129 @@ def all_transaction(request):
     return render(request, 'owner/agent_Detail/all_transaction.html')
 
 
+def all_filters(request):
+    return render(request, 'owner/filters/filters.html')
 
+def filter_bank_by_branch_bank_deposit(request):
+    # Get all unique bank names from the BankDeposit model
+    banks = BankDeposit.objects.values_list('bank', flat=True).distinct()
+    
+    # Get selected bank from request GET parameters
+    selected_bank = request.GET.get('bank')
+    
+     # Filter transactions based on selected bank
+    transactions = BankDeposit.objects.all()
+    if selected_bank:
+        transactions = transactions.filter(bank=selected_bank)
+        
+    # Calculate total amount of filtered transactions
+    total_amount = transactions.aggregate(total=Sum('amount'))['total'] or 0
+        
+    context = {
+        'transactions': transactions,
+        'banks': banks,
+        'selected_bank': selected_bank,
+        'total_amount': total_amount
+    }
+    
+    return render(request, 'owner/filters/branch_bank_deposit_filter.html', context)
+
+
+def filter_bank_by_branch_payment(request):
+    # Get all unique bank names from the BankDeposit model
+    banks = PaymentRequest.objects.values_list('bank', flat=True).distinct()
+    
+    # Get selected bank from request GET parameters
+    selected_bank = request.GET.get('bank')
+    
+     # Filter transactions based on selected bank
+    transactions = PaymentRequest.objects.all()
+    if selected_bank:
+        transactions = transactions.filter(bank=selected_bank)
+        
+    # Calculate total amount of filtered transactions
+    total_amount = transactions.aggregate(total=Sum('amount'))['total'] or 0
+        
+    context = {
+        'transactions': transactions,
+        'banks': banks,
+        'selected_bank': selected_bank,
+        'total_amount': total_amount
+    }
+    
+    return render(request, 'owner/filters/branch_payment_filter.html', context)
+
+
+def filter_bank_by_mobilization_bank_deposit(request):
+    # Get all unique bank names from the BankDeposit model
+    banks = bank_deposits.objects.values_list('bank', flat=True).distinct()
+    
+    # Get selected bank from request GET parameters
+    selected_bank = request.GET.get('bank')
+    
+     # Filter transactions based on selected bank
+    transactions = bank_deposits.objects.all()
+    if selected_bank:
+        transactions = transactions.filter(bank=selected_bank)
+        
+    # Calculate total amount of filtered transactions
+    total_amount = transactions.aggregate(total=Sum('amount'))['total'] or 0
+        
+    context = {
+        'transactions': transactions,
+        'banks': banks,
+        'selected_bank': selected_bank,
+        'total_amount': total_amount
+    }
+    
+    return render(request, 'owner/filters/mobilization_bank_deposit_filter.html', context)
+
+
+def filter_bank_by_ecash(request):
+    # Get all unique bank names from the BankDeposit model
+    banks = CashAndECashRequest.objects.values_list('bank', flat=True).distinct()
+    
+    # Get selected bank from request GET parameters
+    selected_bank = request.GET.get('bank')
+    
+     # Filter transactions based on selected bank
+    transactions = CashAndECashRequest.objects.all()
+    if selected_bank:
+        transactions = transactions.filter(bank=selected_bank)
+        
+    # Calculate total amount of filtered transactions
+    total_amount = transactions.aggregate(total=Sum('amount'))['total'] or 0
+        
+    context = {
+        'transactions': transactions,
+        'banks': banks,
+        'selected_bank': selected_bank,
+        'total_amount': total_amount
+    }
+    
+    return render(request, 'owner/filters/cash_and_ecash.html', context)
+
+
+def filter_bank_by_mobilization_payment(request):
+    # Get all unique bank names from the BankDeposit model
+    banks = payment_requests.objects.values_list('bank', flat=True).distinct()
+    
+    # Get selected bank from request GET parameters
+    selected_bank = request.GET.get('bank')
+    
+     # Filter transactions based on selected bank
+    transactions = payment_requests.objects.all()
+    if selected_bank:
+        transactions = transactions.filter(bank=selected_bank)
+        
+    # Calculate total amount of filtered transactions
+    total_amount = transactions.aggregate(total=Sum('amount'))['total'] or 0
+        
+    context = {
+        'transactions': transactions,
+        'banks': banks,
+        'selected_bank': selected_bank,
+        'total_amount': total_amount
+    }
+    
+    return render(request, 'owner/filters/mobilization_payment.html', context)
