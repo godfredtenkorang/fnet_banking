@@ -138,6 +138,35 @@ class EFloatAccount(models.Model):
         )
         return new_drawer
         
+        
+    def update_balance_for_payto(self, network, amount):
+        amount = Decimal(amount)
+        if network == 'Mtn':
+            self.mtn_balance += amount
+        elif network == 'Telecel':
+            self.telecel_balance += amount
+        elif network == 'AirtelTigo':
+            self.airtel_tigo_balance += amount
+        elif network == 'Ecobank':
+            self.ecobank_balance += amount
+        elif network == 'Fidelity':
+            self.fidelity_balance += amount
+        elif network == 'Calbank':
+            self.calbank_balance += amount
+        elif network == 'GTBank':
+            self.gtbank_balance += amount
+        elif network == 'Access Bank':
+            self.access_bank_balance += amount
+
+        # Add to the Cash at Hand balance
+        amount = Decimal(amount)
+        self.cash_at_hand -= amount
+        
+        self.save()
+        
+    def update_balance_for_bank_deposit(self, bank, amount):
+        amount = Decimal(amount)
+        
     def update_balance_for_cash_in(self, network, amount):
         amount = Decimal(amount)
         if network == 'Mtn':

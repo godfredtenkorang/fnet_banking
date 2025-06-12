@@ -447,7 +447,7 @@ class CustomerPayTo(models.Model):
         ("Approved", "Approved"),
         ("Rejected", "Rejected")
     )
-    agent = models.ForeignKey(User, on_delete=models.CASCADE, related_name="customer_pay_to")
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name="customer_pay_to")
     network = models.CharField(max_length=20, choices=NETWORKS, blank=True, default="Select Network")
     agent_number = models.CharField(max_length=10, null=True, blank=True)
     # customer_name = models.CharField(max_length=30, blank=True)
@@ -461,10 +461,10 @@ class CustomerPayTo(models.Model):
     date_deposited = models.DateField(auto_now_add=True)
     time_deposited = models.TimeField(auto_now_add=True)
     
-    # @classmethod
-    # def total_cash_for_customer(cls, agent):
-    #     total = cls.objects.filter(agent=agent).aggregate(Sum('amount'))
-    #     return total['amount__sum'] or 0
+    @classmethod
+    def total_payto_for_customer(cls, agent):
+        total = cls.objects.filter(agent=agent).aggregate(Sum('amount'))
+        return total['amount__sum'] or 0
     
     # def save(self, *args, **kwargs):
     #     commission_amount = self.cash_received - self.amount

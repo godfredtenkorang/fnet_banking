@@ -3,7 +3,7 @@ from . import views
 
 urlpatterns = [
     path('dashboard/', views.agent_dashboard, name='agent-dashboard'),
-    path('agent-payto/', views.payto, name='agent_payto'),
+    path('payto/', views.payto, name='agent_payto'),
     path('cashIn/', views.cashIn, name='cashIn'),
     path('cashOut/', views.cashOut, name='cashOut'),
     
@@ -20,6 +20,8 @@ urlpatterns = [
     
     # Transaction summaries
     path('TotalTransactionSum/', views.TotalTransactionSum, name='TotalTransactionSum'),
+    path('payto_summary_date/', views.payto_summary_date, name='payto_summary_date'),
+    path('payto_summary/<str:date>/', views.payto_summary, name='payto_summary'),
     path('cashin_summary_date/', views.cashin_summary_date, name='cashin_summary_date'),
     path('cashin_summary/<str:date>/', views.cashin_summary, name='cashin_summary'),
     path('cashout_summary_date/', views.cashout_summary_date, name='cashout_summary_date'),

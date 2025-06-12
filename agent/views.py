@@ -176,6 +176,7 @@ def agent_dashboard(request):
 
     
     
+    total_paytos = CustomerPayTo.total_payto_for_customer(agent=agent)
     total_cashins = CustomerCashIn.total_cash_for_customer(agent=agent)
     total_cashouts = CustomerCashOut.total_cashout_for_customer(agent=agent)
     total_deposits = BankDeposit.total_bank_deposit_for_customer(agent=agent)
@@ -201,6 +202,7 @@ def agent_dashboard(request):
     
     context = {
         'agent': agent,
+        'cumulative_paytos': total_paytos,
         'cumulative_cashins': total_cashins,
         'cumulative_cashouts': total_cashouts,
         'cumulative_deposits': total_deposits,
@@ -218,7 +220,13 @@ def agent_dashboard(request):
 @login_required
 
 def payto(request):
-    agent = request.user
+    agent = request.user.agent
+    today = timezone.now().date()
+    
+    
+    account = get_object_or_404(EFloatAccount, agent=agent, date=today)
+    
+    
     if request.method == 'POST':
         agent_number = request.POST.get('agent_number')
         network = request.POST.get('network')
@@ -231,15 +239,74 @@ def payto(request):
         paytos = CustomerPayTo(agent_number=agent_number, network=network, transfer_type=deposit_type,  merchant_code=merchant_code, merchant_number=merchant_number, amount=amount, reference=reference)
         
         paytos.agent = agent
-        
+        # network_balance = getattr(account, f"{cash_out.network.lower()}_balance")
+        cash_at_hand = Decimal(account.mtn_balance)
+        get_amount = Decimal(paytos.amount)
+        if get_amount > cash_at_hand:
+            messages.error(request, f"Insufficient balance in {paytos.network}.")
+            return redirect('agent_payto')
+    
         paytos.save()
-        
+        account.update_balance_for_payto(paytos.network, paytos.amount)
+        messages.success(request, 'Pay TO recorded succussfully.')
+
         return redirect('payto_notifications')
         
     context = {
         'title': 'Payto'
     }
     return render(request, 'agent/payto/payto.html', context)
+
+
+@login_required
+@user_passes_test(is_agent)
+def payto_summary_date(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    # Set default date range (last 30 days)
+    if not start_date and not end_date:
+        end_date = date.today()
+        start_date = end_date - timedelta(days=30)
+        
+     # Convert start_date and end_date to date objects if they are strings
+    if start_date and isinstance(start_date, str):
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+    if end_date and isinstance(end_date, str):
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+        
+    dates = CustomerPayTo.objects.values('date_deposited').annotate(total_amount=Sum('amount')).order_by('-date_deposited')
+    
+    if start_date:
+        dates = dates.filter(date_deposited__gte=start_date)
+    if end_date:
+        dates = dates.filter(date_deposited__lte=end_date)
+        
+    paginator = Paginator(dates, 30)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    context = {
+        'page_obj': page_obj,
+        'dates': dates,
+        'start_date': start_date,
+        'end_date': end_date,
+    }
+    return render(request, 'agent/transaction_summary/payto_summary_date.html', context)
+
+
+@login_required
+@user_passes_test(is_agent)
+def payto_summary(request, date):
+    agent = request.user.agent
+    paytos = CustomerPayTo.objects.filter(agent=agent, date_deposited=date).order_by('-date_deposited', '-time_deposited')
+    context = {
+        'date': date,
+        'paytos': paytos,
+        'title': 'Payto Summary'
+    }
+    return render(request, 'agent/transaction_summary/payto_summary.html', context)
+
+
 
 @login_required
 def cashIn(request):
@@ -532,6 +599,7 @@ def TotalTransactionSum(request):
     agent_id = request.user
     
     
+    total_paytos = CustomerPayTo.total_payto_for_customer(agent=agent)
     total_cashins = CustomerCashIn.total_cash_for_customer(agent=agent)
     total_cashouts = CustomerCashOut.total_cashout_for_customer(agent=agent)
     total_deposits = BankDeposit.total_bank_deposit_for_customer(agent=agent)
@@ -540,6 +608,7 @@ def TotalTransactionSum(request):
     total_payments = PaymentRequest.total_payment_for_customer(agent=agent, status='Approved')
     
     context = {
+        'total_paytos': total_paytos,
         'total_cashins': total_cashins,
         'total_cashouts': total_cashouts,
         'total_deposits': total_deposits,

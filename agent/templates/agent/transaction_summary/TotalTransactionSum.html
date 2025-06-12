@@ -15,6 +15,13 @@
     <div class="stat-container">
 
 
+        <a href="{% url 'payto_summary_date' %}" class="stat">
+            <h2>Total Payto</h2>
+            <h3>GH¢ {{total_paytos|floatformat:2|intcomma}}</h3>
+      
+      
+            <!-- <p>Click to view total</p> -->
+        </a>
         <a href="{% url 'cashin_summary_date' %}" class="stat">
             <h2>Total Cash In</h2>
             <h3>GH¢ {{total_cashins|floatformat:2|intcomma}}</h3>
