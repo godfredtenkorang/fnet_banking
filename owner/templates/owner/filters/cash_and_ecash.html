@@ -162,7 +162,7 @@
                     <td>{{ transaction.agent }}</td>
                     <td>{{ transaction.bank }}</td>
                     <td>{{ transaction.transaction_id }}</td>
-                    <td>GH¢{{ transaction.amount }}</td>
+                    <td data-label="Amount">GH¢{{ transaction.amount }}</td>
                     <td>{{ transaction.created_at }}</td>
                     <td>{{ transaction.time_created }}</td>
                 </tr>
@@ -174,6 +174,19 @@
             </tbody>
 
         </table>
+        <!-- Pop-up to show total -->
+        <div class="total-pop">
+            <div class="total-background">
+                <p>Total</p>
+                <p class="total-amount">GH¢0</p>
+                <button class="closeTotal">Close</button>
+            </div>
+        </div>
+        
+        <!-- Button to Calculate Total -->
+        <div class="total-btn">
+            <button class="calculate-total"><i class="fas fa-coins"></i> Total</button>
+        </div>
         <br>
         <br>
 
@@ -184,6 +197,46 @@
     </div>
 
 
+    <script>
 
+        document.addEventListener("DOMContentLoaded", function () {
+            const totalBtn = document.querySelector(".calculate-total");
+            const totalPop = document.querySelector(".total-pop");
+            const totalAmount = document.querySelector(".total-amount");
+            const closeTotalBtn = document.querySelector(".closeTotal");
+
+            // Function to Calculate Total
+            function calculateTotal() {
+                let total = 0;
+                document.querySelectorAll("td[data-label='Amount']").forEach(td => {
+                    let amount = parseFloat(td.textContent.replace("GH¢", "")) || 0;
+                    total += amount;
+                });
+
+                // Update Total Amount in Popup
+                totalAmount.textContent = `GH¢${total}`;
+
+                // Show Popup
+                totalPop.style.display = "flex";
+                setTimeout(() => {
+                    totalPop.classList.add("active");
+                }, 50);
+            }
+
+            // Function to Close the Popup
+            function closePopup() {
+                totalPop.classList.remove("active");
+                setTimeout(() => {
+                    totalPop.style.display = "none";
+                }, 300);
+            }
+
+            // Event Listeners
+            totalBtn.addEventListener("click", calculateTotal);
+            closeTotalBtn.addEventListener("click", closePopup);
+        });
+
+
+    </script>
 
     {% endblock %}

@@ -1402,7 +1402,7 @@ def all_filters(request):
 
 def filter_bank_by_branch_bank_deposit(request):
     # Get all unique bank names from the BankDeposit model
-    banks = BankDeposit.objects.values_list('bank', flat=True).distinct()
+    banks = BankDeposit.objects.order_by('bank').values_list('bank', flat=True).distinct()
     
     # Get selected bank from request GET parameters
     selected_bank = request.GET.get('bank')
@@ -1435,7 +1435,7 @@ def filter_bank_by_branch_bank_deposit(request):
 
 def filter_bank_by_branch_payment(request):
     # Get all unique bank names from the BankDeposit model
-    banks = PaymentRequest.objects.values_list('bank', flat=True).distinct()
+    banks = PaymentRequest.objects.order_by('bank').values_list('bank', flat=True).distinct()
     
     # Get selected bank from request GET parameters
     selected_bank = request.GET.get('bank')
@@ -1468,7 +1468,7 @@ def filter_bank_by_branch_payment(request):
 
 def filter_bank_by_mobilization_bank_deposit(request):
     # Get all unique bank names from the BankDeposit model
-    banks = bank_deposits.objects.values_list('bank', flat=True).distinct()
+    banks = bank_deposits.objects.order_by('bank').values_list('bank', flat=True).distinct()
     
     # Get selected bank from request GET parameters
     selected_bank = request.GET.get('bank')
@@ -1501,7 +1501,7 @@ def filter_bank_by_mobilization_bank_deposit(request):
 
 def filter_bank_by_ecash(request):
     # Get all unique bank names from the BankDeposit model
-    banks = CashAndECashRequest.objects.values_list('bank', flat=True).distinct()
+    banks = CashAndECashRequest.objects.order_by('bank').values_list('bank', flat=True).distinct()
     
     # Get selected bank from request GET parameters
     selected_bank = request.GET.get('bank')
@@ -1534,7 +1534,7 @@ def filter_bank_by_ecash(request):
 
 def filter_bank_by_mobilization_payment(request):
     # Get all unique bank names from the BankDeposit model
-    banks = payment_requests.objects.values_list('bank', flat=True).distinct()
+    banks = payment_requests.objects.order_by('bank').values_list('bank', flat=True).distinct()
     
     # Get selected bank from request GET parameters
     selected_bank = request.GET.get('bank')
