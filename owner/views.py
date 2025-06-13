@@ -1406,11 +1406,17 @@ def filter_bank_by_branch_bank_deposit(request):
     
     # Get selected bank from request GET parameters
     selected_bank = request.GET.get('bank')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
     
      # Filter transactions based on selected bank
     transactions = BankDeposit.objects.all()
     if selected_bank:
         transactions = transactions.filter(bank=selected_bank)
+    if start_date:
+        transactions = transactions.filter(date_deposited__gte=start_date)
+    if end_date:
+        transactions = transactions.filter(date_deposited__lte=end_date)
         
     # Calculate total amount of filtered transactions
     total_amount = transactions.aggregate(total=Sum('amount'))['total'] or 0
@@ -1419,6 +1425,8 @@ def filter_bank_by_branch_bank_deposit(request):
         'transactions': transactions,
         'banks': banks,
         'selected_bank': selected_bank,
+        'start_date': start_date,
+        'end_date': end_date,
         'total_amount': total_amount
     }
     
@@ -1431,11 +1439,17 @@ def filter_bank_by_branch_payment(request):
     
     # Get selected bank from request GET parameters
     selected_bank = request.GET.get('bank')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
     
      # Filter transactions based on selected bank
     transactions = PaymentRequest.objects.all()
     if selected_bank:
         transactions = transactions.filter(bank=selected_bank)
+    if start_date:
+        transactions = transactions.filter(created_at__gte=start_date)
+    if end_date:
+        transactions = transactions.filter(created_at__lte=end_date)
         
     # Calculate total amount of filtered transactions
     total_amount = transactions.aggregate(total=Sum('amount'))['total'] or 0
@@ -1444,6 +1458,8 @@ def filter_bank_by_branch_payment(request):
         'transactions': transactions,
         'banks': banks,
         'selected_bank': selected_bank,
+        'start_date': start_date,
+        'end_date': end_date,
         'total_amount': total_amount
     }
     
@@ -1456,11 +1472,17 @@ def filter_bank_by_mobilization_bank_deposit(request):
     
     # Get selected bank from request GET parameters
     selected_bank = request.GET.get('bank')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
     
      # Filter transactions based on selected bank
     transactions = bank_deposits.objects.all()
     if selected_bank:
         transactions = transactions.filter(bank=selected_bank)
+    if start_date:
+        transactions = transactions.filter(date_deposited__gte=start_date)
+    if end_date:
+        transactions = transactions.filter(date_deposited__lte=end_date)
         
     # Calculate total amount of filtered transactions
     total_amount = transactions.aggregate(total=Sum('amount'))['total'] or 0
@@ -1469,6 +1491,8 @@ def filter_bank_by_mobilization_bank_deposit(request):
         'transactions': transactions,
         'banks': banks,
         'selected_bank': selected_bank,
+        'start_date': start_date,
+        'end_date': end_date,
         'total_amount': total_amount
     }
     
@@ -1481,11 +1505,17 @@ def filter_bank_by_ecash(request):
     
     # Get selected bank from request GET parameters
     selected_bank = request.GET.get('bank')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
     
      # Filter transactions based on selected bank
     transactions = CashAndECashRequest.objects.all()
     if selected_bank:
         transactions = transactions.filter(bank=selected_bank)
+    if start_date:
+        transactions = transactions.filter(created_at__gte=start_date)
+    if end_date:
+        transactions = transactions.filter(created_at__lte=end_date)
         
     # Calculate total amount of filtered transactions
     total_amount = transactions.aggregate(total=Sum('amount'))['total'] or 0
@@ -1494,6 +1524,8 @@ def filter_bank_by_ecash(request):
         'transactions': transactions,
         'banks': banks,
         'selected_bank': selected_bank,
+        'start_date': start_date,
+        'end_date': end_date,
         'total_amount': total_amount
     }
     
@@ -1506,11 +1538,17 @@ def filter_bank_by_mobilization_payment(request):
     
     # Get selected bank from request GET parameters
     selected_bank = request.GET.get('bank')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
     
      # Filter transactions based on selected bank
     transactions = payment_requests.objects.all()
     if selected_bank:
         transactions = transactions.filter(bank=selected_bank)
+    if start_date:
+        transactions = transactions.filter(created_at__gte=start_date)
+    if end_date:
+        transactions = transactions.filter(created_at__lte=end_date)
         
     # Calculate total amount of filtered transactions
     total_amount = transactions.aggregate(total=Sum('amount'))['total'] or 0
@@ -1519,6 +1557,8 @@ def filter_bank_by_mobilization_payment(request):
         'transactions': transactions,
         'banks': banks,
         'selected_bank': selected_bank,
+        'start_date': start_date,
+        'end_date': end_date,
         'total_amount': total_amount
     }
     

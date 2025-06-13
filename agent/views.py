@@ -459,11 +459,27 @@ def get_accounts(request):
 
 def get_customer_details(request):
     account_number = request.GET.get('account_number')
-    customer = get_object_or_404(CustomerAccount, account_number=account_number)
-    data = {
-        'account_name': customer.account_name
-    }
-    return JsonResponse(data)
+    phone_number = request.GET.get('phone_number')
+    bank = request.GET.get('bank')
+    try:
+        account = CustomerAccount.objects.get(
+            account_number=account_number,
+            phone_number=phone_number,
+            bank=bank
+        )
+        return JsonResponse({
+            'account_name': account.account_name,
+            'account_number': account.account_number,
+            'bank': account.bank
+        })
+    except CustomerAccount.DoesNotExist:
+        return JsonResponse({
+            'error': 'Account not found'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'error': str(e)
+        }, status=500)
     
 
 

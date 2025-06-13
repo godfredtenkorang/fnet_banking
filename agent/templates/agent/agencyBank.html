@@ -128,11 +128,31 @@
     // Fetch customer details when account is selected
     $('#account_number').change(function () {
       let accountNumber = $(this).val();
+      // NEW
+      let phoneNumber = $('#phone_number').val();
+      let bank = $('#bank').val();
+
+      if (!accountNumber) {
+        $('#account_name').val('');
+        return;
+      }
       $.ajax({
         url: "{% url 'branch_get_customer_details' %}",
-        data: { 'account_number': accountNumber },
+        data: {
+          'account_number': accountNumber,
+          'phone_number': phoneNumber,
+          'bank': bank
+        },
         success: function (data) {
-          $('#account_name').val(data.account_name);
+          if (data && data.account_name) {
+            $('#account_name').val(data.account_name);
+          } else {
+            $('#account_name').val('Account name not found');
+            // Or fetch from alternative endpoint if available
+          }
+        },
+        error: function () {
+          $('#account_name').val('Error fetching details');
         }
       });
     });

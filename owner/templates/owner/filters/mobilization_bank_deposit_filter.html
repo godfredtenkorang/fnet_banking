@@ -127,6 +127,10 @@
                     </option>
                     {% endfor %}
                 </select>
+                <label for="start_date">Start Date:</label>
+                <input type="date" name="start_date" id="start_date">
+                <label for="end_date">End Date:</label>
+                <input type="date" name="end_date" id="end_date">
 
 
                 <button type="submit">Filter</button>
@@ -142,6 +146,7 @@
         <table>
             <thead>
                 <tr>
+                    <th>Staff Name</th>
                     <th>Phone Number</th>
                     <th>Bank</th>
                     <th>Account Number</th>
@@ -154,6 +159,7 @@
             <tbody>
                 {% for transaction in transactions %}
                 <tr>
+                    <td>{{ transaction.mobilization.full_name }}</td>
                     <td>{{ transaction.phone_number }}</td>
                     <td>{{ transaction.bank }}</td>
                     <td>{{ transaction.account_number }}</td>

@@ -243,6 +243,11 @@ class CustomerAccount(models.Model):
     phone_number = models.CharField(max_length=15, blank=True)
     date_added = models.DateTimeField(auto_now_add=True)
     
+    def save(self, *args, **kwargs):
+        if not self.account_name and self.customer:
+            self.account_name = self.customer.full_name
+        super().save(*args, **kwargs)
+    
     
     def __str__(self):
         return f"{self.phone_number} - {self.account_name} - {self.bank}"
