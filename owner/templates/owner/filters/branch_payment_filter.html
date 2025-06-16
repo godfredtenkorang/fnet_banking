@@ -127,10 +127,28 @@
                     </option>
                     {% endfor %}
                 </select>
+                <label for="network" class="form-label">Network</label>
+                <select name="network" id="network" class="form-select">
+                    <option value="">All Networks</option>
+                    {% for network in networks %}
+                    <option value="{{ network }}" {% if selected_network == network %}selected{% endif %}>
+                        {{ network }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <label for="branch" class="form-label">Branch</label>
+                <select name="branch" id="branch" class="form-select">
+                    <option value="">All Branches</option>
+                    {% for branch in branches %}
+                    <option value="{{ branch }}" {% if selected_branch == branch %}selected{% endif %}>
+                        {{ branch }}
+                    </option>
+                    {% endfor %}
+                </select>
                 <label for="start_date">Start Date:</label>
-                <input type="date" name="start_date" id="start_date">
+                <input type="date" name="start_date" id="start_date" value="{{ start_date }}">
                 <label for="end_date">End Date:</label>
-                <input type="date" name="end_date" id="end_date">
+                <input type="date" name="end_date" id="end_date" value="{{ end_date }}">
 
                 <button type="submit">Filter</button>
             </form>
@@ -148,6 +166,8 @@
                     <th>Staff Name</th>
                     <th>Phone Number</th>
                     <th>Bank</th>
+                    <th>Network</th>
+                    <th>Branch</th>
                     <th>Transaction ID</th>
                     <th>Amount</th>
                     <th>Date</th>
@@ -160,6 +180,8 @@
                     <td>{{ transaction.agent.full_name }}</td>
                     <td>{{ transaction.agent }}</td>
                     <td>{{ transaction.bank }}</td>
+                    <td>{{ transaction.network }}</td>
+                    <td>{{ transaction.branch }}</td>
                     <td>{{ transaction.branch_transaction_id }}</td>
                     <td data-label="Amount">GH¢{{ transaction.amount }}</td>
                     <td>{{ transaction.created_at }}</td>

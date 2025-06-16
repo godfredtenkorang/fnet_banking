@@ -127,6 +127,24 @@
                     </option>
                     {% endfor %}
                 </select>
+                <label for="network" class="form-label">Network</label>
+                <select name="network" id="network" class="form-select">
+                    <option value="">All Networks</option>
+                    {% for network in networks %}
+                    <option value="{{ network }}" {% if selected_network == network %}selected{% endif %}>
+                        {{ network }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <label for="cash" class="form-label">Cash</label>
+                <select name="cash" id="cash" class="form-select">
+                    <option value="">All Cash</option>
+                    {% for cash in cashes %}
+                    <option value="{{ cash }}" {% if selected_branch == cash %}selected{% endif %}>
+                        {{ cash }}
+                    </option>
+                    {% endfor %}
+                </select>
                 <label for="start_date">Start Date:</label>
                 <input type="date" name="start_date" id="start_date">
                 <label for="end_date">End Date:</label>

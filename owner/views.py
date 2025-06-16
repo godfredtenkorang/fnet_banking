@@ -1436,9 +1436,13 @@ def filter_bank_by_branch_bank_deposit(request):
 def filter_bank_by_branch_payment(request):
     # Get all unique bank names from the BankDeposit model
     banks = PaymentRequest.objects.order_by('bank').values_list('bank', flat=True).distinct()
+    networks = PaymentRequest.objects.order_by('network').values_list('network', flat=True).distinct()
+    branches = PaymentRequest.objects.order_by('branch').values_list('branch', flat=True).distinct()
     
     # Get selected bank from request GET parameters
     selected_bank = request.GET.get('bank')
+    selected_network = request.GET.get('network')
+    selected_branch = request.GET.get('branch')
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     
@@ -1446,6 +1450,10 @@ def filter_bank_by_branch_payment(request):
     transactions = PaymentRequest.objects.all()
     if selected_bank:
         transactions = transactions.filter(bank=selected_bank)
+    if selected_network:
+        transactions = transactions.filter(network=selected_network)
+    if selected_branch:
+        transactions = transactions.filter(branch=selected_branch)
     if start_date:
         transactions = transactions.filter(created_at__gte=start_date)
     if end_date:
@@ -1457,7 +1465,11 @@ def filter_bank_by_branch_payment(request):
     context = {
         'transactions': transactions,
         'banks': banks,
+        'networks': networks,
+        'branches': branches,
         'selected_bank': selected_bank,
+        'selected_network': selected_network,
+        'selected_branch': selected_branch,
         'start_date': start_date,
         'end_date': end_date,
         'total_amount': total_amount
@@ -1502,9 +1514,13 @@ def filter_bank_by_mobilization_bank_deposit(request):
 def filter_bank_by_ecash(request):
     # Get all unique bank names from the BankDeposit model
     banks = CashAndECashRequest.objects.order_by('bank').values_list('bank', flat=True).distinct()
+    networks = CashAndECashRequest.objects.order_by('network').values_list('network', flat=True).distinct()
+    cashes = CashAndECashRequest.objects.order_by('cash').values_list('cash', flat=True).distinct()
     
     # Get selected bank from request GET parameters
     selected_bank = request.GET.get('bank')
+    selected_network = request.GET.get('network')
+    selected_cash = request.GET.get('cash')
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     
@@ -1512,6 +1528,10 @@ def filter_bank_by_ecash(request):
     transactions = CashAndECashRequest.objects.all()
     if selected_bank:
         transactions = transactions.filter(bank=selected_bank)
+    if selected_network:
+        transactions = transactions.filter(network=selected_network)
+    if selected_cash:
+        transactions = transactions.filter(cash=selected_cash)
     if start_date:
         transactions = transactions.filter(created_at__gte=start_date)
     if end_date:
@@ -1523,7 +1543,11 @@ def filter_bank_by_ecash(request):
     context = {
         'transactions': transactions,
         'banks': banks,
+        'networks': networks,
+        'cashes': cashes,
         'selected_bank': selected_bank,
+        'selected_network': selected_network,
+        'selected_cash': selected_cash,
         'start_date': start_date,
         'end_date': end_date,
         'total_amount': total_amount
@@ -1535,9 +1559,13 @@ def filter_bank_by_ecash(request):
 def filter_bank_by_mobilization_payment(request):
     # Get all unique bank names from the BankDeposit model
     banks = payment_requests.objects.order_by('bank').values_list('bank', flat=True).distinct()
+    networks = payment_requests.objects.order_by('network').values_list('network', flat=True).distinct()
+    branches = payment_requests.objects.order_by('branch').values_list('branch', flat=True).distinct()
     
     # Get selected bank from request GET parameters
     selected_bank = request.GET.get('bank')
+    selected_network = request.GET.get('network')
+    selected_branch = request.GET.get('branch')
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     
@@ -1545,6 +1573,10 @@ def filter_bank_by_mobilization_payment(request):
     transactions = payment_requests.objects.all()
     if selected_bank:
         transactions = transactions.filter(bank=selected_bank)
+    if selected_network:
+        transactions = transactions.filter(network=selected_network)
+    if selected_branch:
+        transactions = transactions.filter(branch=selected_branch)
     if start_date:
         transactions = transactions.filter(created_at__gte=start_date)
     if end_date:
@@ -1556,7 +1588,11 @@ def filter_bank_by_mobilization_payment(request):
     context = {
         'transactions': transactions,
         'banks': banks,
+        'networks': networks,
+        'branches': branches,
         'selected_bank': selected_bank,
+        'selected_network': selected_network,
+        'selected_branch': selected_branch,
         'start_date': start_date,
         'end_date': end_date,
         'total_amount': total_amount
