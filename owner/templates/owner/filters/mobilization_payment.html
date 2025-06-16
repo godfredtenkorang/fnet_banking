@@ -167,6 +167,8 @@
                     <th>Staff Name</th>
                     <th>Phone Number</th>
                     <th>Bank</th>
+                    <th>network</th>
+                    <th>Branch</th>
                     <th>Transaction ID</th>
                     <th>Amount</th>
                     <th>Date</th>
@@ -179,6 +181,8 @@
                     <td>{{ transaction.mobilization.full_name }}</td>
                     <td>{{ transaction.mobilization }}</td>
                     <td>{% if transaction.bank %} {{ transaction.bank }} {% else %} N/A {% endif %}</td>
+                    <td>{% if transaction.network %} {{ transaction.network }} {% else %} N/A {% endif %}</td>
+                    <td>{% if transaction.branch %} {{ transaction.branch }} {% else %} N/A {% endif %}</td>
                     <td>{{ transaction.mobilization_transaction_id }}</td>
                     <td data-label="Amount">GH¢{{ transaction.amount }}</td>
                     <td>{{ transaction.created_at }}</td>

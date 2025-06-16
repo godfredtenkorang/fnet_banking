@@ -167,6 +167,8 @@
                     <th>Staff Name</th>
                     <th>Phone Number</th>
                     <th>Bank</th>
+                    <th>Network</th>
+                    <th>Cash</th>
                     <th>Transaction ID</th>
                     <th>Amount</th>
                     <th>Date</th>
@@ -179,6 +181,8 @@
                     <td>{{ transaction.agent.full_name }}</td>
                     <td>{{ transaction.agent }}</td>
                     <td>{{ transaction.bank }}</td>
+                    <td>{{ transaction.network }}</td>
+                    <td>{{ transaction.cash }}</td>
                     <td>{{ transaction.transaction_id }}</td>
                     <td data-label="Amount">GH¢{{ transaction.amount }}</td>
                     <td>{{ transaction.created_at }}</td>
