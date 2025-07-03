@@ -120,7 +120,12 @@
                     <td>{{deposit.date_deposited}}</td>
                     <td>{{deposit.time_deposited}}</td>
                     <td data-label="Amount">{{deposit.amount}}</td>
+                    {% if deposit.receipt %}
                     <td><a href="{{ deposit.receipt.url }}">receipt</a></td>
+                    {% else %}
+                    <td>No Receipt</td>
+                    {% endif %}
+                    <!-- Uncomment if you want to show status -->
                     <!-- <td>{{deposit.status}}</td> -->
                 </tr>
             

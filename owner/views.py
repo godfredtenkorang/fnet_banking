@@ -413,8 +413,7 @@ def approve_bank_requests(request, request_id):
 @user_passes_test(is_owner)
 def reject_cash_and_ecash_request(request, request_id):
     request_obj = get_object_or_404(CashAndECashRequest, id=request_id)
-    request_obj.status = 'Rejected'
-    request_obj.save()
+    request_obj.delete()
     messages.success(request, 'Request rejected.')
     return redirect('cash_requests')
 
@@ -550,8 +549,7 @@ def approve_payment(request, payment_id):
 @user_passes_test(is_owner)
 def reject_payment(request, payment_id):
     payment = get_object_or_404(PaymentRequest, id=payment_id)
-    payment.status = 'Rejected'
-    payment.save()
+    payment.delete()
     messages.success(request, 'Payment request rejected.')
     return redirect('view_payment_requests')
                 
@@ -609,8 +607,7 @@ def approve_bank_deposit(request, deposit_id):
 @login_required
 def reject_bank_deposit(request, deposit_id):
     deposit = get_object_or_404(BankDeposit, id=deposit_id)
-    deposit.status = 'Rejected'
-    deposit.save()
+    deposit.delete()
     messages.success(request, 'Bank Deposit rejected')
     return redirect('bank_deposit_requests')
 
@@ -652,8 +649,7 @@ def approve_bank_withdrawal(request, withdrawal_id):
 @login_required
 def reject_bank_withdrawal(request, withdrawal_id):
     withdrawal = get_object_or_404(BankWithdrawal, id=withdrawal_id)
-    withdrawal.status = 'Rejected'
-    withdrawal.save()
+    withdrawal.delete()
     messages.success(request, 'Bank Withdrawal rejected')
     return redirect('bank_withdrawal_requests')
 
@@ -1092,8 +1088,8 @@ def approve_mobilization_bank_deposit(request, deposit_id):
 @login_required
 def reject_mobilization_bank_deposit(request, deposit_id):
     deposit = get_object_or_404(bank_deposits, id=deposit_id)
-    deposit.status = 'Rejected'
-    deposit.save()
+    # deposit.status = 'Rejected'
+    deposit.delete()
     messages.success(request, 'Bank Deposit rejected')
     return redirect('mobilization_bank_deposit_requests')
 
@@ -1130,16 +1126,16 @@ def mobilization_bank_withdrawal_requests(request):
 @login_required
 def approve_mobilization_withdrawal(request, withdrawal_id):
     withdrawal = get_object_or_404(bank_withdrawals, id=withdrawal_id)
-    withdrawal.status = 'Approved'
-    withdrawal.save()
+    # withdrawal.status = 'Approved'
+    withdrawal.delete()
     messages.success(request, 'Bank Withdrawal approved succussfully')
     return redirect('mobilization_bank_withdrawal_requests')
 
 @login_required
 def reject_mobilization_withdrawal(request, withdrawal_id):
     withdrawal = get_object_or_404(bank_withdrawals, id=withdrawal_id)
-    withdrawal.status = 'Rejected'
-    withdrawal.save()
+    # withdrawal.status = 'Rejected'
+    withdrawal.delete()
     messages.success(request, 'Bank Withdrawal rejected')
     return redirect('mobilization_bank_withdrawal_requests')
 
@@ -1178,8 +1174,8 @@ def approve_mobilization_payment(request, payment_id):
 @login_required
 def reject_mobilization_payment(request, payment_id):
     payment = get_object_or_404(payment_requests, id=payment_id)
-    payment.status = 'Rejected'
-    payment.save()
+    # payment.status = 'Rejected'
+    payment.delete()
     messages.success(request, 'Payment rejected')
     return redirect('mobilization_payment_requests')
 
