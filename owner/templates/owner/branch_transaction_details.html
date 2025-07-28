@@ -1,0 +1,41 @@
+<!-- templates/owner/transactions/transaction_detail.html -->
+{% extends 'owner/base.html' %}
+{% load static %}
+{% load humanize %}
+{% load model_name %}
+
+{% block content %}
+<div class="transaction-details">
+    <p><strong>Date:</strong> {{ transaction.created_at|date:"Y-m-d" }}</p>
+    <p><strong>Branch:</strong> {{ transaction.branch.name }}</p>
+    <p><strong>Agent:</strong> {{ transaction.agent.full_name }}</p>
+    <p><strong>Amount:</strong> {{ transaction.amount }}</p>
+
+    {% if transaction|model_name == 'bankdeposit' %}
+    <p><strong>Bank:</strong> {{ transaction.bank }}</p>
+    <p><strong>Account Number:</strong> {{ transaction.account_number }}</p>
+    <p><strong>Account Name:</strong> {{ transaction.account_name }}</p>
+    {% if transaction.receipt %}
+    <p><strong>Receipt:</strong> <a href="{{ transaction.receipt.url }}" target="_blank">View</a></p>
+    {% endif %}
+
+    {% elif transaction|model_name == 'bankwithdrawal' %}
+    <p><strong>Bank:</strong> {{ transaction.bank }}</p>
+    <p><strong>Account Number:</strong> {{ transaction.account_number }}</p>
+    <p><strong>Purpose:</strong> {{ transaction.purpose }}</p>
+
+    {% elif transaction|model_name == 'paymentrequest' %}
+    <p><strong>Recipient:</strong> {{ transaction.recipient }}</p>
+    <p><strong>Payment Method:</strong> {{ transaction.payment_method }}</p>
+    <p><strong>Reference:</strong> {{ transaction.reference }}</p>
+
+    {% elif transaction|model_name == 'cashandecashrequest' %}
+    <p><strong>Purpose:</strong> {{ transaction.purpose }}</p>
+    <p><strong>Status:</strong> {{ transaction.status }}</p>
+    {% endif %}
+
+    {% if transaction.notes %}
+    <p><strong>Notes:</strong> {{ transaction.notes }}</p>
+    {% endif %}
+</div>
+{% endblock %}

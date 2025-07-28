@@ -6,7 +6,7 @@ from users.forms import AgentRegistrationForm, MobilizationRegistrationForm, Cus
 from users.models import Agent, Owner, Driver
 from banking.models import EFloatAccount, MobilizationAccount
 from banking.forms import AddCapitalForm, MobilizationAccountForm
-from agent.models import BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest, CustomerComplain, HoldCustomerAccount, CustomerFraud, CashInCommission, CashOutCommission, BranchReport, CustomerCashIn, CustomerCashOut
+from agent.models import BankDeposit, BankWithdrawal, BranchAccount, CashAndECashRequest, PaymentRequest, CustomerComplain, HoldCustomerAccount, CustomerFraud, CashInCommission, CashOutCommission, BranchReport, CustomerCashIn, CustomerCashOut
 from django.contrib import messages
 from decimal import Decimal
 from django.utils import timezone
@@ -23,6 +23,7 @@ from .forms import BankDepositForm, PaymentForm, OwnerBalanceForm
 from .models import OwnerBalance
 from driver.models import MileageRecord, FuelRecord, Expense
 from django.db.models import F
+from django.db import transaction
 
 
 # Check if the user is an Owner
@@ -364,16 +365,45 @@ def branch_bank_requests(request):
 def approve_cash_and_ecash_request(request, request_id):
     request_obj = get_object_or_404(CashAndECashRequest, id=request_id)
     
-    account = request_obj.agent.e_float_drawers.filter(date=request_obj.created_at).first()
-    
-    if not account:
-        messages.error(request, 'No e-float account found for this date')
-        return redirect('view_payment_requests')
+    # account = request_obj.agent.e_float_drawers.filter(date=request_obj.created_at).first()
+    # branch_account = BranchAccount.objects.get_or_create(branch=request_obj.branch)
     
     
-    request_obj.status = 'Approved'
-    request_obj.save()
-    account.update_balance_for_cash_and_ecash(request_obj.bank, request_obj.network, request_obj.cash, request_obj.amount, request_obj.status)
+    # if not account:
+    #     messages.error(request, 'No e-float account found for this date')
+    #     return redirect('view_payment_requests')
+    
+    try:
+        with transaction.atomic():
+            
+            # Check if the branch has sufficient balance
+            # branch_account, created = BranchAccount.objects.get_or_create(branch=request_obj.branch)
+            # if branch_account.branch < Decimal(request_obj.amount):
+            #     messages.error(request, 'Insufficient balance in the branch account.')
+            #     return redirect('branch_bank_requests')
+            
+            
+            
+            
+            request_obj.status = 'Approved'
+            request_obj.save()
+        
+            branch_account = BranchAccount.objects.get(branch=request_obj.branch)
+            branch_account.balance += request_obj.amount
+            
+            branch_account.save()
+    
+            # account.update_balance_for_cash_and_ecash(request_obj.bank, request_obj.network, request_obj.cash, request_obj.amount, request_obj.status)
+            messages.success(request, 'Cash & E-Cash request approved succussfully')
+            return redirect('cash_requests')
+        
+    except BranchAccount.DoesNotExist:
+        messages.error(request, 'Branch account not found.')
+        return redirect('cash_requests')
+    
+ 
+    
+    # account.update_balance_for_cash_and_ecash(request_obj.bank, request_obj.network, request_obj.cash, request_obj.amount, request_obj.status)
     return redirect('cash_requests')
 
 @login_required
@@ -381,11 +411,11 @@ def approve_cash_and_ecash_request(request, request_id):
 def approve_bank_requests(request, request_id):
     request_obj = get_object_or_404(CashAndECashRequest, id=request_id)
     
-    account = request_obj.agent.e_float_drawers.filter(date=request_obj.created_at).first()
+    # account = request_obj.agent.e_float_drawers.filter(date=request_obj.created_at).first()
     
-    if not account:
-        messages.error(request, 'No e-float account found for this date')
-        return redirect('view_payment_requests')
+    # if not account:
+    #     messages.error(request, 'No e-float account found for this date')
+    #     return redirect('view_payment_requests')
     
     if request.method == 'POST':
         owner_transaction_id = request.POST.get('owner_transaction_id')
@@ -395,14 +425,35 @@ def approve_bank_requests(request, request_id):
         # if request_obj.transaction_id != owner_transaction_id:
         #     messages.error(request, 'Transaction ID does not match the Branch\'s input.')
         #     return redirect('approve_branch_bank_request', request_id=request_obj.id)
-        request_obj.transaction_id = owner_transaction_id
-        request_obj.status = 'Approved'
-        request_obj.save()
-        account.update_balance_for_cash_and_ecash(request_obj.bank, request_obj.network, request_obj.cash, request_obj.amount, request_obj.status)
-        messages.success(request, 'Bank request approved succussfully')
-        return redirect('branch_bank_requests')
+        
+        try:
+            with transaction.atomic():
+                request_obj.transaction_id = owner_transaction_id
+                request_obj.status = 'Approved'
+                request_obj.save()
+                
+                branch_account = BranchAccount.objects.get(branch=request_obj.branch)
+            
+                branch_account.balance += Decimal(request_obj.amount)
+                
+                branch_account.save()
+        
+                # account.update_balance_for_cash_and_ecash(request_obj.bank, request_obj.network, request_obj.cash, request_obj.amount, request_obj.status)
+                messages.success(request, 'Bank request approved succussfully')
+                return redirect('branch_bank_requests')
+            
+        except BranchAccount.DoesNotExist:
+            messages.error(request, 'Branch account not found.')
+            return redirect('branch_bank_requests')
+        # except Exception as e:
+        #     messages.error(request, f'An error occurred: {str(e)}')
+        #     return redirect('branch_bank_requests')
+        
+        
     context = {
-        'request_obj': request_obj
+        'request_obj': request_obj,
+        'branch_balance': BranchAccount.objects.get(branch=request_obj.branch).balance
+
     }
     return render(request, 'owner/financial_services/approve_bank.html', context)
     
@@ -503,11 +554,11 @@ def view_payment_requests(request):
 @user_passes_test(is_owner)
 def approve_payment(request, payment_id):
     payment = get_object_or_404(PaymentRequest, id=payment_id)
-    account = payment.agent.e_float_drawers.filter(date=payment.created_at).first()
+    # account = payment.agent.e_float_drawers.filter(date=payment.created_at).first()
     
-    if not account:
-        messages.error(request, 'No e-float account found for this date')
-        return redirect('view_payment_requests')
+    # if not account:
+    #     messages.error(request, 'No e-float account found for this date')
+    #     return redirect('view_payment_requests')
     
     if request.method == 'POST':
         owner_transaction_id = request.POST.get('owner_transaction_id')
@@ -518,6 +569,27 @@ def approve_payment(request, payment_id):
             messages.error(request, 'Transaction ID does not match the Branch\'s input.')
             return redirect('approve_payment', payment_id=payment.id)
         payment.branch_transaction_id = owner_transaction_id
+        
+        
+        try:
+            with transaction.atomic():
+                payment.branch_transaction_id = owner_transaction_id
+                payment.status = 'Approved'
+                payment.save()
+                
+                branch_account = BranchAccount.objects.get(branch=payment.branch)
+            
+                branch_account.balance -= Decimal(payment.amount)
+                
+                branch_account.save()
+        
+                # account.update_balance_for_cash_and_ecash(request_obj.bank, request_obj.network, request_obj.cash, request_obj.amount, request_obj.status)
+                messages.success(request, 'Payment request approved successfully.')
+                return redirect('view_payment_requests')
+            
+        except BranchAccount.DoesNotExist:
+            messages.error(request, 'Branch account not found.')
+            return redirect('view_payment_requests')
         
     
     # Check if the bank has sufficient balance
@@ -532,11 +604,11 @@ def approve_payment(request, payment_id):
     #     messages.error(request, f'Insufficient balance is {payment.network}')
     #     return redirect('view_payment_requests')
     
-        payment.status = 'Approved'
-        payment.save()
-        account.update_balance_for_payments(payment.bank, payment.network, payment.branch, payment.amount, payment.status)
-        messages.success(request, 'Payment request approved successfully.')
-        return redirect('view_payment_requests')
+        # payment.status = 'Approved'
+        # payment.save()
+        # account.update_balance_for_payments(payment.bank, payment.network, payment.branch, payment.amount, payment.status)
+        # messages.success(request, 'Payment request approved successfully.')
+        # return redirect('view_payment_requests')
     
     context = {
         'payment': payment, 
@@ -1595,3 +1667,71 @@ def filter_bank_by_mobilization_payment(request):
     }
     
     return render(request, 'owner/filters/mobilization_payment.html', context)
+
+
+# BranchAccount
+
+from datetime import datetime, timedelta
+from itertools import chain
+
+
+@login_required
+@user_passes_test(is_owner)
+def branch_transactions(request, branch_id=None):
+    # Get all branches
+    branches = Branch.objects.all()
+    
+    # Get selected branch (default to first branch if none selected)
+    
+    selected_branch = None
+    if branch_id:
+        selected_branch = get_object_or_404(Branch, id=branch_id)
+    elif branches.exists():
+        selected_branch = branches.first()
+        
+    # Date filtering (ladst 30 days by default)
+    end_date = datetime.now()
+    start_date = end_date - timedelta(days=30)
+    
+    if request.method == 'GET':
+        date_filter = request.GET.get('date_filter')
+        if date_filter == 'today':
+            start_date = end_date.replace(hour=0, minute=0, second=0)
+        elif date_filter == 'week':
+            start_date = end_date - timedelta(days=7)
+        elif date_filter == 'month':
+            start_date = end_date - timedelta(days=30)
+        elif date_filter == 'all':
+            start_date = datetime.min
+            
+    
+    # Initialize separate querysets
+    bank_deposits = []
+    payment_requests = []
+    cash_and_ecash_requests = []
+    
+    
+    
+    if selected_branch:
+        
+        bank_deposits = BankDeposit.objects.filter(branch=selected_branch, date_deposited__range=(start_date, end_date)).order_by('-date_deposited', '-time_deposited')
+        
+        # Get all payment requests for the selected branch
+        payment_requests = PaymentRequest.objects.filter(branch=selected_branch, created_at__range=(start_date, end_date)).order_by('-created_at')
+        
+        # Get all cash and e-cash requests for the selected branch
+        cash_and_ecash_requests = CashAndECashRequest.objects.filter(branch=selected_branch, created_at__range=(start_date, end_date)).order_by('-created_at')
+        
+        
+    
+    context = {
+        'branches': branches,
+        'selected_branch': selected_branch,
+        'start_date': start_date,
+        'end_date': end_date,
+        'bank_deposits': bank_deposits,
+        'payments': payment_requests,
+        'cash_and_ecash_requests': cash_and_ecash_requests,
+        'title': 'Branch Transactions'
+    }
+    return render(request, 'owner/branch_transactions.html', context)

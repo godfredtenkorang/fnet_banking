@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CustomerCashIn, CustomerCashOut, BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest, CashInCommission,CashOutCommission, CustomerComplain, HoldCustomerAccount, CustomerFraud, CustomerPayTo, Transaction
+from .models import CustomerCashIn, CustomerCashOut, BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest, CashInCommission,CashOutCommission, CustomerComplain, HoldCustomerAccount, CustomerFraud, CustomerPayTo, Transaction, BranchAccount
 
 # Register your models here.
 admin.site.register(CustomerCashIn)
@@ -15,3 +15,4 @@ admin.site.register(CashInCommission)
 admin.site.register(CashOutCommission)
 admin.site.register(CustomerPayTo)
 admin.site.register(Transaction)
+admin.site.register(BranchAccount)

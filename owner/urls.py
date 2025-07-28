@@ -153,4 +153,9 @@ urlpatterns = [
     path('filter/branch-payment/', views.filter_bank_by_branch_payment, name='filter_bank_by_branch_payment'),
     path('filter/mobilization-bank-deposit/', views.filter_bank_by_mobilization_bank_deposit, name='filter_bank_by_mobilization_bank_deposit'),
     path('filter/mobilization-payment/', views.filter_bank_by_mobilization_payment, name='filter_bank_by_mobilization_payment'),
+    
+    
+    # Branch Transactions
+    path('branch_transactions/', views.branch_transactions, name='branch_transactions'),
+    path('branch_transactions/<int:branch_id>/', views.branch_transactions, name='branch_transactions'),
 ]

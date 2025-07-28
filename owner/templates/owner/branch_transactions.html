@@ -1,0 +1,652 @@
+{% extends 'owner/base.html' %} 
+{% load static %} 
+{% load model_name %}
+{% block content %}
+
+
+
+<style>
+    /* Ensure the table remains scrollable on small screens */
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    /* Default table styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 800px;
+        /* Ensures the table is scrollable if needed */
+    }
+
+    th,
+    td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+
+    th {
+        background: #007bff;
+        color: white;
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+    td {
+        font-size: 12px;
+    }
+
+    /* Button Styling */
+    .approve-btn {
+        background: #28a745;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        height: 6vh !important;
+    }
+
+    .decline-btn {
+        background: #dc3545;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        height: 6vh !important;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+    }
+
+    /* Table row background color */
+    tbody tr:nth-child(odd) {
+        background-color: #f9f9f9;
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #e9ecef;
+    }
+
+    /* Mobile Responsive: Keep table scrollable */
+    @media screen and (max-width: 968px) {
+        .table-container {
+            overflow-x: auto;
+            /* Enables horizontal scrolling */
+            white-space: nowrap;
+        }
+
+        table {
+            min-width: 800px;
+            /* Ensures columns do not wrap */
+        }
+    }
+
+    .customer-filter-form {
+        width: 100%;
+        max-width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin: 5% 0;
+    }
+
+    .customerfilterlogin {
+        width: 100%;
+        max-width: 60%;
+        min-height: 30vh;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        background-color: var(--white);
+        padding: 10px;
+    }
+
+
+    /* Modal Overlay */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1050;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    outline: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-dialog {
+    position: relative;
+    width: auto;
+    margin: 1.75rem auto;
+    max-width: 600px;
+    pointer-events: none;
+}
+
+.modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    pointer-events: auto;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 0.3rem;
+    outline: 0;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+/* Modal Header */
+.modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+    border-top-left-radius: 0.3rem;
+    border-top-right-radius: 0.3rem;
+    background-color: #f8f9fa;
+}
+
+.modal-title {
+    margin-bottom: 0;
+    line-height: 1.5;
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #495057;
+}
+
+.close {
+    float: right;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #000;
+    text-shadow: 0 1px 0 #fff;
+    opacity: 0.5;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+}
+
+.close:hover {
+    opacity: 0.75;
+}
+
+/* Modal Body */
+.modal-body {
+    position: relative;
+    flex: 1 1 auto;
+    padding: 1.5rem;
+}
+
+/* Transaction Details Specific Styling */
+.transaction-details p {
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+    display: flex;
+}
+
+.transaction-details strong {
+    display: inline-block;
+    min-width: 120px;
+    color: #495057;
+    font-weight: 600;
+}
+
+/* Modal Footer (if you add one later) */
+.modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 1rem;
+    border-top: 1px solid #e9ecef;
+    border-bottom-right-radius: 0.3rem;
+    border-bottom-left-radius: 0.3rem;
+    background-color: #f8f9fa;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .modal-dialog {
+        margin: 0.5rem auto;
+        max-width: 95%;
+    }
+    
+    .transaction-details p {
+        flex-direction: column;
+    }
+    
+    .transaction-details strong {
+        margin-bottom: 0.25rem;
+        min-width: auto;
+    }
+}
+
+/* Badge colors for different transaction types */
+.badge-deposit {
+    background-color: #28a745;
+    color: white;
+}
+
+.badge-withdrawal {
+    background-color: #dc3545;
+    color: white;
+}
+
+.badge-payment {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.badge-cash-request {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+/* Status badges */
+.badge-approved {
+    background-color: #28a745;
+    color: white;
+}
+
+.badge-pending {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.badge-rejected {
+    background-color: #dc3545;
+    color: white;
+}
+
+
+/* Fade in animation */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal.fade .modal-dialog {
+    transition: transform 0.3s ease-out;
+    transform: translate(0, -50px);
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.modal.show .modal-dialog {
+    transform: none;
+}
+
+
+/* Hover effects for transaction rows */
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.025);
+    cursor: pointer;
+}
+
+/* Modal scroll for long content */
+.modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* Zebra striping for better readability */
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Better spacing for mobile */
+@media (max-width: 576px) {
+    .modal-body {
+        padding: 1rem;
+    }
+    
+    .modal-title {
+        font-size: 1.1rem;
+    }
+}
+
+</style>
+
+
+<div class="main">
+
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Branch Transactions</h1>
+        </div>
+    </div>
+
+    <div class="customer-filter-form">
+
+        <br><br>
+        <div class="customerfilterlogin">
+            <form id="myForm" method="get">
+                {% csrf_token %}
+                <label for="branch-sheet" class="mr-2">Branch:</label>
+                <select name="branch-sheet" id="branch-sheet" onchange="location = this.value;" class="form-control">
+                    
+                    {% for branch in branches %}
+                    <option value="{% url 'branch_transactions' branch.id %}" {% if branch.id == selected_branch.id %}selected{% endif %}>
+                        {{ branch.name }} - {{ branch.location }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <label for="date-filter">Time Period:</label>
+                <select name="date_filter" id="date-filter" onchange="this.form.submit()" class="form-control">
+                
+                    
+                    <option value="today" {% if request.GET.date_filter == 'today' %}selected{% endif %}>
+                        Today
+                    </option>
+                    <option value="week" {% if request.GET.date_filter == 'week' %}selected{% endif %}>
+                        Last 7 Days
+                    </option>
+                    <option value="month" {% if request.GET.date_filter == 'month' %}selected{% endif %}>
+                        Last 30 Days
+                    </option>
+                    <option value="all" {% if request.GET.date_filter == 'all' %}selected{% endif %}>
+                        All Time
+                    </option>
+                    
+                </select>
+            
+               
+            </form>
+
+
+        </div>
+
+
+    </div>
+
+    <div class="table-container">
+        <h2>{{ selected_branch.name }} Transactions</h2>
+        <br>
+        <h4>Bank Deposit</h4> 
+        <br>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Agent</th>
+                    <th>Bank</th>
+                    <th>Account</th>
+                    <th>Amount</th>
+                    <!-- <th>Status</th> -->
+                    <th>Action</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                {% for deposit in bank_deposits %}
+                <tr>
+                    
+                    <td>{{ deposit.date_deposited }}</td>
+                    <td>{{ deposit.agent.full_name }}</td>
+                    <td>{{ deposit.bank }}</td>
+                    <td>{{ deposit.account_number }}</td>
+                    <td data-label="Amount">{{ deposit.amount }}</td>
+                    
+                   
+                    <!-- <td>
+                       
+                        <span class="badge 
+                                                    {% if transaction.status == 'Approved' %}badge-success
+                                                    {% elif transaction.status == 'Pending' %}badge-warning
+                                                    {% elif transaction.status == 'Rejected' %}badge-danger
+                                                    {% else %}badge-secondary{% endif %}">
+                            {{ deposit.status }}
+                        </span>
+                    </td> -->
+                    <td>
+                        <a href="#" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#depositModal{{ deposit.id }}">
+                            View
+                        </a>
+                    </td>
+                    
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7">No transactions found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+        <br>
+        <h4>Payment Request</h4>
+        <br>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Agent</th>
+                    <th>Mode of Payment</th>
+                    <th>Bank/Network/Branch</th>
+                    <th>Name</th>
+                    <th>Transaction ID</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <!-- <th>Details</th> -->
+        
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in payments %}
+                <tr>
+        
+                    <td>{{ payment.created_at }}</td>
+                    <td>{{ payment.agent.full_name }}</td>
+                    <td>{{ payment.mode_of_payment }}</td>
+                    <td>
+                        {% if payment.mode_of_payment == 'Bank' %}
+                        {{ payment.bank }}
+                        {% elif payment.mode_of_payment == 'Telco' %}
+                        {{ payment.network }}
+                        {% else %}
+                        {{ payment.branch }}
+                        {% endif %}
+                    </td>
+
+                    <td>{% if payment.name %}{{ payment.name }}{% else %}N/A{%endif%}</td>
+                    <td>{% if payment.branch_transaction_id %}{{ payment.branch_transaction_id }}{%else%}N/A{%endif%}</td>
+                    <td data-label="Amount">{{ payment.amount }}</td>
+                    <td>
+                        
+                        <span class="badge 
+                                                            {% if payment.status == 'Approved' %}badge-success
+                                                            {% elif payment.status == 'Pending' %}badge-warning
+                                                            {% elif payment.status == 'Rejected' %}badge-danger
+                                                            {% else %}badge-secondary{% endif %}">
+                            {{ payment.status }}
+                        </span>
+                     
+                    </td>
+                    <!-- <td>
+                        <a href="#" class="btn btn-sm btn-primary" data-toggle="modal"
+                            data-target="#paymentModal{{ payment.id }}">
+                            View
+                        </a>
+                    </td> -->
+        
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7">No transactions found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        
+        </table>
+        <br>
+        <h4>Cash & eCash Requests</h4>
+        <br>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Agent</th>
+                    <th>Float Type</th>
+                    <th>Bank/Network/Cash</th>
+                    <th>Name</th>
+                    <th>Phone Number</th>
+                    <th>Transaction ID</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <!-- <th>Details</th> -->
+        
+                </tr>
+            </thead>
+            <tbody>
+                {% for request in cash_and_ecash_requests %}
+                <tr>
+        
+                    <td>{{ request.created_at }}</td>
+                    <td>{{ request.agent.full_name }}</td>
+                    <td>{{ request.float_type }}</td>
+                    <td>
+                        {% if request.float_type == 'Bank' %}
+                        {{ request.bank }}
+                        {% elif request.float_type == 'Telco' %}
+                        {{ request.network }}
+                        {% else %}
+                        {{ request.cash }}
+                        {% endif %}
+                    </td>
+                    <td>{% if request.name %}{{ request.name }}{% else %}N/A{%endif%}</td>
+                    <td>{% if request.phone_number %}{{ request.phone_number }}{% else %}N/A{%endif%}</td>
+                    <td>{% if request.branch_transaction_id %}{{ request.branch_transaction_id }}{%else%}N/A{%endif%}</td>
+
+        
+                    <td data-label="Amount">{{ request.amount }}</td>
+                    <td>
+                       
+                        <span class="badge 
+                                                            {% if request.status == 'Approved' %}badge-success
+                                                            {% elif request.status == 'Pending' %}badge-warning
+                                                            {% elif request.status == 'Rejected' %}badge-danger
+                                                            {% else %}badge-secondary{% endif %}">
+                            {{ request.status }}
+                        </span>
+                      
+                    </td>
+                    <!-- <td>
+                        <a href="#" class="btn btn-sm btn-primary" data-toggle="modal"
+                            data-target="#transactionModal{{ transaction.id }}">
+                            View
+                        </a>
+                    </td> -->
+        
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7">No transactions found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        
+        </table>
+
+
+
+        <!-- Transaction Detail Modals -->
+        {% for transaction in transactions %}
+        <div class="modal fade" id="transactionModal{{ transaction.id }}" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            {% if transaction|model_name == 'bankdeposit' %}Bank Deposit
+                            {% elif transaction|model_name == 'bankwithdrawal' %}Bank Withdrawal
+                            {% elif transaction|model_name == 'paymentrequest' %}Payment
+                            {% elif transaction|model_name == 'cashandecashrequest' %}Cash Request
+                            {% endif %}
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Include your transaction detail partial here -->
+                        {% include 'owner/branch_transaction_details.html' with transaction=transaction %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+
+        <!-- Pop-up to show total -->
+        <div class="total-pop">
+            <div class="total-background">
+                <p>Total</p>
+                <p class="total-amount">GH¢0</p>
+                <button class="closeTotal">Close</button>
+            </div>
+        </div>
+
+        <!-- Button to Calculate Total -->
+        <div class="total-btn">
+            <button class="calculate-total"><i class="fas fa-coins"></i> Total</button>
+        </div>
+        <br>
+        <br>
+
+
+
+
+
+    </div>
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const totalBtn = document.querySelector(".calculate-total");
+            const totalPop = document.querySelector(".total-pop");
+            const totalAmount = document.querySelector(".total-amount");
+            const closeTotalBtn = document.querySelector(".closeTotal");
+
+            // Function to Calculate Total
+            function calculateTotal() {
+                let total = 0;
+                document.querySelectorAll("td[data-label='Amount']").forEach(td => {
+                    let amount = parseFloat(td.textContent.replace("GH¢", "")) || 0;
+                    total += amount;
+                });
+
+                // Update Total Amount in Popup
+                totalAmount.textContent = `GH¢${total}`;
+
+                // Show Popup
+                totalPop.style.display = "flex";
+                setTimeout(() => {
+                    totalPop.classList.add("active");
+                }, 50);
+            }
+
+            // Function to Close the Popup
+            function closePopup() {
+                totalPop.classList.remove("active");
+                setTimeout(() => {
+                    totalPop.style.display = "none";
+                }, 300);
+            }
+
+            // Event Listeners
+            totalBtn.addEventListener("click", calculateTotal);
+            closeTotalBtn.addEventListener("click", closePopup);
+        });
+
+
+    </script>
+
+
+
+    {% endblock %}

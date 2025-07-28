@@ -1,5 +1,5 @@
 from django.db import models
-from users.models import Customer, Agent, Mobilization
+from users.models import Branch, Customer, Agent, Mobilization
 from django.utils import timezone
 from decimal import Decimal
 
@@ -93,6 +93,7 @@ class EFloatAccount(models.Model):
     calbank_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     gtbank_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     access_bank_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    absa_bank_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     cash_at_hand = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     capital_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     difference = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
@@ -107,6 +108,7 @@ class EFloatAccount(models.Model):
             self.calbank_balance + 
             self.access_bank_balance + 
             self.gtbank_balance + 
+            self.absa_bank_balance +
             self.cash_at_hand
         )
     def calculate_difference(self):
@@ -163,7 +165,7 @@ class EFloatAccount(models.Model):
         self.cash_at_hand -= amount
         
         self.save()
-        
+         
     def update_balance_for_bank_deposit(self, bank, amount):
         amount = Decimal(amount)
         
@@ -237,6 +239,8 @@ class EFloatAccount(models.Model):
             self.gtbank_balance -= amount
         elif bank == 'Access Bank':
             self.access_bank_balance -= amount
+        elif bank == 'Absa Bank':
+            self.absa_bank_balance -= amount
 
         # Add to the Cash at Hand balance
         amount = Decimal(amount)
@@ -263,6 +267,8 @@ class EFloatAccount(models.Model):
             self.gtbank_balance += amount
         elif bank == 'Access Bank':
             self.access_bank_balance += amount
+        elif bank == 'Absa Bank':
+            self.absa_bank_balance += amount
 
         # Add to the Cash at Hand balance
         # amount = Decimal(amount)
@@ -290,6 +296,8 @@ class EFloatAccount(models.Model):
                 self.gtbank_balance -= amount
             elif bank == 'Access Bank':
                 self.access_bank_balance -= amount
+            elif bank == 'Absa Bank':
+                self.absa_bank_balance -= amount
             elif branch == 'DVLA':
                 self.cash_at_hand -= amount
             elif branch == 'HEAD OFFICE':
@@ -340,6 +348,8 @@ class EFloatAccount(models.Model):
                 self.calbank_balance += amount
             elif bank == 'GTBank':
                 self.gtbank_balance += amount
+            elif bank == 'Absa Bank':
+                self.absa_bank_balance += amount
             elif bank == 'Access Bank':
                 self.access_bank_balance += amount
             elif cash == 'Cash':

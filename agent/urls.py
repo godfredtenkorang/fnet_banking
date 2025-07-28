@@ -85,4 +85,8 @@ urlpatterns = [
     
     path('transactions/', views.transaction_list, name='transaction-list'),
     path('transactions/<int:pk>/', views.transaction_detail, name='transaction-detail'),
+    
+    
+    path('branch_transactions/', views.branch_bank_deposit_transaction_summary, name='branch_transaction_summary'),
+    path('branch_bank_withdrawal_transactions/', views.branch_bank_withdrawal_transactions, name='branch_bank_withdrawal_transactions'),
 ]

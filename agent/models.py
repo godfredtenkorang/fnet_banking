@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-from users.models import Agent
+from users.models import Agent, Branch
 from django.utils import timezone
 from django.db.models import Sum
 from decimal  import Decimal
@@ -193,6 +193,7 @@ class CashOutCommission(models.Model):
 
 class BankDeposit(models.Model):
     agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name='bank_deposits')
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='bank_deposits', null=True, blank=True)
     phone_number = models.CharField(max_length=10)
     bank = models.CharField(max_length=100)
     account_number = models.CharField(max_length=50)
@@ -216,6 +217,7 @@ class BankDeposit(models.Model):
 
 class BankWithdrawal(models.Model):
     agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name='bank_withdrawals')
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='bank_withdrawals', null=True, blank=True)
     customer_phone = models.CharField(max_length=15)
     bank = models.CharField(max_length=20)
     account_number = models.CharField(max_length=20)
@@ -270,6 +272,7 @@ class CashAndECashRequest(models.Model):
     ]
 
     agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name='cash_and_ecash_requests')
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='cash_and_ecash_requests', null=True, blank=True)
     float_type = models.CharField(max_length=10, choices=FLOAT_TYPE_CHOICES)
     bank = models.CharField(max_length=50, choices=BANK_CHOICES, default='Select Bank', null=True, blank=True)
     transaction_id = models.CharField(max_length=20, null=True, blank=True)
@@ -374,10 +377,11 @@ class PaymentRequest(models.Model):
         ('Rejected', 'Rejected'),
     ]
     agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name='payments_requests')
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='payments_requests', null=True, blank=True)
     mode_of_payment = models.CharField(max_length=10, choices=MODE_OF_PAYMENT, null=True, blank=True)
     bank = models.CharField(max_length=50, choices=BANK_CHOICES, null= True, blank=True)
     network = models.CharField(max_length=30, choices=NETWORK_CHOICES, null= True, blank=True)
-    branch = models.CharField(max_length=30, choices=BRANCHES, null= True, blank=True)
+    branches = models.CharField(max_length=30, choices=BRANCHES, null= True, blank=True)
     name = models.CharField(max_length=100, null=True, blank=True)
     branch_transaction_id = models.CharField(max_length=100, null=True, blank=True, unique=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
@@ -394,6 +398,12 @@ class PaymentRequest(models.Model):
     def __str__(self):
         return f"Payment of GH¢{self.amount} via {self.mode_of_payment} by {self.agent.phone_number} ({self.status})"
     
+class BranchAccount(models.Model):
+    branch = models.OneToOneField(Branch, on_delete=models.CASCADE, related_name='account')
+    balance = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
+    
+    def __str__(self):
+        return f"{self.branch.name} Account - Balance: GH¢{self.balance}"
     
 class CustomerComplain(models.Model):
     agent = models.ForeignKey(Agent, on_delete=models.CASCADE)

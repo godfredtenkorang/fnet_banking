@@ -5,7 +5,7 @@ from banking.forms import DrawerDepositForm, EFloatAccountForm
 from banking.models import Bank, Drawer, EFloatAccount, CustomerPaymentAtBank
 from django.utils import timezone
 from django.contrib import messages
-from .models import CustomerCashIn, CustomerCashOut, BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest, CustomerComplain, HoldCustomerAccount, CustomerFraud, CustomerPayTo, CashInCommission, CashOutCommission, BranchReport
+from .models import BranchAccount, CustomerCashIn, CustomerCashOut, BankDeposit, BankWithdrawal, CashAndECashRequest, PaymentRequest, CustomerComplain, HoldCustomerAccount, CustomerFraud, CustomerPayTo, CashInCommission, CashOutCommission, BranchReport
 from datetime import datetime, timedelta, date
 from decimal import Decimal, InvalidOperation
 from django.http import JsonResponse
@@ -14,7 +14,7 @@ from django.core.files.storage import default_storage
 from django.db.models import Sum
 from django.core.paginator import Paginator
 from .forms import CustomerFilterForm, CustomerImageUpdateForm
-
+from django.db import transaction
 
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
@@ -221,10 +221,10 @@ def agent_dashboard(request):
 
 def payto(request):
     agent = request.user.agent
-    today = timezone.now().date()
+    # today = timezone.now().date()
     
     
-    account = get_object_or_404(EFloatAccount, agent=agent, date=today)
+    # account = get_object_or_404(EFloatAccount, agent=agent, date=today)
     
     
     if request.method == 'POST':
@@ -240,14 +240,14 @@ def payto(request):
         
         paytos.agent = agent
         # network_balance = getattr(account, f"{cash_out.network.lower()}_balance")
-        cash_at_hand = Decimal(account.mtn_balance)
-        get_amount = Decimal(paytos.amount)
-        if get_amount > cash_at_hand:
-            messages.error(request, f"Insufficient balance in {paytos.network}.")
-            return redirect('agent_payto')
+        # cash_at_hand = Decimal(account.mtn_balance)
+        # get_amount = Decimal(paytos.amount)
+        # if get_amount > cash_at_hand:
+        #     messages.error(request, f"Insufficient balance in {paytos.network}.")
+        #     return redirect('agent_payto')
     
         paytos.save()
-        account.update_balance_for_payto(paytos.network, paytos.amount)
+        # account.update_balance_for_payto(paytos.network, paytos.amount)
         messages.success(request, 'Pay TO recorded succussfully.')
 
         return redirect('payto_notifications')
@@ -311,10 +311,10 @@ def payto_summary(request, date):
 @login_required
 def cashIn(request):
     agent = request.user.agent
-    today = timezone.now().date()
+    # today = timezone.now().date()
     
     
-    account = get_object_or_404(EFloatAccount, agent=agent, date=today)
+    # account = get_object_or_404(EFloatAccount, agent=agent, date=today)
     
     if request.method == 'POST':
         network = request.POST.get('network')
@@ -337,7 +337,7 @@ def cashIn(request):
         is_fraudster = CustomerFraud.objects.filter(customer_phone=customer_phone).exists()
         if is_fraudster:
             if action == 'proceed':
-                cash_in = CustomerCashIn.objects.create(
+                CustomerCashIn.objects.create(
                     agent=agent, 
                     network=network, 
                     customer_phone=customer_phone, 
@@ -350,13 +350,13 @@ def cashIn(request):
                 )
                 
                 # Check balance before processing
-                network_balance = getattr(account, f"{network.lower()}_balance", 0)
-                if amount > Decimal(network_balance):
-                    cash_in.delete()  # Rollback the transaction
-                    messages.error(request, f"Insufficient balance in {network}. Kindly make a request.")
-                    return redirect('cashIn')
+                # network_balance = getattr(account, f"{network.lower()}_balance", 0)
+                # if amount > Decimal(network_balance):
+                #     cash_in.delete()  # Rollback the transaction
+                #     messages.error(request, f"Insufficient balance in {network}. Kindly make a request.")
+                #     return redirect('cashIn')
                 
-                account.update_balance_for_cash_in(network, amount)
+                # account.update_balance_for_cash_in(network, amount)
                 messages.warning(request, 'Transaction completed with a flagged fraudster!')
                 return redirect('cashin_notifications')
         
@@ -377,7 +377,7 @@ def cashIn(request):
                 'cash_received':cash_received
             })
         
-        cash_in = CustomerCashIn.objects.create(
+        CustomerCashIn.objects.create(
             agent=agent, 
             network=network, 
             customer_phone=customer_phone, 
@@ -388,13 +388,13 @@ def cashIn(request):
             cash_received=cash_received
         )
 
-        network_balance = getattr(account, f"{cash_in.network.lower()}_balance")
-        get_amount = Decimal(cash_in.amount)
-        if get_amount > Decimal(network_balance):
-            messages.error(request, f"Insufficient balance in {cash_in.network}. Kindly make a request.")
-            return redirect('cashIn')
+        # network_balance = getattr(account, f"{cash_in.network.lower()}_balance")
+        # get_amount = Decimal(cash_in.amount)
+        # if get_amount > Decimal(network_balance):
+        #     messages.error(request, f"Insufficient balance in {cash_in.network}. Kindly make a request.")
+        #     return redirect('cashIn')
     
-        account.update_balance_for_cash_in(cash_in.network, cash_in.amount)
+        # account.update_balance_for_cash_in(cash_in.network, cash_in.amount)
         messages.success(request, 'Customer Cash-In recorded succussfully.')
         return redirect('cashin_notifications')
     context = {
@@ -406,10 +406,10 @@ def cashIn(request):
 @login_required
 def cashOut(request):
     agent = request.user.agent
-    today = timezone.now().date()
+    # today = timezone.now().date()
     
     
-    account = get_object_or_404(EFloatAccount, agent=agent, date=today)
+    # account = get_object_or_404(EFloatAccount, agent=agent, date=today)
     
     if request.method == 'POST':
         network = request.POST.get('network')
@@ -427,14 +427,14 @@ def cashOut(request):
 
         
         # network_balance = getattr(account, f"{cash_out.network.lower()}_balance")
-        cash_at_hand = Decimal(account.mtn_balance)
-        get_amount = Decimal(cash_out.amount)
-        if get_amount > cash_at_hand:
-            messages.error(request, f"Insufficient balance in {cash_out.network}.")
-            return redirect('cashOut')
+        # cash_at_hand = Decimal(account.mtn_balance)
+        # get_amount = Decimal(cash_out.amount)
+        # if get_amount > cash_at_hand:
+        #     messages.error(request, f"Insufficient balance in {cash_out.network}.")
+        #     return redirect('cashOut')
     
         cash_out.save()
-        account.update_balance_for_cash_out(cash_out.network, cash_out.amount)
+        # account.update_balance_for_cash_out(cash_out.network, cash_out.amount)
         messages.success(request, 'Customer Cash-Out recorded succussfully.')
         return redirect('cashout_notifications')
     context = {
@@ -486,10 +486,9 @@ def get_customer_details(request):
 @login_required
 def agencyBank(request):
     agent = request.user.agent
-    today = timezone.now().date()
-    
-    account = get_object_or_404(EFloatAccount, agent=agent, date=today)
-    
+
+    branch = agent.branch  # Get the agent's branch
+  
     if request.method == 'POST':
         phone_number = request.POST.get('phone_number')
         bank = request.POST.get('bank')
@@ -498,43 +497,68 @@ def agencyBank(request):
         amount = request.POST.get('amount')
         receipt = request.FILES.get('receipt')
         
-        if receipt:
-            receipt_path = default_storage.save(f'branch_receipt_img/{receipt.name}', receipt)
-        else:
-            receipt_path = ''
+        try:
+            with transaction.atomic():
+                branch_account, created = BranchAccount.objects.get_or_create(branch=branch)
+                
+                # Check if the branch account has sufficient balance
+                if branch_account.balance < Decimal(amount):
+                    messages.error(request, f'Insufficient balance in {branch_account.branch.name} account.')
+                    return redirect('agencyBank')
         
-        bank_deposit = BankDeposit(phone_number=phone_number, bank=bank, account_number=account_number, account_name=account_name, amount=amount, receipt=receipt_path)
+                if receipt:
+                    receipt_path = default_storage.save(f'branch_receipt_img/{receipt.name}', receipt)
+                else:
+                    receipt_path = ''
         
-        bank_deposit.agent = agent
+                bank_deposit = BankDeposit(phone_number=phone_number, bank=bank, account_number=account_number, account_name=account_name, amount=amount, receipt=receipt_path)
         
-        bank_balance = getattr(account, f"{bank_deposit.bank.lower()}_balance")
+                bank_deposit.agent = agent
+                bank_deposit.branch = branch  # Associate the deposit with the branch
         
-        get_deposit = Decimal(bank_deposit.amount)
-        
-        
-        if get_deposit > Decimal(bank_balance):
-            messages.error(request, f'Insufficient balance in {bank_deposit.bank}.')
+               
+                bank_deposit.save()
+                
+                # Deduct from branch account
+                branch_account.balance -= Decimal(amount)
+                branch_account.save()
+                
+                messages.success(request, 'Bank Deposit recorded succussfully.')
+                return redirect('bank_deposit_notifications')
+            
+        except Exception as e:
+            messages.error(request, f'An error occurred: {str(e)}')
             return redirect('agencyBank')
-        
-        bank_deposit.save()
-        account.update_balance_for_bank_deposit(bank_deposit.bank, bank_deposit.amount)
-        messages.success(request, 'Bank Deposit recorded succussfully.')
-        return redirect('bank_deposit_notifications')
     
     context = {
         'title': 'Bank Deposit',
+        'branch': branch,
     }
         
     return render(request, 'agent/agencyBank.html', context)
 
 
+def branch_bank_deposit_transaction_summary(request):
+    agent = request.user.agent
+    branch = agent.branch  # Get the agent's branch
+    
+    # Get all bank deposits for the branch
+    bank_deposits = BankDeposit.objects.filter(branch=branch).order_by('-date_deposited', '-time_deposited')
+    
+
+    
+    context = {
+        'bank_deposits': bank_deposits,
+        'title': 'Branch Transaction Summary'
+    }
+    
+    return render(request, 'agent/branch_transactions/branch_transaction_summary.html', context)
+
+
 @login_required
 def record_bank_deposit(request):
     agent = request.user.agent
-    today = timezone.now().date()
-    
-    account = get_object_or_404(EFloatAccount, agent=agent, date=today)
-    
+
     if request.method == 'POST':
         phone_number = request.POST.get('phone_number')
         bank = request.POST.get('bank')
@@ -545,18 +569,11 @@ def record_bank_deposit(request):
         bank_deposit = BankDeposit(phone_number=phone_number, bank=bank, account_number=account_number, account_name=account_name, amount=amount)
         
         bank_deposit.agent = agent
+       
         
-        bank_balance = getattr(account, f"{bank_deposit.bank.lower()}_balance")
-        
-        get_deposit = Decimal(bank_deposit.amount)
-        
-        
-        if get_deposit > Decimal(bank_balance):
-            messages.error(request, f'Insufficient balance in {bank_deposit.bank}.')
-            return redirect('agencyBank')
         
         bank_deposit.save()
-        account.update_balance_for_bank_deposit(bank_deposit.bank, bank_deposit.amount)
+        
         messages.success(request, 'Bank Deposit recorded succussfully.')
         return redirect('bank_deposit_notifications')
     
@@ -579,10 +596,8 @@ def view_bank_deposits(request):
 @login_required
 def withdrawal(request):
     agent = request.user.agent
-    today = timezone.now().date()
-    
-    account = get_object_or_404(EFloatAccount, agent=agent, date=today)
-    
+    branch = agent.branch
+ 
     if request.method == 'POST':
         phone_number = request.POST.get('phone_number')
         bank = request.POST.get('bank')
@@ -591,26 +606,35 @@ def withdrawal(request):
         ghana_card = request.POST.get('ghana_card')
         amount = request.POST.get('amount')
         
-        bank_withdrawal = BankWithdrawal(customer_phone=phone_number, bank=bank, account_number=account_number, account_name=account_name, ghana_card=ghana_card, amount=amount)
+        try:
+            with transaction.atomic():
+                branch_account, created = BranchAccount.objects.get_or_create(branch=branch)
+                
+                if branch_account.balance < float(amount):
+                    messages.error(request, 'Branch account has insufficient balance.')
         
-        bank_withdrawal.agent = agent
+                bank_withdrawal = BankWithdrawal(customer_phone=phone_number, bank=bank, account_number=account_number, account_name=account_name, ghana_card=ghana_card, amount=amount)
         
-        bank_balance = getattr(account, f"{bank_withdrawal.bank.lower()}_balance")
+                bank_withdrawal.agent = agent
+                
+                bank_withdrawal.branch = branch
+      
         
-        get_withdrawal = Decimal(bank_withdrawal.amount)
+                bank_withdrawal.save()
+                
+                branch_account.balance += Decimal(amount)
+                branch_account.save()
+                
+                messages.success(request, 'Bank Withdrawal recorded succussfully.')
+                return redirect('bank_withdrawal_notifications')
         
-        
-        if get_withdrawal > Decimal(bank_balance):
-            messages.error(request, f'Insufficient balance in {bank_withdrawal.bank}.')
+        except Exception as e:
+            messages.error(request, f'An error occurred: {str(e)}')
             return redirect('withdrawal')
-        
-        bank_withdrawal.save()
-        account.update_balance_for_bank_withdrawal(bank_withdrawal.bank, bank_withdrawal.amount)
-        messages.success(request, 'Bank Withdrawal recorded succussfully.')
-        return redirect('bank_withdrawal_notifications')
     
     context = {
         'title': 'Bank Withdrawal',
+        'branch': branch
     }
     
     return render(request, 'agent/withdrawal.html', context)
@@ -625,6 +649,21 @@ def view_bank_withdrawals(request):
         'title': 'Bank Withdrawals'
     }
     return render(request, 'agent/financial_services/view_bank_withdrawals.html', context)
+
+
+def branch_bank_withdrawal_transactions(request):
+    agent = request.user.agent
+    branch = agent.branch
+    
+    transactions = BankWithdrawal.objects.filter(branch=branch).order_by('-date_withdrawn', '-time_withdrawn')
+    
+    context = {
+        'title': 'Branch Transactions',
+        'transactions': transactions,
+        'branch': branch
+    }
+    
+    return render(request, 'agent/branch_transactions/branch_bank_withdrawal.html', context)
 
 # Transaction summaries start----------
 @login_required
@@ -1109,15 +1148,14 @@ def update_customer_details(request, customer_id):
 @login_required
 def payment(request):
     agent = request.user.agent
-    today = timezone.now().date()
+    branch = agent.branch
     
-    account = get_object_or_404(EFloatAccount, agent=agent, date=today)
-    
+ 
     if request.method == 'POST':
         mode_of_payment = request.POST.get('mode_of_payment')
         bank = request.POST.get('bank')
         network = request.POST.get('network')
-        branch = request.POST.get('branch')
+        branches = request.POST.get('branch')
         name = request.POST.get('name')
         transaction_id = request.POST.get('branch_transaction_id')
         amount = request.POST.get('amount')
@@ -1129,9 +1167,18 @@ def payment(request):
             
             return render(request, 'agent/payment.html')
         
+        try:
+            with transaction.atomic():
+                branch_account, created = BranchAccount.objects.get_or_create(branch=branch)
+                
+                # Check if the branch account has sufficient balance
+                if branch_account.balance < Decimal(amount):
+                    messages.error(request, f'Insufficient balance in {branch_account.branch.name} account.')
+                    return redirect('payment')
         
-        payments = PaymentRequest(mode_of_payment=mode_of_payment, bank=bank, network=network, branch=branch, name=name, branch_transaction_id=transaction_id, amount=amount)
-        payments.agent = agent
+                payments = PaymentRequest(mode_of_payment=mode_of_payment, bank=bank, network=network, branches=branches, name=name, branch_transaction_id=transaction_id, amount=amount)
+                payments.agent = agent
+                payments.branch = branch
         
         
         # bank_balance = getattr(account, f"{payments.bank.lower()}_balance")
@@ -1150,10 +1197,16 @@ def payment(request):
         #     return redirect('payment')
         
         
-        payments.save()
-        account.update_balance_for_payments(payments.bank, payments.network, payments.branch, payments.amount, payments.status)
+                payments.save()
+                # branch_account.balance -= Decimal(amount)
+                # branch_account.save()
+                messages.success(request, 'Payment request recorded successfully.')
 
-        return redirect('payment_notifications')
+                return redirect('payment_notifications')
+    
+        except Exception as e:
+            messages.error(request, f'An error occurred: {str(e)}')
+            return redirect('payment')
 
     context = {
         'title': 'Payment Requests'
@@ -1174,9 +1227,9 @@ def view_payments(request):
 @user_passes_test(is_agent)
 def cashFloatRequest(request):
     agent = request.user.agent
-    today = timezone.now().date()
-    account = get_object_or_404(EFloatAccount, agent=agent, date=today)
-    
+    branch = agent.branch
+   
+
     if request.method == 'POST':
         float_type = request.POST.get('float_type')
         bank = request.POST.get('bank')
@@ -1187,14 +1240,29 @@ def cashFloatRequest(request):
         phone_number = request.POST.get('phone_number')
         amount = request.POST.get('amount')
         
-        floats = CashAndECashRequest(float_type=float_type, bank=bank, network=network, cash=cash, name=name, phone_number=phone_number, amount=amount)
+        try:
+            with transaction.atomic():
+                branch_account, created = BranchAccount.objects.get_or_create(branch=branch)
+                
+                # Check if the branch account has sufficient balance
+                if branch_account.balance < Decimal(amount):
+                    messages.error(request, f'Insufficient balance in {branch_account.branch.name} account.')
+                    return redirect('cashFloatRequest')
         
-        floats.agent = agent
-        floats.save()
-        account.update_balance_for_cash_and_ecash(floats.bank, floats.network, floats.cash, floats.amount, floats.status)
-        messages.success(request, 'Request submitted successfully. Waiting for Owner approveal.')
-        
-        return redirect('cash_notifications')
+                floats = CashAndECashRequest(float_type=float_type, bank=bank, network=network, cash=cash, name=name, phone_number=phone_number, amount=amount)
+                
+                floats.agent = agent
+                floats.branch = branch  # Associate the request with the branch
+                floats.save()
+                
+                
+                
+                messages.success(request, 'Request submitted successfully. Waiting for Owner approveal.')
+                
+                return redirect('cash_notifications')
+        except Exception as e:
+            messages.error(request, f'An error occurred: {str(e)}')
+            return redirect('cashFloatRequest')
     
     context = {
         'title': 'Cash & ECash Request'
