@@ -92,7 +92,7 @@ class Branch(models.Model):
     location = models.CharField(max_length=100)
     
     def __str__(self):
-        return self.name
+        return f"{self.name}"
     
 class Owner(models.Model):
     owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name='owner')
