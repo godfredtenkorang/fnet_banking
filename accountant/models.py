@@ -26,7 +26,7 @@ class Branch(models.Model):
     address = models.TextField(blank=True)
     
     def __str__(self):
-        return self.name
+        return f"{self.name}"
 
 class Vehicle(models.Model):
     registration_number =models.CharField(max_length=100, null=True, blank=True)

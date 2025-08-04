@@ -232,6 +232,64 @@ class PaymentRequest(models.Model):
     
     def __str__(self):
         return f"Payment of GH¢{self.amount} via {self.mode_of_payment} by {self.mobilization.mobilization} ({self.status})"
+
+
+class CashECashRequest(models.Model):
+    FLOAT_TYPE_CHOICES = [
+        # ('Bank', 'Bank'),
+        ('Telco', 'Telco'),
+        ('Cash', 'Cash'),
+    ]
+
+    # BANK_CHOICES = [
+    #     ('Select Bank', 'Select Bank'),
+    #     ('Ecobank', 'Ecobank'),
+    #     ('Fidelity', 'Fidelity'),
+    #     ('Calbank', 'Calbank'),
+    #     ('GTBank', 'GTBank'),
+    #     ('Access Bank', 'Access Bank'),
+    # ]
+
+    NETWORK_CHOICES = [
+        ('Select Network', 'Select Network'),
+        ('MTN', 'MTN'),
+        ('Telecel', 'Telecel'),
+        ('AirtelTigo', 'AirtelTigo'),
+    ]
+    
+    CASH_CHOICES = [
+        ('Cash', 'Cash'),
+        
+    ]
+    
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Approved', 'Approved'),
+        ('Rejected', 'Rejected'),
+    ]
+
+    mobilization = models.ForeignKey(Mobilization, on_delete=models.CASCADE, related_name='cash_and_ecash_requests')
+    float_type = models.CharField(max_length=10, choices=FLOAT_TYPE_CHOICES)
+    # bank = models.CharField(max_length=50, choices=BANK_CHOICES, default='Select Bank', null=True, blank=True)
+    transaction_id = models.CharField(max_length=20, null=True, blank=True)
+    network = models.CharField(max_length=20, choices=NETWORK_CHOICES, default='Select Network', null=True, blank=True)
+    cash = models.CharField(max_length=10, choices=CASH_CHOICES, null=True, blank=True)
+    name = models.CharField(max_length=100, null=True, blank=True)
+    phone_number = models.CharField(max_length=15, null=True, blank=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    arrears = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # Track remaining balance
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    created_at = models.DateField(auto_now_add=True)
+    time_created = models.TimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateField(auto_now=True)
+    
+    @classmethod
+    def total_cash_for_customer(cls, agent, status):
+        total = cls.objects.filter(agent=agent, status=status).aggregate(Sum('amount'))
+        return total['amount__sum'] or 0
+
+    def __str__(self):
+        return f"{self.float_type} Request of GH¢{self.amount} by {self.agent.phone_number}"
     
     
     

@@ -181,7 +181,7 @@
                     
                     <a href="{% url 'cash_requests' %}">
                         <div class="nav-option option1 button">
-                            <h3><i class="fa-solid fa-dot-circle"></i> Cash & E-Cash Requests </h3>
+                            <h3><i class="fa-solid fa-dot-circle"></i> Branch Cash & E-Cash Requests </h3>
                             <div class="notification">
                                 <i class="fa-solid fa-bell"></i>
                                 <p>{{ unapproved_cash_count }}</p>
@@ -228,6 +228,18 @@
                         <div class="notification">
                           <i class="fa-solid fa-bell"></i>
                           <p>{{ mobilization_count }}</p>
+                    
+                    
+                        </div>
+                    
+                      </div>
+                    </a>
+                    <a href="{% url 'mobilization_cash_requests' %}">
+                      <div class="nav-option option1 button">
+                        <h3><i class="fa-solid fa-dot-circle"></i> Mobilization Cash / eCash </h3>
+                        <div class="notification">
+                          <i class="fa-solid fa-bell"></i>
+                          <p>{{ unapproved_cash_ecash_count }}</p>
                     
                     
                         </div>

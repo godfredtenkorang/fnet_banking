@@ -19,6 +19,7 @@ from mobilization.models import BankDeposit as bank_deposits
 from mobilization.models import BankWithdrawal as bank_withdrawals
 from mobilization.models import PaymentRequest as payment_requests
 from mobilization.models import Report as mobilization_reports
+from mobilization.models import CashECashRequest
 from .forms import BankDepositForm, PaymentForm, OwnerBalanceForm
 from .models import OwnerBalance
 from driver.models import MileageRecord, FuelRecord, Expense
@@ -172,11 +173,14 @@ def unapproved_users_count(request):
     
     mobilization_count = pending_deposits_count  + payments_count
     
+    unapproved_cash_ecash_count = CashECashRequest.objects.filter(status='Pending', float_type__in=['Cash', 'Telco']).count()
+    
     context = {
         'unapproved_cash_count': unapproved_cash_count,
         'unapproved_payment_count': unapproved_payment_count,
         'mobilization_count': mobilization_count,
-        'unapproved_bank_requests_count': unapproved_bank_requests_count
+        'unapproved_bank_requests_count': unapproved_bank_requests_count,
+        'unapproved_cash_ecash_count': unapproved_cash_ecash_count
     }
     return context
 
@@ -624,7 +628,48 @@ def reject_payment(request, payment_id):
     payment.delete()
     messages.success(request, 'Payment request rejected.')
     return redirect('view_payment_requests')
-                
+
+
+@login_required
+@user_passes_test(is_owner)
+def mobilization_cash_requests(request):
+    cash_requests = CashECashRequest.objects.filter(float_type='Cash', status='Pending').order_by('-created_at')
+   
+    context = {
+        'cash_requests': cash_requests,
+        'title': 'Cash & Requests'
+    }
+    return render(request, 'owner/mobilization_approvals/cash_request.html', context)
+
+
+@login_required
+@user_passes_test(is_owner)
+def mobilization_ecash_requests(request):
+    ecash_requests = CashECashRequest.objects.filter(float_type__in=['Telco'], status='Pending').order_by('-created_at')
+    
+    context = {
+        'ecash_requests': ecash_requests,
+        'title': 'Cash & E-Cash Requests'
+    }
+    return render(request, 'owner/mobilization_approvals/ecash_request.html', context)
+
+
+def approve_mobilization_cash_ecash_requests(request, ecash_id):
+    
+    requests = get_object_or_404(CashECashRequest, id=ecash_id)
+    
+    requests.status = 'Approved'
+    requests.save()
+    messages.success(request, 'Cash & E-Cash request approved successfully!')
+    
+    return redirect('mobilization_cash_requests')
+
+def reject_mobilization_cash_ecash_requests(request, ecash_id):
+    requests = get_object_or_404(CashECashRequest, id=ecash_id)
+    requests.delete()
+    messages.success(request, 'Cash & E-Cash request rejected.')
+    return redirect('mobilization_cash_requests')
+    
 
 def pay_to_agent_detail(request):
     return render(request, 'owner/pay_to/pay_to_agent_detail.html')

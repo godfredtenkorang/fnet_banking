@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import MobilizationPayTo, BankDeposit, BankWithdrawal, PaymentRequest, TellerCalculator, Report
+from .models import MobilizationPayTo, BankDeposit, BankWithdrawal, PaymentRequest, TellerCalculator, Report, CashECashRequest
 from django.contrib import messages
 from users.models import MobilizationCustomer, User, Branch, Customer
 from django.contrib.auth.hashers import make_password
@@ -18,6 +18,7 @@ from mobilization.models import CustomerAccount
 
 from datetime import datetime, timedelta, date
 from django.core.paginator import Paginator
+
 
 def is_mobilization(user):
     return user.role == 'MOBILIZATION'
@@ -304,6 +305,37 @@ def payment(request):
         'title': 'Payment Requests'
     }
     return render(request, 'mobilization/payment.html', context)
+
+
+def mobilization_cash_and_ecash_request(request):
+    mobilization = request.user.mobilization
+    
+    if request.method == 'POST':
+        float_type = request.POST.get('float_type')
+        # bank = request.POST.get('bank')
+        # transaction_id = request.POST.get('transaction_id')
+        network = request.POST.get('network')
+        cash = request.POST.get('cash')
+        name = request.POST.get('name')
+        phone_number = request.POST.get('phone_number')
+        amount = request.POST.get('amount')
+        
+        
+        floats = CashECashRequest(float_type=float_type, network=network, cash=cash, name=name, phone_number=phone_number, amount=amount)
+                
+        floats.mobilization = mobilization
+        
+        floats.save()
+                
+                
+        
+        return redirect('mobilization_cash_success')
+        
+    
+    context = {
+        'title': 'Cash & ECash Request'
+    }
+    return render(request, 'mobilization/cash_and_ecash_request.html', context)
 
 
 @login_required
@@ -708,6 +740,9 @@ def bank_withdrawal_notifications(request):
 
 def payment_notifications(request):
     return render(request, 'mobilization/notifications/payment_notifications.html')
+
+def cash_notifications(request):
+    return render(request, 'mobilization/notifications/cash_notification.html')
 
 def payto_notifications(request):
     return render(request, 'mobilization/notifications/payto_notifications.html')

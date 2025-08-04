@@ -1,0 +1,184 @@
+{% extends 'mobilization/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="main">
+    <div style="background-color:#000; width:100%;">
+        {% if messages %}
+        {% for message in messages %}
+        <p style="color: #97c8b3; font-size:30px; text-align:center;">{{ message }}</p>
+        {% endfor %}
+        {% endif %}
+    </div>
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Cash / E-Cash Request</h1>
+        </div>
+    </div>
+
+    <div class="form">
+        <form id="networkForm" method="post">
+            {% csrf_token %}
+            <div class="form-grid">
+                <div class="input">
+                    <label for="cashFloatType">Select float type</label> <br />
+                    <select id="cashFloatType" name="float_type" required>
+                        <option value="" disabled selected>Request</option>
+                        <!-- <option value="Bank">Bank</option> -->
+                        <option value="Telco">Telco</option>
+                        <option value="Cash">Cash</option>
+
+                    </select>
+                </div>
+
+                 <!-- <div class="input" id="bank" style="display: none;">
+                    <label for="BankNames">Select Bank</label> <br />
+                    <select id="BankNames" name="bank" required>
+                        <option value="bank" disabled selected>Select Bank</option>
+                        <option value="Ecobank">Ecobank</option>
+                        <option value="Fidelity">Fidelity</option>
+                        <option value="Calbank">Calbank</option>
+                        <option value="GTbank">GTbank</option>
+                        <option value="Access bank">Access bank</option>
+                        <option value="UBA">UBA</option>
+                        <option value="Absa Bank">Absa Bank</option>
+                        <option value="Prudential Bank">Prudential Bank</option>
+                        <option value="Abasa Bank">Abasa Bank</option>
+                        <option value="Adansi rural bank">Adansi rural bank</option>
+                        <option value="Kwumawuman Bank">Kwumawuman Bank</option>
+                        <option value="Pan Africa">Pan Africa</option>
+                        <option value="SGSSB">SGSSB</option>
+                        <option value="Atwima Rural Bank">Atwima Rural Bank</option>
+                        <option value="Omnibsic Bank">Omnibsic Bank</option>
+                        <option value="Omini bank">Omini bank</option>
+                        <option value="Stanbic Bank">Stanbic Bank</option>
+                        <option value="First Bank of Nigeria">First Bank of Nigeria</option>
+                        <option value="Adehyeman Savings and loans">Adehyeman Savings and loans</option>
+                        <option value="ARB Apex Bank Limited">ARB Apex Bank Limited</option>
+                        <option value="Agriculture Development bank">Agriculture Development bank</option>
+                        <option value="Bank of Africa">Bank of Africa</option>
+                        <option value="Bank of Ghana">Bank of Ghana</option>
+                        <option value="Consolidated Bank Ghana">Consolidated Bank Ghana</option>
+                        <option value="First Atlantic Bank">First Atlantic Bank</option>
+                        <option value="First National Bank">First National Bank</option>
+                        <option value="G-Money">G-Money</option>
+                        <option value="GCB BanK LTD">GCB BanK LTD</option>
+                        <option value="Ghana Pay">Ghana Pay</option>
+                        <option value="GHL Bank Ltd">GHL Bank Ltd</option>
+                        <option value="National Investment Bank">National Investment Bank</option>
+                        <option value="Opportunity International Savings And Loans">Opportunity International Savings
+                            And Loans</option>
+                        <option value="Republic Bank Ltd">Republic Bank Ltd</option>
+                        <option value="Sahel Sahara Bank">Sahel Sahara Bank</option>
+                        <option value="Sinapi Aba Savings and Loans">Sinapi Aba Savings and Loans</option>
+                        <option value="Societe Generale Ghana Ltd">Societe Generale Ghana Ltd</option>
+                        <option value="Standard Chartered">Standard Chartered</option>
+                        <option value="Universal Merchant Bank">Universal Merchant Bank</option>
+                        <option value="Zenith Bank">Zenith Bank</option>
+                    </select>
+                </div> -->
+
+                <!-- <div class="input" id="transactionID" style="display: none;">
+                        <label for="transactionIDInput">Transaction ID</label> <br />
+                        <input type="text" id="transactionIDInput" name="transaction_id" placeholder="Enter Transaction ID" />
+                    </div> -->
+
+                <div class="input" id="telco" style="display: none;">
+                    <label for="network">Select Network</label> <br />
+                    <select id="network" name="network">
+                        <option value="network" disabled selected>Select network</option>
+                        <option value="Mtn">MTN</option>
+                        <option value="Airtel Tigo">AirtelTigo</option>
+                        <option value="Telecel">Telecel</option>
+                    </select>
+                </div>
+                <div class="input" id="cash" style="display: none;">
+                    <label for="cash">Select Cash</label> <br />
+                    <select id="cash" name="cash">
+                        <option value="Cash" selected>Cash</option>
+                        <!-- <option value="Mtn">MTN</option>
+                            <option value="Airtel Tigo">AirtelTigo</option>
+                            <option value="Telecel">Telecel</option> -->
+                    </select>
+                </div>
+
+                <div class="input" id="name" style="display: none;">
+                    <label for="nameInput">Name</label> <br />
+                    <input type="text" id="nameInput" name="name" placeholder="Enter Name" />
+                </div>
+
+                <div class="input" id="phone_number" style="display: none;">
+                    <label for="phoneInput">Phone Number</label> <br />
+                    <input type="tel" id="phoneInput" name="phone_number" placeholder="Enter Phone Number" min="0" />
+                </div>
+
+                <div class="input" id="amount" style="display: none;">
+                    <label for="amountInput">Amount</label> <br />
+                    <input type="number" id="amountInput" name="amount" required placeholder="Enter Amount" min="0" />
+                </div>
+            </div>
+
+            <button id="submitBtn" style="display: none;">Send</button>
+        </form>
+
+
+    </div>
+
+
+
+</div>
+
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const cashFloatType = document.getElementById("cashFloatType");
+        // const bankSection = document.getElementById("bank");
+        //const transactionIDSection = document.getElementById("transactionID");
+        const telcoSection = document.getElementById("telco");
+        const cashSection = document.getElementById("cash");
+        const nameSection = document.getElementById("name");
+        const phoneSection = document.getElementById("phone_number");
+        const amountField = document.getElementById("amount");
+        const submitButton = document.getElementById("submitBtn");
+
+        // Function to show the correct fields
+        cashFloatType.addEventListener("change", function () {
+            const selectedValue = cashFloatType.value;
+
+            // Reset all fields to hidden
+            // bankSection.style.display = "none";
+            //transactionIDSection.style.display = "none";
+            telcoSection.style.display = "none";
+            cashSection.style.display = "none";
+            nameSection.style.display = "none";
+            phoneSection.style.display = "none";
+            amountField.style.display = "none";
+            submitButton.style.display = "none";
+
+            // Show the appropriate fields based on selection
+            if (selectedValue === "Bank") {
+                //bankSection.style.display = "block";
+                //transactionIDSection.style.display = "block";
+                amountField.style.display = "block";
+                submitButton.style.display = "block";
+            } else if (selectedValue === "Telco") {
+                telcoSection.style.display = "block";
+                amountField.style.display = "block";
+                submitButton.style.display = "block";
+            } else if (selectedValue === "Cash") {
+                amountField.style.display = "block";
+                cashSection.style.display = "block";
+                nameSection.style.display = "block";
+                phoneSection.style.display = "block";
+                submitButton.style.display = "block";
+            }
+        });
+    });
+
+
+
+</script>
+
+{% endblock %}

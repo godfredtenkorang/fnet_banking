@@ -20,6 +20,7 @@ urlpatterns = [
     
     path('mobilization_bank_withdrawal/', views.bank_withdrawal, name='mobilization_bank_withdrawal'),
     path('mobilization_payment/', views.payment, name='mobilization_payment'),
+    path('mobilization_cash_ecash_request/', views.mobilization_cash_and_ecash_request, name='mobilization_cash_and_ecash_request'),
     path('mobilization_customer_registration/', views.customer_registration, name='mobilization_customer_registration'),
     path('mobilization_account_registration/', views.customer_account_registration, name='customer_account_registration'),
     path('mobilization_all_customers/', views.my_customers, name='mobilization_all_customers'),
@@ -43,6 +44,7 @@ urlpatterns = [
     path('mobilization_bank_deposit_success/', views.bank_deposit_notifications, name='mobilization_bank_deposit_success'),
     path('mobilization_bank_withdrawal_success/', views.bank_withdrawal_notifications, name='mobilization_bank_withdrawal_success'),
     path('mobilization_payment_success/', views.payment_notifications, name='mobilization_payment_success'),
+    path('mobilization_cash_success/', views.cash_notifications, name='mobilization_cash_success'),
     path('mobilization_payto_success/', views.payto_notifications, name='mobilization_payto_success'),
     
     path('mobilization_report/', views.report, name='mobilization_report'),
