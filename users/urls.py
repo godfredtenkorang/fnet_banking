@@ -56,5 +56,5 @@ urlpatterns = [
      path('login/', LoginView.as_view(), name='user_login'),
      path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
      
-    
+    path('export-customer-accounts-pdf/', views.export_customer_accounts_pdf, name='export_customer_accounts_pdf'),
 ]

@@ -753,3 +753,32 @@ class LoginView(APIView):
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
     
     
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+from io import BytesIO
+    
+def export_customer_accounts_pdf(request):
+    # Get all customer accounts
+    accounts = CustomerAccount.objects.all().select_related('customer')
+    
+    # Prepare context data for the template
+    context = {
+        'accounts': accounts,
+        'total_count': accounts.count()
+    }
+    
+    # Render template
+    template = get_template('users/admin_dashboard/customer_accounts_pdf.html')
+    html = template.render(context)
+    
+    # Create PDF
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), result)
+    
+    if not pdf.err:
+        response = HttpResponse(result.getvalue(), content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="customer_accounts.pdf"'
+        return response
+    
+    return HttpResponse('Error generating PDF: %s' % pdf.err)
