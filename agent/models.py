@@ -4,6 +4,7 @@ from users.models import Agent
 from django.utils import timezone
 from django.db.models import Sum
 from decimal  import Decimal
+from users.models import Branch
 
 # Create your models here.
 
@@ -395,6 +396,14 @@ class PaymentRequest(models.Model):
         return f"Payment of GH¢{self.amount} via {self.mode_of_payment} by {self.agent.phone_number} ({self.status})"
     
     # removed the branch account
+    
+class BranchAccount(models.Model):
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='branch_accounts')
+    balance = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
+    last_updated = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.branch.full_name} - Balance: {self.balance}"
     
 class CustomerComplain(models.Model):
     agent = models.ForeignKey(Agent, on_delete=models.CASCADE)
