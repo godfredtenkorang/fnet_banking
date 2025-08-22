@@ -9,20 +9,20 @@ import random
 from users.utils import convert_km_to_miles, convert_miles_to_km
 
 
-BRANCHES = (
-    ("DVLA", "DVLA"),
-    ("HEAD OFFICE", "HEAD OFFICE"),
-    ("KEJETIA", "KEJETIA"),
-    ("MELCOM SANTASI", "MELCOM SANTASI"),
-    ("MELCOM TANOSO", "MELCOM TANOSO"),
-    ("MELCOM MANHYIA", "MELCOM MANHYIA"),
-    ("MELCOM TAFO", "MELCOM TAFO"),
-    ("AHODWO MELCOM", "AHODWO MELCOM"),
-    ("ADUM MELCOM", "ADUM MELCOM"),
-    ("MELCOM SUAME", "MELCOM SUAME"),
-    ("KUMASI MALL MELCOM", "KUMASI MALL MELCOM"),
-    ("MOBILIZATION TEAM", "MOBILIZATION TEAM"),
-)
+# BRANCHES = (
+#     ("DVLA", "DVLA"),
+#     ("HEAD OFFICE", "HEAD OFFICE"),
+#     ("KEJETIA", "KEJETIA"),
+#     ("MELCOM SANTASI", "MELCOM SANTASI"),
+#     ("MELCOM TANOSO", "MELCOM TANOSO"),
+#     ("MELCOM MANHYIA", "MELCOM MANHYIA"),
+#     ("MELCOM TAFO", "MELCOM TAFO"),
+#     ("AHODWO MELCOM", "AHODWO MELCOM"),
+#     ("ADUM MELCOM", "ADUM MELCOM"),
+#     ("MELCOM SUAME", "MELCOM SUAME"),
+#     ("KUMASI MALL MELCOM", "KUMASI MALL MELCOM"),
+#     ("MOBILIZATION TEAM", "MOBILIZATION TEAM"),
+# )
 
 class UserManager(BaseUserManager):
     def create_user(self, phone_number, password=None, **extra_fields):
@@ -87,7 +87,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.phone_number
 
 class Branch(models.Model):
-    name = models.CharField(max_length=100, choices=BRANCHES)
+    name = models.CharField(max_length=100, null=True, blank=True)
     location = models.CharField(max_length=100)
     
     def __str__(self):
@@ -95,7 +95,7 @@ class Branch(models.Model):
     
 class Owner(models.Model):
     owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name='owner')
-    branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     full_name = models.CharField(max_length=100, null=True, blank=True)
     phone_number = models.CharField(max_length=10, null=True, blank=True)
@@ -110,7 +110,7 @@ class Owner(models.Model):
 class Agent(models.Model):
     agent = models.OneToOneField(User, on_delete=models.CASCADE, related_name='agent')
     owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
-    branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     full_name = models.CharField(max_length=100, null=True, blank=True)
     phone_number = models.CharField(max_length=10, null=True, blank=True)
@@ -125,7 +125,7 @@ class Agent(models.Model):
 class Mobilization(models.Model):
     mobilization = models.OneToOneField(User, on_delete=models.CASCADE, related_name='mobilization')
     owner = models.ForeignKey(Owner, on_delete=models.CASCADE, null=True, blank=True)
-    branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     full_name = models.CharField(max_length=100, null=True, blank=True)
     phone_number = models.CharField(max_length=10, null=True, blank=True)
@@ -167,7 +167,7 @@ class Customer(models.Model):
     customer = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')
     agent = models.ForeignKey(Agent, on_delete=models.CASCADE, null=True, blank=True)
     mobilization = models.ForeignKey(Mobilization, on_delete=models.CASCADE, null=True, blank=True)
-    branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, null=True, blank=True)
     phone_number = models.CharField(max_length=10, null=True, blank=True)
     full_name = models.CharField(max_length=100, null=True, blank=True)
     customer_location = models.CharField(max_length=100, null=True, blank=True)
@@ -226,7 +226,7 @@ class Customer(models.Model):
 class MobilizationCustomer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='mobilizationcustomer')
     mobilization = models.ForeignKey(Mobilization, on_delete=models.CASCADE)
-    branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, null=True, blank=True)
     phone_number = models.CharField(max_length=10, null=True, blank=True)
     full_name = models.CharField(max_length=100, null=True, blank=True)
     customer_location = models.CharField(max_length=100, null=True, blank=True)
