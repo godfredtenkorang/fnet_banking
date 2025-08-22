@@ -394,6 +394,7 @@ class PaymentRequest(models.Model):
     def __str__(self):
         return f"Payment of GH¢{self.amount} via {self.mode_of_payment} by {self.agent.phone_number} ({self.status})"
     
+    # removed the branch account
     
 class CustomerComplain(models.Model):
     agent = models.ForeignKey(Agent, on_delete=models.CASCADE)
