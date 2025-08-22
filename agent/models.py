@@ -364,7 +364,6 @@ class PaymentRequest(models.Model):
         ("MELCOM TAFO", "MELCOM TAFO"),
         ("AHODWO MELCOM", "AHODWO MELCOM"),
         ("ADUM MELCOM", "ADUM MELCOM"),
-        # ("ADUM MELCOM ANNEX", "ADUM MELCOM ANNEX"),
         ("MELCOM SUAME", "MELCOM SUAME"),
         ("KUMASI MALL MELCOM", "KUMASI MALL MELCOM"),
     )
