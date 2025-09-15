@@ -7,6 +7,11 @@ from PIL import Image
 from banking.models import MobilizationAccount
 from django.core.validators import MinValueValidator
 
+import os
+from django.conf import settings
+from django.core.serializers import serialize, deserialize
+from django.db import transaction
+
 REQUEST_STATUS = (
     ("Pending", "Pending"),
     ("Approved", "Approved"),
@@ -246,7 +251,47 @@ class CustomerAccount(models.Model):
         if not self.account_name and self.customer:
             self.account_name = self.customer.full_name
         super().save(*args, **kwargs)
+        
     
+    @classmethod
+    def export_to_json(cls, filename=None):
+        """Export all accounts to JSON file"""
+        if not filename:
+            filename = f'customer_accounts_backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json'
+        
+        accounts = cls.objects.all()
+        data = serialize('json', accounts)
+        
+        backup_dir = os.path.join(settings.BASE_DIR, 'backups')
+        os.makedirs(backup_dir, exist_ok=True)
+        
+        filepath = os.path.join(backup_dir, filename)
+        with open(filepath, 'w') as f:
+            f.write(data)
+        
+        return filepath
+    
+    @classmethod
+    def import_from_json(cls, filename, clear_existing=False):
+        """Import accounts from JSON file"""
+        filepath = os.path.join(settings.BASE_DIR, 'backups', filename)
+        
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(f"Backup file not found: {filepath}")
+        
+        with open(filepath, 'r') as f:
+            data = f.read()
+        
+        if clear_existing:
+            cls.objects.all().delete()
+        
+        count = 0
+        with transaction.atomic():
+            for obj in deserialize('json', data):
+                obj.save()
+                count += 1
+        
+        return count
     
     def __str__(self):
         return f"{self.phone_number} - {self.account_name} - {self.bank}"

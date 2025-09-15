@@ -9,20 +9,20 @@ import random
 from users.utils import convert_km_to_miles, convert_miles_to_km
 
 
-# BRANCHES = (
-#     ("DVLA", "DVLA"),
-#     ("HEAD OFFICE", "HEAD OFFICE"),
-#     ("KEJETIA", "KEJETIA"),
-#     ("MELCOM SANTASI", "MELCOM SANTASI"),
-#     ("MELCOM TANOSO", "MELCOM TANOSO"),
-#     ("MELCOM MANHYIA", "MELCOM MANHYIA"),
-#     ("MELCOM TAFO", "MELCOM TAFO"),
-#     ("AHODWO MELCOM", "AHODWO MELCOM"),
-#     ("ADUM MELCOM", "ADUM MELCOM"),
-#     ("MELCOM SUAME", "MELCOM SUAME"),
-#     ("KUMASI MALL MELCOM", "KUMASI MALL MELCOM"),
-#     ("MOBILIZATION TEAM", "MOBILIZATION TEAM"),
-# )
+BRANCHES = (
+    ("DVLA", "DVLA"),
+    ("HEAD OFFICE", "HEAD OFFICE"),
+    ("KEJETIA", "KEJETIA"),
+    ("MELCOM SANTASI", "MELCOM SANTASI"),
+    ("MELCOM TANOSO", "MELCOM TANOSO"),
+    ("MELCOM MANHYIA", "MELCOM MANHYIA"),
+    ("MELCOM TAFO", "MELCOM TAFO"),
+    ("AHODWO MELCOM", "AHODWO MELCOM"),
+    ("ADUM MELCOM", "ADUM MELCOM"),
+    ("MELCOM SUAME", "MELCOM SUAME"),
+    ("KUMASI MALL MELCOM", "KUMASI MALL MELCOM"),
+    ("MOBILIZATION TEAM", "MOBILIZATION TEAM"),
+)
 
 class UserManager(BaseUserManager):
     def create_user(self, phone_number, password=None, **extra_fields):

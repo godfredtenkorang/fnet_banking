@@ -1,0 +1,43 @@
+{% extends 'mobilization/base.html' %} {% load static %} {% block content %}
+
+<div class="main">
+    <div style="background-color:#000; width:100%;">
+        {% if messages %}
+        {% for message in messages %}
+        <p style="color: #97c8b3; font-size:30px; text-align:center;">{{ message }}</p>
+        {% endfor %}
+        {% endif %}
+    </div>
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Account</h1>
+        </div>
+    </div>
+    <!-- Download link -->
+    <a href="{% url 'export_customer_accounts' %}" download>Download Backup</a>
+    <div class="form">
+
+        <form id="networkForm" class="f" method="post" action="{% url 'import_customer_accounts' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+
+
+
+            <input type="file" name="file" accept=".json">
+            <label>
+                <input type="checkbox" name="clear_existing"> Clear existing data
+            </label>
+            <button type="submit">Upload Backup</button>
+           
+            <!-- <h3>Drawer Summary</h3>
+            <p><strong>Capital Amount:</strong> ${{ account.capital_amount }}</p>
+            <p><strong>Grand Total:</strong> ${{ account.grand_total }}</p>
+            <p><strong>Difference:</strong> ${{ account.difference }}</p> -->
+        </form>
+
+    </div>
+
+</div>
+
+
+{% endblock %}

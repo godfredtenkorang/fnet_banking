@@ -47,4 +47,11 @@ urlpatterns = [
     
     path('mobilization_report/', views.report, name='mobilization_report'),
     path('mobilization_report_view/', views.view_report, name='mobilization_report_view'),
+    
+    
+    # Imports and Exports
+    path('export_customer_accounts/', views.export_customer_accounts, name='export_customer_accounts'),
+    path('import_customer_accounts/', views.import_customer_accounts, name='import_customer_accounts'),
+    
+    path('customer_import/', views.customer_import_export_view, name='customer_import'),
 ]

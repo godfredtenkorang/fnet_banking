@@ -782,3 +782,70 @@ def export_customer_accounts_pdf(request):
         return response
     
     return HttpResponse('Error generating PDF: %s' % pdf.err)
+
+
+
+from django.http import JsonResponse, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from django.core.serializers import serialize, deserialize
+from django.db import transaction
+import json
+from mobilization.models import CustomerAccount
+from django.utils import timezone
+import os
+from django.conf import settings
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def export_customer_accounts(request):
+    """Export CustomerAccount data as JSON download"""
+    try:
+        accounts = CustomerAccount.objects.all()
+        data = serialize('json', accounts, use_natural_foreign_keys=True)
+        
+        response = HttpResponse(data, content_type='application/json')
+        filename = f'customer_accounts_backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json'
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        
+        return response
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def import_customer_accounts(request):
+    """Import CustomerAccount data from uploaded JSON file"""
+    try:
+        if 'file' not in request.FILES:
+            return JsonResponse({'error': 'No file uploaded'}, status=400)
+        
+        uploaded_file = request.FILES['file']
+        data = uploaded_file.read().decode('utf-8')
+        
+        # Validate JSON
+        try:
+            json.loads(data)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON file'}, status=400)
+        
+        count = 0
+        with transaction.atomic():
+            # Clear existing data if specified
+            clear_existing = request.POST.get('clear_existing', 'false').lower() == 'true'
+            if clear_existing:
+                CustomerAccount.objects.all().delete()
+            
+            # Import data
+            for obj in deserialize('json', data):
+                obj.save()
+                count += 1
+        
+        return JsonResponse({
+            'message': f'Successfully imported {count} accounts',
+            'count': count
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
