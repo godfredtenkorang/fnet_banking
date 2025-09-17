@@ -1,0 +1,59 @@
+{% extends 'users/admin_dashboard/base.html' %} {% load static %} {% block content %}
+
+<div class="main">
+    <div style="background-color:#000; width:100%;">
+        {% if messages %}
+        {% for message in messages %}
+        <p style="color: #97c8b3; font-size:30px; text-align:center;">{{ message }}</p>
+        {% endfor %}
+        {% endif %}
+    </div>
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Mobilization Bank Deposit Backup</h1>
+        </div>
+    </div>
+    <!-- Download link -->
+    <a href="{% url 'export_bank_deposits' %}" class="btn btn-primary">Download Bank Deposits Backup</a>
+    <span> | </span>
+    <a href="{% url 'export_bank_deposits' %}?include_related=true" class="btn btn-secondary">Download with Related Data</a>
+    <span> | </span>
+    <a href="{% url 'export_bank_deposits' %}?include_images=true" class="btn btn-info">Download with Images</a>
+    <div class="form">
+
+        <form id="networkForm" class="f" method="post" action="{% url 'import_agent_bank_deposits' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="file" class="form-label">Select JSON File:</label>
+                <input type="file" name="file" accept=".json" class="form-control" required>
+            </div>
+            
+            <div class="mb-3">
+                <div class="form-check">
+                    <input type="checkbox" name="clear_existing" class="form-check-input" id="clearExisting">
+                    <label class="form-check-label" for="clearExisting">Clear existing bank deposits</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" name="skip_missing_mobilizations" class="form-check-input" id="skipMissingMobilizations">
+                    <label class="form-check-label" for="skipMissingMobilizations">Skip missing mobilizations</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" name="handle_images" class="form-check-input" id="handleImages">
+                    <label class="form-check-label" for="handleImages">Handle images</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" name="skip_duplicates" class="form-check-input" id="skipDuplicates">
+                    <label class="form-check-label" for="skipDuplicates">Skip duplicates</label>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-success">Upload Bank Deposits Backup</button>
+        </form>
+
+    </div>
+
+</div>
+
+
+{% endblock %}

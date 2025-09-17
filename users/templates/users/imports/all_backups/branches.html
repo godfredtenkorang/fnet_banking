@@ -1,0 +1,52 @@
+{% extends 'users/admin_dashboard/base.html' %} {% load static %} {% block content %}
+
+<div class="main">
+    <div style="background-color:#000; width:100%;">
+        {% if messages %}
+        {% for message in messages %}
+        <p style="color: #97c8b3; font-size:30px; text-align:center;">{{ message }}</p>
+        {% endfor %}
+        {% endif %}
+    </div>
+    <div class="banner-container">
+        <img src="{% static 'banking/img/banner.png' %}" alt="image" />
+        <div class="banner-text">
+            <h1>Branches Backup</h1>
+        </div>
+    </div>
+    <!-- Download link -->
+    <a href="{% url 'export_branches' %}" class="btn btn-primary">Download Branches Backup</a>
+
+    <div class="form">
+
+        <form id="networkForm" class="f" method="post" action="{% url 'import_branches' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+<div class="mb-3">
+    <label for="file" class="form-label">Select JSON File:</label>
+    <input type="file" name="file" accept=".json" class="form-control" required>
+</div>
+
+<div class="mb-3">
+    <div class="form-check">
+        <input type="checkbox" name="clear_existing" class="form-check-input" id="clearExisting">
+        <label class="form-check-label" for="clearExisting">Clear existing branches</label>
+    </div>
+    <div class="form-check">
+        <input type="checkbox" name="skip_duplicates" class="form-check-input" id="skipDuplicates">
+        <label class="form-check-label" for="skipDuplicates">Skip duplicate branch names</label>
+    </div>
+    <div class="form-check">
+        <input type="checkbox" name="update_existing" class="form-check-input" id="updateExisting">
+        <label class="form-check-label" for="updateExisting">Update existing branches</label>
+    </div>
+</div>
+
+<button type="submit" class="btn btn-success">Upload Branches Backup</button>
+        </form>
+
+    </div>
+
+</div>
+
+
+{% endblock %}

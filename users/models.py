@@ -8,6 +8,13 @@ import random
 
 from users.utils import convert_km_to_miles, convert_miles_to_km
 
+import os
+import json
+from django.conf import settings
+from django.db import transaction
+from django.core.serializers import serialize, deserialize
+import base64
+
 
 BRANCHES = (
     ("DVLA", "DVLA"),
@@ -83,6 +90,80 @@ class User(AbstractBaseUser, PermissionsMixin):
     
     objects = UserManager()
     
+    @classmethod
+    def export_to_json(cls, filename=None, include_sensitive=False):
+        """Export all users to JSON file"""
+        if not filename:
+            filename = f'users_backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json'
+        
+        users = cls.objects.all()
+        
+        if include_sensitive:
+            data = serialize('json', users)
+        else:
+            # Create safe export
+            safe_data = []
+            for user in users:
+                safe_user = {
+                    'model': 'auth.user',
+                    'pk': user.pk,
+                    'fields': {
+                        'role': user.role,
+                        'phone_number': user.phone_number,
+                        'email': user.email,
+                        'is_approved': user.is_approved,
+                        'is_blocked': user.is_blocked,
+                        'is_staff': user.is_staff,
+                        'is_active': user.is_active,
+                        'last_login': user.last_login.isoformat() if user.last_login else None,
+                        'date_joined': user.date_joined.isoformat() if user.date_joined else None,
+                    }
+                }
+                safe_data.append(safe_user)
+            data = json.dumps(safe_data)
+        
+        backup_dir = os.path.join(settings.BASE_DIR, 'backups')
+        os.makedirs(backup_dir, exist_ok=True)
+        
+        filepath = os.path.join(backup_dir, filename)
+        with open(filepath, 'w') as f:
+            f.write(data)
+        
+        return filepath
+    
+    @classmethod
+    def import_from_json(cls, filename, clear_existing=False, skip_duplicates=False):
+        """Import users from JSON file"""
+        filepath = os.path.join(settings.BASE_DIR, 'backups', filename)
+        
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(f"Backup file not found: {filepath}")
+        
+        with open(filepath, 'r') as f:
+            data = f.read()
+        
+        if clear_existing:
+            cls.objects.all().delete()
+        
+        count = 0
+        skipped = 0
+        with transaction.atomic():
+            for obj in deserialize('json', data):
+                user_data = obj.object
+                
+                if skip_duplicates and cls.objects.filter(phone_number=user_data.phone_number).exists():
+                    skipped += 1
+                    continue
+                
+                # Set default password if not properly hashed
+                if not user_data.password.startswith(('pbkdf2_', 'bcrypt$', 'argon2$')):
+                    user_data.set_password('default_password')
+                
+                obj.save()
+                count += 1
+        
+        return count, skipped
+    
     def __str__(self):
         return self.phone_number
 
@@ -92,6 +173,80 @@ class Branch(models.Model):
     
     def __str__(self):
         return self.name
+    
+    @classmethod
+    def export_to_json(cls, filename=None):
+        """Export all branches to JSON file"""
+        if not filename:
+            filename = f'branches_backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json'
+        
+        branches = cls.objects.all()
+        data = serialize('json', branches)
+        
+        backup_dir = os.path.join(settings.BASE_DIR, 'backups')
+        os.makedirs(backup_dir, exist_ok=True)
+        
+        filepath = os.path.join(backup_dir, filename)
+        with open(filepath, 'w') as f:
+            f.write(data)
+        
+        return filepath
+    
+    @classmethod
+    def import_from_json(cls, filename, clear_existing=False, skip_duplicates=False, update_existing=False):
+        """Import branches from JSON file"""
+        filepath = os.path.join(settings.BASE_DIR, 'backups', filename)
+        
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(f"Backup file not found: {filepath}")
+        
+        with open(filepath, 'r') as f:
+            data = f.read()
+        
+        if clear_existing:
+            cls.objects.all().delete()
+        
+        count = 0
+        updated = 0
+        skipped = 0
+        with transaction.atomic():
+            for obj in deserialize('json', data):
+                branch_data = obj.object
+                
+                # Check for existing branch by name
+                existing_branch = None
+                if branch_data.name:
+                    existing_branch = cls.objects.filter(name=branch_data.name).first()
+                
+                if existing_branch:
+                    if skip_duplicates:
+                        skipped += 1
+                        continue
+                    elif update_existing:
+                        # Update existing branch
+                        existing_branch.location = branch_data.location
+                        existing_branch.save()
+                        updated += 1
+                        continue
+                
+                obj.save()
+                count += 1
+        
+        return count, updated, skipped
+    
+    @classmethod
+    def create_default_branches(cls):
+        """Create default branches from BRANCHES tuple"""
+        created_count = 0
+        for branch_name, _ in BRANCHES:
+            branch, created = cls.objects.get_or_create(
+                name=branch_name,
+                defaults={'location': branch_name}  # Using name as location for defaults
+            )
+            if created:
+                created_count += 1
+        
+        return created_count
     
 class Owner(models.Model):
     owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name='owner')
@@ -106,6 +261,105 @@ class Owner(models.Model):
 
     def __str__(self):
         return self.owner.phone_number
+    
+    @classmethod
+    def export_to_json(cls, filename=None, include_related=False):
+        """Export all owners to JSON file"""
+        if not filename:
+            filename = f'owners_backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json'
+        
+        owners = cls.objects.all().select_related('owner', 'branch')
+        
+        if include_related:
+            data = serialize('json', owners, use_natural_foreign_keys=True)
+        else:
+            custom_data = []
+            for owner in owners:
+                owner_data = {
+                    'model': 'your_app.owner',
+                    'pk': owner.pk,
+                    'fields': {
+                        'owner': owner.owner_id,
+                        'branch': owner.branch_id if owner.branch else None,
+                        'email': owner.email,
+                        'full_name': owner.full_name,
+                        'phone_number': owner.phone_number,
+                        'company_name': owner.company_name,
+                        'company_number': owner.company_number,
+                        'digital_address': owner.digital_address,
+                        'agent_code': owner.agent_code,
+                    }
+                }
+                custom_data.append(owner_data)
+            data = json.dumps(custom_data)
+        
+        backup_dir = os.path.join(settings.BASE_DIR, 'backups')
+        os.makedirs(backup_dir, exist_ok=True)
+        
+        filepath = os.path.join(backup_dir, filename)
+        with open(filepath, 'w') as f:
+            f.write(data)
+        
+        return filepath
+    
+    @classmethod
+    def import_from_json(cls, filename, clear_existing=False, skip_duplicates=False, 
+                        update_existing=False, skip_missing_users=False):
+        """Import owners from JSON file"""
+        filepath = os.path.join(settings.BASE_DIR, 'backups', filename)
+        
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(f"Backup file not found: {filepath}")
+        
+        with open(filepath, 'r') as f:
+            data = f.read()
+        
+        if clear_existing:
+            cls.objects.all().delete()
+        
+        count = 0
+        updated = 0
+        skipped = 0
+        missing_users = 0
+        with transaction.atomic():
+            for obj in deserialize('json', data):
+                owner_data = obj.object
+                
+                # Check if user exists
+                try:
+                    user = User.objects.get(pk=owner_data.owner_id)
+                except User.DoesNotExist:
+                    if skip_missing_users:
+                        missing_users += 1
+                        continue
+                    else:
+                        raise ValueError(f"User with ID {owner_data.owner_id} does not exist")
+                
+                # Check for existing owner by user
+                existing_owner = cls.objects.filter(owner=user).first()
+                
+                if existing_owner:
+                    if skip_duplicates:
+                        skipped += 1
+                        continue
+                    elif update_existing:
+                        # Update existing owner
+                        existing_owner.branch = owner_data.branch
+                        existing_owner.email = owner_data.email
+                        existing_owner.full_name = owner_data.full_name
+                        existing_owner.phone_number = owner_data.phone_number
+                        existing_owner.company_name = owner_data.company_name
+                        existing_owner.company_number = owner_data.company_number
+                        existing_owner.digital_address = owner_data.digital_address
+                        existing_owner.agent_code = owner_data.agent_code
+                        existing_owner.save()
+                        updated += 1
+                        continue
+                
+                obj.save()
+                count += 1
+        
+        return count, updated, skipped, missing_users
 
 class Agent(models.Model):
     agent = models.OneToOneField(User, on_delete=models.CASCADE, related_name='agent')
@@ -122,6 +376,118 @@ class Agent(models.Model):
     def __str__(self):
         return self.agent.phone_number
     
+    @classmethod
+    def export_to_json(cls, filename=None, include_related=False):
+        """Export all agents to JSON file"""
+        if not filename:
+            filename = f'agents_backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json'
+        
+        agents = cls.objects.all().select_related('agent', 'owner', 'branch')
+        
+        if include_related:
+            data = serialize('json', agents, use_natural_foreign_keys=True)
+        else:
+            custom_data = []
+            for agent in agents:
+                agent_data = {
+                    'model': 'your_app.agent',
+                    'pk': agent.pk,
+                    'fields': {
+                        'agent': agent.agent_id,
+                        'owner': agent.owner_id,
+                        'branch': agent.branch_id if agent.branch else None,
+                        'email': agent.email,
+                        'full_name': agent.full_name,
+                        'phone_number': agent.phone_number,
+                        'company_name': agent.company_name,
+                        'company_number': agent.company_number,
+                        'digital_address': agent.digital_address,
+                        'agent_code': agent.agent_code,
+                    }
+                }
+                custom_data.append(agent_data)
+            data = json.dumps(custom_data)
+        
+        backup_dir = os.path.join(settings.BASE_DIR, 'backups')
+        os.makedirs(backup_dir, exist_ok=True)
+        
+        filepath = os.path.join(backup_dir, filename)
+        with open(filepath, 'w') as f:
+            f.write(data)
+        
+        return filepath
+    
+    @classmethod
+    def import_from_json(cls, filename, clear_existing=False, skip_duplicates=False, 
+                        update_existing=False, skip_missing_users=False, skip_missing_owners=False):
+        """Import agents from JSON file"""
+        filepath = os.path.join(settings.BASE_DIR, 'backups', filename)
+        
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(f"Backup file not found: {filepath}")
+        
+        with open(filepath, 'r') as f:
+            data = f.read()
+        
+        if clear_existing:
+            cls.objects.all().delete()
+        
+        count = 0
+        updated = 0
+        skipped = 0
+        missing_users = 0
+        missing_owners = 0
+        with transaction.atomic():
+            for obj in deserialize('json', data):
+                agent_data = obj.object
+                
+                # Check if user exists
+                try:
+                    user = User.objects.get(pk=agent_data.agent_id)
+                except User.DoesNotExist:
+                    if skip_missing_users:
+                        missing_users += 1
+                        continue
+                    else:
+                        raise ValueError(f"User with ID {agent_data.agent_id} does not exist")
+                
+                # Check if owner exists
+                try:
+                    owner = Owner.objects.get(pk=agent_data.owner_id)
+                except Owner.DoesNotExist:
+                    if skip_missing_owners:
+                        missing_owners += 1
+                        continue
+                    else:
+                        raise ValueError(f"Owner with ID {agent_data.owner_id} does not exist")
+                
+                # Check for existing agent by user
+                existing_agent = cls.objects.filter(agent=user).first()
+                
+                if existing_agent:
+                    if skip_duplicates:
+                        skipped += 1
+                        continue
+                    elif update_existing:
+                        # Update existing agent
+                        existing_agent.owner = owner
+                        existing_agent.branch = agent_data.branch
+                        existing_agent.email = agent_data.email
+                        existing_agent.full_name = agent_data.full_name
+                        existing_agent.phone_number = agent_data.phone_number
+                        existing_agent.company_name = agent_data.company_name
+                        existing_agent.company_number = agent_data.company_number
+                        existing_agent.digital_address = agent_data.digital_address
+                        existing_agent.agent_code = agent_data.agent_code
+                        existing_agent.save()
+                        updated += 1
+                        continue
+                
+                obj.save()
+                count += 1
+        
+        return count, updated, skipped, missing_users, missing_owners
+    
 class Mobilization(models.Model):
     mobilization = models.OneToOneField(User, on_delete=models.CASCADE, related_name='mobilization')
     owner = models.ForeignKey(Owner, on_delete=models.CASCADE, null=True, blank=True)
@@ -137,6 +503,120 @@ class Mobilization(models.Model):
     def __str__(self):
         return self.full_name
     
+    @classmethod
+    def export_to_json(cls, filename=None, include_related=False):
+        """Export all mobilizations to JSON file"""
+        if not filename:
+            filename = f'mobilizations_backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json'
+        
+        mobilizations = cls.objects.all().select_related('mobilization', 'owner', 'branch')
+        
+        if include_related:
+            data = serialize('json', mobilizations, use_natural_foreign_keys=True)
+        else:
+            custom_data = []
+            for mob in mobilizations:
+                mob_data = {
+                    'model': 'your_app.mobilization',
+                    'pk': mob.pk,
+                    'fields': {
+                        'mobilization': mob.mobilization_id,
+                        'owner': mob.owner_id if mob.owner else None,
+                        'branch': mob.branch_id if mob.branch else None,
+                        'email': mob.email,
+                        'full_name': mob.full_name,
+                        'phone_number': mob.phone_number,
+                        'company_name': mob.company_name,
+                        'company_number': mob.company_number,
+                        'digital_address': mob.digital_address,
+                        'mobilization_code': mob.mobilization_code,
+                    }
+                }
+                custom_data.append(mob_data)
+            data = json.dumps(custom_data)
+        
+        backup_dir = os.path.join(settings.BASE_DIR, 'backups')
+        os.makedirs(backup_dir, exist_ok=True)
+        
+        filepath = os.path.join(backup_dir, filename)
+        with open(filepath, 'w') as f:
+            f.write(data)
+        
+        return filepath
+    
+    @classmethod
+    def import_from_json(cls, filename, clear_existing=False, skip_duplicates=False, 
+                        update_existing=False, skip_missing_users=False, skip_missing_owners=False):
+        """Import mobilizations from JSON file"""
+        filepath = os.path.join(settings.BASE_DIR, 'backups', filename)
+        
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(f"Backup file not found: {filepath}")
+        
+        with open(filepath, 'r') as f:
+            data = f.read()
+        
+        if clear_existing:
+            cls.objects.all().delete()
+        
+        count = 0
+        updated = 0
+        skipped = 0
+        missing_users = 0
+        missing_owners = 0
+        with transaction.atomic():
+            for obj in deserialize('json', data):
+                mob_data = obj.object
+                
+                # Check if user exists
+                try:
+                    user = User.objects.get(pk=mob_data.mobilization_id)
+                except User.DoesNotExist:
+                    if skip_missing_users:
+                        missing_users += 1
+                        continue
+                    else:
+                        raise ValueError(f"User with ID {mob_data.mobilization_id} does not exist")
+                
+                # Check if owner exists (if specified)
+                owner = None
+                if mob_data.owner_id:
+                    try:
+                        owner = Owner.objects.get(pk=mob_data.owner_id)
+                    except Owner.DoesNotExist:
+                        if skip_missing_owners:
+                            missing_owners += 1
+                            continue
+                        else:
+                            raise ValueError(f"Owner with ID {mob_data.owner_id} does not exist")
+                
+                # Check for existing mobilization by user
+                existing_mob = cls.objects.filter(mobilization=user).first()
+                
+                if existing_mob:
+                    if skip_duplicates:
+                        skipped += 1
+                        continue
+                    elif update_existing:
+                        # Update existing mobilization
+                        existing_mob.owner = owner
+                        existing_mob.branch = mob_data.branch
+                        existing_mob.email = mob_data.email
+                        existing_mob.full_name = mob_data.full_name
+                        existing_mob.phone_number = mob_data.phone_number
+                        existing_mob.company_name = mob_data.company_name
+                        existing_mob.company_number = mob_data.company_number
+                        existing_mob.digital_address = mob_data.digital_address
+                        existing_mob.mobilization_code = mob_data.mobilization_code
+                        existing_mob.save()
+                        updated += 1
+                        continue
+                
+                obj.save()
+                count += 1
+        
+        return count, updated, skipped, missing_users, missing_owners
+    
 class Driver(models.Model):
     driver = models.OneToOneField(User, on_delete=models.CASCADE, related_name='driver')
     email = models.EmailField(null=True, blank=True)
@@ -149,6 +629,103 @@ class Driver(models.Model):
 
     def __str__(self):
         return self.driver.phone_number
+    
+    @classmethod
+    def export_to_json(cls, filename=None, include_related=False):
+        """Export all drivers to JSON file"""
+        if not filename:
+            filename = f'drivers_backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json'
+        
+        drivers = cls.objects.all().select_related('driver')
+        
+        if include_related:
+            data = serialize('json', drivers, use_natural_foreign_keys=True)
+        else:
+            custom_data = []
+            for driver in drivers:
+                driver_data = {
+                    'model': 'your_app.driver',
+                    'pk': driver.pk,
+                    'fields': {
+                        'driver': driver.driver_id,
+                        'email': driver.email,
+                        'full_name': driver.full_name,
+                        'phone_number': driver.phone_number,
+                        'company_name': driver.company_name,
+                        'company_number': driver.company_number,
+                        'digital_address': driver.digital_address,
+                        'driver_code': driver.driver_code,
+                    }
+                }
+                custom_data.append(driver_data)
+            data = json.dumps(custom_data)
+        
+        backup_dir = os.path.join(settings.BASE_DIR, 'backups')
+        os.makedirs(backup_dir, exist_ok=True)
+        
+        filepath = os.path.join(backup_dir, filename)
+        with open(filepath, 'w') as f:
+            f.write(data)
+        
+        return filepath
+    
+    @classmethod
+    def import_from_json(cls, filename, clear_existing=False, skip_duplicates=False, 
+                        update_existing=False, skip_missing_users=False):
+        """Import drivers from JSON file"""
+        filepath = os.path.join(settings.BASE_DIR, 'backups', filename)
+        
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(f"Backup file not found: {filepath}")
+        
+        with open(filepath, 'r') as f:
+            data = f.read()
+        
+        if clear_existing:
+            cls.objects.all().delete()
+        
+        count = 0
+        updated = 0
+        skipped = 0
+        missing_users = 0
+        with transaction.atomic():
+            for obj in deserialize('json', data):
+                driver_data = obj.object
+                
+                # Check if user exists
+                try:
+                    user = User.objects.get(pk=driver_data.driver_id)
+                except User.DoesNotExist:
+                    if skip_missing_users:
+                        missing_users += 1
+                        continue
+                    else:
+                        raise ValueError(f"User with ID {driver_data.driver_id} does not exist")
+                
+                # Check for existing driver by user
+                existing_driver = cls.objects.filter(driver=user).first()
+                
+                if existing_driver:
+                    if skip_duplicates:
+                        skipped += 1
+                        continue
+                    elif update_existing:
+                        # Update existing driver
+                        existing_driver.email = driver_data.email
+                        existing_driver.full_name = driver_data.full_name
+                        existing_driver.phone_number = driver_data.phone_number
+                        existing_driver.company_name = driver_data.company_name
+                        existing_driver.company_number = driver_data.company_number
+                        existing_driver.digital_address = driver_data.digital_address
+                        existing_driver.driver_code = driver_data.driver_code
+                        existing_driver.save()
+                        updated += 1
+                        continue
+                
+                obj.save()
+                count += 1
+        
+        return count, updated, skipped, missing_users
     
 class Accountant(models.Model):
     accountant = models.OneToOneField(User, on_delete=models.CASCADE, related_name='accountant')
@@ -220,6 +797,184 @@ class Customer(models.Model):
 
     def __str__(self):
         return self.customer.phone_number
+    
+    @classmethod
+    def export_to_json(cls, filename=None, include_related=False, include_images=False):
+        """Export all customers to JSON file"""
+        if not filename:
+            filename = f'customers_backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json'
+        
+        customers = cls.objects.all().select_related('customer', 'agent', 'mobilization', 'branch')
+        
+        if include_related:
+            data = serialize('json', customers, use_natural_foreign_keys=True)
+        else:
+            custom_data = []
+            for customer in customers:
+                customer_data = {
+                    'model': 'your_app.customer',
+                    'pk': customer.pk,
+                    'fields': {
+                        'customer': customer.customer_id,
+                        'agent': customer.agent_id if customer.agent else None,
+                        'mobilization': customer.mobilization_id if customer.mobilization else None,
+                        'branch': customer.branch_id if customer.branch else None,
+                        'phone_number': customer.phone_number,
+                        'full_name': customer.full_name,
+                        'customer_location': customer.customer_location,
+                        'digital_address': customer.digital_address,
+                        'id_type': customer.id_type,
+                        'id_number': customer.id_number,
+                        'date_of_birth': customer.date_of_birth.isoformat() if customer.date_of_birth else None,
+                        'customer_picture': cls._handle_image_export(customer.customer_picture, include_images),
+                        'customer_image': cls._handle_image_export(customer.customer_image, include_images),
+                        'date_created': customer.date_created.isoformat() if customer.date_created else None,
+                    }
+                }
+                custom_data.append(customer_data)
+            data = json.dumps(custom_data)
+        
+        backup_dir = os.path.join(settings.BASE_DIR, 'backups')
+        os.makedirs(backup_dir, exist_ok=True)
+        
+        filepath = os.path.join(backup_dir, filename)
+        with open(filepath, 'w') as f:
+            f.write(data)
+        
+        return filepath
+    
+    @classmethod
+    def import_from_json(cls, filename, clear_existing=False, skip_duplicates=False, 
+                        update_existing=False, skip_missing_users=False, 
+                        skip_missing_agents=False, skip_missing_mobilizations=False,
+                        handle_images=False):
+        """Import customers from JSON file"""
+        filepath = os.path.join(settings.BASE_DIR, 'backups', filename)
+        
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(f"Backup file not found: {filepath}")
+        
+        with open(filepath, 'r') as f:
+            data = f.read()
+        
+        if clear_existing:
+            cls.objects.all().delete()
+        
+        count = 0
+        updated = 0
+        skipped = 0
+        missing_users = 0
+        missing_agents = 0
+        missing_mobilizations = 0
+        with transaction.atomic():
+            for obj in deserialize('json', data):
+                customer_data = obj.object
+                
+                # Check if user exists
+                try:
+                    user = User.objects.get(pk=customer_data.customer_id)
+                except User.DoesNotExist:
+                    if skip_missing_users:
+                        missing_users += 1
+                        continue
+                    else:
+                        raise ValueError(f"User with ID {customer_data.customer_id} does not exist")
+                
+                # Check if agent exists (if specified)
+                agent = None
+                if customer_data.agent_id:
+                    try:
+                        agent = Agent.objects.get(pk=customer_data.agent_id)
+                    except Agent.DoesNotExist:
+                        if skip_missing_agents:
+                            missing_agents += 1
+                            continue
+                        else:
+                            raise ValueError(f"Agent with ID {customer_data.agent_id} does not exist")
+                
+                # Check if mobilization exists (if specified)
+                mobilization = None
+                if customer_data.mobilization_id:
+                    try:
+                        mobilization = Mobilization.objects.get(pk=customer_data.mobilization_id)
+                    except Mobilization.DoesNotExist:
+                        if skip_missing_mobilizations:
+                            missing_mobilizations += 1
+                            continue
+                        else:
+                            raise ValueError(f"Mobilization with ID {customer_data.mobilization_id} does not exist")
+                
+                # Check for existing customer by user
+                existing_customer = cls.objects.filter(customer=user).first()
+                
+                if existing_customer:
+                    if skip_duplicates:
+                        skipped += 1
+                        continue
+                    elif update_existing:
+                        # Update existing customer
+                        existing_customer.agent = agent
+                        existing_customer.mobilization = mobilization
+                        existing_customer.branch = customer_data.branch
+                        existing_customer.phone_number = customer_data.phone_number
+                        existing_customer.full_name = customer_data.full_name
+                        existing_customer.customer_location = customer_data.customer_location
+                        existing_customer.digital_address = customer_data.digital_address
+                        existing_customer.id_type = customer_data.id_type
+                        existing_customer.id_number = customer_data.id_number
+                        existing_customer.date_of_birth = customer_data.date_of_birth
+                        
+                        # Handle images if specified
+                        if handle_images:
+                            existing_customer.customer_picture = cls._handle_image_import(customer_data.customer_picture, 'customer_pic')
+                            existing_customer.customer_image = cls._handle_image_import(customer_data.customer_image, 'customer_image')
+                        
+                        existing_customer.save()
+                        updated += 1
+                        continue
+                
+                # Handle images for new customers if specified
+                if handle_images:
+                    customer_data.customer_picture = cls._handle_image_import(customer_data.customer_picture, 'customer_pic')
+                    customer_data.customer_image = cls._handle_image_import(customer_data.customer_image, 'customer_image')
+                
+                obj.save()
+                count += 1
+        
+        return count, updated, skipped, missing_users, missing_agents, missing_mobilizations
+    
+    @staticmethod
+    def _handle_image_export(image_field, include_images):
+        """Handle image field export"""
+        if not image_field:
+            return None
+        
+        if include_images and image_field:
+            try:
+                with open(image_field.path, 'rb') as image_file:
+                    return base64.b64encode(image_file.read()).decode('utf-8')
+            except (FileNotFoundError, ValueError):
+                return None
+        else:
+            return image_field.name if image_field else None
+    
+    @staticmethod
+    def _handle_image_import(image_data, upload_to):
+        """Handle image import"""
+        if not image_data:
+            return None
+        
+        if isinstance(image_data, str) and len(image_data) > 1000:  # Likely base64
+            try:
+                import base64
+                from django.core.files.base import ContentFile
+                format, imgstr = image_data.split(';base64,') if ';base64,' in image_data else (None, image_data)
+                ext = 'png' if not format else format.split('/')[-1]
+                data = ContentFile(base64.b64decode(imgstr), name=f'{upload_to}_{timezone.now().timestamp()}.{ext}')
+                return data
+            except (ValueError, TypeError):
+                return None
+        return image_data
     
 
     

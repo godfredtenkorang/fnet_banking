@@ -791,21 +791,55 @@ from django.views.decorators.http import require_http_methods
 from django.core.serializers import serialize, deserialize
 from django.db import transaction
 import json
-from mobilization.models import CustomerAccount
+from django.contrib.auth import get_user_model
 from django.utils import timezone
 import os
 from django.conf import settings
+from django.core.files.base import ContentFile
+import base64
+from .models import Branch, Owner, Agent, Mobilization, Driver, Customer
+from agent.models import BankDeposit as AgentBankDeposit
+from agent.models import PaymentRequest as AgentPaymentRequest
+from agent.models import CashAndECashRequest
+from mobilization.models import BankDeposit, PaymentRequest
+from decimal import Decimal
 
+User = get_user_model()
+# Users Import/Export
 @csrf_exempt
 @require_http_methods(["GET"])
-def export_customer_accounts(request):
-    """Export CustomerAccount data as JSON download"""
+def export_users(request):
+    """Export User data as JSON download"""
     try:
-        accounts = CustomerAccount.objects.all()
-        data = serialize('json', accounts, use_natural_foreign_keys=True)
+        include_sensitive = request.GET.get('include_sensitive', 'false').lower() == 'true'
+        users = User.objects.all()
+        
+        if include_sensitive:
+            data = serialize('json', users)
+        else:
+            # Create safe export without sensitive data
+            safe_data = []
+            for user in users:
+                safe_user = {
+                    'model': 'auth.user',
+                    'pk': user.pk,
+                    'fields': {
+                        'role': user.role,
+                        'phone_number': user.phone_number,
+                        'email': user.email,
+                        'is_approved': user.is_approved,
+                        'is_blocked': user.is_blocked,
+                        'is_staff': user.is_staff,
+                        'is_active': user.is_active,
+                        'last_login': user.last_login.isoformat() if user.last_login else None,
+                        'date_joined': user.date_joined.isoformat() if user.date_joined else None,
+                    }
+                }
+                safe_data.append(safe_user)
+            data = json.dumps(safe_data)
         
         response = HttpResponse(data, content_type='application/json')
-        filename = f'customer_accounts_backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json'
+        filename = f'users_backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json'
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
         
         return response
@@ -815,8 +849,8 @@ def export_customer_accounts(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-def import_customer_accounts(request):
-    """Import CustomerAccount data from uploaded JSON file"""
+def import_users(request):
+    """Import User data from uploaded JSON file"""
     try:
         if 'file' not in request.FILES:
             return JsonResponse({'error': 'No file uploaded'}, status=400)
@@ -830,22 +864,1748 @@ def import_customer_accounts(request):
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON file'}, status=400)
         
+        clear_existing = request.POST.get('clear_existing', 'false').lower() == 'true'
+        skip_duplicates = request.POST.get('skip_duplicates', 'false').lower() == 'true'
+        
         count = 0
+        skipped = 0
         with transaction.atomic():
             # Clear existing data if specified
-            clear_existing = request.POST.get('clear_existing', 'false').lower() == 'true'
             if clear_existing:
-                CustomerAccount.objects.all().delete()
+                User.objects.all().delete()
             
             # Import data
             for obj in deserialize('json', data):
+                user_data = obj.object
+                
+                # Check for duplicates
+                if skip_duplicates and User.objects.filter(phone_number=user_data.phone_number).exists():
+                    skipped += 1
+                    continue
+                
+                # Handle password for new users
+                if not hasattr(user_data, 'password') or not user_data.password:
+                    user_data.set_password('default_password')
+                
                 obj.save()
                 count += 1
         
         return JsonResponse({
-            'message': f'Successfully imported {count} accounts',
-            'count': count
+            'message': f'Successfully imported {count} users, skipped {skipped} duplicates',
+            'imported_count': count,
+            'skipped_count': skipped
         })
         
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+    
+    
+# Branch Import/Export
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def export_branches(request):
+    """Export Branch data as JSON download"""
+    try:
+        branches = Branch.objects.all()
+        data = serialize('json', branches)
+        
+        response = HttpResponse(data, content_type='application/json')
+        filename = f'branches_backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json'
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        
+        return response
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def import_branches(request):
+    """Import Branch data from uploaded JSON file"""
+    try:
+        if 'file' not in request.FILES:
+            return JsonResponse({'error': 'No file uploaded'}, status=400)
+        
+        uploaded_file = request.FILES['file']
+        data = uploaded_file.read().decode('utf-8')
+        
+        # Validate JSON
+        try:
+            json.loads(data)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON file'}, status=400)
+        
+        clear_existing = request.POST.get('clear_existing', 'false').lower() == 'true'
+        skip_duplicates = request.POST.get('skip_duplicates', 'false').lower() == 'true'
+        update_existing = request.POST.get('update_existing', 'false').lower() == 'true'
+        
+        count = 0
+        updated = 0
+        skipped = 0
+        with transaction.atomic():
+            # Clear existing data if specified
+            if clear_existing:
+                Branch.objects.all().delete()
+            
+            # Import data
+            for obj in deserialize('json', data):
+                branch_data = obj.object
+                
+                # Check for existing branch by name
+                existing_branch = None
+                if branch_data.name:
+                    existing_branch = Branch.objects.filter(name=branch_data.name).first()
+                
+                if existing_branch:
+                    if skip_duplicates:
+                        skipped += 1
+                        continue
+                    elif update_existing:
+                        # Update existing branch
+                        existing_branch.location = branch_data.location
+                        existing_branch.save()
+                        updated += 1
+                        continue
+                
+                obj.save()
+                count += 1
+        
+        return JsonResponse({
+            'message': f'Successfully imported {count} branches, updated {updated}, skipped {skipped}',
+            'imported_count': count,
+            'updated_count': updated,
+            'skipped_count': skipped
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
+# Owner Import/Export
+@csrf_exempt
+@require_http_methods(["GET"])
+def export_owners(request):
+    """Export Owner data as JSON download"""
+    try:
+        include_related = request.GET.get('include_related', 'false').lower() == 'true'
+        owners = Owner.objects.all().select_related('owner', 'branch')
+        
+        if include_related:
+            data = serialize('json', owners, use_natural_foreign_keys=True)
+        else:
+            # Create custom serialization
+            custom_data = []
+            for owner in owners:
+                owner_data = {
+                    'model': 'your_app.owner',
+                    'pk': owner.pk,
+                    'fields': {
+                        'owner': owner.owner_id,
+                        'branch': owner.branch_id if owner.branch else None,
+                        'email': owner.email,
+                        'full_name': owner.full_name,
+                        'phone_number': owner.phone_number,
+                        'company_name': owner.company_name,
+                        'company_number': owner.company_number,
+                        'digital_address': owner.digital_address,
+                        'agent_code': owner.agent_code,
+                    }
+                }
+                custom_data.append(owner_data)
+            data = json.dumps(custom_data)
+        
+        response = HttpResponse(data, content_type='application/json')
+        filename = f'owners_backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json'
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        
+        return response
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def import_owners(request):
+    """Import Owner data from uploaded JSON file"""
+    try:
+        if 'file' not in request.FILES:
+            return JsonResponse({'error': 'No file uploaded'}, status=400)
+        
+        uploaded_file = request.FILES['file']
+        data = uploaded_file.read().decode('utf-8')
+        
+        # Validate JSON
+        try:
+            json.loads(data)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON file'}, status=400)
+        
+        clear_existing = request.POST.get('clear_existing', 'false').lower() == 'true'
+        skip_duplicates = request.POST.get('skip_duplicates', 'false').lower() == 'true'
+        update_existing = request.POST.get('update_existing', 'false').lower() == 'true'
+        skip_missing_users = request.POST.get('skip_missing_users', 'false').lower() == 'true'
+        
+        count = 0
+        updated = 0
+        skipped = 0
+        missing_users = 0
+        with transaction.atomic():
+            # Clear existing data if specified
+            if clear_existing:
+                Owner.objects.all().delete()
+            
+            # Import data
+            for obj in deserialize('json', data):
+                owner_data = obj.object
+                
+                # Check if user exists
+                try:
+                    user = User.objects.get(pk=owner_data.owner_id)
+                except User.DoesNotExist:
+                    if skip_missing_users:
+                        missing_users += 1
+                        continue
+                    else:
+                        return JsonResponse({
+                            'error': f'User with ID {owner_data.owner_id} does not exist'
+                        }, status=400)
+                
+                # Check for existing owner by user
+                existing_owner = Owner.objects.filter(owner=user).first()
+                
+                if existing_owner:
+                    if skip_duplicates:
+                        skipped += 1
+                        continue
+                    elif update_existing:
+                        # Update existing owner
+                        existing_owner.branch = owner_data.branch
+                        existing_owner.email = owner_data.email
+                        existing_owner.full_name = owner_data.full_name
+                        existing_owner.phone_number = owner_data.phone_number
+                        existing_owner.company_name = owner_data.company_name
+                        existing_owner.company_number = owner_data.company_number
+                        existing_owner.digital_address = owner_data.digital_address
+                        existing_owner.agent_code = owner_data.agent_code
+                        existing_owner.save()
+                        updated += 1
+                        continue
+                
+                obj.save()
+                count += 1
+        
+        return JsonResponse({
+            'message': f'Successfully imported {count} owners, updated {updated}, skipped {skipped}, missing users: {missing_users}',
+            'imported_count': count,
+            'updated_count': updated,
+            'skipped_count': skipped,
+            'missing_users_count': missing_users
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
+
+# Agents Import/Export
+@csrf_exempt
+@require_http_methods(["GET"])
+def export_agents(request):
+    """Export Agent data as JSON download"""
+    try:
+        include_related = request.GET.get('include_related', 'false').lower() == 'true'
+        agents = Agent.objects.all().select_related('agent', 'owner', 'branch')
+        
+        if include_related:
+            data = serialize('json', agents, use_natural_foreign_keys=True)
+        else:
+            # Create custom serialization
+            custom_data = []
+            for agent in agents:
+                agent_data = {
+                    'model': 'users.agent',
+                    'pk': agent.pk,
+                    'fields': {
+                        'agent': agent.agent_id,
+                        'owner': agent.owner_id,
+                        'branch': agent.branch_id if agent.branch else None,
+                        'email': agent.email,
+                        'full_name': agent.full_name,
+                        'phone_number': agent.phone_number,
+                        'company_name': agent.company_name,
+                        'company_number': agent.company_number,
+                        'digital_address': agent.digital_address,
+                        'agent_code': agent.agent_code,
+                    }
+                }
+                custom_data.append(agent_data)
+            data = json.dumps(custom_data)
+        
+        response = HttpResponse(data, content_type='application/json')
+        filename = f'agents_backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json'
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        
+        return response
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def import_agents(request):
+    """Import Agent data from uploaded JSON file"""
+    try:
+        if 'file' not in request.FILES:
+            return JsonResponse({'error': 'No file uploaded'}, status=400)
+        
+        uploaded_file = request.FILES['file']
+        data = uploaded_file.read().decode('utf-8')
+        
+        # Validate JSON
+        try:
+            json.loads(data)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON file'}, status=400)
+        
+        clear_existing = request.POST.get('clear_existing', 'false').lower() == 'true'
+        skip_duplicates = request.POST.get('skip_duplicates', 'false').lower() == 'true'
+        update_existing = request.POST.get('update_existing', 'false').lower() == 'true'
+        skip_missing_users = request.POST.get('skip_missing_users', 'false').lower() == 'true'
+        skip_missing_owners = request.POST.get('skip_missing_owners', 'false').lower() == 'true'
+        
+        count = 0
+        updated = 0
+        skipped = 0
+        missing_users = 0
+        missing_owners = 0
+        with transaction.atomic():
+            # Clear existing data if specified
+            if clear_existing:
+                Agent.objects.all().delete()
+            
+            # Import data
+            for obj in deserialize('json', data):
+                agent_data = obj.object
+                
+                # Check if user exists
+                try:
+                    user = User.objects.get(pk=agent_data.agent_id)
+                except User.DoesNotExist:
+                    if skip_missing_users:
+                        missing_users += 1
+                        continue
+                    else:
+                        return JsonResponse({
+                            'error': f'User with ID {agent_data.agent_id} does not exist'
+                        }, status=400)
+                
+                # Check if owner exists
+                try:
+                    owner = Owner.objects.get(pk=agent_data.owner_id)
+                except Owner.DoesNotExist:
+                    if skip_missing_owners:
+                        missing_owners += 1
+                        continue
+                    else:
+                        return JsonResponse({
+                            'error': f'Owner with ID {agent_data.owner_id} does not exist'
+                        }, status=400)
+                
+                # Check for existing agent by user
+                existing_agent = Agent.objects.filter(agent=user).first()
+                
+                if existing_agent:
+                    if skip_duplicates:
+                        skipped += 1
+                        continue
+                    elif update_existing:
+                        # Update existing agent
+                        existing_agent.owner = owner
+                        existing_agent.branch = agent_data.branch
+                        existing_agent.email = agent_data.email
+                        existing_agent.full_name = agent_data.full_name
+                        existing_agent.phone_number = agent_data.phone_number
+                        existing_agent.company_name = agent_data.company_name
+                        existing_agent.company_number = agent_data.company_number
+                        existing_agent.digital_address = agent_data.digital_address
+                        existing_agent.agent_code = agent_data.agent_code
+                        existing_agent.save()
+                        updated += 1
+                        continue
+                
+                obj.save()
+                count += 1
+        
+        return JsonResponse({
+            'message': f'Successfully imported {count} agents, updated {updated}, skipped {skipped}, missing users: {missing_users}, missing owners: {missing_owners}',
+            'imported_count': count,
+            'updated_count': updated,
+            'skipped_count': skipped,
+            'missing_users_count': missing_users,
+            'missing_owners_count': missing_owners
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
+
+# Mobilizalitions Import/Export
+@csrf_exempt
+@require_http_methods(["GET"])
+def export_mobilizations(request):
+    """Export Mobilization data as JSON download"""
+    try:
+        include_related = request.GET.get('include_related', 'false').lower() == 'true'
+        mobilizations = Mobilization.objects.all().select_related('mobilization', 'owner', 'branch')
+        
+        if include_related:
+            data = serialize('json', mobilizations, use_natural_foreign_keys=True)
+        else:
+            # Create custom serialization
+            custom_data = []
+            for mob in mobilizations:
+                mob_data = {
+                    'model': 'users.mobilization',
+                    'pk': mob.pk,
+                    'fields': {
+                        'mobilization': mob.mobilization_id,
+                        'owner': mob.owner_id if mob.owner else None,
+                        'branch': mob.branch_id if mob.branch else None,
+                        'email': mob.email,
+                        'full_name': mob.full_name,
+                        'phone_number': mob.phone_number,
+                        'company_name': mob.company_name,
+                        'company_number': mob.company_number,
+                        'digital_address': mob.digital_address,
+                        'mobilization_code': mob.mobilization_code,
+                    }
+                }
+                custom_data.append(mob_data)
+            data = json.dumps(custom_data)
+        
+        response = HttpResponse(data, content_type='application/json')
+        filename = f'mobilizations_backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json'
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        
+        return response
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def import_mobilizations(request):
+    """Import Mobilization data from uploaded JSON file"""
+    try:
+        if 'file' not in request.FILES:
+            return JsonResponse({'error': 'No file uploaded'}, status=400)
+        
+        uploaded_file = request.FILES['file']
+        data = uploaded_file.read().decode('utf-8')
+        
+        # Validate JSON
+        try:
+            json.loads(data)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON file'}, status=400)
+        
+        clear_existing = request.POST.get('clear_existing', 'false').lower() == 'true'
+        skip_duplicates = request.POST.get('skip_duplicates', 'false').lower() == 'true'
+        update_existing = request.POST.get('update_existing', 'false').lower() == 'true'
+        skip_missing_users = request.POST.get('skip_missing_users', 'false').lower() == 'true'
+        skip_missing_owners = request.POST.get('skip_missing_owners', 'false').lower() == 'true'
+        
+        count = 0
+        updated = 0
+        skipped = 0
+        missing_users = 0
+        missing_owners = 0
+        with transaction.atomic():
+            # Clear existing data if specified
+            if clear_existing:
+                Mobilization.objects.all().delete()
+            
+            # Import data
+            for obj in deserialize('json', data):
+                mob_data = obj.object
+                
+                # Check if user exists
+                try:
+                    user = User.objects.get(pk=mob_data.mobilization_id)
+                except User.DoesNotExist:
+                    if skip_missing_users:
+                        missing_users += 1
+                        continue
+                    else:
+                        return JsonResponse({
+                            'error': f'User with ID {mob_data.mobilization_id} does not exist'
+                        }, status=400)
+                
+                # Check if owner exists (if specified)
+                owner = None
+                if mob_data.owner_id:
+                    try:
+                        owner = Owner.objects.get(pk=mob_data.owner_id)
+                    except Owner.DoesNotExist:
+                        if skip_missing_owners:
+                            missing_owners += 1
+                            continue
+                        else:
+                            return JsonResponse({
+                                'error': f'Owner with ID {mob_data.owner_id} does not exist'
+                            }, status=400)
+                
+                # Check for existing mobilization by user
+                existing_mob = Mobilization.objects.filter(mobilization=user).first()
+                
+                if existing_mob:
+                    if skip_duplicates:
+                        skipped += 1
+                        continue
+                    elif update_existing:
+                        # Update existing mobilization
+                        existing_mob.owner = owner
+                        existing_mob.branch = mob_data.branch
+                        existing_mob.email = mob_data.email
+                        existing_mob.full_name = mob_data.full_name
+                        existing_mob.phone_number = mob_data.phone_number
+                        existing_mob.company_name = mob_data.company_name
+                        existing_mob.company_number = mob_data.company_number
+                        existing_mob.digital_address = mob_data.digital_address
+                        existing_mob.mobilization_code = mob_data.mobilization_code
+                        existing_mob.save()
+                        updated += 1
+                        continue
+                
+                obj.save()
+                count += 1
+        
+        return JsonResponse({
+            'message': f'Successfully imported {count} mobilizations, updated {updated}, skipped {skipped}, missing users: {missing_users}, missing owners: {missing_owners}',
+            'imported_count': count,
+            'updated_count': updated,
+            'skipped_count': skipped,
+            'missing_users_count': missing_users,
+            'missing_owners_count': missing_owners
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
+
+# Driver Import/Export
+@csrf_exempt
+@require_http_methods(["GET"])
+def export_drivers(request):
+    """Export Driver data as JSON download"""
+    try:
+        include_related = request.GET.get('include_related', 'false').lower() == 'true'
+        drivers = Driver.objects.all().select_related('driver')
+        
+        if include_related:
+            data = serialize('json', drivers, use_natural_foreign_keys=True)
+        else:
+            # Create custom serialization
+            custom_data = []
+            for driver in drivers:
+                driver_data = {
+                    'model': 'users.driver',
+                    'pk': driver.pk,
+                    'fields': {
+                        'driver': driver.driver_id,
+                        'email': driver.email,
+                        'full_name': driver.full_name,
+                        'phone_number': driver.phone_number,
+                        'company_name': driver.company_name,
+                        'company_number': driver.company_number,
+                        'digital_address': driver.digital_address,
+                        'driver_code': driver.driver_code,
+                    }
+                }
+                custom_data.append(driver_data)
+            data = json.dumps(custom_data)
+        
+        response = HttpResponse(data, content_type='application/json')
+        filename = f'drivers_backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json'
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        
+        return response
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def import_drivers(request):
+    """Import Driver data from uploaded JSON file"""
+    try:
+        if 'file' not in request.FILES:
+            return JsonResponse({'error': 'No file uploaded'}, status=400)
+        
+        uploaded_file = request.FILES['file']
+        data = uploaded_file.read().decode('utf-8')
+        
+        # Validate JSON
+        try:
+            json.loads(data)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON file'}, status=400)
+        
+        clear_existing = request.POST.get('clear_existing', 'false').lower() == 'true'
+        skip_duplicates = request.POST.get('skip_duplicates', 'false').lower() == 'true'
+        update_existing = request.POST.get('update_existing', 'false').lower() == 'true'
+        skip_missing_users = request.POST.get('skip_missing_users', 'false').lower() == 'true'
+        
+        count = 0
+        updated = 0
+        skipped = 0
+        missing_users = 0
+        with transaction.atomic():
+            # Clear existing data if specified
+            if clear_existing:
+                Driver.objects.all().delete()
+            
+            # Import data
+            for obj in deserialize('json', data):
+                driver_data = obj.object
+                
+                # Check if user exists
+                try:
+                    user = User.objects.get(pk=driver_data.driver_id)
+                except User.DoesNotExist:
+                    if skip_missing_users:
+                        missing_users += 1
+                        continue
+                    else:
+                        return JsonResponse({
+                            'error': f'User with ID {driver_data.driver_id} does not exist'
+                        }, status=400)
+                
+                # Check for existing driver by user
+                existing_driver = Driver.objects.filter(driver=user).first()
+                
+                if existing_driver:
+                    if skip_duplicates:
+                        skipped += 1
+                        continue
+                    elif update_existing:
+                        # Update existing driver
+                        existing_driver.email = driver_data.email
+                        existing_driver.full_name = driver_data.full_name
+                        existing_driver.phone_number = driver_data.phone_number
+                        existing_driver.company_name = driver_data.company_name
+                        existing_driver.company_number = driver_data.company_number
+                        existing_driver.digital_address = driver_data.digital_address
+                        existing_driver.driver_code = driver_data.driver_code
+                        existing_driver.save()
+                        updated += 1
+                        continue
+                
+                obj.save()
+                count += 1
+        
+        return JsonResponse({
+            'message': f'Successfully imported {count} drivers, updated {updated}, skipped {skipped}, missing users: {missing_users}',
+            'imported_count': count,
+            'updated_count': updated,
+            'skipped_count': skipped,
+            'missing_users_count': missing_users
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
+
+# Custom Views for Import/Export Templates
+@csrf_exempt
+@require_http_methods(["GET"])
+def export_customers(request):
+    """Export Customer data as JSON download"""
+    try:
+        include_related = request.GET.get('include_related', 'false').lower() == 'true'
+        include_images = request.GET.get('include_images', 'false').lower() == 'true'
+        customers = Customer.objects.all().select_related('customer', 'agent', 'mobilization', 'branch')
+        
+        if include_related:
+            data = serialize('json', customers, use_natural_foreign_keys=True)
+        else:
+            # Create custom serialization
+            custom_data = []
+            for customer in customers:
+                customer_data = {
+                    'model': 'users.customer',
+                    'pk': customer.pk,
+                    'fields': {
+                        'customer': customer.customer_id,
+                        'agent': customer.agent_id if customer.agent else None,
+                        'mobilization': customer.mobilization_id if customer.mobilization else None,
+                        'branch': customer.branch_id if customer.branch else None,
+                        'phone_number': customer.phone_number,
+                        'full_name': customer.full_name,
+                        'customer_location': customer.customer_location,
+                        'digital_address': customer.digital_address,
+                        'id_type': customer.id_type,
+                        'id_number': customer.id_number,
+                        'date_of_birth': customer.date_of_birth.isoformat() if customer.date_of_birth else None,
+                        'customer_picture': _handle_image_export(customer.customer_picture, include_images),
+                        'customer_image': _handle_image_export(customer.customer_image, include_images),
+                        'date_created': customer.date_created.isoformat() if customer.date_created else None,
+                    }
+                }
+                custom_data.append(customer_data)
+            data = json.dumps(custom_data)
+        
+        response = HttpResponse(data, content_type='application/json')
+        filename = f'customers_backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json'
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        
+        return response
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def import_customers(request):
+    """Import Customer data from uploaded JSON file"""
+    try:
+        if 'file' not in request.FILES:
+            return JsonResponse({'error': 'No file uploaded'}, status=400)
+        
+        uploaded_file = request.FILES['file']
+        data = uploaded_file.read().decode('utf-8')
+        
+        # Validate JSON
+        try:
+            json.loads(data)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON file'}, status=400)
+        
+        clear_existing = request.POST.get('clear_existing', 'false').lower() == 'true'
+        skip_duplicates = request.POST.get('skip_duplicates', 'false').lower() == 'true'
+        update_existing = request.POST.get('update_existing', 'false').lower() == 'true'
+        skip_missing_users = request.POST.get('skip_missing_users', 'false').lower() == 'true'
+        skip_missing_agents = request.POST.get('skip_missing_agents', 'false').lower() == 'true'
+        skip_missing_mobilizations = request.POST.get('skip_missing_mobilizations', 'false').lower() == 'true'
+        handle_images = request.POST.get('handle_images', 'false').lower() == 'true'
+        
+        count = 0
+        updated = 0
+        skipped = 0
+        missing_users = 0
+        missing_agents = 0
+        missing_mobilizations = 0
+        with transaction.atomic():
+            # Clear existing data if specified
+            if clear_existing:
+                Customer.objects.all().delete()
+            
+            # Import data
+            for obj in deserialize('json', data):
+                customer_data = obj.object
+                
+                # Check if user exists
+                try:
+                    user = User.objects.get(pk=customer_data.customer_id)
+                except User.DoesNotExist:
+                    if skip_missing_users:
+                        missing_users += 1
+                        continue
+                    else:
+                        return JsonResponse({
+                            'error': f'User with ID {customer_data.customer_id} does not exist'
+                        }, status=400)
+                
+                # Check if agent exists (if specified)
+                agent = None
+                if customer_data.agent_id:
+                    try:
+                        agent = Agent.objects.get(pk=customer_data.agent_id)
+                    except Agent.DoesNotExist:
+                        if skip_missing_agents:
+                            missing_agents += 1
+                            continue
+                        else:
+                            return JsonResponse({
+                                'error': f'Agent with ID {customer_data.agent_id} does not exist'
+                            }, status=400)
+                
+                # Check if mobilization exists (if specified)
+                mobilization = None
+                if customer_data.mobilization_id:
+                    try:
+                        mobilization = Mobilization.objects.get(pk=customer_data.mobilization_id)
+                    except Mobilization.DoesNotExist:
+                        if skip_missing_mobilizations:
+                            missing_mobilizations += 1
+                            continue
+                        else:
+                            return JsonResponse({
+                                'error': f'Mobilization with ID {customer_data.mobilization_id} does not exist'
+                            }, status=400)
+                
+                # Check for existing customer by user
+                existing_customer = Customer.objects.filter(customer=user).first()
+                
+                if existing_customer:
+                    if skip_duplicates:
+                        skipped += 1
+                        continue
+                    elif update_existing:
+                        # Update existing customer
+                        existing_customer.agent = agent
+                        existing_customer.mobilization = mobilization
+                        existing_customer.branch = customer_data.branch
+                        existing_customer.phone_number = customer_data.phone_number
+                        existing_customer.full_name = customer_data.full_name
+                        existing_customer.customer_location = customer_data.customer_location
+                        existing_customer.digital_address = customer_data.digital_address
+                        existing_customer.id_type = customer_data.id_type
+                        existing_customer.id_number = customer_data.id_number
+                        existing_customer.date_of_birth = customer_data.date_of_birth
+                        
+                        # Handle images if specified
+                        if handle_images:
+                            existing_customer.customer_picture = _handle_image_import(customer_data.customer_picture, 'customer_pic')
+                            existing_customer.customer_image = _handle_image_import(customer_data.customer_image, 'customer_image')
+                        
+                        existing_customer.save()
+                        updated += 1
+                        continue
+                
+                # Handle images for new customers if specified
+                if handle_images:
+                    customer_data.customer_picture = _handle_image_import(customer_data.customer_picture, 'customer_pic')
+                    customer_data.customer_image = _handle_image_import(customer_data.customer_image, 'customer_image')
+                
+                obj.save()
+                count += 1
+        
+        return JsonResponse({
+            'message': f'Successfully imported {count} customers, updated {updated}, skipped {skipped}, missing users: {missing_users}, missing agents: {missing_agents}, missing mobilizations: {missing_mobilizations}',
+            'imported_count': count,
+            'updated_count': updated,
+            'skipped_count': skipped,
+            'missing_users_count': missing_users,
+            'missing_agents_count': missing_agents,
+            'missing_mobilizations_count': missing_mobilizations
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+def _handle_image_export(image_field, include_images):
+    """Handle image field export"""
+    if not image_field:
+        return None
+    
+    if include_images and image_field:
+        try:
+            with open(image_field.path, 'rb') as image_file:
+                return base64.b64encode(image_file.read()).decode('utf-8')
+        except (FileNotFoundError, ValueError):
+            return None
+    else:
+        return image_field.name if image_field else None
+
+def _handle_image_import(image_data, upload_to):
+    """Handle image import"""
+    if not image_data:
+        return None
+    
+    if isinstance(image_data, str) and len(image_data) > 1000:  # Likely base64
+        try:
+            format, imgstr = image_data.split(';base64,') if ';base64,' in image_data else (None, image_data)
+            ext = 'png' if not format else format.split('/')[-1]
+            data = ContentFile(base64.b64decode(imgstr), name=f'{upload_to}_{timezone.now().timestamp()}.{ext}')
+            return data
+        except (ValueError, TypeError):
+            return None
+    return image_data
+
+
+# Mobilization Models Import/Export Views
+# BankDeposit Import/Export Views
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def export_bank_deposits(request):
+    """Export BankDeposit data as JSON download"""
+    try:
+        include_related = request.GET.get('include_related', 'false').lower() == 'true'
+        include_images = request.GET.get('include_images', 'false').lower() == 'true'
+        deposits = BankDeposit.objects.all().select_related('mobilization')
+        
+        if include_related:
+            data = serialize('json', deposits, use_natural_foreign_keys=True)
+        else:
+            # Create custom serialization
+            custom_data = []
+            for deposit in deposits:
+                deposit_data = {
+                    'model': 'mobilization.bankdeposit',
+                    'pk': deposit.pk,
+                    'fields': {
+                        'mobilization': deposit.mobilization_id if deposit.mobilization else None,
+                        'phone_number': deposit.phone_number,
+                        'bank': deposit.bank,
+                        'account_number': deposit.account_number,
+                        'account_name': deposit.account_name,
+                        'amount': str(deposit.amount),
+                        'receipt': _handle_image_export(deposit.receipt, include_images),
+                        'owner_transaction_id': deposit.owner_transaction_id,
+                        'screenshot': _handle_image_export(deposit.screenshot, include_images),
+                        'screenshot2': _handle_image_export(deposit.screenshot2, include_images),
+                        'screenshot3': _handle_image_export(deposit.screenshot3, include_images),
+                        'screenshot4': _handle_image_export(deposit.screenshot4, include_images),
+                        'screenshot5': _handle_image_export(deposit.screenshot5, include_images),
+                        'screenshot6': _handle_image_export(deposit.screenshot6, include_images),
+                        'screenshot7': _handle_image_export(deposit.screenshot7, include_images),
+                        'screenshot8': _handle_image_export(deposit.screenshot8, include_images),
+                        'screenshot9': _handle_image_export(deposit.screenshot9, include_images),
+                        'screenshot10': _handle_image_export(deposit.screenshot10, include_images),
+                        'status': deposit.status,
+                        'date_deposited': deposit.date_deposited.isoformat() if deposit.date_deposited else None,
+                        'time_deposited': deposit.time_deposited.isoformat() if deposit.time_deposited else None,
+                    }
+                }
+                custom_data.append(deposit_data)
+            data = json.dumps(custom_data)
+        
+        response = HttpResponse(data, content_type='application/json')
+        filename = f'bank_deposits_backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json'
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        
+        return response
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def import_bank_deposits(request):
+    """Import BankDeposit data from uploaded JSON file"""
+    try:
+        if 'file' not in request.FILES:
+            return JsonResponse({'error': 'No file uploaded'}, status=400)
+        
+        uploaded_file = request.FILES['file']
+        data = uploaded_file.read().decode('utf-8')
+        
+        # Validate JSON
+        try:
+            json.loads(data)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON file'}, status=400)
+        
+        clear_existing = request.POST.get('clear_existing', 'false').lower() == 'true'
+        skip_missing_mobilizations = request.POST.get('skip_missing_mobilizations', 'false').lower() == 'true'
+        handle_images = request.POST.get('handle_images', 'false').lower() == 'true'
+        skip_duplicates = request.POST.get('skip_duplicates', 'false').lower() == 'true'
+        
+        count = 0
+        skipped = 0
+        missing_mobilizations = 0
+        with transaction.atomic():
+            # Clear existing data if specified
+            if clear_existing:
+                BankDeposit.objects.all().delete()
+            
+            # Import data
+            for obj in deserialize('json', data):
+                deposit_data = obj.object
+                
+                # Check if mobilization exists (if specified)
+                mobilization = None
+                if deposit_data.mobilization_id:
+                    try:
+                        mobilization = Mobilization.objects.get(pk=deposit_data.mobilization_id)
+                    except Mobilization.DoesNotExist:
+                        if skip_missing_mobilizations:
+                            missing_mobilizations += 1
+                            continue
+                        else:
+                            return JsonResponse({
+                                'error': f'Mobilization with ID {deposit_data.mobilization_id} does not exist'
+                            }, status=400)
+                
+                # Check for duplicates if skip_duplicates is True
+                if skip_duplicates:
+                    if deposit_data.owner_transaction_id:
+                        existing_deposit = BankDeposit.objects.filter(
+                            owner_transaction_id=deposit_data.owner_transaction_id
+                        ).first()
+                        if existing_deposit:
+                            skipped += 1
+                            continue
+                    
+                    existing_deposit = BankDeposit.objects.filter(
+                        bank=deposit_data.bank,
+                        account_number=deposit_data.account_number,
+                        amount=deposit_data.amount,
+                        date_deposited=deposit_data.date_deposited
+                    ).first()
+                    if existing_deposit:
+                        skipped += 1
+                        continue
+                
+                # Handle amount conversion
+                if isinstance(deposit_data.amount, str):
+                    try:
+                        deposit_data.amount = Decimal(deposit_data.amount)
+                    except (ValueError, TypeError):
+                        deposit_data.amount = Decimal('0.00')
+                
+                # Handle images if specified
+                if handle_images:
+                    deposit_data.receipt = _handle_image_import(deposit_data.receipt, 'receipt_img')
+                    deposit_data.screenshot = _handle_image_import(deposit_data.screenshot, 'screenshot_img')
+                    deposit_data.screenshot2 = _handle_image_import(deposit_data.screenshot2, 'screenshot_img2')
+                    deposit_data.screenshot3 = _handle_image_import(deposit_data.screenshot3, 'screenshot_img3')
+                    deposit_data.screenshot4 = _handle_image_import(deposit_data.screenshot4, 'screenshot_img4')
+                    deposit_data.screenshot5 = _handle_image_import(deposit_data.screenshot5, 'screenshot_img5')
+                    deposit_data.screenshot6 = _handle_image_import(deposit_data.screenshot6, 'screenshot_img6')
+                    deposit_data.screenshot7 = _handle_image_import(deposit_data.screenshot7, 'screenshot_img7')
+                    deposit_data.screenshot8 = _handle_image_import(deposit_data.screenshot8, 'screenshot_img8')
+                    deposit_data.screenshot9 = _handle_image_import(deposit_data.screenshot9, 'screenshot_img9')
+                    deposit_data.screenshot10 = _handle_image_import(deposit_data.screenshot10, 'screenshot_img10')
+                
+                obj.save()
+                count += 1
+        
+        return JsonResponse({
+            'message': f'Successfully imported {count} bank deposits, skipped {skipped}, missing mobilizations: {missing_mobilizations}',
+            'imported_count': count,
+            'skipped_count': skipped,
+            'missing_mobilizations_count': missing_mobilizations
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+def _handle_image_export(image_field, include_images):
+    """Handle image field export"""
+    if not image_field:
+        return None
+    
+    if include_images and image_field:
+        try:
+            with open(image_field.path, 'rb') as image_file:
+                return base64.b64encode(image_file.read()).decode('utf-8')
+        except (FileNotFoundError, ValueError):
+            return None
+    else:
+        return image_field.name if image_field else None
+
+def _handle_image_import(image_data, upload_to):
+    """Handle image import"""
+    if not image_data:
+        return None
+    
+    if isinstance(image_data, str) and len(image_data) > 100:  # Likely base64
+        try:
+            if ';base64,' in image_data:
+                format, imgstr = image_data.split(';base64,')
+                ext = format.split('/')[-1]
+            else:
+                imgstr = image_data
+                ext = 'png'
+            
+            data = ContentFile(base64.b64decode(imgstr), name=f'{upload_to}_{timezone.now().timestamp()}.{ext}')
+            return data
+        except (ValueError, TypeError):
+            return None
+    return image_data
+
+# PaymentRequest Import/Export Views
+@csrf_exempt
+@require_http_methods(["GET"])
+def export_payment_requests(request):
+    """Export PaymentRequest data as JSON download"""
+    try:
+        include_related = request.GET.get('include_related', 'false').lower() == 'true'
+        payment_requests = PaymentRequest.objects.all().select_related('mobilization')
+        
+        if include_related:
+            data = serialize('json', payment_requests, use_natural_foreign_keys=True)
+        else:
+            # Create custom serialization
+            custom_data = []
+            for payment_request in payment_requests:
+                payment_request_data = {
+                    'model': 'mobilization.paymentrequest',
+                    'pk': payment_request.pk,
+                    'fields': {
+                        'mobilization': payment_request.mobilization_id if payment_request.mobilization else None,
+                        'mode_of_payment': payment_request.mode_of_payment,
+                        'bank': payment_request.bank,
+                        'network': payment_request.network,
+                        'branch': payment_request.branch,
+                        'name': payment_request.name,
+                        'amount': str(payment_request.amount),
+                        'mobilization_transaction_id': payment_request.mobilization_transaction_id,
+                        'owner_transaction_id': payment_request.owner_transaction_id,
+                        'status': payment_request.status,
+                        'created_at': payment_request.created_at.isoformat() if payment_request.created_at else None,
+                        'updated_at': payment_request.updated_at.isoformat() if payment_request.updated_at else None,
+                    }
+                }
+                custom_data.append(payment_request_data)
+            data = json.dumps(custom_data)
+        
+        response = HttpResponse(data, content_type='application/json')
+        filename = f'payment_requests_backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json'
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        
+        return response
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def import_payment_requests(request):
+    """Import PaymentRequest data from uploaded JSON file"""
+    try:
+        if 'file' not in request.FILES:
+            return JsonResponse({'error': 'No file uploaded'}, status=400)
+        
+        uploaded_file = request.FILES['file']
+        data = uploaded_file.read().decode('utf-8')
+        
+        # Validate JSON
+        try:
+            json.loads(data)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON file'}, status=400)
+        
+        clear_existing = request.POST.get('clear_existing', 'false').lower() == 'true'
+        skip_missing_mobilizations = request.POST.get('skip_missing_mobilizations', 'false').lower() == 'true'
+        skip_duplicates = request.POST.get('skip_duplicates', 'false').lower() == 'true'
+        update_existing = request.POST.get('update_existing', 'false').lower() == 'true'
+        
+        count = 0
+        updated = 0
+        skipped = 0
+        missing_mobilizations = 0
+        with transaction.atomic():
+            # Clear existing data if specified
+            if clear_existing:
+                PaymentRequest.objects.all().delete()
+            
+            # Import data
+            for obj in deserialize('json', data):
+                payment_request_data = obj.object
+                
+                # Check if mobilization exists
+                mobilization = None
+                if payment_request_data.mobilization_id:
+                    try:
+                        mobilization = Mobilization.objects.get(pk=payment_request_data.mobilization_id)
+                    except Mobilization.DoesNotExist:
+                        if skip_missing_mobilizations:
+                            missing_mobilizations += 1
+                            continue
+                        else:
+                            return JsonResponse({
+                                'error': f'Mobilization with ID {payment_request_data.mobilization_id} does not exist'
+                            }, status=400)
+                
+                # Handle amount conversion
+                if isinstance(payment_request_data.amount, str):
+                    try:
+                        payment_request_data.amount = Decimal(payment_request_data.amount)
+                    except (ValueError, TypeError):
+                        payment_request_data.amount = Decimal('0.00')
+                
+                # Check for duplicates
+                if skip_duplicates:
+                    if payment_request_data.mobilization_transaction_id:
+                        existing_request = PaymentRequest.objects.filter(
+                            mobilization_transaction_id=payment_request_data.mobilization_transaction_id
+                        ).first()
+                        if existing_request:
+                            if update_existing:
+                                # Update existing payment request
+                                existing_request.mobilization = mobilization
+                                existing_request.mode_of_payment = payment_request_data.mode_of_payment
+                                existing_request.bank = payment_request_data.bank
+                                existing_request.network = payment_request_data.network
+                                existing_request.branch = payment_request_data.branch
+                                existing_request.name = payment_request_data.name
+                                existing_request.amount = payment_request_data.amount
+                                existing_request.owner_transaction_id = payment_request_data.owner_transaction_id
+                                existing_request.status = payment_request_data.status
+                                existing_request.save()
+                                updated += 1
+                                continue
+                            else:
+                                skipped += 1
+                                continue
+                    
+                    if payment_request_data.owner_transaction_id:
+                        existing_request = PaymentRequest.objects.filter(
+                            owner_transaction_id=payment_request_data.owner_transaction_id
+                        ).first()
+                        if existing_request:
+                            if update_existing:
+                                # Update existing payment request
+                                existing_request.mobilization = mobilization
+                                existing_request.mode_of_payment = payment_request_data.mode_of_payment
+                                existing_request.bank = payment_request_data.bank
+                                existing_request.network = payment_request_data.network
+                                existing_request.branch = payment_request_data.branch
+                                existing_request.name = payment_request_data.name
+                                existing_request.amount = payment_request_data.amount
+                                existing_request.mobilization_transaction_id = payment_request_data.mobilization_transaction_id
+                                existing_request.status = payment_request_data.status
+                                existing_request.save()
+                                updated += 1
+                                continue
+                            else:
+                                skipped += 1
+                                continue
+                
+                obj.save()
+                count += 1
+        
+        return JsonResponse({
+            'message': f'Successfully imported {count} payment requests, updated {updated}, skipped {skipped}, missing mobilizations: {missing_mobilizations}',
+            'imported_count': count,
+            'updated_count': updated,
+            'skipped_count': skipped,
+            'missing_mobilizations_count': missing_mobilizations
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
+
+# Agent BankDeposit Import/Export Views
+@csrf_exempt
+@require_http_methods(["GET"])
+def export_agent_bank_deposits(request):
+    """Export BankDeposit data as JSON download"""
+    try:
+        include_related = request.GET.get('include_related', 'false').lower() == 'true'
+        include_images = request.GET.get('include_images', 'false').lower() == 'true'
+        deposits = AgentBankDeposit.objects.all().select_related('agent')
+        
+        if include_related:
+            data = serialize('json', deposits, use_natural_foreign_keys=True)
+        else:
+            # Create custom serialization
+            custom_data = []
+            for deposit in deposits:
+                deposit_data = {
+                    'model': 'agent.bankdeposit',
+                    'pk': deposit.pk,
+                    'fields': {
+                        'agent': deposit.agent_id if deposit.agent else None,
+                        'phone_number': deposit.phone_number,
+                        'bank': deposit.bank,
+                        'account_number': deposit.account_number,
+                        'account_name': deposit.account_name,
+                        'amount': str(deposit.amount),
+                        'receipt': _handle_image_export(deposit.receipt, include_images),
+                        'date_deposited': deposit.date_deposited.isoformat() if deposit.date_deposited else None,
+                        'time_deposited': deposit.time_deposited.isoformat() if deposit.time_deposited else None,
+                    }
+                }
+                custom_data.append(deposit_data)
+            data = json.dumps(custom_data)
+        
+        response = HttpResponse(data, content_type='application/json')
+        filename = f'bank_deposits_backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json'
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        
+        return response
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def import_agent_bank_deposits(request):
+    """Import BankDeposit data from uploaded JSON file"""
+    try:
+        if 'file' not in request.FILES:
+            return JsonResponse({'error': 'No file uploaded'}, status=400)
+        
+        uploaded_file = request.FILES['file']
+        data = uploaded_file.read().decode('utf-8')
+        
+        # Validate JSON
+        try:
+            json.loads(data)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON file'}, status=400)
+        
+        clear_existing = request.POST.get('clear_existing', 'false').lower() == 'true'
+        skip_missing_agents = request.POST.get('skip_missing_agents', 'false').lower() == 'true'
+        handle_images = request.POST.get('handle_images', 'false').lower() == 'true'
+        skip_duplicates = request.POST.get('skip_duplicates', 'false').lower() == 'true'
+        
+        count = 0
+        skipped = 0
+        missing_agents = 0
+        with transaction.atomic():
+            # Clear existing data if specified
+            if clear_existing:
+                AgentBankDeposit.objects.all().delete()
+            
+            # Import data
+            for obj in deserialize('json', data):
+                deposit_data = obj.object
+                
+                # Check if agent exists
+                agent = None
+                if deposit_data.agent_id:
+                    try:
+                        agent = Agent.objects.get(pk=deposit_data.agent_id)
+                    except Agent.DoesNotExist:
+                        if skip_missing_agents:
+                            missing_agents += 1
+                            continue
+                        else:
+                            return JsonResponse({
+                                'error': f'Agent with ID {deposit_data.agent_id} does not exist'
+                            }, status=400)
+                
+                # Check for duplicates if skip_duplicates is True
+                if skip_duplicates:
+                    existing_deposit = AgentBankDeposit.objects.filter(
+                        bank=deposit_data.bank,
+                        account_number=deposit_data.account_number,
+                        amount=deposit_data.amount,
+                        date_deposited=deposit_data.date_deposited
+                    ).first()
+                    if existing_deposit:
+                        skipped += 1
+                        continue
+                
+                # Handle amount conversion
+                if isinstance(deposit_data.amount, str):
+                    try:
+                        deposit_data.amount = Decimal(deposit_data.amount)
+                    except (ValueError, TypeError):
+                        deposit_data.amount = Decimal('0.00')
+                
+                # Handle images if specified
+                if handle_images:
+                    deposit_data.receipt = _handle_image_import(deposit_data.receipt, 'branch_receipt_img')
+                
+                obj.save()
+                count += 1
+        
+        return JsonResponse({
+            'message': f'Successfully imported {count} bank deposits, skipped {skipped}, missing agents: {missing_agents}',
+            'imported_count': count,
+            'skipped_count': skipped,
+            'missing_agents_count': missing_agents
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+def _handle_image_export(image_field, include_images):
+    """Handle image field export"""
+    if not image_field:
+        return None
+    
+    if include_images and image_field:
+        try:
+            with open(image_field.path, 'rb') as image_file:
+                return base64.b64encode(image_file.read()).decode('utf-8')
+        except (FileNotFoundError, ValueError):
+            return None
+    else:
+        return image_field.name if image_field else None
+
+def _handle_image_import(image_data, upload_to):
+    """Handle image import"""
+    if not image_data:
+        return None
+    
+    if isinstance(image_data, str) and len(image_data) > 100:  # Likely base64
+        try:
+            if ';base64,' in image_data:
+                format, imgstr = image_data.split(';base64,')
+                ext = format.split('/')[-1]
+            else:
+                imgstr = image_data
+                ext = 'png'
+            
+            data = ContentFile(base64.b64decode(imgstr), name=f'{upload_to}_{timezone.now().timestamp()}.{ext}')
+            return data
+        except (ValueError, TypeError):
+            return None
+    return image_data
+
+
+# Agent CashAndECashRequest Import/Export Views
+@csrf_exempt
+@require_http_methods(["GET"])
+def export_cash_ecash_requests(request):
+    """Export CashAndECashRequest data as JSON download"""
+    try:
+        include_related = request.GET.get('include_related', 'false').lower() == 'true'
+        requests = CashAndECashRequest.objects.all().select_related('agent')
+        
+        if include_related:
+            data = serialize('json', requests, use_natural_foreign_keys=True)
+        else:
+            # Create custom serialization
+            custom_data = []
+            for request in requests:
+                request_data = {
+                    'model': 'your_app.cashandecashrequest',
+                    'pk': request.pk,
+                    'fields': {
+                        'agent': request.agent_id if request.agent else None,
+                        'float_type': request.float_type,
+                        'bank': request.bank,
+                        'transaction_id': request.transaction_id,
+                        'network': request.network,
+                        'cash': request.cash,
+                        'name': request.name,
+                        'phone_number': request.phone_number,
+                        'amount': str(request.amount),
+                        'arrears': str(request.arrears),
+                        'status': request.status,
+                        'created_at': request.created_at.isoformat() if request.created_at else None,
+                        'time_created': request.time_created.isoformat() if request.time_created else None,
+                        'updated_at': request.updated_at.isoformat() if request.updated_at else None,
+                    }
+                }
+                custom_data.append(request_data)
+            data = json.dumps(custom_data)
+        
+        response = HttpResponse(data, content_type='application/json')
+        filename = f'cash_ecash_requests_backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json'
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        
+        return response
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def import_cash_ecash_requests(request):
+    """Import CashAndECashRequest data from uploaded JSON file"""
+    try:
+        if 'file' not in request.FILES:
+            return JsonResponse({'error': 'No file uploaded'}, status=400)
+        
+        uploaded_file = request.FILES['file']
+        data = uploaded_file.read().decode('utf-8')
+        
+        # Validate JSON
+        try:
+            json.loads(data)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON file'}, status=400)
+        
+        clear_existing = request.POST.get('clear_existing', 'false').lower() == 'true'
+        skip_missing_agents = request.POST.get('skip_missing_agents', 'false').lower() == 'true'
+        skip_duplicates = request.POST.get('skip_duplicates', 'false').lower() == 'true'
+        update_existing = request.POST.get('update_existing', 'false').lower() == 'true'
+        
+        count = 0
+        updated = 0
+        skipped = 0
+        missing_agents = 0
+        with transaction.atomic():
+            # Clear existing data if specified
+            if clear_existing:
+                CashAndECashRequest.objects.all().delete()
+            
+            # Import data
+            for obj in deserialize('json', data):
+                request_data = obj.object
+                
+                # Check if agent exists
+                agent = None
+                if request_data.agent_id:
+                    try:
+                        agent = Agent.objects.get(pk=request_data.agent_id)
+                    except Agent.DoesNotExist:
+                        if skip_missing_agents:
+                            missing_agents += 1
+                            continue
+                        else:
+                            return JsonResponse({
+                                'error': f'Agent with ID {request_data.agent_id} does not exist'
+                            }, status=400)
+                
+                # Handle amount conversion
+                if isinstance(request_data.amount, str):
+                    try:
+                        request_data.amount = Decimal(request_data.amount)
+                    except (ValueError, TypeError):
+                        request_data.amount = Decimal('0.00')
+                
+                # Handle arrears conversion
+                if isinstance(request_data.arrears, str):
+                    try:
+                        request_data.arrears = Decimal(request_data.arrears)
+                    except (ValueError, TypeError):
+                        request_data.arrears = Decimal('0.00')
+                
+                # Check for duplicates
+                if skip_duplicates:
+                    if request_data.transaction_id:
+                        existing_request = CashAndECashRequest.objects.filter(
+                            transaction_id=request_data.transaction_id
+                        ).first()
+                        if existing_request:
+                            if update_existing:
+                                # Update existing request
+                                existing_request.agent = agent
+                                existing_request.float_type = request_data.float_type
+                                existing_request.bank = request_data.bank
+                                existing_request.network = request_data.network
+                                existing_request.cash = request_data.cash
+                                existing_request.name = request_data.name
+                                existing_request.phone_number = request_data.phone_number
+                                existing_request.amount = request_data.amount
+                                existing_request.arrears = request_data.arrears
+                                existing_request.status = request_data.status
+                                existing_request.save()
+                                updated += 1
+                                continue
+                            else:
+                                skipped += 1
+                                continue
+                    
+                    existing_request = CashAndECashRequest.objects.filter(
+                        agent=agent,
+                        amount=request_data.amount,
+                        created_at=request_data.created_at
+                    ).first()
+                    if existing_request:
+                        if update_existing:
+                            # Update existing request
+                            existing_request.float_type = request_data.float_type
+                            existing_request.bank = request_data.bank
+                            existing_request.transaction_id = request_data.transaction_id
+                            existing_request.network = request_data.network
+                            existing_request.cash = request_data.cash
+                            existing_request.name = request_data.name
+                            existing_request.phone_number = request_data.phone_number
+                            existing_request.arrears = request_data.arrears
+                            existing_request.status = request_data.status
+                            existing_request.save()
+                            updated += 1
+                            continue
+                        else:
+                            skipped += 1
+                            continue
+                
+                obj.save()
+                count += 1
+        
+        return JsonResponse({
+            'message': f'Successfully imported {count} cash/ecash requests, updated {updated}, skipped {skipped}, missing agents: {missing_agents}',
+            'imported_count': count,
+            'updated_count': updated,
+            'skipped_count': skipped,
+            'missing_agents_count': missing_agents
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+    
+# Agent PaymentRequest Import/Export Views
+@csrf_exempt
+@require_http_methods(["GET"])
+def export_agent_payment_requests(request):
+    """Export PaymentRequest data as JSON download"""
+    try:
+        include_related = request.GET.get('include_related', 'false').lower() == 'true'
+        payment_requests = AgentPaymentRequest.objects.all().select_related('agent')
+        
+        if include_related:
+            data = serialize('json', payment_requests, use_natural_foreign_keys=True)
+        else:
+            # Create custom serialization
+            custom_data = []
+            for payment_request in payment_requests:
+                payment_request_data = {
+                    'model': 'agent.paymentrequest',
+                    'pk': payment_request.pk,
+                    'fields': {
+                        'agent': payment_request.agent_id if payment_request.agent else None,
+                        'mode_of_payment': payment_request.mode_of_payment,
+                        'bank': payment_request.bank,
+                        'network': payment_request.network,
+                        'branch': payment_request.branch,
+                        'name': payment_request.name,
+                        'branch_transaction_id': payment_request.branch_transaction_id,
+                        'amount': str(payment_request.amount),
+                        'status': payment_request.status,
+                        'created_at': payment_request.created_at.isoformat() if payment_request.created_at else None,
+                        'time_created': payment_request.time_created.isoformat() if payment_request.time_created else None,
+                        'updated_at': payment_request.updated_at.isoformat() if payment_request.updated_at else None,
+                    }
+                }
+                custom_data.append(payment_request_data)
+            data = json.dumps(custom_data)
+        
+        response = HttpResponse(data, content_type='application/json')
+        filename = f'payment_requests_backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json'
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        
+        return response
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def import_agent_payment_requests(request):
+    """Import PaymentRequest data from uploaded JSON file"""
+    try:
+        if 'file' not in request.FILES:
+            return JsonResponse({'error': 'No file uploaded'}, status=400)
+        
+        uploaded_file = request.FILES['file']
+        data = uploaded_file.read().decode('utf-8')
+        
+        # Validate JSON
+        try:
+            json.loads(data)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON file'}, status=400)
+        
+        clear_existing = request.POST.get('clear_existing', 'false').lower() == 'true'
+        skip_missing_agents = request.POST.get('skip_missing_agents', 'false').lower() == 'true'
+        skip_duplicates = request.POST.get('skip_duplicates', 'false').lower() == 'true'
+        update_existing = request.POST.get('update_existing', 'false').lower() == 'true'
+        skip_duplicate_transaction_id = request.POST.get('skip_duplicate_transaction_id', 'false').lower() == 'true'
+        
+        count = 0
+        updated = 0
+        skipped = 0
+        missing_agents = 0
+        duplicate_transaction_ids = 0
+        with transaction.atomic():
+            # Clear existing data if specified
+            if clear_existing:
+                AgentPaymentRequest.objects.all().delete()
+            
+            # Import data
+            for obj in deserialize('json', data):
+                payment_request_data = obj.object
+                
+                # Check if agent exists
+                agent = None
+                if payment_request_data.agent_id:
+                    try:
+                        agent = Agent.objects.get(pk=payment_request_data.agent_id)
+                    except Agent.DoesNotExist:
+                        if skip_missing_agents:
+                            missing_agents += 1
+                            continue
+                        else:
+                            return JsonResponse({
+                                'error': f'Agent with ID {payment_request_data.agent_id} does not exist'
+                            }, status=400)
+                
+                # Handle amount conversion
+                if isinstance(payment_request_data.amount, str):
+                    try:
+                        payment_request_data.amount = Decimal(payment_request_data.amount)
+                    except (ValueError, TypeError):
+                        payment_request_data.amount = Decimal('0.00')
+                
+                # Check for duplicate branch_transaction_id if specified
+                if skip_duplicate_transaction_id and payment_request_data.branch_transaction_id:
+                    existing_with_same_id = AgentPaymentRequest.objects.filter(
+                        branch_transaction_id=payment_request_data.branch_transaction_id
+                    ).exists()
+                    if existing_with_same_id:
+                        duplicate_transaction_ids += 1
+                        continue
+                
+                # Check for duplicates
+                if skip_duplicates:
+                    existing_request = AgentPaymentRequest.objects.filter(
+                        agent=agent,
+                        amount=payment_request_data.amount,
+                        created_at=payment_request_data.created_at
+                    ).first()
+                    if existing_request:
+                        if update_existing:
+                            # Update existing payment request
+                            existing_request.mode_of_payment = payment_request_data.mode_of_payment
+                            existing_request.bank = payment_request_data.bank
+                            existing_request.network = payment_request_data.network
+                            existing_request.branch = payment_request_data.branch
+                            existing_request.name = payment_request_data.name
+                            existing_request.branch_transaction_id = payment_request_data.branch_transaction_id
+                            existing_request.status = payment_request_data.status
+                            existing_request.save()
+                            updated += 1
+                            continue
+                        else:
+                            skipped += 1
+                            continue
+                
+                obj.save()
+                count += 1
+        
+        return JsonResponse({
+            'message': f'Successfully imported {count} payment requests, updated {updated}, skipped {skipped}, missing agents: {missing_agents}, duplicate transaction IDs: {duplicate_transaction_ids}',
+            'imported_count': count,
+            'updated_count': updated,
+            'skipped_count': skipped,
+            'missing_agents_count': missing_agents,
+            'duplicate_transaction_ids_count': duplicate_transaction_ids
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+
+
+    
+def all_backups(request):
+    return render(request, 'users/imports/all_backups/backup.html')
+
+def user_import_export(request):
+    return render(request, 'users/imports/all_backups/users.html')
+
+def branch_import_export(request):
+    return render(request, 'users/imports/all_backups/branches.html')
+
+def owner_import_export(request):
+    return render(request, 'users/imports/all_backups/owners.html')
+
+def agent_import_export(request):
+    return render(request, 'users/imports/all_backups/agents.html')
+
+def mobilization_import_export(request):
+    return render(request, 'users/imports/all_backups/mobilization.html')
+
+def driver_import_export(request):
+    return render(request, 'users/imports/all_backups/driver.html')
+
+def customer_import_export(request):
+    return render(request, 'users/imports/all_backups/customers.html')
+
+def mobilization_bank_deposit_import_export(request):
+    return render(request, 'users/imports/all_backups/mobilization/bank_deposit.html')
+
+def mobilization_payment_request_import_export(request):
+    return render(request, 'users/imports/all_backups/mobilization/payment.html')
+
+def agent_bank_deposit_import_export(request):
+    return render(request, 'users/imports/all_backups/agent/bank_deposit.html')
+
+def agent_cash_ecash_import_export(request):
+    return render(request, 'users/imports/all_backups/agent/cash_ecash.html')
+
+def agent_payment_request_import_export(request):
+    return render(request, 'users/imports/all_backups/agent/payment.html')

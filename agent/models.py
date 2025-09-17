@@ -5,6 +5,11 @@ from django.utils import timezone
 from django.db.models import Sum
 from decimal  import Decimal
 from users.models import Branch
+from django.core.serializers import serialize, deserialize
+import os
+import base64
+import json
+from django.db import transaction
 
 # Create your models here.
 
@@ -212,6 +217,146 @@ class BankDeposit(models.Model):
     def __str__(self):
         return f"Bank Deposit of GH¢{self.amount} to {self.bank} by {self.phone_number}"
     
+    @classmethod
+    def export_to_json(cls, filename=None, include_related=False, include_images=False):
+        """Export all bank deposits to JSON file"""
+        if not filename:
+            filename = f'bank_deposits_backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json'
+        
+        deposits = cls.objects.all().select_related('agent')
+        
+        if include_related:
+            data = serialize('json', deposits, use_natural_foreign_keys=True)
+        else:
+            custom_data = []
+            for deposit in deposits:
+                deposit_data = {
+                    'model': 'agent.bankdeposit',
+                    'pk': deposit.pk,
+                    'fields': {
+                        'agent': deposit.agent_id if deposit.agent else None,
+                        'phone_number': deposit.phone_number,
+                        'bank': deposit.bank,
+                        'account_number': deposit.account_number,
+                        'account_name': deposit.account_name,
+                        'amount': str(deposit.amount),
+                        'receipt': cls._handle_image_export(deposit.receipt, include_images),
+                        'date_deposited': deposit.date_deposited.isoformat() if deposit.date_deposited else None,
+                        'time_deposited': deposit.time_deposited.isoformat() if deposit.time_deposited else None,
+                    }
+                }
+                custom_data.append(deposit_data)
+            data = json.dumps(custom_data)
+        
+        backup_dir = os.path.join(settings.BASE_DIR, 'backups')
+        os.makedirs(backup_dir, exist_ok=True)
+        
+        filepath = os.path.join(backup_dir, filename)
+        with open(filepath, 'w') as f:
+            f.write(data)
+        
+        return filepath
+    
+    @classmethod
+    def import_from_json(cls, filename, clear_existing=False, skip_missing_agents=False, 
+                        handle_images=False, skip_duplicates=False):
+        """Import bank deposits from JSON file"""
+        filepath = os.path.join(settings.BASE_DIR, 'backups', filename)
+        
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(f"Backup file not found: {filepath}")
+        
+        with open(filepath, 'r') as f:
+            data = f.read()
+        
+        if clear_existing:
+            cls.objects.all().delete()
+        
+        count = 0
+        skipped = 0
+        missing_agents = 0
+        with transaction.atomic():
+            for obj in deserialize('json', data):
+                deposit_data = obj.object
+                
+                # Check if agent exists
+                agent = None
+                if deposit_data.agent_id:
+                    try:
+                        agent = Agent.objects.get(pk=deposit_data.agent_id)
+                    except Agent.DoesNotExist:
+                        if skip_missing_agents:
+                            missing_agents += 1
+                            continue
+                        else:
+                            raise ValueError(f"Agent with ID {deposit_data.agent_id} does not exist")
+                
+                # Check for duplicates
+                if skip_duplicates:
+                    existing_deposit = cls.objects.filter(
+                        bank=deposit_data.bank,
+                        account_number=deposit_data.account_number,
+                        amount=deposit_data.amount,
+                        date_deposited=deposit_data.date_deposited
+                    ).first()
+                    if existing_deposit:
+                        skipped += 1
+                        continue
+                
+                # Handle amount conversion
+                if isinstance(deposit_data.amount, str):
+                    try:
+                        deposit_data.amount = Decimal(deposit_data.amount)
+                    except (ValueError, TypeError):
+                        deposit_data.amount = Decimal('0.00')
+                
+                # Handle images if specified
+                if handle_images:
+                    deposit_data.receipt = cls._handle_image_import(deposit_data.receipt, 'branch_receipt_img')
+                
+                obj.save()
+                count += 1
+        
+        return count, skipped, missing_agents
+    
+    @staticmethod
+    def _handle_image_export(image_field, include_images):
+        """Handle image field export"""
+        if not image_field:
+            return None
+        
+        if include_images and image_field:
+            try:
+                with open(image_field.path, 'rb') as image_file:
+                    return base64.b64encode(image_file.read()).decode('utf-8')
+            except (FileNotFoundError, ValueError):
+                return None
+        else:
+            return image_field.name if image_field else None
+    
+    @staticmethod
+    def _handle_image_import(image_data, upload_to):
+        """Handle image import"""
+        if not image_data:
+            return None
+        
+        if isinstance(image_data, str) and len(image_data) > 100:  # Likely base64
+            try:
+                import base64
+                from django.core.files.base import ContentFile
+                
+                if ';base64,' in image_data:
+                    format, imgstr = image_data.split(';base64,')
+                    ext = format.split('/')[-1]
+                else:
+                    imgstr = image_data
+                    ext = 'png'
+                
+                data = ContentFile(base64.b64decode(imgstr), name=f'{upload_to}_{timezone.now().timestamp()}.{ext}')
+                return data
+            except (ValueError, TypeError):
+                return None
+        return image_data
     
 
 
@@ -293,6 +438,154 @@ class CashAndECashRequest(models.Model):
     def __str__(self):
         return f"{self.float_type} Request of GH¢{self.amount} by {self.agent.phone_number}"
     
+    @classmethod
+    def export_to_json(cls, filename=None, include_related=False):
+        """Export all cash/ecash requests to JSON file"""
+        if not filename:
+            filename = f'cash_ecash_requests_backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json'
+        
+        requests = cls.objects.all().select_related('agent')
+        
+        if include_related:
+            data = serialize('json', requests, use_natural_foreign_keys=True)
+        else:
+            custom_data = []
+            for request in requests:
+                request_data = {
+                    'model': 'agent.cashandecashrequest',
+                    'pk': request.pk,
+                    'fields': {
+                        'agent': request.agent_id if request.agent else None,
+                        'float_type': request.float_type,
+                        'bank': request.bank,
+                        'transaction_id': request.transaction_id,
+                        'network': request.network,
+                        'cash': request.cash,
+                        'name': request.name,
+                        'phone_number': request.phone_number,
+                        'amount': str(request.amount),
+                        'arrears': str(request.arrears),
+                        'status': request.status,
+                        'created_at': request.created_at.isoformat() if request.created_at else None,
+                        'time_created': request.time_created.isoformat() if request.time_created else None,
+                        'updated_at': request.updated_at.isoformat() if request.updated_at else None,
+                    }
+                }
+                custom_data.append(request_data)
+            data = json.dumps(custom_data)
+        
+        backup_dir = os.path.join(settings.BASE_DIR, 'backups')
+        os.makedirs(backup_dir, exist_ok=True)
+        
+        filepath = os.path.join(backup_dir, filename)
+        with open(filepath, 'w') as f:
+            f.write(data)
+        
+        return filepath
+    
+    @classmethod
+    def import_from_json(cls, filename, clear_existing=False, skip_missing_agents=False, 
+                        skip_duplicates=False, update_existing=False):
+        """Import cash/ecash requests from JSON file"""
+        filepath = os.path.join(settings.BASE_DIR, 'backups', filename)
+        
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(f"Backup file not found: {filepath}")
+        
+        with open(filepath, 'r') as f:
+            data = f.read()
+        
+        if clear_existing:
+            cls.objects.all().delete()
+        
+        count = 0
+        updated = 0
+        skipped = 0
+        missing_agents = 0
+        with transaction.atomic():
+            for obj in deserialize('json', data):
+                request_data = obj.object
+                
+                # Check if agent exists
+                agent = None
+                if request_data.agent_id:
+                    try:
+                        agent = Agent.objects.get(pk=request_data.agent_id)
+                    except Agent.DoesNotExist:
+                        if skip_missing_agents:
+                            missing_agents += 1
+                            continue
+                        else:
+                            raise ValueError(f"Agent with ID {request_data.agent_id} does not exist")
+                
+                # Handle amount conversion
+                if isinstance(request_data.amount, str):
+                    try:
+                        request_data.amount = Decimal(request_data.amount)
+                    except (ValueError, TypeError):
+                        request_data.amount = Decimal('0.00')
+                
+                # Handle arrears conversion
+                if isinstance(request_data.arrears, str):
+                    try:
+                        request_data.arrears = Decimal(request_data.arrears)
+                    except (ValueError, TypeError):
+                        request_data.arrears = Decimal('0.00')
+                
+                # Check for duplicates
+                if skip_duplicates:
+                    if request_data.transaction_id:
+                        existing_request = cls.objects.filter(
+                            transaction_id=request_data.transaction_id
+                        ).first()
+                        if existing_request:
+                            if update_existing:
+                                # Update existing request
+                                existing_request.agent = agent
+                                existing_request.float_type = request_data.float_type
+                                existing_request.bank = request_data.bank
+                                existing_request.network = request_data.network
+                                existing_request.cash = request_data.cash
+                                existing_request.name = request_data.name
+                                existing_request.phone_number = request_data.phone_number
+                                existing_request.amount = request_data.amount
+                                existing_request.arrears = request_data.arrears
+                                existing_request.status = request_data.status
+                                existing_request.save()
+                                updated += 1
+                                continue
+                            else:
+                                skipped += 1
+                                continue
+                    
+                    existing_request = cls.objects.filter(
+                        agent=agent,
+                        amount=request_data.amount,
+                        created_at=request_data.created_at
+                    ).first()
+                    if existing_request:
+                        if update_existing:
+                            # Update existing request
+                            existing_request.float_type = request_data.float_type
+                            existing_request.bank = request_data.bank
+                            existing_request.transaction_id = request_data.transaction_id
+                            existing_request.network = request_data.network
+                            existing_request.cash = request_data.cash
+                            existing_request.name = request_data.name
+                            existing_request.phone_number = request_data.phone_number
+                            existing_request.arrears = request_data.arrears
+                            existing_request.status = request_data.status
+                            existing_request.save()
+                            updated += 1
+                            continue
+                        else:
+                            skipped += 1
+                            continue
+                
+                obj.save()
+                count += 1
+        
+        return count, updated, skipped, missing_agents
 
 class PaymentRequest(models.Model):
     MODE_OF_PAYMENT = [
@@ -354,7 +647,7 @@ class PaymentRequest(models.Model):
         ('AirtelTigo', 'AirtelTigo'),
     ]
     
-    BRANCHES = (
+    BRANCHES = [
         ("DVLA", "DVLA"),
         ("HEAD OFFICE", "HEAD OFFICE"),
         ("KEJETIA", "KEJETIA"),
@@ -366,7 +659,7 @@ class PaymentRequest(models.Model):
         ("ADUM MELCOM", "ADUM MELCOM"),
         ("MELCOM SUAME", "MELCOM SUAME"),
         ("KUMASI MALL MELCOM", "KUMASI MALL MELCOM"),
-    )
+    ]
     
     STATUS_CHOICES = [
         ('Pending', 'Pending'),
@@ -377,7 +670,7 @@ class PaymentRequest(models.Model):
     mode_of_payment = models.CharField(max_length=10, choices=MODE_OF_PAYMENT, null=True, blank=True)
     bank = models.CharField(max_length=50, choices=BANK_CHOICES, null= True, blank=True)
     network = models.CharField(max_length=30, choices=NETWORK_CHOICES, null= True, blank=True)
-    branch = models.CharField(max_length=30, choices=BRANCHES, null= True, blank=True)
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, null= True, blank=True)
     name = models.CharField(max_length=100, null=True, blank=True)
     branch_transaction_id = models.CharField(max_length=100, null=True, blank=True, unique=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
@@ -393,6 +686,130 @@ class PaymentRequest(models.Model):
     
     def __str__(self):
         return f"Payment of GH¢{self.amount} via {self.mode_of_payment} by {self.agent.phone_number} ({self.status})"
+    
+    @classmethod
+    def export_to_json(cls, filename=None, include_related=False):
+        """Export all payment requests to JSON file"""
+        if not filename:
+            filename = f'payment_requests_backup_{timezone.now().strftime("%Y%m%d_%H%M%S")}.json'
+        
+        payment_requests = cls.objects.all().select_related('agent')
+        
+        if include_related:
+            data = serialize('json', payment_requests, use_natural_foreign_keys=True)
+        else:
+            custom_data = []
+            for payment_request in payment_requests:
+                payment_request_data = {
+                    'model': 'agent.paymentrequest',
+                    'pk': payment_request.pk,
+                    'fields': {
+                        'agent': payment_request.agent_id if payment_request.agent else None,
+                        'mode_of_payment': payment_request.mode_of_payment,
+                        'bank': payment_request.bank,
+                        'network': payment_request.network,
+                        'branch': payment_request.branch,
+                        'name': payment_request.name,
+                        'branch_transaction_id': payment_request.branch_transaction_id,
+                        'amount': str(payment_request.amount),
+                        'status': payment_request.status,
+                        'created_at': payment_request.created_at.isoformat() if payment_request.created_at else None,
+                        'time_created': payment_request.time_created.isoformat() if payment_request.time_created else None,
+                        'updated_at': payment_request.updated_at.isoformat() if payment_request.updated_at else None,
+                    }
+                }
+                custom_data.append(payment_request_data)
+            data = json.dumps(custom_data)
+        
+        backup_dir = os.path.join(settings.BASE_DIR, 'backups')
+        os.makedirs(backup_dir, exist_ok=True)
+        
+        filepath = os.path.join(backup_dir, filename)
+        with open(filepath, 'w') as f:
+            f.write(data)
+        
+        return filepath
+    
+    @classmethod
+    def import_from_json(cls, filename, clear_existing=False, skip_missing_agents=False, 
+                        skip_duplicates=False, update_existing=False, skip_duplicate_transaction_id=False):
+        """Import payment requests from JSON file"""
+        filepath = os.path.join(settings.BASE_DIR, 'backups', filename)
+        
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(f"Backup file not found: {filepath}")
+        
+        with open(filepath, 'r') as f:
+            data = f.read()
+        
+        if clear_existing:
+            cls.objects.all().delete()
+        
+        count = 0
+        updated = 0
+        skipped = 0
+        missing_agents = 0
+        duplicate_transaction_ids = 0
+        with transaction.atomic():
+            for obj in deserialize('json', data):
+                payment_request_data = obj.object
+                
+                # Check if agent exists
+                agent = None
+                if payment_request_data.agent_id:
+                    try:
+                        agent = Agent.objects.get(pk=payment_request_data.agent_id)
+                    except Agent.DoesNotExist:
+                        if skip_missing_agents:
+                            missing_agents += 1
+                            continue
+                        else:
+                            raise ValueError(f"Agent with ID {payment_request_data.agent_id} does not exist")
+                
+                # Handle amount conversion
+                if isinstance(payment_request_data.amount, str):
+                    try:
+                        payment_request_data.amount = Decimal(payment_request_data.amount)
+                    except (ValueError, TypeError):
+                        payment_request_data.amount = Decimal('0.00')
+                
+                # Check for duplicate branch_transaction_id if specified
+                if skip_duplicate_transaction_id and payment_request_data.branch_transaction_id:
+                    existing_with_same_id = cls.objects.filter(
+                        branch_transaction_id=payment_request_data.branch_transaction_id
+                    ).exists()
+                    if existing_with_same_id:
+                        duplicate_transaction_ids += 1
+                        continue
+                
+                # Check for duplicates
+                if skip_duplicates:
+                    existing_request = cls.objects.filter(
+                        agent=agent,
+                        amount=payment_request_data.amount,
+                        created_at=payment_request_data.created_at
+                    ).first()
+                    if existing_request:
+                        if update_existing:
+                            # Update existing payment request
+                            existing_request.mode_of_payment = payment_request_data.mode_of_payment
+                            existing_request.bank = payment_request_data.bank
+                            existing_request.network = payment_request_data.network
+                            existing_request.branch = payment_request_data.branch
+                            existing_request.name = payment_request_data.name
+                            existing_request.branch_transaction_id = payment_request_data.branch_transaction_id
+                            existing_request.status = payment_request_data.status
+                            existing_request.save()
+                            updated += 1
+                            continue
+                        else:
+                            skipped += 1
+                            continue
+                
+                obj.save()
+                count += 1
+        
+        return count, updated, skipped, missing_agents, duplicate_transaction_ids
     
     # removed the branch account
     
